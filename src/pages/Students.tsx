@@ -21,16 +21,18 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Users, Pencil, Trash2, Search } from "lucide-react";
-import { useToast } from "@/components/ui/use-toast";
+import { Users, Pencil, Trash2, Search, CreditCard } from "lucide-react";
+import { useToast } from "@/hooks/use-toast";
 
 const Students = () => {
   const [students, setStudents] = useState<Student[]>([]);
   const [availableClasses, setAvailableClasses] = useState<string[]>([]);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+  const [isPaymentDialogOpen, setIsPaymentDialogOpen] = useState(false);
   const [currentStudent, setCurrentStudent] = useState<Partial<Student>>({});
   const [studentToDelete, setStudentToDelete] = useState<number | null>(null);
+  const [studentForPayment, setStudentForPayment] = useState<Student | null>(null);
   const [searchQuery, setSearchQuery] = useState<string>("");
   const [selectedClass, setSelectedClass] = useState<string>("all");
   const { toast } = useToast();
@@ -64,12 +66,17 @@ const Students = () => {
     setIsDeleteDialogOpen(true);
   };
 
+  const handleOpenPaymentDialog = (student: Student) => {
+    setStudentForPayment(student);
+    setIsPaymentDialogOpen(true);
+  };
+
   const handleSaveStudent = () => {
     if (
       !currentStudent.firstName ||
       !currentStudent.lastName ||
       !currentStudent.email ||
-      !currentStudent.className // Vérifier que la classe est renseignée
+      !currentStudent.className
     ) {
       toast({
         title: "Erreur",
@@ -131,6 +138,20 @@ const Students = () => {
     }
     setIsDeleteDialogOpen(false);
     setStudentToDelete(null);
+  };
+
+  // Rediriger vers la page de paiements avec l'ID de l'élève
+  const handleRedirectToPayment = () => {
+    if (studentForPayment) {
+      // Dans une application réelle, nous redirigerions vers la page de paiement
+      // Pour cette démo, nous afficherons juste une notification
+      toast({
+        title: "Paiement",
+        description: `Redirection vers la page de paiement pour ${studentForPayment.firstName} ${studentForPayment.lastName}`,
+      });
+    }
+    setIsPaymentDialogOpen(false);
+    setStudentForPayment(null);
   };
 
   return (
@@ -218,6 +239,14 @@ const Students = () => {
                     <Button
                       size="sm"
                       variant="outline"
+                      className="text-green-600 hover:text-green-700 border-green-600 hover:border-green-700"
+                      onClick={() => handleOpenPaymentDialog(student)}
+                    >
+                      <CreditCard className="h-4 w-4 mr-1" /> Encaisser
+                    </Button>
+                    <Button
+                      size="sm"
+                      variant="outline"
                       onClick={() => handleOpenEditDialog(student)}
                     >
                       <Pencil className="h-4 w-4 mr-1" /> Modifier
@@ -277,17 +306,38 @@ const Students = () => {
               </div>
               <div className="space-y-2">
                 <Label htmlFor="className">Classe</Label>
-                <Input
-                  id="className"
+                <Select
                   value={currentStudent.className || ""}
-                  onChange={(e) =>
+                  onValueChange={(value) =>
                     setCurrentStudent({
                       ...currentStudent,
-                      className: e.target.value,
+                      className: value,
                     })
                   }
-                  placeholder="ex: Terminale S, Première ES..."
-                />
+                >
+                  <SelectTrigger id="className">
+                    <SelectValue placeholder="Sélectionnez une classe" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {availableClasses.length > 0 ? (
+                      availableClasses.map((className) => (
+                        <SelectItem key={className} value={className}>
+                          {className}
+                        </SelectItem>
+                      ))
+                    ) : (
+                      <>
+                        <SelectItem value="Terminale S">Terminale S</SelectItem>
+                        <SelectItem value="Terminale ES">Terminale ES</SelectItem>
+                        <SelectItem value="Terminale L">Terminale L</SelectItem>
+                        <SelectItem value="Première S">Première S</SelectItem>
+                        <SelectItem value="Première ES">Première ES</SelectItem>
+                        <SelectItem value="Première L">Première L</SelectItem>
+                        <SelectItem value="Seconde">Seconde</SelectItem>
+                      </>
+                    )}
+                  </SelectContent>
+                </Select>
               </div>
               <div className="space-y-2">
                 <Label htmlFor="email">Email</Label>
@@ -403,6 +453,26 @@ const Students = () => {
               </Button>
               <Button variant="destructive" onClick={handleDeleteStudent}>
                 Supprimer
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+
+        {/* Payment Dialog */}
+        <Dialog open={isPaymentDialogOpen} onOpenChange={setIsPaymentDialogOpen}>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>Encaisser un paiement</DialogTitle>
+            </DialogHeader>
+            {studentForPayment && (
+              <p>Vous allez encaisser un paiement pour {studentForPayment.firstName} {studentForPayment.lastName}.</p>
+            )}
+            <DialogFooter>
+              <Button variant="outline" onClick={() => setIsPaymentDialogOpen(false)}>
+                Annuler
+              </Button>
+              <Button onClick={handleRedirectToPayment}>
+                Continuer
               </Button>
             </DialogFooter>
           </DialogContent>
