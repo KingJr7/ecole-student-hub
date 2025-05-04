@@ -1,16 +1,17 @@
 
 import { useState, useEffect } from "react";
-import { getGrades, getStudents, addGrade, updateGrade, deleteGrade, getAvailableClasses } from "@/lib/db";
-import { Grade, Student } from "@/types";
+import { getGrades, getStudents, addGrade, updateGrade, deleteGrade, getAvailableClasses, getClassResults } from "@/lib/db";
+import { Grade, Student, ClassResult } from "@/types";
 import MainLayout from "@/components/Layout/MainLayout";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
   DialogFooter,
+  DialogDescription,
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -22,8 +23,9 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
-import { FileText, Pencil, Trash2, Search } from "lucide-react";
+import { FileText, Pencil, Trash2, Search, ListChecked } from "lucide-react";
 import { useToast } from "@/components/ui/use-toast";
+import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from "@/components/ui/table";
 
 const Grades = () => {
   const [grades, setGrades] = useState<Grade[]>([]);
@@ -31,11 +33,15 @@ const Grades = () => {
   const [availableClasses, setAvailableClasses] = useState<string[]>([]);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+  const [isRankingDialogOpen, setIsRankingDialogOpen] = useState(false);
   const [currentGrade, setCurrentGrade] = useState<Partial<Grade>>({});
   const [gradeToDelete, setGradeToDelete] = useState<number | null>(null);
   const [selectedStudent, setSelectedStudent] = useState<string>("all");
   const [selectedClass, setSelectedClass] = useState<string>("all");
   const [searchQuery, setSearchQuery] = useState<string>("");
+  const [selectedTerm, setSelectedTerm] = useState<string>("1er trimestre");
+  const [useWeightedAverage, setUseWeightedAverage] = useState<boolean>(true);
+  const [classResults, setClassResults] = useState<ClassResult[]>([]);
   const { toast } = useToast();
 
   useEffect(() => {
@@ -67,6 +73,9 @@ const Grades = () => {
     setCurrentGrade({ 
       date: new Date().toISOString().split('T')[0],
       score: 0,
+      coefficient: 1,
+      evaluationType: 'devoir',
+      term: '1er trimestre',
     });
     setIsDialogOpen(true);
   };
@@ -82,7 +91,8 @@ const Grades = () => {
   };
 
   const handleSaveGrade = () => {
-    if (!currentGrade.studentId || !currentGrade.subject || !currentGrade.date || currentGrade.score === undefined) {
+    if (!currentGrade.studentId || !currentGrade.subject || !currentGrade.date || 
+        currentGrade.score === undefined || !currentGrade.evaluationType || !currentGrade.term) {
       toast({
         title: "Erreur",
         description: "Veuillez remplir tous les champs obligatoires.",
@@ -148,6 +158,42 @@ const Grades = () => {
     }
     setIsDeleteDialogOpen(false);
     setGradeToDelete(null);
+  };
+
+  const handleCalculateRanking = () => {
+    if (selectedClass === "all") {
+      toast({
+        title: "Erreur",
+        description: "Veuillez sélectionner une classe pour calculer le classement.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    try {
+      const results = getClassResults(
+        selectedClass, 
+        selectedTerm as '1er trimestre' | '2e trimestre' | '3e trimestre',
+        useWeightedAverage
+      );
+      
+      if (results.length === 0) {
+        toast({
+          title: "Information",
+          description: "Aucun résultat trouvé pour cette classe et ce trimestre.",
+        });
+        return;
+      }
+      
+      setClassResults(results);
+      setIsRankingDialogOpen(true);
+    } catch (error) {
+      toast({
+        title: "Erreur",
+        description: "Une erreur est survenue lors du calcul du classement.",
+        variant: "destructive",
+      });
+    }
   };
 
   const getStudentName = (studentId: number): string => {
@@ -229,6 +275,17 @@ const Grades = () => {
                 </SelectContent>
               </Select>
             </div>
+
+            {selectedClass !== "all" && (
+              <Button 
+                onClick={handleCalculateRanking}
+                variant="outline"
+                className="flex items-center gap-2"
+              >
+                <ListChecked className="h-4 w-4" />
+                Liste d'admission
+              </Button>
+            )}
           </div>
         </div>
 
@@ -241,6 +298,9 @@ const Grades = () => {
                     <th className="py-3 px-4 text-left text-sm font-medium">Élève</th>
                     <th className="py-3 px-4 text-left text-sm font-medium">Classe</th>
                     <th className="py-3 px-4 text-left text-sm font-medium">Matière</th>
+                    <th className="py-3 px-4 text-left text-sm font-medium">Type</th>
+                    <th className="py-3 px-4 text-left text-sm font-medium">Trimestre</th>
+                    <th className="py-3 px-4 text-left text-sm font-medium">Coef.</th>
                     <th className="py-3 px-4 text-left text-sm font-medium">Note</th>
                     <th className="py-3 px-4 text-left text-sm font-medium">Date</th>
                     <th className="py-3 px-4 text-left text-sm font-medium">Notes</th>
@@ -254,6 +314,9 @@ const Grades = () => {
                         <td className="py-3 px-4 text-sm">{getStudentName(grade.studentId)}</td>
                         <td className="py-3 px-4 text-sm">{getStudentClass(grade.studentId)}</td>
                         <td className="py-3 px-4 text-sm">{grade.subject}</td>
+                        <td className="py-3 px-4 text-sm">{grade.evaluationType || "-"}</td>
+                        <td className="py-3 px-4 text-sm">{grade.term || "-"}</td>
+                        <td className="py-3 px-4 text-sm">{grade.coefficient || 1}</td>
                         <td className="py-3 px-4">
                           <span className={`text-sm ${getScoreClass(grade.score)}`}>
                             {grade.score}/20
@@ -282,7 +345,7 @@ const Grades = () => {
                     ))
                   ) : (
                     <tr>
-                      <td colSpan={7} className="py-8 text-center text-muted-foreground">
+                      <td colSpan={10} className="py-8 text-center text-muted-foreground">
                         Aucune note enregistrée.
                       </td>
                     </tr>
@@ -340,6 +403,49 @@ const Grades = () => {
               </div>
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
+                  <Label htmlFor="evaluationType">Type d'évaluation</Label>
+                  <Select
+                    value={currentGrade.evaluationType || "devoir"}
+                    onValueChange={(value) =>
+                      setCurrentGrade({
+                        ...currentGrade,
+                        evaluationType: value as 'devoir' | 'composition',
+                      })
+                    }
+                  >
+                    <SelectTrigger id="evaluationType">
+                      <SelectValue placeholder="Type d'évaluation" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="devoir">Devoir</SelectItem>
+                      <SelectItem value="composition">Composition</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="term">Trimestre</Label>
+                  <Select
+                    value={currentGrade.term || "1er trimestre"}
+                    onValueChange={(value) =>
+                      setCurrentGrade({
+                        ...currentGrade,
+                        term: value as '1er trimestre' | '2e trimestre' | '3e trimestre',
+                      })
+                    }
+                  >
+                    <SelectTrigger id="term">
+                      <SelectValue placeholder="Trimestre" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="1er trimestre">1er Trimestre</SelectItem>
+                      <SelectItem value="2e trimestre">2e Trimestre</SelectItem>
+                      <SelectItem value="3e trimestre">3e Trimestre</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
+              <div className="grid grid-cols-3 gap-4">
+                <div className="space-y-2">
                   <Label htmlFor="score">Note (sur 20)</Label>
                   <Input
                     id="score"
@@ -352,6 +458,23 @@ const Grades = () => {
                       setCurrentGrade({
                         ...currentGrade,
                         score: parseFloat(e.target.value),
+                      })
+                    }
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="coefficient">Coefficient</Label>
+                  <Input
+                    id="coefficient"
+                    type="number"
+                    min="1"
+                    max="10"
+                    step="1"
+                    value={currentGrade.coefficient?.toString() || "1"}
+                    onChange={(e) =>
+                      setCurrentGrade({
+                        ...currentGrade,
+                        coefficient: parseInt(e.target.value),
                       })
                     }
                   />
@@ -407,6 +530,98 @@ const Grades = () => {
               </Button>
               <Button variant="destructive" onClick={handleDeleteGrade}>
                 Supprimer
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+
+        {/* Class Ranking Dialog */}
+        <Dialog open={isRankingDialogOpen} onOpenChange={setIsRankingDialogOpen}>
+          <DialogContent className="max-w-4xl max-h-[80vh] overflow-y-auto">
+            <DialogHeader>
+              <DialogTitle>Liste d'admission - {selectedClass}</DialogTitle>
+              <DialogDescription>
+                {selectedTerm} - Système de calcul: {useWeightedAverage ? "Moyenne pondérée" : "Moyenne simple"}
+              </DialogDescription>
+            </DialogHeader>
+
+            <div className="mb-4 flex justify-end space-x-4">
+              <div className="flex items-center space-x-2">
+                <Label htmlFor="termSelector">Trimestre:</Label>
+                <Select
+                  value={selectedTerm}
+                  onValueChange={(value) => setSelectedTerm(value)}
+                >
+                  <SelectTrigger id="termSelector" className="w-[180px]">
+                    <SelectValue placeholder="Sélectionner le trimestre" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="1er trimestre">1er Trimestre</SelectItem>
+                    <SelectItem value="2e trimestre">2e Trimestre</SelectItem>
+                    <SelectItem value="3e trimestre">3e Trimestre</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div className="flex items-center space-x-2">
+                <Label htmlFor="averageType">Type de moyenne:</Label>
+                <Select
+                  value={useWeightedAverage ? "weighted" : "simple"}
+                  onValueChange={(value) => setUseWeightedAverage(value === "weighted")}
+                >
+                  <SelectTrigger id="averageType" className="w-[180px]">
+                    <SelectValue placeholder="Type de moyenne" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="weighted">Moyenne pondérée</SelectItem>
+                    <SelectItem value="simple">Moyenne simple</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <Button onClick={handleCalculateRanking}>Recalculer</Button>
+            </div>
+
+            <Card>
+              <CardContent className="p-0">
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>Rang</TableHead>
+                      <TableHead>Nom</TableHead>
+                      <TableHead>Moyenne</TableHead>
+                      <TableHead>Statut</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {classResults.map((result) => (
+                      <TableRow key={result.studentId}>
+                        <TableCell className="font-medium">{result.rank}</TableCell>
+                        <TableCell>{result.studentName}</TableCell>
+                        <TableCell className={result.average >= 10 ? "text-green-600" : "text-red-600"}>
+                          {result.average.toFixed(2)}/20
+                        </TableCell>
+                        <TableCell>
+                          <span 
+                            className={`px-2 py-1 rounded-md text-xs font-medium ${
+                              result.status === 'admis' 
+                                ? 'bg-green-100 text-green-800' 
+                                : 'bg-red-100 text-red-800'
+                            }`}
+                          >
+                            {result.status}
+                          </span>
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </CardContent>
+            </Card>
+
+            <DialogFooter className="mt-4">
+              <Button variant="outline" onClick={() => setIsRankingDialogOpen(false)}>
+                Fermer
               </Button>
             </DialogFooter>
           </DialogContent>
