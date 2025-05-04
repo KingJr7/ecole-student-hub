@@ -89,6 +89,7 @@ let payments: Payment[] = [
     date: "2023-10-05",
     type: "tuition",
     status: "paid",
+    currency: "FCFA"
   },
   {
     id: 2,
@@ -97,6 +98,7 @@ let payments: Payment[] = [
     date: "2023-10-10",
     type: "tuition",
     status: "paid",
+    currency: "FCFA"
   },
   {
     id: 3,
@@ -105,7 +107,8 @@ let payments: Payment[] = [
     date: "2023-10-15",
     type: "tuition",
     status: "overdue",
-    notes: "Rappel envoyé"
+    notes: "Rappel envoyé",
+    currency: "FCFA"
   }
 ];
 

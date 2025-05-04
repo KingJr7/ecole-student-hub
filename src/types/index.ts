@@ -28,6 +28,7 @@ export interface Payment {
   type: 'tuition' | 'books' | 'activities' | 'other';
   status: 'paid' | 'pending' | 'overdue';
   notes?: string;
+  currency: 'FCFA'; // La monnaie utilisée est le FCFA
 }
 
 export interface Grade {

@@ -1,7 +1,6 @@
-
 import { useState, useEffect } from "react";
-import { getStudents, addStudent, updateStudent, deleteStudent, getAvailableClasses } from "@/lib/db";
-import { Student } from "@/types";
+import { getStudents, addStudent, updateStudent, deleteStudent, getAvailableClasses, addPayment } from "@/lib/db";
+import { Student, Payment } from "@/types";
 import MainLayout from "@/components/Layout/MainLayout";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -21,6 +20,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { Textarea } from "@/components/ui/textarea";
 import { Users, Pencil, Trash2, Search, CreditCard } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
@@ -30,7 +30,10 @@ const Students = () => {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [isPaymentDialogOpen, setIsPaymentDialogOpen] = useState(false);
-  const [currentStudent, setCurrentStudent] = useState<Partial<Student>>({});
+  const [isPaymentFormOpen, setIsPaymentFormOpen] = useState(false);
+  const [paymentAmount, setPaymentAmount] = useState<number | ''>('');
+  const [paymentType, setPaymentType] = useState<'tuition' | 'books' | 'activities' | 'other'>('tuition');
+  const [paymentNotes, setPaymentNotes] = useState<string>('');
   const [studentToDelete, setStudentToDelete] = useState<number | null>(null);
   const [studentForPayment, setStudentForPayment] = useState<Student | null>(null);
   const [searchQuery, setSearchQuery] = useState<string>("");
@@ -66,9 +69,12 @@ const Students = () => {
     setIsDeleteDialogOpen(true);
   };
 
-  const handleOpenPaymentDialog = (student: Student) => {
+  const handleOpenPaymentForm = (student: Student) => {
     setStudentForPayment(student);
-    setIsPaymentDialogOpen(true);
+    setPaymentAmount('');
+    setPaymentType('tuition');
+    setPaymentNotes('');
+    setIsPaymentFormOpen(true);
   };
 
   const handleSaveStudent = () => {
@@ -138,6 +144,45 @@ const Students = () => {
     }
     setIsDeleteDialogOpen(false);
     setStudentToDelete(null);
+  };
+
+  const handleSubmitPayment = () => {
+    if (!studentForPayment || paymentAmount === '' || paymentAmount <= 0) {
+      toast({
+        title: "Erreur",
+        description: "Veuillez entrer un montant de paiement valide.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    try {
+      const newPayment: Omit<Payment, "id"> = {
+        studentId: studentForPayment.id,
+        amount: Number(paymentAmount),
+        date: new Date().toISOString().split('T')[0],
+        type: paymentType,
+        status: 'paid',
+        notes: paymentNotes || undefined,
+        currency: 'FCFA'
+      };
+
+      addPayment(newPayment);
+      
+      toast({
+        title: "Succès",
+        description: `Paiement de ${paymentAmount} FCFA enregistré pour ${studentForPayment.firstName} ${studentForPayment.lastName}.`,
+      });
+      
+      setIsPaymentFormOpen(false);
+      setStudentForPayment(null);
+    } catch (error) {
+      toast({
+        title: "Erreur",
+        description: "Une erreur est survenue lors de l'enregistrement du paiement.",
+        variant: "destructive",
+      });
+    }
   };
 
   // Rediriger vers la page de paiements avec l'ID de l'élève
@@ -235,29 +280,32 @@ const Students = () => {
                        "Diplômé"}
                     </span>
                   </div>
-                  <div className="pt-2 flex justify-end space-x-2">
-                    <Button
-                      size="sm"
-                      variant="outline"
-                      className="text-green-600 hover:text-green-700 border-green-600 hover:border-green-700"
-                      onClick={() => handleOpenPaymentDialog(student)}
-                    >
-                      <CreditCard className="h-4 w-4 mr-1" /> Encaisser
-                    </Button>
-                    <Button
-                      size="sm"
-                      variant="outline"
-                      onClick={() => handleOpenEditDialog(student)}
-                    >
-                      <Pencil className="h-4 w-4 mr-1" /> Modifier
-                    </Button>
-                    <Button
-                      size="sm"
-                      variant="destructive"
-                      onClick={() => handleOpenDeleteDialog(student.id)}
-                    >
-                      <Trash2 className="h-4 w-4 mr-1" /> Supprimer
-                    </Button>
+                  <div className="pt-2">
+                    <div className="grid grid-cols-2 gap-2">
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        className="text-green-600 hover:text-green-700 border-green-600 hover:border-green-700"
+                        onClick={() => handleOpenPaymentForm(student)}
+                      >
+                        <CreditCard className="h-4 w-4 mr-1" /> Encaisser
+                      </Button>
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={() => handleOpenEditDialog(student)}
+                      >
+                        <Pencil className="h-4 w-4 mr-1" /> Modifier
+                      </Button>
+                      <Button
+                        size="sm"
+                        variant="destructive"
+                        className="col-span-2"
+                        onClick={() => handleOpenDeleteDialog(student.id)}
+                      >
+                        <Trash2 className="h-4 w-4 mr-1" /> Supprimer
+                      </Button>
+                    </div>
                   </div>
                 </div>
               </CardContent>
@@ -458,7 +506,73 @@ const Students = () => {
           </DialogContent>
         </Dialog>
 
-        {/* Payment Dialog */}
+        {/* Payment Form Dialog */}
+        <Dialog open={isPaymentFormOpen} onOpenChange={setIsPaymentFormOpen}>
+          <DialogContent className="sm:max-w-[500px]">
+            <DialogHeader>
+              <DialogTitle>Encaisser un paiement</DialogTitle>
+            </DialogHeader>
+            {studentForPayment && (
+              <div className="py-4">
+                <p className="mb-4">
+                  Enregistrer un paiement pour <strong>{studentForPayment.firstName} {studentForPayment.lastName}</strong> (Classe: {studentForPayment.className})
+                </p>
+                
+                <div className="space-y-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="amount">Montant (FCFA)</Label>
+                    <Input
+                      id="amount"
+                      type="number"
+                      value={paymentAmount}
+                      onChange={(e) => setPaymentAmount(e.target.value ? Number(e.target.value) : '')}
+                      placeholder="0"
+                    />
+                  </div>
+                  
+                  <div className="space-y-2">
+                    <Label htmlFor="type">Type de paiement</Label>
+                    <Select
+                      value={paymentType}
+                      onValueChange={(value) => setPaymentType(value as 'tuition' | 'books' | 'activities' | 'other')}
+                    >
+                      <SelectTrigger id="type">
+                        <SelectValue placeholder="Sélectionnez le type" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="tuition">Frais de scolarité</SelectItem>
+                        <SelectItem value="books">Livres et fournitures</SelectItem>
+                        <SelectItem value="activities">Activités extrascolaires</SelectItem>
+                        <SelectItem value="other">Autre</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  
+                  <div className="space-y-2">
+                    <Label htmlFor="notes">Notes (optionnel)</Label>
+                    <Textarea
+                      id="notes"
+                      value={paymentNotes}
+                      onChange={(e) => setPaymentNotes(e.target.value)}
+                      placeholder="Entrez des notes sur ce paiement..."
+                      rows={3}
+                    />
+                  </div>
+                </div>
+              </div>
+            )}
+            <DialogFooter>
+              <Button variant="outline" onClick={() => setIsPaymentFormOpen(false)}>
+                Annuler
+              </Button>
+              <Button onClick={handleSubmitPayment}>
+                Enregistrer le paiement
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+
+        {/* Old Payment Dialog */}
         <Dialog open={isPaymentDialogOpen} onOpenChange={setIsPaymentDialogOpen}>
           <DialogContent>
             <DialogHeader>
@@ -471,7 +585,10 @@ const Students = () => {
               <Button variant="outline" onClick={() => setIsPaymentDialogOpen(false)}>
                 Annuler
               </Button>
-              <Button onClick={handleRedirectToPayment}>
+              <Button onClick={() => {
+                setIsPaymentDialogOpen(false);
+                handleOpenPaymentForm(studentForPayment!);
+              }}>
                 Continuer
               </Button>
             </DialogFooter>
