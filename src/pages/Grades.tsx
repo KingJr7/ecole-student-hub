@@ -1,6 +1,6 @@
 
 import { useState, useEffect } from "react";
-import { getGrades, getStudents, addGrade, updateGrade, deleteGrade } from "@/lib/db";
+import { getGrades, getStudents, addGrade, updateGrade, deleteGrade, getAvailableClasses } from "@/lib/db";
 import { Grade, Student } from "@/types";
 import MainLayout from "@/components/Layout/MainLayout";
 import { Button } from "@/components/ui/button";
@@ -22,27 +22,46 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
-import { FileText, Pencil, Trash2 } from "lucide-react";
+import { FileText, Pencil, Trash2, Search } from "lucide-react";
 import { useToast } from "@/components/ui/use-toast";
 
 const Grades = () => {
   const [grades, setGrades] = useState<Grade[]>([]);
   const [students, setStudents] = useState<Student[]>([]);
+  const [availableClasses, setAvailableClasses] = useState<string[]>([]);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [currentGrade, setCurrentGrade] = useState<Partial<Grade>>({});
   const [gradeToDelete, setGradeToDelete] = useState<number | null>(null);
   const [selectedStudent, setSelectedStudent] = useState<string>("all");
+  const [selectedClass, setSelectedClass] = useState<string>("all");
+  const [searchQuery, setSearchQuery] = useState<string>("");
   const { toast } = useToast();
 
   useEffect(() => {
     setStudents(getStudents());
     setGrades(getGrades());
+    setAvailableClasses(getAvailableClasses());
   }, []);
 
-  const filteredGrades = selectedStudent === "all"
-    ? grades
-    : grades.filter(grade => grade.studentId === parseInt(selectedStudent));
+  // Filtrer les étudiants en fonction de la recherche et de la classe sélectionnée
+  const filteredStudents = students.filter(student => {
+    const nameMatches = (student.firstName.toLowerCase() + " " + student.lastName.toLowerCase())
+      .includes(searchQuery.toLowerCase());
+    const classMatches = selectedClass === "all" || student.className === selectedClass;
+    return nameMatches && classMatches;
+  });
+
+  // Obtenir les IDs des étudiants filtrés
+  const filteredStudentIds = filteredStudents.map(student => student.id);
+
+  // Filtrer les notes en fonction des étudiants filtrés et de l'étudiant sélectionné
+  const filteredGrades = grades.filter(grade => {
+    const studentMatches = selectedStudent === "all" 
+      ? filteredStudentIds.includes(grade.studentId) 
+      : grade.studentId === parseInt(selectedStudent);
+    return studentMatches;
+  });
 
   const handleOpenAddDialog = () => {
     setCurrentGrade({ 
@@ -72,10 +91,10 @@ const Grades = () => {
       return;
     }
 
-    if (currentGrade.score < 0 || currentGrade.score > 100) {
+    if (currentGrade.score < 0 || currentGrade.score > 20) {
       toast({
         title: "Erreur",
-        description: "La note doit être comprise entre 0 et 100.",
+        description: "La note doit être comprise entre 0 et 20.",
         variant: "destructive",
       });
       return;
@@ -136,9 +155,14 @@ const Grades = () => {
     return student ? `${student.firstName} ${student.lastName}` : "Étudiant inconnu";
   };
 
+  const getStudentClass = (studentId: number): string => {
+    const student = students.find((s) => s.id === studentId);
+    return student ? student.className : "-";
+  };
+
   const getScoreClass = (score: number): string => {
-    if (score >= 80) return "text-green-600 font-medium";
-    if (score >= 60) return "text-amber-600 font-medium";
+    if (score >= 16) return "text-green-600 font-medium";
+    if (score >= 12) return "text-amber-600 font-medium";
     return "text-red-600 font-medium";
   };
 
@@ -150,19 +174,54 @@ const Grades = () => {
             <FileText className="mr-2 h-6 w-6" />
             Gestion des Notes
           </h2>
-          <div className="flex items-center space-x-4">
-            <div className="flex items-center space-x-2">
-              <Label htmlFor="student-filter">Élève:</Label>
+          <Button onClick={handleOpenAddDialog} className="bg-school-600 hover:bg-school-700">
+            Ajouter une note
+          </Button>
+        </div>
+
+        {/* Filtres et recherche */}
+        <div className="flex flex-col md:flex-row gap-4">
+          <div className="relative flex-1">
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+            <Input
+              placeholder="Rechercher par nom d'élève..."
+              className="pl-10"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+            />
+          </div>
+          
+          <div className="flex flex-col sm:flex-row gap-4">
+            <div className="w-full sm:w-44">
+              <Select
+                value={selectedClass}
+                onValueChange={setSelectedClass}
+              >
+                <SelectTrigger id="class-filter">
+                  <SelectValue placeholder="Classe" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">Toutes les classes</SelectItem>
+                  {availableClasses.map((className) => (
+                    <SelectItem key={className} value={className}>
+                      {className}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            
+            <div className="w-full sm:w-44">
               <Select
                 value={selectedStudent}
                 onValueChange={setSelectedStudent}
               >
-                <SelectTrigger id="student-filter" className="w-[200px]">
-                  <SelectValue placeholder="Filtrer par élève" />
+                <SelectTrigger id="student-filter">
+                  <SelectValue placeholder="Élève" />
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="all">Tous les élèves</SelectItem>
-                  {students.map((student) => (
+                  {filteredStudents.map((student) => (
                     <SelectItem key={student.id} value={student.id.toString()}>
                       {student.firstName} {student.lastName}
                     </SelectItem>
@@ -170,9 +229,6 @@ const Grades = () => {
                 </SelectContent>
               </Select>
             </div>
-            <Button onClick={handleOpenAddDialog} className="bg-school-600 hover:bg-school-700">
-              Ajouter une note
-            </Button>
           </div>
         </div>
 
@@ -183,6 +239,7 @@ const Grades = () => {
                 <thead className="bg-muted/50">
                   <tr>
                     <th className="py-3 px-4 text-left text-sm font-medium">Élève</th>
+                    <th className="py-3 px-4 text-left text-sm font-medium">Classe</th>
                     <th className="py-3 px-4 text-left text-sm font-medium">Matière</th>
                     <th className="py-3 px-4 text-left text-sm font-medium">Note</th>
                     <th className="py-3 px-4 text-left text-sm font-medium">Date</th>
@@ -195,10 +252,11 @@ const Grades = () => {
                     filteredGrades.map((grade) => (
                       <tr key={grade.id} className="border-t">
                         <td className="py-3 px-4 text-sm">{getStudentName(grade.studentId)}</td>
+                        <td className="py-3 px-4 text-sm">{getStudentClass(grade.studentId)}</td>
                         <td className="py-3 px-4 text-sm">{grade.subject}</td>
                         <td className="py-3 px-4">
                           <span className={`text-sm ${getScoreClass(grade.score)}`}>
-                            {grade.score}/100
+                            {grade.score}/20
                           </span>
                         </td>
                         <td className="py-3 px-4 text-sm">{grade.date}</td>
@@ -224,7 +282,7 @@ const Grades = () => {
                     ))
                   ) : (
                     <tr>
-                      <td colSpan={6} className="py-8 text-center text-muted-foreground">
+                      <td colSpan={7} className="py-8 text-center text-muted-foreground">
                         Aucune note enregistrée.
                       </td>
                     </tr>
@@ -261,7 +319,7 @@ const Grades = () => {
                   <SelectContent>
                     {students.map((student) => (
                       <SelectItem key={student.id} value={student.id.toString()}>
-                        {student.firstName} {student.lastName}
+                        {student.firstName} {student.lastName} ({student.className})
                       </SelectItem>
                     ))}
                   </SelectContent>
@@ -282,17 +340,18 @@ const Grades = () => {
               </div>
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label htmlFor="score">Note (sur 100)</Label>
+                  <Label htmlFor="score">Note (sur 20)</Label>
                   <Input
                     id="score"
                     type="number"
                     min="0"
-                    max="100"
+                    max="20"
+                    step="0.5"
                     value={currentGrade.score?.toString() || ""}
                     onChange={(e) =>
                       setCurrentGrade({
                         ...currentGrade,
-                        score: parseInt(e.target.value),
+                        score: parseFloat(e.target.value),
                       })
                     }
                   />

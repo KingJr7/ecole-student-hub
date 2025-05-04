@@ -9,6 +9,7 @@ export interface Student {
   address: string;
   enrollmentDate: string;
   status: 'active' | 'inactive' | 'graduated';
+  className: string; // Ajout de la classe pour chaque élève
 }
 
 export interface AttendanceRecord {
@@ -33,7 +34,7 @@ export interface Grade {
   id: number;
   studentId: number;
   subject: string;
-  score: number;
+  score: number; // Note: sera maintenant sur 20 au lieu de 100
   date: string;
   notes?: string;
 }

@@ -1,4 +1,3 @@
-
 import { Student, AttendanceRecord, Payment, Grade, DashboardStats } from "../types";
 
 // Demo data
@@ -12,7 +11,8 @@ let students: Student[] = [
     dateOfBirth: "2005-05-15",
     address: "123 Rue de Paris, 75001 Paris",
     enrollmentDate: "2022-09-01",
-    status: "active"
+    status: "active",
+    className: "Terminale S"
   },
   {
     id: 2,
@@ -23,7 +23,8 @@ let students: Student[] = [
     dateOfBirth: "2004-08-22",
     address: "456 Avenue Victor Hugo, 69002 Lyon",
     enrollmentDate: "2021-09-01",
-    status: "active"
+    status: "active",
+    className: "Première ES"
   },
   {
     id: 3,
@@ -34,7 +35,8 @@ let students: Student[] = [
     dateOfBirth: "2005-03-10",
     address: "789 Boulevard Voltaire, 13001 Marseille",
     enrollmentDate: "2022-09-01",
-    status: "active"
+    status: "active",
+    className: "Terminale S"
   }
 ];
 
@@ -107,47 +109,48 @@ let payments: Payment[] = [
   }
 ];
 
+// Conversion des notes sur 20 au lieu de 100
 let grades: Grade[] = [
   {
     id: 1,
     studentId: 1,
     subject: "Mathématiques",
-    score: 85,
+    score: 17, // 85/100 → ~17/20
     date: "2023-10-20",
   },
   {
     id: 2,
     studentId: 1,
     subject: "Français",
-    score: 78,
+    score: 15.5, // 78/100 → ~15.5/20
     date: "2023-10-22",
   },
   {
     id: 3,
     studentId: 2,
     subject: "Mathématiques",
-    score: 92,
+    score: 18.5, // 92/100 → ~18.5/20
     date: "2023-10-20",
   },
   {
     id: 4,
     studentId: 2,
     subject: "Français",
-    score: 68,
+    score: 13.5, // 68/100 → ~13.5/20
     date: "2023-10-22",
   },
   {
     id: 5,
     studentId: 3,
     subject: "Mathématiques",
-    score: 75,
+    score: 15, // 75/100 → 15/20
     date: "2023-10-20",
   },
   {
     id: 6,
     studentId: 3,
     subject: "Français",
-    score: 88,
+    score: 17.5, // 88/100 → ~17.5/20
     date: "2023-10-22",
     notes: "Excellente rédaction"
   }
@@ -303,4 +306,15 @@ export const getDashboardStats = (): DashboardStats => {
     paymentsThisMonth,
     recentGrades
   };
+};
+
+// Nouvelle fonction pour obtenir toutes les classes disponibles
+export const getAvailableClasses = (): string[] => {
+  const classSet = new Set<string>();
+  students.forEach(student => {
+    if (student.className) {
+      classSet.add(student.className);
+    }
+  });
+  return Array.from(classSet).sort();
 };

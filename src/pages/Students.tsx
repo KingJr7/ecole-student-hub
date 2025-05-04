@@ -1,6 +1,6 @@
 
 import { useState, useEffect } from "react";
-import { getStudents, addStudent, updateStudent, deleteStudent } from "@/lib/db";
+import { getStudents, addStudent, updateStudent, deleteStudent, getAvailableClasses } from "@/lib/db";
 import { Student } from "@/types";
 import MainLayout from "@/components/Layout/MainLayout";
 import { Button } from "@/components/ui/button";
@@ -21,21 +21,33 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Users, Pencil, Trash2 } from "lucide-react";
+import { Users, Pencil, Trash2, Search } from "lucide-react";
 import { useToast } from "@/components/ui/use-toast";
 
 const Students = () => {
   const [students, setStudents] = useState<Student[]>([]);
+  const [availableClasses, setAvailableClasses] = useState<string[]>([]);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [currentStudent, setCurrentStudent] = useState<Partial<Student>>({});
   const [studentToDelete, setStudentToDelete] = useState<number | null>(null);
+  const [searchQuery, setSearchQuery] = useState<string>("");
+  const [selectedClass, setSelectedClass] = useState<string>("all");
   const { toast } = useToast();
 
   useEffect(() => {
     // In a real app, we would fetch this data from the backend
     setStudents(getStudents());
+    setAvailableClasses(getAvailableClasses());
   }, []);
+
+  // Filtrer les étudiants en fonction de la recherche et de la classe sélectionnée
+  const filteredStudents = students.filter(student => {
+    const nameMatches = (student.firstName.toLowerCase() + " " + student.lastName.toLowerCase())
+      .includes(searchQuery.toLowerCase());
+    const classMatches = selectedClass === "all" || student.className === selectedClass;
+    return nameMatches && classMatches;
+  });
 
   const handleOpenAddDialog = () => {
     setCurrentStudent({});
@@ -56,7 +68,8 @@ const Students = () => {
     if (
       !currentStudent.firstName ||
       !currentStudent.lastName ||
-      !currentStudent.email
+      !currentStudent.email ||
+      !currentStudent.className // Vérifier que la classe est renseignée
     ) {
       toast({
         title: "Erreur",
@@ -85,6 +98,8 @@ const Students = () => {
 
       // Refresh student list
       setStudents(getStudents());
+      // Update available classes
+      setAvailableClasses(getAvailableClasses());
       setIsDialogOpen(false);
     } catch (error) {
       toast({
@@ -100,6 +115,8 @@ const Students = () => {
       try {
         deleteStudent(studentToDelete);
         setStudents(getStudents());
+        // Update available classes after deletion
+        setAvailableClasses(getAvailableClasses());
         toast({
           title: "Succès",
           description: "L'élève a été supprimé avec succès.",
@@ -129,8 +146,39 @@ const Students = () => {
           </Button>
         </div>
 
+        {/* Filtres et recherche */}
+        <div className="flex flex-col sm:flex-row gap-4 mb-6">
+          <div className="relative flex-1">
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+            <Input
+              placeholder="Rechercher par nom d'élève..."
+              className="pl-10"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+            />
+          </div>
+          <div className="w-full sm:w-64">
+            <Select
+              value={selectedClass}
+              onValueChange={setSelectedClass}
+            >
+              <SelectTrigger id="class-filter">
+                <SelectValue placeholder="Filtrer par classe" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">Toutes les classes</SelectItem>
+                {availableClasses.map((className) => (
+                  <SelectItem key={className} value={className}>
+                    {className}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+        </div>
+
         <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
-          {students.map((student) => (
+          {filteredStudents.map((student) => (
             <Card key={student.id} className="overflow-hidden">
               <CardContent className="p-0">
                 <div className="bg-school-50 p-4">
@@ -138,7 +186,7 @@ const Students = () => {
                     {student.firstName} {student.lastName}
                   </h3>
                   <p className="text-sm text-muted-foreground">
-                    ID: {student.id}
+                    ID: {student.id} | Classe: {student.className}
                   </p>
                 </div>
                 <div className="p-4 space-y-2">
@@ -226,6 +274,20 @@ const Students = () => {
                     }
                   />
                 </div>
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="className">Classe</Label>
+                <Input
+                  id="className"
+                  value={currentStudent.className || ""}
+                  onChange={(e) =>
+                    setCurrentStudent({
+                      ...currentStudent,
+                      className: e.target.value,
+                    })
+                  }
+                  placeholder="ex: Terminale S, Première ES..."
+                />
               </div>
               <div className="space-y-2">
                 <Label htmlFor="email">Email</Label>
