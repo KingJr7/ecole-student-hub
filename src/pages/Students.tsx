@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { getStudents, addStudent, updateStudent, deleteStudent, getAvailableClasses, addPayment } from "@/lib/db";
 import { Student, Payment } from "@/types";
@@ -24,6 +25,9 @@ import { Textarea } from "@/components/ui/textarea";
 import { Users, Pencil, Trash2, Search, CreditCard } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
+// Define the interface for the currentStudent state
+interface CurrentStudent extends Partial<Student> {}
+
 const Students = () => {
   const [students, setStudents] = useState<Student[]>([]);
   const [availableClasses, setAvailableClasses] = useState<string[]>([]);
@@ -38,6 +42,7 @@ const Students = () => {
   const [studentForPayment, setStudentForPayment] = useState<Student | null>(null);
   const [searchQuery, setSearchQuery] = useState<string>("");
   const [selectedClass, setSelectedClass] = useState<string>("all");
+  const [currentStudent, setCurrentStudent] = useState<CurrentStudent>({});
   const { toast } = useToast();
 
   useEffect(() => {
