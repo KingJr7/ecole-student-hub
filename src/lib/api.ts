@@ -1,38 +1,44 @@
 import prisma from './prisma';
 import { Student, AttendanceRecord, Payment, Grade, DashboardStats, ClassResult } from "../types";
 
+// Import mock implementations for client-side
+import * as mockApi from './mockApi';
+
+// Check if we're in a browser environment
+const isBrowser = typeof window !== 'undefined';
+
 // Class operations
-export const getClasses = async () => {
+export const getClasses = isBrowser ? mockApi.getClasses : async () => {
   return await prisma.class.findMany();
 };
 
-export const getClass = async (id: number) => {
+export const getClass = isBrowser ? mockApi.getClass : async (id: number) => {
   return await prisma.class.findUnique({
     where: { id }
   });
 };
 
-export const addClass = async (name: string) => {
+export const addClass = isBrowser ? mockApi.addClass : async (name: string) => {
   return await prisma.class.create({
     data: { name }
   });
 };
 
-export const updateClass = async (id: number, name: string) => {
+export const updateClass = isBrowser ? mockApi.updateClass : async (id: number, name: string) => {
   return await prisma.class.update({
     where: { id },
     data: { name }
   });
 };
 
-export const deleteClass = async (id: number) => {
+export const deleteClass = isBrowser ? mockApi.deleteClass : async (id: number) => {
   return await prisma.class.delete({
     where: { id }
   });
 };
 
 // Student operations
-export const getStudents = async () => {
+export const getStudents = isBrowser ? mockApi.getStudents : async () => {
   const students = await prisma.student.findMany({
     include: { class: true }
   });
@@ -51,7 +57,7 @@ export const getStudents = async () => {
   }));
 };
 
-export const getStudent = async (id: number) => {
+export const getStudent = isBrowser ? mockApi.getStudent : async (id: number) => {
   const student = await prisma.student.findUnique({
     where: { id },
     include: { class: true }
@@ -73,7 +79,7 @@ export const getStudent = async (id: number) => {
   };
 };
 
-export const addStudent = async (student: Omit<Student, "id">) => {
+export const addStudent = isBrowser ? mockApi.addStudent : async (student: Omit<Student, "id">) => {
   const classObj = await prisma.class.findFirst({
     where: { name: student.className }
   });
@@ -109,7 +115,7 @@ export const addStudent = async (student: Omit<Student, "id">) => {
   };
 };
 
-export const updateStudent = async (id: number, studentData: Partial<Student>) => {
+export const updateStudent = isBrowser ? mockApi.updateStudent : async (id: number, studentData: Partial<Student>) => {
   let classId: number | undefined;
   
   if (studentData.className) {
@@ -148,7 +154,7 @@ export const updateStudent = async (id: number, studentData: Partial<Student>) =
   };
 };
 
-export const deleteStudent = async (id: number) => {
+export const deleteStudent = isBrowser ? mockApi.deleteStudent : async (id: number) => {
   await prisma.student.delete({
     where: { id }
   });
@@ -156,7 +162,7 @@ export const deleteStudent = async (id: number) => {
 };
 
 // Attendance operations
-export const getAttendanceRecords = async () => {
+export const getAttendanceRecords = isBrowser ? mockApi.getAttendanceRecords : async () => {
   const records = await prisma.attendanceRecord.findMany();
   
   return records.map(record => ({
@@ -168,7 +174,7 @@ export const getAttendanceRecords = async () => {
   }));
 };
 
-export const getStudentAttendance = async (studentId: number) => {
+export const getStudentAttendance = isBrowser ? mockApi.getStudentAttendance : async (studentId: number) => {
   const records = await prisma.attendanceRecord.findMany({
     where: { studentId }
   });
@@ -182,7 +188,7 @@ export const getStudentAttendance = async (studentId: number) => {
   }));
 };
 
-export const addAttendanceRecord = async (record: Omit<AttendanceRecord, "id">) => {
+export const addAttendanceRecord = isBrowser ? mockApi.addAttendanceRecord : async (record: Omit<AttendanceRecord, "id">) => {
   const newRecord = await prisma.attendanceRecord.create({
     data: {
       studentId: record.studentId,
@@ -201,7 +207,7 @@ export const addAttendanceRecord = async (record: Omit<AttendanceRecord, "id">) 
   };
 };
 
-export const updateAttendanceRecord = async (id: number, data: Partial<AttendanceRecord>) => {
+export const updateAttendanceRecord = isBrowser ? mockApi.updateAttendanceRecord : async (id: number, data: Partial<AttendanceRecord>) => {
   const updatedRecord = await prisma.attendanceRecord.update({
     where: { id },
     data
@@ -216,7 +222,7 @@ export const updateAttendanceRecord = async (id: number, data: Partial<Attendanc
   };
 };
 
-export const deleteAttendanceRecord = async (id: number) => {
+export const deleteAttendanceRecord = isBrowser ? mockApi.deleteAttendanceRecord : async (id: number) => {
   await prisma.attendanceRecord.delete({
     where: { id }
   });
@@ -224,7 +230,7 @@ export const deleteAttendanceRecord = async (id: number) => {
 };
 
 // Payment operations
-export const getPayments = async () => {
+export const getPayments = isBrowser ? mockApi.getPayments : async () => {
   const payments = await prisma.payment.findMany();
   
   return payments.map(payment => ({
@@ -239,7 +245,7 @@ export const getPayments = async () => {
   }));
 };
 
-export const getStudentPayments = async (studentId: number) => {
+export const getStudentPayments = isBrowser ? mockApi.getStudentPayments : async (studentId: number) => {
   const payments = await prisma.payment.findMany({
     where: { studentId }
   });
@@ -256,7 +262,7 @@ export const getStudentPayments = async (studentId: number) => {
   }));
 };
 
-export const addPayment = async (payment: Omit<Payment, "id">) => {
+export const addPayment = isBrowser ? mockApi.addPayment : async (payment: Omit<Payment, "id">) => {
   const newPayment = await prisma.payment.create({
     data: {
       studentId: payment.studentId,
@@ -281,7 +287,7 @@ export const addPayment = async (payment: Omit<Payment, "id">) => {
   };
 };
 
-export const updatePayment = async (id: number, data: Partial<Payment>) => {
+export const updatePayment = isBrowser ? mockApi.updatePayment : async (id: number, data: Partial<Payment>) => {
   const updatedPayment = await prisma.payment.update({
     where: { id },
     data
@@ -299,7 +305,7 @@ export const updatePayment = async (id: number, data: Partial<Payment>) => {
   };
 };
 
-export const deletePayment = async (id: number) => {
+export const deletePayment = isBrowser ? mockApi.deletePayment : async (id: number) => {
   await prisma.payment.delete({
     where: { id }
   });
@@ -307,7 +313,7 @@ export const deletePayment = async (id: number) => {
 };
 
 // Grade operations
-export const getGrades = async () => {
+export const getGrades = isBrowser ? mockApi.getGrades : async () => {
   const grades = await prisma.grade.findMany();
   
   return grades.map(grade => ({
@@ -323,7 +329,7 @@ export const getGrades = async () => {
   }));
 };
 
-export const getStudentGrades = async (studentId: number) => {
+export const getStudentGrades = isBrowser ? mockApi.getStudentGrades : async (studentId: number) => {
   const grades = await prisma.grade.findMany({
     where: { studentId }
   });
@@ -341,7 +347,7 @@ export const getStudentGrades = async (studentId: number) => {
   }));
 };
 
-export const addGrade = async (grade: Omit<Grade, "id">) => {
+export const addGrade = isBrowser ? mockApi.addGrade : async (grade: Omit<Grade, "id">) => {
   const newGrade = await prisma.grade.create({
     data: {
       studentId: grade.studentId,
@@ -368,7 +374,7 @@ export const addGrade = async (grade: Omit<Grade, "id">) => {
   };
 };
 
-export const updateGrade = async (id: number, data: Partial<Grade>) => {
+export const updateGrade = isBrowser ? mockApi.updateGrade : async (id: number, data: Partial<Grade>) => {
   const updatedGrade = await prisma.grade.update({
     where: { id },
     data
@@ -387,7 +393,7 @@ export const updateGrade = async (id: number, data: Partial<Grade>) => {
   };
 };
 
-export const deleteGrade = async (id: number) => {
+export const deleteGrade = isBrowser ? mockApi.deleteGrade : async (id: number) => {
   await prisma.grade.delete({
     where: { id }
   });
@@ -395,7 +401,7 @@ export const deleteGrade = async (id: number) => {
 };
 
 // Dashboard statistics
-export const getDashboardStats = async (): Promise<DashboardStats> => {
+export const getDashboardStats = isBrowser ? mockApi.getDashboardStats : async (): Promise<DashboardStats> => {
   const today = new Date().toISOString().split('T')[0];
   const thisMonth = new Date().toISOString().substring(0, 7);
   
@@ -434,14 +440,14 @@ export const getDashboardStats = async (): Promise<DashboardStats> => {
 };
 
 // Available classes
-export const getAvailableClasses = async (): Promise<string[]> => {
+export const getAvailableClasses = isBrowser ? mockApi.getAvailableClasses : async (): Promise<string[]> => {
   const classes = await prisma.class.findMany();
   
   return classes.map(c => c.name);
 };
 
 // Class results
-export const getClassResults = async (
+export const getClassResults = isBrowser ? mockApi.getClassResults : async (
   className: string, 
   term: '1er trimestre' | '2e trimestre' | '3e trimestre',
   useWeightedAverage: boolean = true
