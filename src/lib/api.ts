@@ -436,9 +436,7 @@ export const getDashboardStats = async (): Promise<DashboardStats> => {
 
 // Available classes
 export const getAvailableClasses = async (): Promise<string[]> => {
-  const classes = await prisma.class.findMany({
-    orderBy: { name: 'asc' }
-  });
+  const classes = await prisma.class.findMany();
   
   return classes.map(c => c.name);
 };
