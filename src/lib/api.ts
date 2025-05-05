@@ -1,4 +1,3 @@
-
 import prisma from './prisma';
 import { Student, AttendanceRecord, Payment, Grade, DashboardStats, ClassResult } from "../types";
 
