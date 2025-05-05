@@ -419,7 +419,7 @@ export const getDashboardStats = async (): Promise<DashboardStats> => {
   
   const paymentsThisMonth = payments.reduce((sum, payment) => sum + payment.amount, 0);
   
-  // Fixed line: remove the argument from count() method
+  // Fixed: removed argument from count() method
   const recentGrades = await prisma.grade.count();
   
   return {
