@@ -15,4 +15,3 @@ if (typeof window !== 'undefined') {
 
 // The database seeding code only runs in Node.js server environment,
 // not in the browser
-

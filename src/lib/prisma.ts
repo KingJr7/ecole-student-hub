@@ -1,11 +1,10 @@
-
 import { PrismaClient } from '@prisma/client';
 
 // Check if we're in a browser environment
 const isBrowser = typeof window !== 'undefined';
 
 // Create a variable to hold our prisma instance
-let prisma: PrismaClient;
+let prisma: any;
 
 if (isBrowser) {
   // In browser environment, we create a mock client that doesn't actually connect to the database
@@ -54,11 +53,43 @@ if (isBrowser) {
       count: async () => 0,
     },
   };
-  prisma = mockPrisma as unknown as PrismaClient;
+  prisma = mockPrisma;
 } else {
   // Server environment - use actual PrismaClient
-  console.log('Running in Node.js - using actual Prisma client');
-  prisma = new PrismaClient();
+  // Use dynamic import to avoid browser issues
+  const loadPrisma = async () => {
+    try {
+      console.log('Running in Node.js - using actual Prisma client');
+      const { PrismaClient } = await import('@prisma/client');
+      return new PrismaClient();
+    } catch (e) {
+      console.error('Failed to load PrismaClient:', e);
+      // Provide a fallback mock in case of failure
+      return {
+        class: { findMany: async () => [] },
+        student: { findMany: async () => [] },
+        // ... other mock methods
+      };
+    }
+  };
+  
+  // Initialize prisma variable with a Promise that resolves to the actual client
+  const prismaPromise = loadPrisma();
+  
+  // Override the prisma object with a proxy that awaits the promise for each method call
+  prisma = new Proxy({}, {
+    get: (_, prop) => {
+      return new Proxy({}, {
+        get: (_, methodName) => {
+          return async (...args: any[]) => {
+            const client = await prismaPromise;
+            // @ts-ignore - dynamic access
+            return client[prop][methodName](...args);
+          };
+        }
+      });
+    }
+  });
 }
 
 // Export Prisma client

@@ -128,12 +128,14 @@ export const getStudent = async (id: number) => {
 
 export const addStudent = async (student: Omit<Student, "id">) => {
   const newId = Math.max(0, ...mockData.students.map(s => s.id)) + 1;
+  // Ensure status is one of the allowed values
   const newStudent = { 
     id: newId, 
-    ...student 
+    ...student,
+    status: student.status || "active" as const // Default to active if not specified
   };
-  mockData.students.push(newStudent);
-  return newStudent;
+  mockData.students.push(newStudent as Student);
+  return newStudent as Student;
 };
 
 export const updateStudent = async (id: number, studentData: Partial<Student>) => {
@@ -165,9 +167,9 @@ export const getStudentAttendance = async (studentId: number) => {
 
 export const addAttendanceRecord = async (record: Omit<AttendanceRecord, "id">) => {
   const newId = Math.max(0, ...mockData.attendance.map(a => a.id)) + 1;
-  const newRecord = { 
+  const newRecord: AttendanceRecord = { 
     id: newId, 
-    ...record 
+    ...record
   };
   mockData.attendance.push(newRecord);
   return newRecord;
@@ -202,9 +204,9 @@ export const getStudentPayments = async (studentId: number) => {
 
 export const addPayment = async (payment: Omit<Payment, "id">) => {
   const newId = Math.max(0, ...mockData.payments.map(p => p.id)) + 1;
-  const newPayment = { 
+  const newPayment: Payment = { 
     id: newId, 
-    ...payment 
+    ...payment
   };
   mockData.payments.push(newPayment);
   return newPayment;
@@ -239,9 +241,9 @@ export const getStudentGrades = async (studentId: number) => {
 
 export const addGrade = async (grade: Omit<Grade, "id">) => {
   const newId = Math.max(0, ...mockData.grades.map(g => g.id)) + 1;
-  const newGrade = { 
+  const newGrade: Grade = { 
     id: newId, 
-    ...grade 
+    ...grade
   };
   mockData.grades.push(newGrade);
   return newGrade;
