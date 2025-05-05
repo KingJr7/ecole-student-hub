@@ -1,3 +1,4 @@
+
 // Mock data for browser environment
 import { Student, AttendanceRecord, Payment, Grade, DashboardStats, ClassResult } from "../types";
 
@@ -127,10 +128,9 @@ export const getStudent = async (id: number) => {
 
 export const addStudent = async (student: Omit<Student, "id">) => {
   const newId = Math.max(0, ...mockData.students.map(s => s.id)) + 1;
-  const newStudent = { 
+  const newStudent: Student = { 
     id: newId, 
-    ...student,
-    status: student.status || "active" as const // Default to active if not specified
+    ...student
   };
   mockData.students.push(newStudent);
   return newStudent;
@@ -165,7 +165,7 @@ export const getStudentAttendance = async (studentId: number) => {
 
 export const addAttendanceRecord = async (record: Omit<AttendanceRecord, "id">) => {
   const newId = Math.max(0, ...mockData.attendance.map(a => a.id)) + 1;
-  const newRecord = { 
+  const newRecord: AttendanceRecord = { 
     id: newId, 
     ...record,
     notes: record.notes || "" // Ensure notes is not undefined
@@ -203,7 +203,7 @@ export const getStudentPayments = async (studentId: number) => {
 
 export const addPayment = async (payment: Omit<Payment, "id">) => {
   const newId = Math.max(0, ...mockData.payments.map(p => p.id)) + 1;
-  const newPayment = { 
+  const newPayment: Payment = { 
     id: newId, 
     ...payment,
     notes: payment.notes || "" // Ensure notes is not undefined
@@ -241,7 +241,7 @@ export const getStudentGrades = async (studentId: number) => {
 
 export const addGrade = async (grade: Omit<Grade, "id">) => {
   const newId = Math.max(0, ...mockData.grades.map(g => g.id)) + 1;
-  const newGrade = { 
+  const newGrade: Grade = { 
     id: newId, 
     ...grade,
     notes: grade.notes || "", // Ensure notes is not undefined
