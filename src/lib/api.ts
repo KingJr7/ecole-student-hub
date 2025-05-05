@@ -399,7 +399,7 @@ export const getDashboardStats = async (): Promise<DashboardStats> => {
   const today = new Date().toISOString().split('T')[0];
   const thisMonth = new Date().toISOString().substring(0, 7);
   
-  const totalStudents = await prisma.student.count();
+  const totalStudents = await prisma.student.count({});
   
   const todayAttendance = await prisma.attendanceRecord.findMany({
     where: { date: today }
@@ -419,8 +419,7 @@ export const getDashboardStats = async (): Promise<DashboardStats> => {
   
   const paymentsThisMonth = payments.reduce((sum, payment) => sum + payment.amount, 0);
   
-  // Fixed: removed argument from count() method
-  const recentGrades = await prisma.grade.count();
+  const recentGrades = await prisma.grade.count({});
   
   return {
     totalStudents,

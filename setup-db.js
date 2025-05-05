@@ -6,6 +6,11 @@ const { execSync } = require('child_process');
 try {
   console.log('Creating SQLite database and running migrations...');
   execSync('npx prisma migrate dev --name init', { stdio: 'inherit' });
+  
+  // Run seed script after migrations
+  console.log('Seeding the database...');
+  execSync('node -e "require(\'./src/lib/seed\').seedDatabase()"', { stdio: 'inherit' });
+  
   console.log('Database setup completed successfully!');
 } catch (error) {
   console.error('Error setting up the database:', error.message);
