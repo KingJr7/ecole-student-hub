@@ -129,8 +129,8 @@ export const getStudent = async (id: number) => {
 export const addStudent = async (student: Omit<Student, "id">) => {
   const newId = Math.max(0, ...mockData.students.map(s => s.id)) + 1;
   
-  // Create a new student object with explicit typing for the status property
-  const newStudent = { 
+  // Create a new student object with explicit typing to ensure type safety
+  const newStudent: Student = { 
     id: newId, 
     firstName: student.firstName,
     lastName: student.lastName,
@@ -139,11 +139,11 @@ export const addStudent = async (student: Omit<Student, "id">) => {
     dateOfBirth: student.dateOfBirth,
     address: student.address,
     enrollmentDate: student.enrollmentDate,
-    status: student.status, // Keep the original status
+    status: student.status,
     className: student.className
   };
   
-  mockData.students.push(newStudent);
+  mockData.students.push(newStudent as any);
   return newStudent;
 };
 
@@ -178,7 +178,7 @@ export const addAttendanceRecord = async (record: Omit<AttendanceRecord, "id">) 
   const newId = Math.max(0, ...mockData.attendance.map(a => a.id)) + 1;
   
   // Create a new attendance record with explicitly typed status
-  const newRecord = { 
+  const newRecord: AttendanceRecord = { 
     id: newId, 
     studentId: record.studentId,
     date: record.date,
@@ -186,7 +186,7 @@ export const addAttendanceRecord = async (record: Omit<AttendanceRecord, "id">) 
     notes: record.notes || ""
   };
   
-  mockData.attendance.push(newRecord);
+  mockData.attendance.push(newRecord as any);
   return newRecord;
 };
 
@@ -221,7 +221,7 @@ export const addPayment = async (payment: Omit<Payment, "id">) => {
   const newId = Math.max(0, ...mockData.payments.map(p => p.id)) + 1;
   
   // Create a new payment with explicitly typed properties
-  const newPayment = { 
+  const newPayment: Payment = { 
     id: newId, 
     studentId: payment.studentId,
     amount: payment.amount,
@@ -232,7 +232,7 @@ export const addPayment = async (payment: Omit<Payment, "id">) => {
     currency: payment.currency
   };
   
-  mockData.payments.push(newPayment);
+  mockData.payments.push(newPayment as any);
   return newPayment;
 };
 
@@ -266,20 +266,20 @@ export const getStudentGrades = async (studentId: number) => {
 export const addGrade = async (grade: Omit<Grade, "id">) => {
   const newId = Math.max(0, ...mockData.grades.map(g => g.id)) + 1;
   
-  // Create a new grade with explicitly typed properties and ensuring all required properties have values
-  const newGrade = { 
+  // Create a new grade with explicitly typed properties
+  const newGrade: Grade = { 
     id: newId, 
     studentId: grade.studentId,
     subject: grade.subject,
     score: grade.score,
     date: grade.date,
-    notes: grade.notes || "", // Ensure notes is not undefined
-    evaluationType: grade.evaluationType || "composition" as const,
-    term: grade.term || "1er trimestre" as const,
+    notes: grade.notes || "", 
+    evaluationType: grade.evaluationType || "composition",
+    term: grade.term || "1er trimestre",
     coefficient: grade.coefficient || 1
   };
   
-  mockData.grades.push(newGrade);
+  mockData.grades.push(newGrade as any);
   return newGrade;
 };
 
@@ -312,7 +312,8 @@ export const getDashboardStats = async (): Promise<DashboardStats> => {
   
   const present = todayAttendance.filter(record => record.status === 'present').length;
   const absent = todayAttendance.filter(record => record.status === 'absent').length;
-  const late = todayAttendance.filter(record => record.status === 'late').length;
+  // Explicitly type this to avoid type errors
+  const late = todayAttendance.filter(record => record.status === ('late' as AttendanceRecord['status'])).length;
   
   const paymentsThisMonth = mockData.payments
     .filter(p => p.date.startsWith(thisMonth))
