@@ -23,7 +23,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
-import { FileText, Pencil, Trash2, Search, ListChecked } from "lucide-react";
+import { FileText, Pencil, Trash2, Search, ListCheck } from "lucide-react";
 import { useToast } from "@/components/ui/use-toast";
 import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from "@/components/ui/table";
 
@@ -282,7 +282,7 @@ const Grades = () => {
                 variant="outline"
                 className="flex items-center gap-2"
               >
-                <ListChecked className="h-4 w-4" />
+                <ListCheck className="h-4 w-4" />
                 Liste d'admission
               </Button>
             )}
