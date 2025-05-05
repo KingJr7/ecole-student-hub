@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import MainLayout from "@/components/Layout/MainLayout";
 import { Button } from "@/components/ui/button";
@@ -23,10 +23,13 @@ import { Textarea } from "@/components/ui/textarea";
 import { Users, Pencil, Trash2, Search, CreditCard } from "lucide-react";
 import { useToast } from "@/components/ui/use-toast";
 import * as api from "@/lib/api";
-import { Student, Payment } from "@/types";
+import { Student, Payment, ParentInfo } from "@/types";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 // Define the interface for the currentStudent state
-interface CurrentStudent extends Partial<Student> {}
+interface CurrentStudent extends Partial<Student> {
+  parentInfo?: Partial<ParentInfo>;
+}
 
 const Students = () => {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
@@ -40,7 +43,16 @@ const Students = () => {
   const [studentForPayment, setStudentForPayment] = useState<Student | null>(null);
   const [searchQuery, setSearchQuery] = useState<string>("");
   const [selectedClass, setSelectedClass] = useState<string>("all");
-  const [currentStudent, setCurrentStudent] = useState<CurrentStudent>({});
+  const [currentStudent, setCurrentStudent] = useState<CurrentStudent>({
+    parentInfo: {
+      fatherName: "",
+      fatherPhone: "",
+      fatherEmail: "",
+      motherName: "",
+      motherPhone: "",
+      motherEmail: ""
+    }
+  });
   const { toast } = useToast();
   const queryClient = useQueryClient();
   
@@ -142,12 +154,31 @@ const Students = () => {
   });
 
   const handleOpenAddDialog = () => {
-    setCurrentStudent({});
+    setCurrentStudent({
+      parentInfo: {
+        fatherName: "",
+        fatherPhone: "",
+        fatherEmail: "",
+        motherName: "",
+        motherPhone: "",
+        motherEmail: ""
+      }
+    });
     setIsDialogOpen(true);
   };
 
   const handleOpenEditDialog = (student: Student) => {
-    setCurrentStudent({ ...student });
+    setCurrentStudent({ 
+      ...student,
+      parentInfo: student.parentInfo || {
+        fatherName: "",
+        fatherPhone: "",
+        fatherEmail: "",
+        motherName: "",
+        motherPhone: "",
+        motherEmail: ""
+      }
+    });
     setIsDialogOpen(true);
   };
 
@@ -169,7 +200,9 @@ const Students = () => {
       !currentStudent.firstName ||
       !currentStudent.lastName ||
       !currentStudent.email ||
-      !currentStudent.className
+      !currentStudent.className ||
+      !currentStudent.parentInfo?.fatherName ||
+      !currentStudent.parentInfo?.motherName
     ) {
       toast({
         title: "Erreur",
@@ -179,16 +212,29 @@ const Students = () => {
       return;
     }
 
+    // Assurez-vous que parentInfo est complètement défini
+    const studentToSave: any = {
+      ...currentStudent,
+      parentInfo: {
+        fatherName: currentStudent.parentInfo?.fatherName || "",
+        fatherPhone: currentStudent.parentInfo?.fatherPhone || "",
+        fatherEmail: currentStudent.parentInfo?.fatherEmail || "",
+        motherName: currentStudent.parentInfo?.motherName || "",
+        motherPhone: currentStudent.parentInfo?.motherPhone || "",
+        motherEmail: currentStudent.parentInfo?.motherEmail || ""
+      }
+    };
+
     try {
       if (currentStudent.id) {
         // Update existing student
         updateStudentMutation.mutate({ 
           id: currentStudent.id, 
-          data: currentStudent 
+          data: studentToSave 
         });
       } else {
         // Add new student
-        addStudentMutation.mutate(currentStudent as Omit<Student, "id">);
+        addStudentMutation.mutate(studentToSave as Omit<Student, "id">);
       }
     } catch (error) {
       toast({
@@ -378,7 +424,7 @@ const Students = () => {
 
         {/* Add/Edit Student Dialog */}
         <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-          <DialogContent className="sm:max-w-[500px]">
+          <DialogContent className="sm:max-w-[700px] max-h-[90vh] overflow-y-auto">
             <DialogHeader>
               <DialogTitle>
                 {currentStudent.id
@@ -386,162 +432,291 @@ const Students = () => {
                   : "Ajouter un nouvel élève"}
               </DialogTitle>
             </DialogHeader>
-            <div className="grid gap-4 py-4">
-              <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <Label htmlFor="firstName">Prénom</Label>
-                  <Input
-                    id="firstName"
-                    value={currentStudent.firstName || ""}
-                    onChange={(e) =>
-                      setCurrentStudent({
-                        ...currentStudent,
-                        firstName: e.target.value,
-                      })
-                    }
-                  />
+            
+            <Tabs defaultValue="student" className="w-full">
+              <TabsList className="w-full">
+                <TabsTrigger value="student" className="flex-1">Informations de l'élève</TabsTrigger>
+                <TabsTrigger value="parents" className="flex-1">Informations des parents</TabsTrigger>
+              </TabsList>
+              
+              <TabsContent value="student">
+                <div className="grid gap-4 py-4">
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="firstName">Prénom</Label>
+                      <Input
+                        id="firstName"
+                        value={currentStudent.firstName || ""}
+                        onChange={(e) =>
+                          setCurrentStudent({
+                            ...currentStudent,
+                            firstName: e.target.value,
+                          })
+                        }
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="lastName">Nom</Label>
+                      <Input
+                        id="lastName"
+                        value={currentStudent.lastName || ""}
+                        onChange={(e) =>
+                          setCurrentStudent({
+                            ...currentStudent,
+                            lastName: e.target.value,
+                          })
+                        }
+                      />
+                    </div>
+                  </div>
+                  
+                  <div className="space-y-2">
+                    <Label htmlFor="className">Classe</Label>
+                    <Select
+                      value={currentStudent.className || ""}
+                      onValueChange={(value) =>
+                        setCurrentStudent({
+                          ...currentStudent,
+                          className: value,
+                        })
+                      }
+                    >
+                      <SelectTrigger id="className">
+                        <SelectValue placeholder="Sélectionnez une classe" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {availableClasses.length > 0 ? (
+                          availableClasses.map((className: string) => (
+                            <SelectItem key={className} value={className}>
+                              {className}
+                            </SelectItem>
+                          ))
+                        ) : (
+                          <>
+                            <SelectItem value="Terminale S">Terminale S</SelectItem>
+                            <SelectItem value="Terminale ES">Terminale ES</SelectItem>
+                            <SelectItem value="Terminale L">Terminale L</SelectItem>
+                            <SelectItem value="Première S">Première S</SelectItem>
+                            <SelectItem value="Première ES">Première ES</SelectItem>
+                            <SelectItem value="Première L">Première L</SelectItem>
+                            <SelectItem value="Seconde">Seconde</SelectItem>
+                          </>
+                        )}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  
+                  <div className="space-y-2">
+                    <Label htmlFor="email">Email</Label>
+                    <Input
+                      id="email"
+                      type="email"
+                      value={currentStudent.email || ""}
+                      onChange={(e) =>
+                        setCurrentStudent({
+                          ...currentStudent,
+                          email: e.target.value,
+                        })
+                      }
+                    />
+                  </div>
+                  
+                  <div className="space-y-2">
+                    <Label htmlFor="phone">Téléphone</Label>
+                    <Input
+                      id="phone"
+                      value={currentStudent.phone || ""}
+                      onChange={(e) =>
+                        setCurrentStudent({
+                          ...currentStudent,
+                          phone: e.target.value,
+                        })
+                      }
+                    />
+                  </div>
+                  
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="dateOfBirth">Date de naissance</Label>
+                      <Input
+                        id="dateOfBirth"
+                        type="date"
+                        value={currentStudent.dateOfBirth || ""}
+                        onChange={(e) =>
+                          setCurrentStudent({
+                            ...currentStudent,
+                            dateOfBirth: e.target.value,
+                          })
+                        }
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="enrollmentDate">Date d'inscription</Label>
+                      <Input
+                        id="enrollmentDate"
+                        type="date"
+                        value={currentStudent.enrollmentDate || ""}
+                        onChange={(e) =>
+                          setCurrentStudent({
+                            ...currentStudent,
+                            enrollmentDate: e.target.value,
+                          })
+                        }
+                      />
+                    </div>
+                  </div>
+                  
+                  <div className="space-y-2">
+                    <Label htmlFor="address">Adresse</Label>
+                    <Input
+                      id="address"
+                      value={currentStudent.address || ""}
+                      onChange={(e) =>
+                        setCurrentStudent({
+                          ...currentStudent,
+                          address: e.target.value,
+                        })
+                      }
+                    />
+                  </div>
+                  
+                  <div className="space-y-2">
+                    <Label htmlFor="status">Statut</Label>
+                    <Select
+                      value={currentStudent.status || "active"}
+                      onValueChange={(value) =>
+                        setCurrentStudent({
+                          ...currentStudent,
+                          status: value as "active" | "inactive" | "graduated",
+                        })
+                      }
+                    >
+                      <SelectTrigger id="status">
+                        <SelectValue placeholder="Sélectionnez un statut" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="active">Actif</SelectItem>
+                        <SelectItem value="inactive">Inactif</SelectItem>
+                        <SelectItem value="graduated">Diplômé</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
                 </div>
-                <div className="space-y-2">
-                  <Label htmlFor="lastName">Nom</Label>
-                  <Input
-                    id="lastName"
-                    value={currentStudent.lastName || ""}
-                    onChange={(e) =>
-                      setCurrentStudent({
-                        ...currentStudent,
-                        lastName: e.target.value,
-                      })
-                    }
-                  />
+              </TabsContent>
+              
+              <TabsContent value="parents">
+                <div className="grid gap-4 py-4">
+                  <h3 className="text-lg font-medium">Informations du père</h3>
+                  <div className="space-y-2">
+                    <Label htmlFor="fatherName">Nom complet</Label>
+                    <Input
+                      id="fatherName"
+                      value={currentStudent.parentInfo?.fatherName || ""}
+                      onChange={(e) =>
+                        setCurrentStudent({
+                          ...currentStudent,
+                          parentInfo: {
+                            ...currentStudent.parentInfo,
+                            fatherName: e.target.value,
+                          },
+                        })
+                      }
+                    />
+                  </div>
+                  
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="fatherPhone">Téléphone</Label>
+                      <Input
+                        id="fatherPhone"
+                        value={currentStudent.parentInfo?.fatherPhone || ""}
+                        onChange={(e) =>
+                          setCurrentStudent({
+                            ...currentStudent,
+                            parentInfo: {
+                              ...currentStudent.parentInfo,
+                              fatherPhone: e.target.value,
+                            },
+                          })
+                        }
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="fatherEmail">Email</Label>
+                      <Input
+                        id="fatherEmail"
+                        type="email"
+                        value={currentStudent.parentInfo?.fatherEmail || ""}
+                        onChange={(e) =>
+                          setCurrentStudent({
+                            ...currentStudent,
+                            parentInfo: {
+                              ...currentStudent.parentInfo,
+                              fatherEmail: e.target.value,
+                            },
+                          })
+                        }
+                      />
+                    </div>
+                  </div>
+                  
+                  <h3 className="text-lg font-medium mt-4">Informations de la mère</h3>
+                  <div className="space-y-2">
+                    <Label htmlFor="motherName">Nom complet</Label>
+                    <Input
+                      id="motherName"
+                      value={currentStudent.parentInfo?.motherName || ""}
+                      onChange={(e) =>
+                        setCurrentStudent({
+                          ...currentStudent,
+                          parentInfo: {
+                            ...currentStudent.parentInfo,
+                            motherName: e.target.value,
+                          },
+                        })
+                      }
+                    />
+                  </div>
+                  
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="motherPhone">Téléphone</Label>
+                      <Input
+                        id="motherPhone"
+                        value={currentStudent.parentInfo?.motherPhone || ""}
+                        onChange={(e) =>
+                          setCurrentStudent({
+                            ...currentStudent,
+                            parentInfo: {
+                              ...currentStudent.parentInfo,
+                              motherPhone: e.target.value,
+                            },
+                          })
+                        }
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="motherEmail">Email</Label>
+                      <Input
+                        id="motherEmail"
+                        type="email"
+                        value={currentStudent.parentInfo?.motherEmail || ""}
+                        onChange={(e) =>
+                          setCurrentStudent({
+                            ...currentStudent,
+                            parentInfo: {
+                              ...currentStudent.parentInfo,
+                              motherEmail: e.target.value,
+                            },
+                          })
+                        }
+                      />
+                    </div>
+                  </div>
                 </div>
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="className">Classe</Label>
-                <Select
-                  value={currentStudent.className || ""}
-                  onValueChange={(value) =>
-                    setCurrentStudent({
-                      ...currentStudent,
-                      className: value,
-                    })
-                  }
-                >
-                  <SelectTrigger id="className">
-                    <SelectValue placeholder="Sélectionnez une classe" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {availableClasses.length > 0 ? (
-                      availableClasses.map((className: string) => (
-                        <SelectItem key={className} value={className}>
-                          {className}
-                        </SelectItem>
-                      ))
-                    ) : (
-                      <>
-                        <SelectItem value="Terminale S">Terminale S</SelectItem>
-                        <SelectItem value="Terminale ES">Terminale ES</SelectItem>
-                        <SelectItem value="Terminale L">Terminale L</SelectItem>
-                        <SelectItem value="Première S">Première S</SelectItem>
-                        <SelectItem value="Première ES">Première ES</SelectItem>
-                        <SelectItem value="Première L">Première L</SelectItem>
-                        <SelectItem value="Seconde">Seconde</SelectItem>
-                      </>
-                    )}
-                  </SelectContent>
-                </Select>
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="email">Email</Label>
-                <Input
-                  id="email"
-                  type="email"
-                  value={currentStudent.email || ""}
-                  onChange={(e) =>
-                    setCurrentStudent({
-                      ...currentStudent,
-                      email: e.target.value,
-                    })
-                  }
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="phone">Téléphone</Label>
-                <Input
-                  id="phone"
-                  value={currentStudent.phone || ""}
-                  onChange={(e) =>
-                    setCurrentStudent({
-                      ...currentStudent,
-                      phone: e.target.value,
-                    })
-                  }
-                />
-              </div>
-              <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <Label htmlFor="dateOfBirth">Date de naissance</Label>
-                  <Input
-                    id="dateOfBirth"
-                    type="date"
-                    value={currentStudent.dateOfBirth || ""}
-                    onChange={(e) =>
-                      setCurrentStudent({
-                        ...currentStudent,
-                        dateOfBirth: e.target.value,
-                      })
-                    }
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="enrollmentDate">Date d'inscription</Label>
-                  <Input
-                    id="enrollmentDate"
-                    type="date"
-                    value={currentStudent.enrollmentDate || ""}
-                    onChange={(e) =>
-                      setCurrentStudent({
-                        ...currentStudent,
-                        enrollmentDate: e.target.value,
-                      })
-                    }
-                  />
-                </div>
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="address">Adresse</Label>
-                <Input
-                  id="address"
-                  value={currentStudent.address || ""}
-                  onChange={(e) =>
-                    setCurrentStudent({
-                      ...currentStudent,
-                      address: e.target.value,
-                    })
-                  }
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="status">Statut</Label>
-                <Select
-                  value={currentStudent.status || "active"}
-                  onValueChange={(value) =>
-                    setCurrentStudent({
-                      ...currentStudent,
-                      status: value as "active" | "inactive" | "graduated",
-                    })
-                  }
-                >
-                  <SelectTrigger id="status">
-                    <SelectValue placeholder="Sélectionnez un statut" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="active">Actif</SelectItem>
-                    <SelectItem value="inactive">Inactif</SelectItem>
-                    <SelectItem value="graduated">Diplômé</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-            </div>
+              </TabsContent>
+            </Tabs>
+            
             <DialogFooter>
               <Button variant="outline" onClick={() => setIsDialogOpen(false)}>
                 Annuler

@@ -1,7 +1,6 @@
 
-import { useState, useEffect } from "react";
-import { getPayments, getStudents, addPayment, updatePayment, deletePayment } from "@/lib/db";
-import { Payment, Student } from "@/types";
+import { useState } from "react";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import MainLayout from "@/components/Layout/MainLayout";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -24,26 +23,93 @@ import {
 import { Textarea } from "@/components/ui/textarea";
 import { FileMinus, Pencil, Trash2 } from "lucide-react";
 import { useToast } from "@/components/ui/use-toast";
+import * as api from "@/lib/api";
+import { Payment, Student } from "@/types";
 
 const Payments = () => {
-  const [payments, setPayments] = useState<Payment[]>([]);
-  const [students, setStudents] = useState<Student[]>([]);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [currentPayment, setCurrentPayment] = useState<Partial<Payment>>({});
   const [paymentToDelete, setPaymentToDelete] = useState<number | null>(null);
   const { toast } = useToast();
+  const queryClient = useQueryClient();
 
-  useEffect(() => {
-    setStudents(getStudents());
-    setPayments(getPayments());
-  }, []);
+  // Utiliser React Query pour récupérer les données
+  const { data: payments = [], isLoading: isLoadingPayments } = useQuery({
+    queryKey: ['payments'],
+    queryFn: api.getPayments
+  });
+
+  const { data: students = [] } = useQuery({
+    queryKey: ['students'],
+    queryFn: api.getStudents
+  });
+
+  // Mutations
+  const addPaymentMutation = useMutation({
+    mutationFn: (payment: Omit<Payment, "id">) => api.addPayment(payment),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['payments'] });
+      toast({
+        title: "Succès",
+        description: "Le paiement a été ajouté avec succès."
+      });
+      setIsDialogOpen(false);
+    },
+    onError: (error: any) => {
+      toast({
+        title: "Erreur",
+        description: error.message || "Une erreur est survenue.",
+        variant: "destructive"
+      });
+    }
+  });
+
+  const updatePaymentMutation = useMutation({
+    mutationFn: ({ id, data }: { id: number, data: Partial<Payment> }) => 
+      api.updatePayment(id, data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['payments'] });
+      toast({
+        title: "Succès",
+        description: "Le paiement a été mis à jour avec succès."
+      });
+      setIsDialogOpen(false);
+    },
+    onError: (error: any) => {
+      toast({
+        title: "Erreur",
+        description: error.message || "Une erreur est survenue.",
+        variant: "destructive"
+      });
+    }
+  });
+
+  const deletePaymentMutation = useMutation({
+    mutationFn: (id: number) => api.deletePayment(id),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['payments'] });
+      toast({
+        title: "Succès",
+        description: "Le paiement a été supprimé avec succès."
+      });
+      setIsDeleteDialogOpen(false);
+    },
+    onError: (error: any) => {
+      toast({
+        title: "Erreur",
+        description: error.message || "Une erreur est survenue.",
+        variant: "destructive"
+      });
+    }
+  });
 
   const handleOpenAddDialog = () => {
     setCurrentPayment({ 
       date: new Date().toISOString().split('T')[0],
       status: "paid", 
-      type: "tuition" 
+      type: "tuition",
+      currency: "FCFA"
     });
     setIsDialogOpen(true);
   };
@@ -71,23 +137,14 @@ const Payments = () => {
     try {
       if (currentPayment.id) {
         // Update existing payment
-        updatePayment(currentPayment.id, currentPayment);
-        toast({
-          title: "Succès",
-          description: "Le paiement a été mis à jour avec succès.",
+        updatePaymentMutation.mutate({ 
+          id: currentPayment.id, 
+          data: currentPayment 
         });
       } else {
         // Add new payment
-        addPayment(currentPayment as Omit<Payment, "id">);
-        toast({
-          title: "Succès",
-          description: "Le paiement a été ajouté avec succès.",
-        });
+        addPaymentMutation.mutate(currentPayment as Omit<Payment, "id">);
       }
-
-      // Refresh payment list
-      setPayments(getPayments());
-      setIsDialogOpen(false);
     } catch (error) {
       toast({
         title: "Erreur",
@@ -99,23 +156,8 @@ const Payments = () => {
 
   const handleDeletePayment = () => {
     if (paymentToDelete) {
-      try {
-        deletePayment(paymentToDelete);
-        setPayments(getPayments());
-        toast({
-          title: "Succès",
-          description: "Le paiement a été supprimé avec succès.",
-        });
-      } catch (error) {
-        toast({
-          title: "Erreur",
-          description: "Une erreur est survenue lors de la suppression.",
-          variant: "destructive",
-        });
-      }
+      deletePaymentMutation.mutate(paymentToDelete);
     }
-    setIsDeleteDialogOpen(false);
-    setPaymentToDelete(null);
   };
 
   const getStudentName = (studentId: number): string => {
@@ -193,12 +235,20 @@ const Payments = () => {
                   </tr>
                 </thead>
                 <tbody>
-                  {payments.length > 0 ? (
+                  {isLoadingPayments ? (
+                    <tr>
+                      <td colSpan={7} className="py-8 text-center">
+                        <div className="flex justify-center">
+                          <div className="animate-spin rounded-full h-6 w-6 border-t-2 border-primary"></div>
+                        </div>
+                      </td>
+                    </tr>
+                  ) : payments.length > 0 ? (
                     payments.map((payment) => (
                       <tr key={payment.id} className="border-t">
                         <td className="py-3 px-4 text-sm">{getStudentName(payment.studentId)}</td>
                         <td className="py-3 px-4 text-sm">{payment.date}</td>
-                        <td className="py-3 px-4 text-sm font-medium">{payment.amount.toFixed(2)}€</td>
+                        <td className="py-3 px-4 text-sm font-medium">{payment.amount.toFixed(2)} {payment.currency}</td>
                         <td className="py-3 px-4 text-sm">{getTypeText(payment.type)}</td>
                         <td className="py-3 px-4">
                           <span
@@ -274,7 +324,7 @@ const Payments = () => {
               </div>
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label htmlFor="amount">Montant (€)</Label>
+                  <Label htmlFor="amount">Montant (FCFA)</Label>
                   <Input
                     id="amount"
                     type="number"

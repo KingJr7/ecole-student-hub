@@ -9,7 +9,17 @@ export interface Student {
   address: string;
   enrollmentDate: string;
   status: 'active' | 'inactive' | 'graduated';
-  className: string; // Ajout de la classe pour chaque élève
+  className: string;
+  parentInfo: ParentInfo; // Ajout des informations des parents
+}
+
+export interface ParentInfo {
+  fatherName: string;
+  fatherPhone: string;
+  fatherEmail: string;
+  motherName: string;
+  motherPhone: string;
+  motherEmail: string;
 }
 
 export interface AttendanceRecord {

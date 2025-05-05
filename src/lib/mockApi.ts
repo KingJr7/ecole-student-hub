@@ -1,6 +1,5 @@
-
 // Mock data for browser environment
-import { Student, AttendanceRecord, Payment, Grade, DashboardStats, ClassResult } from "../types";
+import { Student, AttendanceRecord, Payment, Grade, DashboardStats, ClassResult, ParentInfo } from "../types";
 
 // In-memory storage for mock data
 const mockData = {
@@ -19,7 +18,15 @@ const mockData = {
       address: "123 Rue de Paris, 75001 Paris",
       enrollmentDate: "2022-09-01",
       status: "active" as const,
-      className: "Terminale S"
+      className: "Terminale S",
+      parentInfo: {
+        fatherName: "Pierre Dupont",
+        fatherPhone: "06 87 65 43 21",
+        fatherEmail: "pierre.dupont@example.com",
+        motherName: "Sophie Dupont",
+        motherPhone: "06 76 54 32 10",
+        motherEmail: "sophie.dupont@example.com"
+      }
     },
     {
       id: 2,
@@ -31,7 +38,15 @@ const mockData = {
       address: "456 Avenue Victor Hugo, 69002 Lyon",
       enrollmentDate: "2021-09-01",
       status: "active" as const,
-      className: "Première ES"
+      className: "Première ES",
+      parentInfo: {
+        fatherName: "Jean Martin",
+        fatherPhone: "06 12 34 56 78",
+        fatherEmail: "jean.martin@example.com",
+        motherName: "Marie Martin",
+        motherPhone: "06 98 76 54 32",
+        motherEmail: "marie.martin@example.com"
+      }
     }
   ],
   attendance: [
@@ -140,7 +155,8 @@ export const addStudent = async (student: Omit<Student, "id">) => {
     address: student.address,
     enrollmentDate: student.enrollmentDate,
     status: student.status,
-    className: student.className
+    className: student.className,
+    parentInfo: student.parentInfo
   };
   
   mockData.students.push(newStudent as any);
