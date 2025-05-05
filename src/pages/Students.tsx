@@ -1,7 +1,5 @@
-
 import { useState, useEffect } from "react";
-import { getStudents, addStudent, updateStudent, deleteStudent, getAvailableClasses, addPayment } from "@/lib/db";
-import { Student, Payment } from "@/types";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import MainLayout from "@/components/Layout/MainLayout";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -23,14 +21,14 @@ import {
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { Users, Pencil, Trash2, Search, CreditCard } from "lucide-react";
-import { useToast } from "@/hooks/use-toast";
+import { useToast } from "@/components/ui/use-toast";
+import * as api from "@/lib/api";
+import { Student, Payment } from "@/types";
 
 // Define the interface for the currentStudent state
 interface CurrentStudent extends Partial<Student> {}
 
 const Students = () => {
-  const [students, setStudents] = useState<Student[]>([]);
-  const [availableClasses, setAvailableClasses] = useState<string[]>([]);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [isPaymentDialogOpen, setIsPaymentDialogOpen] = useState(false);
@@ -44,19 +42,103 @@ const Students = () => {
   const [selectedClass, setSelectedClass] = useState<string>("all");
   const [currentStudent, setCurrentStudent] = useState<CurrentStudent>({});
   const { toast } = useToast();
-
-  useEffect(() => {
-    // In a real app, we would fetch this data from the backend
-    setStudents(getStudents());
-    setAvailableClasses(getAvailableClasses());
-  }, []);
+  const queryClient = useQueryClient();
+  
+  // Use React Query to fetch data
+  const { data: students = [], isLoading: isLoadingStudents } = useQuery({
+    queryKey: ['students'],
+    queryFn: api.getStudents
+  });
+  
+  const { data: availableClasses = [] } = useQuery({
+    queryKey: ['availableClasses'],
+    queryFn: api.getAvailableClasses
+  });
 
   // Filtrer les étudiants en fonction de la recherche et de la classe sélectionnée
-  const filteredStudents = students.filter(student => {
+  const filteredStudents = students.filter((student: Student) => {
     const nameMatches = (student.firstName.toLowerCase() + " " + student.lastName.toLowerCase())
       .includes(searchQuery.toLowerCase());
     const classMatches = selectedClass === "all" || student.className === selectedClass;
     return nameMatches && classMatches;
+  });
+  
+  // Mutations
+  const addStudentMutation = useMutation({
+    mutationFn: (student: Omit<Student, "id">) => api.addStudent(student),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['students'] });
+      toast({
+        title: "Succès",
+        description: "L'élève a été ajouté avec succès."
+      });
+      setIsDialogOpen(false);
+    },
+    onError: (error: any) => {
+      toast({
+        title: "Erreur",
+        description: error.message || "Une erreur est survenue.",
+        variant: "destructive"
+      });
+    }
+  });
+  
+  const updateStudentMutation = useMutation({
+    mutationFn: ({ id, data }: { id: number, data: Partial<Student> }) =>
+      api.updateStudent(id, data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['students'] });
+      toast({
+        title: "Succès",
+        description: "L'élève a été mis à jour avec succès."
+      });
+      setIsDialogOpen(false);
+    },
+    onError: (error: any) => {
+      toast({
+        title: "Erreur",
+        description: error.message || "Une erreur est survenue.",
+        variant: "destructive"
+      });
+    }
+  });
+  
+  const deleteStudentMutation = useMutation({
+    mutationFn: (id: number) => api.deleteStudent(id),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['students'] });
+      toast({
+        title: "Succès",
+        description: "L'élève a été supprimé avec succès."
+      });
+      setIsDeleteDialogOpen(false);
+    },
+    onError: (error: any) => {
+      toast({
+        title: "Erreur",
+        description: error.message || "Une erreur est survenue.",
+        variant: "destructive"
+      });
+    }
+  });
+  
+  const addPaymentMutation = useMutation({
+    mutationFn: (payment: Omit<Payment, "id">) => api.addPayment(payment),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['payments'] });
+      toast({
+        title: "Succès",
+        description: `Paiement enregistré avec succès.`
+      });
+      setIsPaymentFormOpen(false);
+    },
+    onError: (error: any) => {
+      toast({
+        title: "Erreur",
+        description: error.message || "Une erreur est survenue.",
+        variant: "destructive"
+      });
+    }
   });
 
   const handleOpenAddDialog = () => {
@@ -100,25 +182,14 @@ const Students = () => {
     try {
       if (currentStudent.id) {
         // Update existing student
-        updateStudent(currentStudent.id, currentStudent);
-        toast({
-          title: "Succès",
-          description: "L'élève a été mis à jour avec succès.",
+        updateStudentMutation.mutate({ 
+          id: currentStudent.id, 
+          data: currentStudent 
         });
       } else {
         // Add new student
-        addStudent(currentStudent as Omit<Student, "id">);
-        toast({
-          title: "Succès",
-          description: "L'élève a été ajouté avec succès.",
-        });
+        addStudentMutation.mutate(currentStudent as Omit<Student, "id">);
       }
-
-      // Refresh student list
-      setStudents(getStudents());
-      // Update available classes
-      setAvailableClasses(getAvailableClasses());
-      setIsDialogOpen(false);
     } catch (error) {
       toast({
         title: "Erreur",
@@ -130,25 +201,8 @@ const Students = () => {
 
   const handleDeleteStudent = () => {
     if (studentToDelete) {
-      try {
-        deleteStudent(studentToDelete);
-        setStudents(getStudents());
-        // Update available classes after deletion
-        setAvailableClasses(getAvailableClasses());
-        toast({
-          title: "Succès",
-          description: "L'élève a été supprimé avec succès.",
-        });
-      } catch (error) {
-        toast({
-          title: "Erreur",
-          description: "Une erreur est survenue lors de la suppression.",
-          variant: "destructive",
-        });
-      }
+      deleteStudentMutation.mutate(studentToDelete);
     }
-    setIsDeleteDialogOpen(false);
-    setStudentToDelete(null);
   };
 
   const handleSubmitPayment = () => {
@@ -172,15 +226,7 @@ const Students = () => {
         currency: 'FCFA'
       };
 
-      addPayment(newPayment);
-      
-      toast({
-        title: "Succès",
-        description: `Paiement de ${paymentAmount} FCFA enregistré pour ${studentForPayment.firstName} ${studentForPayment.lastName}.`,
-      });
-      
-      setIsPaymentFormOpen(false);
-      setStudentForPayment(null);
+      addPaymentMutation.mutate(newPayment);
     } catch (error) {
       toast({
         title: "Erreur",
@@ -238,7 +284,7 @@ const Students = () => {
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="all">Toutes les classes</SelectItem>
-                {availableClasses.map((className) => (
+                {availableClasses.map((className: string) => (
                   <SelectItem key={className} value={className}>
                     {className}
                   </SelectItem>
@@ -248,75 +294,87 @@ const Students = () => {
           </div>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
-          {filteredStudents.map((student) => (
-            <Card key={student.id} className="overflow-hidden">
-              <CardContent className="p-0">
-                <div className="bg-school-50 p-4">
-                  <h3 className="font-bold text-lg">
-                    {student.firstName} {student.lastName}
-                  </h3>
-                  <p className="text-sm text-muted-foreground">
-                    ID: {student.id} | Classe: {student.className}
-                  </p>
-                </div>
-                <div className="p-4 space-y-2">
-                  <div>
-                    <span className="text-sm font-medium">Email:</span>
-                    <span className="text-sm ml-2">{student.email}</span>
-                  </div>
-                  <div>
-                    <span className="text-sm font-medium">Téléphone:</span>
-                    <span className="text-sm ml-2">{student.phone}</span>
-                  </div>
-                  <div>
-                    <span className="text-sm font-medium">Inscrit le:</span>
-                    <span className="text-sm ml-2">{student.enrollmentDate}</span>
-                  </div>
-                  <div>
-                    <span className="text-sm font-medium">Statut:</span>
-                    <span className={`text-sm ml-2 ${
-                      student.status === "active" ? "text-green-600" : 
-                      student.status === "inactive" ? "text-red-600" : 
-                      "text-amber-600"
-                    }`}>
-                      {student.status === "active" ? "Actif" : 
-                       student.status === "inactive" ? "Inactif" : 
-                       "Diplômé"}
-                    </span>
-                  </div>
-                  <div className="pt-2">
-                    <div className="grid grid-cols-2 gap-2">
-                      <Button
-                        size="sm"
-                        variant="outline"
-                        className="text-green-600 hover:text-green-700 border-green-600 hover:border-green-700"
-                        onClick={() => handleOpenPaymentForm(student)}
-                      >
-                        <CreditCard className="h-4 w-4 mr-1" /> Encaisser
-                      </Button>
-                      <Button
-                        size="sm"
-                        variant="outline"
-                        onClick={() => handleOpenEditDialog(student)}
-                      >
-                        <Pencil className="h-4 w-4 mr-1" /> Modifier
-                      </Button>
-                      <Button
-                        size="sm"
-                        variant="destructive"
-                        className="col-span-2"
-                        onClick={() => handleOpenDeleteDialog(student.id)}
-                      >
-                        <Trash2 className="h-4 w-4 mr-1" /> Supprimer
-                      </Button>
+        {isLoadingStudents ? (
+          <div className="flex justify-center p-8">
+            <div className="animate-spin rounded-full h-10 w-10 border-t-2 border-primary"></div>
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+            {filteredStudents.length > 0 ? (
+              filteredStudents.map((student: Student) => (
+                <Card key={student.id} className="overflow-hidden">
+                  <CardContent className="p-0">
+                    <div className="bg-school-50 p-4">
+                      <h3 className="font-bold text-lg">
+                        {student.firstName} {student.lastName}
+                      </h3>
+                      <p className="text-sm text-muted-foreground">
+                        ID: {student.id} | Classe: {student.className}
+                      </p>
                     </div>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          ))}
-        </div>
+                    <div className="p-4 space-y-2">
+                      <div>
+                        <span className="text-sm font-medium">Email:</span>
+                        <span className="text-sm ml-2">{student.email}</span>
+                      </div>
+                      <div>
+                        <span className="text-sm font-medium">Téléphone:</span>
+                        <span className="text-sm ml-2">{student.phone}</span>
+                      </div>
+                      <div>
+                        <span className="text-sm font-medium">Inscrit le:</span>
+                        <span className="text-sm ml-2">{student.enrollmentDate}</span>
+                      </div>
+                      <div>
+                        <span className="text-sm font-medium">Statut:</span>
+                        <span className={`text-sm ml-2 ${
+                          student.status === "active" ? "text-green-600" : 
+                          student.status === "inactive" ? "text-red-600" : 
+                          "text-amber-600"
+                        }`}>
+                          {student.status === "active" ? "Actif" : 
+                           student.status === "inactive" ? "Inactif" : 
+                           "Diplômé"}
+                        </span>
+                      </div>
+                      <div className="pt-2">
+                        <div className="grid grid-cols-2 gap-2">
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            className="text-green-600 hover:text-green-700 border-green-600 hover:border-green-700"
+                            onClick={() => handleOpenPaymentForm(student)}
+                          >
+                            <CreditCard className="h-4 w-4 mr-1" /> Encaisser
+                          </Button>
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            onClick={() => handleOpenEditDialog(student)}
+                          >
+                            <Pencil className="h-4 w-4 mr-1" /> Modifier
+                          </Button>
+                          <Button
+                            size="sm"
+                            variant="destructive"
+                            className="col-span-2"
+                            onClick={() => handleOpenDeleteDialog(student.id)}
+                          >
+                            <Trash2 className="h-4 w-4 mr-1" /> Supprimer
+                          </Button>
+                        </div>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              ))
+            ) : (
+              <div className="col-span-full text-center p-8">
+                <p className="text-muted-foreground">Aucun élève trouvé. Veuillez modifier vos critères de recherche ou ajouter un nouvel élève.</p>
+              </div>
+            )}
+          </div>
+        )}
 
         {/* Add/Edit Student Dialog */}
         <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
@@ -373,7 +431,7 @@ const Students = () => {
                   </SelectTrigger>
                   <SelectContent>
                     {availableClasses.length > 0 ? (
-                      availableClasses.map((className) => (
+                      availableClasses.map((className: string) => (
                         <SelectItem key={className} value={className}>
                           {className}
                         </SelectItem>
