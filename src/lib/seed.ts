@@ -69,64 +69,78 @@ export async function seedDatabase() {
       }
     });
     
-    // Create attendance records
-    await prisma.attendanceRecord.createMany({
-      data: [
-        {
+    // Create attendance records - use individual create calls instead of createMany for browser compatibility
+    await Promise.all([
+      prisma.attendanceRecord.create({
+        data: {
           studentId: marie.id,
           date: "2023-11-06",
           status: "present"
-        },
-        {
+        }
+      }),
+      prisma.attendanceRecord.create({
+        data: {
           studentId: thomas.id,
           date: "2023-11-06",
           status: "absent",
           notes: "Maladie"
-        },
-        {
+        }
+      }),
+      prisma.attendanceRecord.create({
+        data: {
           studentId: sophie.id,
           date: "2023-11-06",
           status: "present"
-        },
-        {
+        }
+      }),
+      prisma.attendanceRecord.create({
+        data: {
           studentId: marie.id,
           date: "2023-11-07",
           status: "present"
-        },
-        {
+        }
+      }),
+      prisma.attendanceRecord.create({
+        data: {
           studentId: thomas.id,
           date: "2023-11-07",
           status: "present"
-        },
-        {
+        }
+      }),
+      prisma.attendanceRecord.create({
+        data: {
           studentId: sophie.id,
           date: "2023-11-07",
           status: "late",
           notes: "10 minutes de retard"
         }
-      ]
-    });
+      })
+    ]);
     
-    // Create payments
-    await prisma.payment.createMany({
-      data: [
-        {
+    // Create payments - use individual create calls instead of createMany
+    await Promise.all([
+      prisma.payment.create({
+        data: {
           studentId: marie.id,
           amount: 500.00,
           date: "2023-10-05",
           type: "tuition",
           status: "paid",
           currency: "FCFA"
-        },
-        {
+        }
+      }),
+      prisma.payment.create({
+        data: {
           studentId: thomas.id,
           amount: 500.00,
           date: "2023-10-10",
           type: "tuition",
           status: "paid",
           currency: "FCFA"
-        },
-        {
+        }
+      }),
+      prisma.payment.create({
+        data: {
           studentId: sophie.id,
           amount: 500.00,
           date: "2023-10-15",
@@ -135,13 +149,13 @@ export async function seedDatabase() {
           notes: "Rappel envoyé",
           currency: "FCFA"
         }
-      ]
-    });
+      })
+    ]);
     
-    // Create grades
-    await prisma.grade.createMany({
-      data: [
-        {
+    // Create grades - use individual create calls instead of createMany
+    await Promise.all([
+      prisma.grade.create({
+        data: {
           studentId: marie.id,
           subject: "Mathématiques",
           score: 17,
@@ -149,8 +163,10 @@ export async function seedDatabase() {
           evaluationType: "composition",
           term: "1er trimestre",
           coefficient: 4
-        },
-        {
+        }
+      }),
+      prisma.grade.create({
+        data: {
           studentId: marie.id,
           subject: "Français",
           score: 15.5,
@@ -158,8 +174,10 @@ export async function seedDatabase() {
           evaluationType: "composition",
           term: "1er trimestre",
           coefficient: 3
-        },
-        {
+        }
+      }),
+      prisma.grade.create({
+        data: {
           studentId: thomas.id,
           subject: "Mathématiques",
           score: 18.5,
@@ -167,8 +185,10 @@ export async function seedDatabase() {
           evaluationType: "composition",
           term: "1er trimestre",
           coefficient: 4
-        },
-        {
+        }
+      }),
+      prisma.grade.create({
+        data: {
           studentId: thomas.id,
           subject: "Français",
           score: 13.5,
@@ -176,8 +196,10 @@ export async function seedDatabase() {
           evaluationType: "composition",
           term: "1er trimestre",
           coefficient: 3
-        },
-        {
+        }
+      }),
+      prisma.grade.create({
+        data: {
           studentId: sophie.id,
           subject: "Mathématiques",
           score: 15,
@@ -185,8 +207,10 @@ export async function seedDatabase() {
           evaluationType: "composition",
           term: "1er trimestre",
           coefficient: 4
-        },
-        {
+        }
+      }),
+      prisma.grade.create({
+        data: {
           studentId: sophie.id,
           subject: "Français",
           score: 17.5,
@@ -196,8 +220,8 @@ export async function seedDatabase() {
           coefficient: 3,
           notes: "Excellente rédaction"
         }
-      ]
-    });
+      })
+    ]);
     
     console.log("Database seeded successfully!");
   } catch (error) {

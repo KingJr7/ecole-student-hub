@@ -7,38 +7,43 @@ const createMockPrismaClient = () => {
   return {
     class: {
       findMany: async () => [],
-      findFirst: async () => null,
-      findUnique: async () => null,
+      findFirst: async (query?: any) => null,
+      findUnique: async (query?: any) => null,
       create: async (data: any) => data.data,
       update: async (data: any) => data.data,
-      delete: async () => ({})
+      delete: async (query?: any) => ({}),
+      count: async (query?: any) => 0
     },
     student: {
-      findMany: async () => [],
-      findFirst: async () => null,
-      findUnique: async () => null,
+      findMany: async (query?: any) => [],
+      findFirst: async (query?: any) => null,
+      findUnique: async (query?: any) => null,
       create: async (data: any) => data.data,
       update: async (data: any) => data.data,
-      delete: async () => ({})
+      delete: async (query?: any) => ({}),
+      count: async (query?: any) => 0
     },
     attendanceRecord: {
-      findMany: async () => [],
+      findMany: async (query?: any) => [],
       create: async (data: any) => data.data,
+      createMany: async (data: any) => ({ count: data.data?.length || 0 }),
       update: async (data: any) => data.data,
-      delete: async () => ({})
+      delete: async (query?: any) => ({})
     },
     payment: {
-      findMany: async () => [],
+      findMany: async (query?: any) => [],
       create: async (data: any) => data.data,
+      createMany: async (data: any) => ({ count: data.data?.length || 0 }),
       update: async (data: any) => data.data,
-      delete: async () => ({})
+      delete: async (query?: any) => ({})
     },
     grade: {
-      findMany: async () => [],
-      count: async () => 0,
+      findMany: async (query?: any) => [],
+      count: async (query?: any) => 0,
       create: async (data: any) => data.data,
+      createMany: async (data: any) => ({ count: data.data?.length || 0 }),
       update: async (data: any) => data.data,
-      delete: async () => ({})
+      delete: async (query?: any) => ({})
     }
   };
 };
