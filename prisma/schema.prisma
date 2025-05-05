@@ -1,0 +1,79 @@
+
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = "file:./dev.db"
+}
+
+model Class {
+  id        Int       @id @default(autoincrement())
+  name      String    @unique
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  students  Student[]
+}
+
+model Student {
+  id             Int               @id @default(autoincrement())
+  firstName      String
+  lastName       String
+  email          String            @unique
+  phone          String
+  dateOfBirth    String
+  address        String
+  enrollmentDate String
+  status         String // 'active' | 'inactive' | 'graduated'
+  classId        Int
+  class          Class             @relation(fields: [classId], references: [id])
+  attendances    AttendanceRecord[]
+  payments       Payment[]
+  grades         Grade[]
+  createdAt      DateTime          @default(now())
+  updatedAt      DateTime          @updatedAt
+}
+
+model AttendanceRecord {
+  id        Int      @id @default(autoincrement())
+  studentId Int
+  date      String
+  status    String // 'present' | 'absent' | 'late' | 'excused'
+  notes     String?
+  student   Student  @relation(fields: [studentId], references: [id])
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Payment {
+  id        Int      @id @default(autoincrement())
+  studentId Int
+  amount    Float
+  date      String
+  type      String // 'tuition' | 'books' | 'activities' | 'other'
+  status    String // 'paid' | 'pending' | 'overdue'
+  notes     String?
+  currency  String   @default("FCFA")
+  student   Student  @relation(fields: [studentId], references: [id])
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Grade {
+  id             Int      @id @default(autoincrement())
+  studentId      Int
+  subject        String
+  score          Float
+  date           String
+  notes          String?
+  evaluationType String?  // 'devoir' | 'composition'
+  term           String?  // '1er trimestre' | '2e trimestre' | '3e trimestre'
+  coefficient    Float?   @default(1)
+  student        Student  @relation(fields: [studentId], references: [id])
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+}

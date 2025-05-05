@@ -2,7 +2,7 @@
 import { useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { cn } from "@/lib/utils";
-import { Book, CalendarCheck, FileText, FileMinus, Users } from "lucide-react";
+import { Book, CalendarCheck, FileText, FileMinus, Users, Database } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 export default function Sidebar() {
@@ -12,6 +12,7 @@ export default function Sidebar() {
   const navigation = [
     { name: "Tableau de bord", href: "/", icon: Book },
     { name: "Élèves", href: "/students", icon: Users },
+    { name: "Classes", href: "/classes", icon: Database },
     { name: "Présences", href: "/attendance", icon: CalendarCheck },
     { name: "Paiements", href: "/payments", icon: FileMinus },
     { name: "Notes", href: "/grades", icon: FileText },
