@@ -34,13 +34,11 @@ const StudentSearchSelect = ({
 }: StudentSearchSelectProps) => {
   const [open, setOpen] = useState(false);
   
-  // Ensure students is an array before finding
-  const selectedStudent = students && Array.isArray(students) 
-    ? students.find(student => student.id === value)
-    : undefined;
+  // Make sure students is defined and is an array before processing it
+  const safeStudents = Array.isArray(students) ? students : [];
   
-  // Create a safe version of students to use in the CommandGroup
-  const safeStudents = students && Array.isArray(students) ? students : [];
+  // Find the selected student safely
+  const selectedStudent = safeStudents.find(student => student.id === value);
   
   return (
     <Popover open={open} onOpenChange={setOpen}>

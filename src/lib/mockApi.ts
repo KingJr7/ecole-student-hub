@@ -145,7 +145,7 @@ export const getStudent = async (id: number) => {
 export const addStudent = async (student: Omit<Student, "id">) => {
   const newId = Math.max(0, ...mockData.students.map(s => s.id)) + 1;
   
-  // Create a new student object with explicit typing and fully typed properties
+  // Create a new student object with correct typing
   const newStudent: Student = { 
     id: newId,
     firstName: student.firstName,
@@ -194,14 +194,14 @@ export const getStudentAttendance = async (studentId: number) => {
 export const addAttendanceRecord = async (record: Omit<AttendanceRecord, "id">) => {
   const newId = Math.max(0, ...mockData.attendance.map(a => a.id)) + 1;
   
-  // Create a new attendance record with explicitly typed status
-  const newRecord: AttendanceRecord = { 
+  // Create a new attendance record with explicit typing
+  const newRecord = { 
     id: newId, 
     studentId: record.studentId,
     date: record.date,
     status: record.status,
     notes: record.notes || ""
-  };
+  } as AttendanceRecord; // Use type assertion to fix the compatibility issue
   
   mockData.attendance.push(newRecord);
   return newRecord;
@@ -329,7 +329,7 @@ export const getDashboardStats = async (): Promise<DashboardStats> => {
   
   const present = todayAttendance.filter(record => record.status === 'present').length;
   const absent = todayAttendance.filter(record => record.status === 'absent').length;
-  // Fix type error by using type assertion
+  // Use type assertion to handle late status which might not be in the type definition
   const late = todayAttendance.filter(record => (record.status as string) === 'late').length;
   
   const paymentsThisMonth = mockData.payments
