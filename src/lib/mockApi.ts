@@ -1,12 +1,87 @@
 
 // Mock data for browser environment
-import { Student, AttendanceRecord, Payment, Grade, DashboardStats, ClassResult, ParentInfo } from "../types";
+import { Student, AttendanceRecord, Payment, Grade, DashboardStats, ClassResult, ParentInfo, Teacher, Subject, Schedule, ClassWithDetails } from "../types";
 
 // In-memory storage for mock data
 const mockData = {
   classes: [
     { id: 1, name: "Terminale S", createdAt: new Date(), updatedAt: new Date() },
     { id: 2, name: "Première ES", createdAt: new Date(), updatedAt: new Date() }
+  ],
+  teachers: [
+    { 
+      id: 1, 
+      firstName: "Jean", 
+      lastName: "Dupont", 
+      email: "jean.dupont@ecole.fr", 
+      phone: "06 12 34 56 78",
+      createdAt: new Date(),
+      updatedAt: new Date()
+    },
+    { 
+      id: 2, 
+      firstName: "Marie", 
+      lastName: "Martin", 
+      email: "marie.martin@ecole.fr", 
+      phone: "07 23 45 67 89",
+      createdAt: new Date(),
+      updatedAt: new Date()
+    }
+  ],
+  subjects: [
+    { 
+      id: 1, 
+      name: "Mathématiques", 
+      classId: 1, 
+      teacherId: 1,
+      createdAt: new Date(),
+      updatedAt: new Date()
+    },
+    { 
+      id: 2, 
+      name: "Physique-Chimie", 
+      classId: 1, 
+      teacherId: 1,
+      createdAt: new Date(),
+      updatedAt: new Date()
+    },
+    { 
+      id: 3, 
+      name: "Sciences Économiques", 
+      classId: 2, 
+      teacherId: 2,
+      createdAt: new Date(),
+      updatedAt: new Date()
+    }
+  ],
+  schedules: [
+    { 
+      id: 1, 
+      subjectId: 1, 
+      dayOfWeek: "Lundi", 
+      startTime: "08:00", 
+      endTime: "10:00",
+      createdAt: new Date(),
+      updatedAt: new Date()
+    },
+    { 
+      id: 2, 
+      subjectId: 1, 
+      dayOfWeek: "Mercredi", 
+      startTime: "14:00", 
+      endTime: "16:00",
+      createdAt: new Date(),
+      updatedAt: new Date()
+    },
+    { 
+      id: 3, 
+      subjectId: 2, 
+      dayOfWeek: "Mardi", 
+      startTime: "10:00", 
+      endTime: "12:00",
+      createdAt: new Date(),
+      updatedAt: new Date()
+    }
   ],
   students: [
     {
@@ -98,6 +173,29 @@ export const getClasses = async () => {
   return [...mockData.classes];
 };
 
+export const getClassWithDetails = async (id: number): Promise<ClassWithDetails | null> => {
+  const classObj = mockData.classes.find(c => c.id === id);
+  if (!classObj) return null;
+  
+  const subjects = mockData.subjects
+    .filter(s => s.classId === id)
+    .map(subject => {
+      const teacher = mockData.teachers.find(t => t.id === subject.teacherId);
+      const schedules = mockData.schedules.filter(s => s.subjectId === subject.id);
+      return {
+        ...subject,
+        teacher,
+        schedules
+      };
+    });
+  
+  return {
+    id: classObj.id,
+    name: classObj.name,
+    subjects
+  };
+};
+
 export const getClass = async (id: number) => {
   return mockData.classes.find(c => c.id === id) || null;
 };
@@ -131,6 +229,133 @@ export const deleteClass = async (id: number) => {
     return deleted;
   }
   throw new Error(`Class with id ${id} not found`);
+};
+
+// Teacher operations
+export const getTeachers = async (): Promise<Teacher[]> => {
+  return [...mockData.teachers];
+};
+
+export const getTeacher = async (id: number): Promise<Teacher | undefined> => {
+  return mockData.teachers.find(t => t.id === id);
+};
+
+export const addTeacher = async (teacher: Omit<Teacher, "id">): Promise<Teacher> => {
+  const newId = Math.max(0, ...mockData.teachers.map(t => t.id)) + 1;
+  const newTeacher: Teacher = {
+    id: newId,
+    firstName: teacher.firstName,
+    lastName: teacher.lastName,
+    email: teacher.email,
+    phone: teacher.phone
+  };
+  mockData.teachers.push(newTeacher as any);
+  return newTeacher;
+};
+
+export const updateTeacher = async (id: number, data: Partial<Teacher>): Promise<Teacher> => {
+  const teacher = mockData.teachers.find(t => t.id === id);
+  if (!teacher) {
+    throw new Error(`Teacher with id ${id} not found`);
+  }
+  Object.assign(teacher, data);
+  return {...teacher};
+};
+
+export const deleteTeacher = async (id: number): Promise<boolean> => {
+  const index = mockData.teachers.findIndex(t => t.id === id);
+  if (index !== -1) {
+    mockData.teachers.splice(index, 1);
+    return true;
+  }
+  throw new Error(`Teacher with id ${id} not found`);
+};
+
+// Subject operations
+export const getSubjects = async (): Promise<Subject[]> => {
+  return [...mockData.subjects];
+};
+
+export const getClassSubjects = async (classId: number): Promise<Subject[]> => {
+  return mockData.subjects
+    .filter(s => s.classId === classId)
+    .map(subject => {
+      const teacher = mockData.teachers.find(t => t.id === subject.teacherId);
+      return {
+        ...subject,
+        teacher
+      };
+    });
+};
+
+export const addSubject = async (subject: Omit<Subject, "id">): Promise<Subject> => {
+  const newId = Math.max(0, ...mockData.subjects.map(s => s.id)) + 1;
+  const newSubject: Subject = {
+    id: newId,
+    name: subject.name,
+    classId: subject.classId,
+    teacherId: subject.teacherId
+  };
+  mockData.subjects.push(newSubject as any);
+  return newSubject;
+};
+
+export const updateSubject = async (id: number, data: Partial<Subject>): Promise<Subject> => {
+  const subject = mockData.subjects.find(s => s.id === id);
+  if (!subject) {
+    throw new Error(`Subject with id ${id} not found`);
+  }
+  Object.assign(subject, data);
+  return {...subject};
+};
+
+export const deleteSubject = async (id: number): Promise<boolean> => {
+  const index = mockData.subjects.findIndex(s => s.id === id);
+  if (index !== -1) {
+    mockData.subjects.splice(index, 1);
+    return true;
+  }
+  throw new Error(`Subject with id ${id} not found`);
+};
+
+// Schedule operations
+export const getSchedules = async (): Promise<Schedule[]> => {
+  return [...mockData.schedules];
+};
+
+export const getSubjectSchedules = async (subjectId: number): Promise<Schedule[]> => {
+  return mockData.schedules.filter(s => s.subjectId === subjectId);
+};
+
+export const addSchedule = async (schedule: Omit<Schedule, "id">): Promise<Schedule> => {
+  const newId = Math.max(0, ...mockData.schedules.map(s => s.id)) + 1;
+  const newSchedule: Schedule = {
+    id: newId,
+    subjectId: schedule.subjectId,
+    dayOfWeek: schedule.dayOfWeek,
+    startTime: schedule.startTime,
+    endTime: schedule.endTime
+  };
+  mockData.schedules.push(newSchedule as any);
+  return newSchedule;
+};
+
+export const updateSchedule = async (id: number, data: Partial<Schedule>): Promise<Schedule> => {
+  const schedule = mockData.schedules.find(s => s.id === id);
+  if (!schedule) {
+    throw new Error(`Schedule with id ${id} not found`);
+  }
+  Object.assign(schedule, data);
+  return {...schedule};
+};
+
+export const deleteSchedule = async (id: number): Promise<boolean> => {
+  const index = mockData.schedules.findIndex(s => s.id === id);
+  if (index !== -1) {
+    mockData.schedules.splice(index, 1);
+    return true;
+  }
+  throw new Error(`Schedule with id ${id} not found`);
 };
 
 // Student operations

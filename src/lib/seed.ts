@@ -26,6 +26,86 @@ export async function seedDatabase() {
       }
     });
     
+    // Create teachers
+    const jeanDurand = await prisma.teacher.create({
+      data: {
+        firstName: "Jean",
+        lastName: "Durand",
+        email: "jean.durand@example.com",
+        phone: "06 12 34 56 78"
+      }
+    });
+    
+    const sophieLemaire = await prisma.teacher.create({
+      data: {
+        firstName: "Sophie",
+        lastName: "Lemaire",
+        email: "sophie.lemaire@example.com",
+        phone: "07 23 45 67 89"
+      }
+    });
+    
+    // Create subjects with schedules
+    const mathSubject = await prisma.subject.create({
+      data: {
+        name: "Mathématiques",
+        classId: terminaleSClass.id,
+        teacherId: jeanDurand.id
+      }
+    });
+    
+    await prisma.schedule.create({
+      data: {
+        subjectId: mathSubject.id,
+        dayOfWeek: "Lundi",
+        startTime: "08:00",
+        endTime: "10:00"
+      }
+    });
+    
+    await prisma.schedule.create({
+      data: {
+        subjectId: mathSubject.id,
+        dayOfWeek: "Mercredi",
+        startTime: "14:00",
+        endTime: "16:00"
+      }
+    });
+    
+    const physicsSubject = await prisma.subject.create({
+      data: {
+        name: "Physique-Chimie",
+        classId: terminaleSClass.id,
+        teacherId: sophieLemaire.id
+      }
+    });
+    
+    await prisma.schedule.create({
+      data: {
+        subjectId: physicsSubject.id,
+        dayOfWeek: "Mardi",
+        startTime: "10:00",
+        endTime: "12:00"
+      }
+    });
+    
+    const economicsSubject = await prisma.subject.create({
+      data: {
+        name: "Sciences Économiques",
+        classId: premiereESClass.id,
+        teacherId: sophieLemaire.id
+      }
+    });
+    
+    await prisma.schedule.create({
+      data: {
+        subjectId: economicsSubject.id,
+        dayOfWeek: "Jeudi",
+        startTime: "14:00",
+        endTime: "16:00"
+      }
+    });
+    
     // Create students
     const marie = await prisma.student.create({
       data: {

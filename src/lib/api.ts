@@ -1,5 +1,6 @@
+
 import prisma from './prisma';
-import { Student, AttendanceRecord, Payment, Grade, DashboardStats, ClassResult } from "../types";
+import { Student, AttendanceRecord, Payment, Grade, DashboardStats, ClassResult, Teacher, Subject, Schedule, ClassWithDetails } from "../types";
 
 // Import mock implementations for client-side
 import * as mockApi from './mockApi';
@@ -10,6 +11,47 @@ const isBrowser = typeof window !== 'undefined';
 // Class operations
 export const getClasses = isBrowser ? mockApi.getClasses : async () => {
   return await prisma.class.findMany();
+};
+
+export const getClassWithDetails = isBrowser ? mockApi.getClassWithDetails : async (id: number) => {
+  const classObj = await prisma.class.findUnique({
+    where: { id },
+    include: {
+      subjects: {
+        include: {
+          teacher: true,
+          schedules: true
+        }
+      }
+    }
+  });
+  
+  if (!classObj) return null;
+  
+  return {
+    id: classObj.id,
+    name: classObj.name,
+    subjects: classObj.subjects.map(subject => ({
+      id: subject.id,
+      name: subject.name,
+      classId: subject.classId,
+      teacherId: subject.teacherId,
+      teacher: subject.teacher ? {
+        id: subject.teacher.id,
+        firstName: subject.teacher.firstName,
+        lastName: subject.teacher.lastName,
+        email: subject.teacher.email,
+        phone: subject.teacher.phone
+      } : undefined,
+      schedules: subject.schedules.map(schedule => ({
+        id: schedule.id,
+        subjectId: schedule.subjectId,
+        dayOfWeek: schedule.dayOfWeek,
+        startTime: schedule.startTime,
+        endTime: schedule.endTime
+      }))
+    }))
+  };
 };
 
 export const getClass = isBrowser ? mockApi.getClass : async (id: number) => {
@@ -35,6 +77,116 @@ export const deleteClass = isBrowser ? mockApi.deleteClass : async (id: number) 
   return await prisma.class.delete({
     where: { id }
   });
+};
+
+// Teacher operations
+export const getTeachers = isBrowser ? mockApi.getTeachers : async () => {
+  return await prisma.teacher.findMany();
+};
+
+export const getTeacher = isBrowser ? mockApi.getTeacher : async (id: number) => {
+  return await prisma.teacher.findUnique({
+    where: { id }
+  });
+};
+
+export const addTeacher = isBrowser ? mockApi.addTeacher : async (teacher: Omit<Teacher, "id">) => {
+  return await prisma.teacher.create({
+    data: {
+      firstName: teacher.firstName,
+      lastName: teacher.lastName,
+      email: teacher.email,
+      phone: teacher.phone
+    }
+  });
+};
+
+export const updateTeacher = isBrowser ? mockApi.updateTeacher : async (id: number, data: Partial<Teacher>) => {
+  return await prisma.teacher.update({
+    where: { id },
+    data
+  });
+};
+
+export const deleteTeacher = isBrowser ? mockApi.deleteTeacher : async (id: number) => {
+  await prisma.teacher.delete({
+    where: { id }
+  });
+  return true;
+};
+
+// Subject operations
+export const getSubjects = isBrowser ? mockApi.getSubjects : async () => {
+  return await prisma.subject.findMany({
+    include: { teacher: true }
+  });
+};
+
+export const getClassSubjects = isBrowser ? mockApi.getClassSubjects : async (classId: number) => {
+  return await prisma.subject.findMany({
+    where: { classId },
+    include: { teacher: true }
+  });
+};
+
+export const addSubject = isBrowser ? mockApi.addSubject : async (subject: Omit<Subject, "id">) => {
+  return await prisma.subject.create({
+    data: {
+      name: subject.name,
+      classId: subject.classId,
+      teacherId: subject.teacherId
+    }
+  });
+};
+
+export const updateSubject = isBrowser ? mockApi.updateSubject : async (id: number, data: Partial<Subject>) => {
+  return await prisma.subject.update({
+    where: { id },
+    data
+  });
+};
+
+export const deleteSubject = isBrowser ? mockApi.deleteSubject : async (id: number) => {
+  await prisma.subject.delete({
+    where: { id }
+  });
+  return true;
+};
+
+// Schedule operations
+export const getSchedules = isBrowser ? mockApi.getSchedules : async () => {
+  return await prisma.schedule.findMany();
+};
+
+export const getSubjectSchedules = isBrowser ? mockApi.getSubjectSchedules : async (subjectId: number) => {
+  return await prisma.schedule.findMany({
+    where: { subjectId }
+  });
+};
+
+export const addSchedule = isBrowser ? mockApi.addSchedule : async (schedule: Omit<Schedule, "id">) => {
+  return await prisma.schedule.create({
+    data: {
+      subjectId: schedule.subjectId,
+      dayOfWeek: schedule.dayOfWeek,
+      startTime: schedule.startTime,
+      endTime: schedule.endTime
+    }
+  });
+};
+
+export const updateSchedule = isBrowser ? mockApi.updateSchedule : async (id: number, data: Partial<Schedule>) => {
+  return await prisma.schedule.update({
+    where: { id },
+    data
+  });
+};
+
+export const deleteSchedule = isBrowser ? mockApi.deleteSchedule : async (id: number) => {
+  await prisma.schedule.delete({
+    where: { id }
+  });
+  return true;
 };
 
 // Student operations

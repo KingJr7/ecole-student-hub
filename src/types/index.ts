@@ -78,3 +78,35 @@ export interface ClassResult {
     }
   }
 }
+
+// Nouvelles interfaces pour les matières, professeurs et emploi du temps
+export interface Teacher {
+  id: number;
+  firstName: string;
+  lastName: string;
+  email: string;
+  phone: string;
+}
+
+export interface Subject {
+  id: number;
+  name: string;
+  classId: number;
+  teacherId: number;
+  teacher?: Teacher;
+  schedules?: Schedule[];
+}
+
+export interface Schedule {
+  id: number;
+  subjectId: number;
+  dayOfWeek: string;
+  startTime: string;
+  endTime: string;
+}
+
+export interface ClassWithDetails {
+  id: number;
+  name: string;
+  subjects: Subject[];
+}

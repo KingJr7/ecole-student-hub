@@ -17,6 +17,41 @@ model Class {
   createdAt DateTime  @default(now())
   updatedAt DateTime  @updatedAt
   students  Student[]
+  subjects  Subject[]
+}
+
+model Subject {
+  id          Int          @id @default(autoincrement())
+  name        String       
+  classId     Int
+  teacherId   Int
+  class       Class        @relation(fields: [classId], references: [id])
+  teacher     Teacher      @relation(fields: [teacherId], references: [id])
+  schedules   Schedule[]
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+}
+
+model Teacher {
+  id         Int       @id @default(autoincrement())
+  firstName  String
+  lastName   String
+  email      String    @unique
+  phone      String
+  subjects   Subject[]
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
+}
+
+model Schedule {
+  id         Int      @id @default(autoincrement())
+  subjectId  Int
+  dayOfWeek  String   // Lundi, Mardi, etc.
+  startTime  String   // Format HH:MM
+  endTime    String   // Format HH:MM
+  subject    Subject  @relation(fields: [subjectId], references: [id])
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
 }
 
 model Student {
