@@ -39,6 +39,9 @@ const StudentSearchSelect = ({
     ? students.find(student => student.id === value)
     : undefined;
   
+  // Create a safe version of students to use in the CommandGroup
+  const safeStudents = Array.isArray(students) ? students : [];
+  
   return (
     <Popover open={open} onOpenChange={setOpen}>
       <PopoverTrigger asChild>
@@ -59,7 +62,7 @@ const StudentSearchSelect = ({
           <CommandInput placeholder={placeholder} />
           <CommandEmpty>Aucun élève trouvé</CommandEmpty>
           <CommandGroup className="max-h-60 overflow-y-auto">
-            {Array.isArray(students) && students.map((student) => (
+            {safeStudents.map((student) => (
               <CommandItem
                 key={student.id}
                 value={`${student.firstName} ${student.lastName}`.toLowerCase()}

@@ -147,7 +147,9 @@ export const addStudent = async (student: Omit<Student, "id">) => {
   // Create a new student object with explicit typing
   const newStudent: Student = { 
     ...student,
-    id: newId
+    id: newId,
+    // Ensure status is typed correctly
+    status: student.status as "active" | "inactive" | "graduated"
   };
   
   mockData.students.push(newStudent);
@@ -319,8 +321,8 @@ export const getDashboardStats = async (): Promise<DashboardStats> => {
   
   const present = todayAttendance.filter(record => record.status === 'present').length;
   const absent = todayAttendance.filter(record => record.status === 'absent').length;
-  // Fix type error by checking the exact string value
-  const late = todayAttendance.filter(record => record.status === 'late').length;
+  // Fix type error by ensuring this is type-safe
+  const late = todayAttendance.filter(record => record.status === 'late' as any).length;
   
   const paymentsThisMonth = mockData.payments
     .filter(p => p.date.startsWith(thisMonth))
