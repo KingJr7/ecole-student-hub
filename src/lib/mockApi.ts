@@ -1,697 +1,707 @@
-// Mock data for browser environment
-import { Student, AttendanceRecord, Payment, Grade, DashboardStats, ClassResult, ParentInfo, Teacher, Subject, Schedule, ClassWithDetails } from "../types";
 
-// In-memory storage for mock data
-const mockData = {
-  classes: [
-    { id: 1, name: "Terminale S", createdAt: new Date(), updatedAt: new Date() },
-    { id: 2, name: "Première ES", createdAt: new Date(), updatedAt: new Date() }
-  ],
-  teachers: [
-    { 
-      id: 1, 
-      firstName: "Jean", 
-      lastName: "Dupont", 
-      email: "jean.dupont@ecole.fr", 
-      phone: "06 12 34 56 78",
-      createdAt: new Date(),
-      updatedAt: new Date()
-    },
-    { 
-      id: 2, 
-      firstName: "Marie", 
-      lastName: "Martin", 
-      email: "marie.martin@ecole.fr", 
-      phone: "07 23 45 67 89",
-      createdAt: new Date(),
-      updatedAt: new Date()
+import { Student, AttendanceRecord, Payment, Grade, Subject, Teacher, Schedule, ClassWithDetails } from '@/types';
+
+// Mock data store
+let students: Student[] = [];
+let attendanceRecords: AttendanceRecord[] = [];
+let payments: Payment[] = [];
+let grades: Grade[] = [];
+let subjects: Subject[] = [];
+let teachers: Teacher[] = [];
+let schedules: Schedule[] = [];
+
+// Mock API functions
+
+// STUDENTS
+export const getStudents = (): Student[] => {
+  return [...students];
+};
+
+export const getStudent = (id: number): Student | undefined => {
+  return students.find(student => student.id === id);
+};
+
+export const addStudent = (student: Omit<Student, "id">): Student => {
+  const newStudent = {
+    ...student,
+    id: Math.max(0, ...students.map(s => s.id)) + 1
+  };
+  students.push(newStudent);
+  return newStudent;
+};
+
+export const updateStudent = (id: number, data: Partial<Student>): Student => {
+  const index = students.findIndex(student => student.id === id);
+  if (index === -1) throw new Error('Student not found');
+  
+  students[index] = { ...students[index], ...data };
+  return students[index];
+};
+
+export const deleteStudent = (id: number): void => {
+  students = students.filter(student => student.id !== id);
+  
+  // Also clean up related data
+  attendanceRecords = attendanceRecords.filter(record => record.studentId !== id);
+  payments = payments.filter(payment => payment.studentId !== id);
+  grades = grades.filter(grade => grade.studentId !== id);
+};
+
+// ATTENDANCE
+export const getAttendanceRecords = (): AttendanceRecord[] => {
+  return [...attendanceRecords];
+};
+
+export const getStudentAttendance = (studentId: number): AttendanceRecord[] => {
+  return attendanceRecords.filter(record => record.studentId === studentId);
+};
+
+export const addAttendanceRecord = (record: Omit<AttendanceRecord, "id">): AttendanceRecord => {
+  const newRecord = {
+    ...record,
+    id: Math.max(0, ...attendanceRecords.map(r => r.id)) + 1
+  };
+  attendanceRecords.push(newRecord);
+  return newRecord;
+};
+
+export const updateAttendanceRecord = (id: number, data: Partial<AttendanceRecord>): AttendanceRecord => {
+  const index = attendanceRecords.findIndex(record => record.id === id);
+  if (index === -1) throw new Error('Attendance record not found');
+  
+  attendanceRecords[index] = { ...attendanceRecords[index], ...data };
+  return attendanceRecords[index];
+};
+
+export const deleteAttendanceRecord = (id: number): void => {
+  attendanceRecords = attendanceRecords.filter(record => record.id !== id);
+};
+
+// PAYMENTS
+export const getPayments = (): Payment[] => {
+  return [...payments];
+};
+
+export const getStudentPayments = (studentId: number): Payment[] => {
+  return payments.filter(payment => payment.studentId === studentId);
+};
+
+export const addPayment = (payment: Omit<Payment, "id">): Payment => {
+  const newPayment = {
+    ...payment,
+    id: Math.max(0, ...payments.map(p => p.id)) + 1
+  };
+  payments.push(newPayment);
+  return newPayment;
+};
+
+export const updatePayment = (id: number, data: Partial<Payment>): Payment => {
+  const index = payments.findIndex(payment => payment.id === id);
+  if (index === -1) throw new Error('Payment not found');
+  
+  payments[index] = { ...payments[index], ...data };
+  return payments[index];
+};
+
+export const deletePayment = (id: number): void => {
+  payments = payments.filter(payment => payment.id !== id);
+};
+
+// GRADES
+export const getGrades = (): Grade[] => {
+  return [...grades];
+};
+
+export const getStudentGrades = (studentId: number): Grade[] => {
+  return grades.filter(grade => grade.studentId === studentId);
+};
+
+export const addGrade = (grade: Omit<Grade, "id">): Grade => {
+  const newGrade = {
+    ...grade,
+    id: Math.max(0, ...grades.map(g => g.id)) + 1
+  };
+  grades.push(newGrade);
+  return newGrade;
+};
+
+export const updateGrade = (id: number, data: Partial<Grade>): Grade => {
+  const index = grades.findIndex(grade => grade.id === id);
+  if (index === -1) throw new Error('Grade not found');
+  
+  grades[index] = { ...grades[index], ...data };
+  return grades[index];
+};
+
+export const deleteGrade = (id: number): void => {
+  grades = grades.filter(grade => grade.id !== id);
+};
+
+// TEACHERS
+export const getTeachers = (): Teacher[] => {
+  return [...teachers];
+};
+
+export const getTeacher = (id: number): Teacher | undefined => {
+  return teachers.find(teacher => teacher.id === id);
+};
+
+export const addTeacher = (teacher: Omit<Teacher, "id">): Teacher => {
+  const newTeacher = {
+    ...teacher,
+    id: Math.max(0, ...teachers.map(t => t.id)) + 1
+  };
+  teachers.push(newTeacher);
+  return newTeacher;
+};
+
+export const updateTeacher = (id: number, data: Partial<Teacher>): Teacher => {
+  const index = teachers.findIndex(teacher => teacher.id === id);
+  if (index === -1) throw new Error('Teacher not found');
+  
+  teachers[index] = { ...teachers[index], ...data };
+  return teachers[index];
+};
+
+export const deleteTeacher = (id: number): void => {
+  teachers = teachers.filter(teacher => teacher.id !== id);
+  
+  // Update subjects that had this teacher
+  subjects = subjects.map(subject => 
+    subject.teacherId === id 
+      ? { ...subject, teacherId: 0 } // Set to 0 or handle differently
+      : subject
+  );
+};
+
+// SUBJECTS
+export const getSubjects = (): Subject[] => {
+  return [...subjects];
+};
+
+export const getSubject = (id: number): Subject | undefined => {
+  return subjects.find(subject => subject.id === id);
+};
+
+export const getSubjectsByClass = (className: string): Subject[] => {
+  const classIdMap: Record<string, number> = {
+    'Terminale A': 1,
+    'Terminale C': 2,
+    'Terminale D': 3,
+    'Première A': 4,
+    'Première C': 5,
+    'Première D': 6,
+    'Seconde A': 7,
+    'Seconde C': 8,
+  };
+  
+  const classId = classIdMap[className] || 0;
+  return subjects.filter(subject => subject.classId === classId);
+};
+
+export const getAllSubjects = (): Subject[] => {
+  return [...subjects];
+};
+
+export const addSubject = (subject: Omit<Subject, "id">): Subject => {
+  const newSubject = {
+    ...subject,
+    id: Math.max(0, ...subjects.map(s => s.id)) + 1
+  };
+  subjects.push(newSubject);
+  return newSubject;
+};
+
+export const updateSubject = (id: number, data: Partial<Subject>): Subject => {
+  const index = subjects.findIndex(subject => subject.id === id);
+  if (index === -1) throw new Error('Subject not found');
+  
+  subjects[index] = { ...subjects[index], ...data };
+  return subjects[index];
+};
+
+export const deleteSubject = (id: number): void => {
+  subjects = subjects.filter(subject => subject.id !== id);
+  
+  // Also delete schedules for this subject
+  schedules = schedules.filter(schedule => schedule.subjectId !== id);
+};
+
+// SCHEDULES
+export const getSchedules = (): Schedule[] => {
+  return [...schedules];
+};
+
+export const getSubjectSchedules = (subjectId: number): Schedule[] => {
+  return schedules.filter(schedule => schedule.subjectId === subjectId);
+};
+
+export const addSchedule = (schedule: Omit<Schedule, "id">): Schedule => {
+  const newSchedule = {
+    ...schedule,
+    id: Math.max(0, ...schedules.map(s => s.id)) + 1
+  };
+  schedules.push(newSchedule);
+  return newSchedule;
+};
+
+export const updateSchedule = (id: number, data: Partial<Schedule>): Schedule => {
+  const index = schedules.findIndex(schedule => schedule.id === id);
+  if (index === -1) throw new Error('Schedule not found');
+  
+  schedules[index] = { ...schedules[index], ...data };
+  return schedules[index];
+};
+
+export const deleteSchedule = (id: number): void => {
+  schedules = schedules.filter(schedule => schedule.id !== id);
+};
+
+// CLASS OPERATIONS
+export const getClassDetails = (className: string): ClassWithDetails | undefined => {
+  const classIdMap: Record<string, number> = {
+    'Terminale A': 1,
+    'Terminale C': 2,
+    'Terminale D': 3,
+    'Première A': 4,
+    'Première C': 5,
+    'Première D': 6,
+    'Seconde A': 7,
+    'Seconde C': 8,
+  };
+  
+  const classId = classIdMap[className];
+  if (!classId) return undefined;
+  
+  const classSubjects = subjects.filter(subject => subject.classId === classId);
+  
+  // Attach teacher details to each subject
+  const subjectsWithDetails = classSubjects.map(subject => {
+    const teacher = teachers.find(t => t.id === subject.teacherId);
+    const subjectSchedules = schedules.filter(s => s.subjectId === subject.id);
+    return {
+      ...subject,
+      teacher,
+      schedules: subjectSchedules
+    };
+  });
+  
+  return {
+    id: classId,
+    name: className,
+    subjects: subjectsWithDetails
+  };
+};
+
+export const getAvailableClasses = (): string[] => {
+  return [
+    'Terminale A',
+    'Terminale C',
+    'Terminale D',
+    'Première A',
+    'Première C',
+    'Première D',
+    'Seconde A',
+    'Seconde C',
+  ];
+};
+
+// Helper function to get the students in a specific class
+export const getStudentsByClass = (className: string): Student[] => {
+  return students.filter(student => student.className === className);
+};
+
+// Function to calculate class results
+export const getClassResults = (className: string, term: '1er trimestre' | '2e trimestre' | '3e trimestre', useWeightedAverage: boolean = true) => {
+  const classStudents = getStudentsByClass(className);
+  const classSubjects = getSubjectsByClass(className);
+  
+  return classStudents.map(student => {
+    const studentGrades = grades.filter(
+      grade => grade.studentId === student.id && grade.term === term
+    );
+    
+    // Group grades by subject
+    const subjectGrades = studentGrades.reduce((acc, grade) => {
+      if (!acc[grade.subject]) {
+        acc[grade.subject] = [];
+      }
+      acc[grade.subject].push(grade);
+      return acc;
+    }, {} as Record<string, Grade[]>);
+    
+    // Calculate average for each subject
+    const subjectAverages = {} as Record<string, { average: number; coefficient: number }>;
+    
+    for (const subject of classSubjects) {
+      const subjectName = subject.name;
+      const gradesForSubject = subjectGrades[subjectName] || [];
+      
+      if (gradesForSubject.length > 0) {
+        // Calculate the average for this subject
+        let sum = 0;
+        let weightSum = 0;
+        
+        for (const grade of gradesForSubject) {
+          const weight = grade.coefficient || 1;
+          sum += grade.score * weight;
+          weightSum += weight;
+        }
+        
+        const average = weightSum > 0 ? sum / weightSum : 0;
+        
+        subjectAverages[subjectName] = {
+          average,
+          coefficient: subject.coefficient
+        };
+      }
     }
-  ],
-  subjects: [
-    { 
-      id: 1, 
-      name: "Mathématiques", 
-      classId: 1, 
-      teacherId: 1,
-      coefficient: 4, // Mathématiques a un coefficient élevé
-      createdAt: new Date(),
-      updatedAt: new Date()
-    },
-    { 
-      id: 2, 
-      name: "Physique-Chimie", 
-      classId: 1, 
-      teacherId: 1,
-      coefficient: 3, // Physique-Chimie a un coefficient important aussi
-      createdAt: new Date(),
-      updatedAt: new Date()
-    },
-    { 
-      id: 3, 
-      name: "Sciences Économiques", 
-      classId: 2, 
-      teacherId: 2,
-      coefficient: 4, // Sciences Éco avec un coefficient élevé pour la filière ES
-      createdAt: new Date(),
-      updatedAt: new Date()
-    },
-    { 
-      id: 4, 
-      name: "Français", 
-      classId: 1, 
-      teacherId: 2,
-      coefficient: 2, // Coefficient moyen pour le français
-      createdAt: new Date(),
-      updatedAt: new Date()
-    },
-    { 
-      id: 5, 
-      name: "Anglais", 
-      classId: 1, 
-      teacherId: 2,
-      coefficient: 2, // Coefficient moyen pour l'anglais
-      createdAt: new Date(),
-      updatedAt: new Date()
-    }
-  ],
-  schedules: [
-    { 
-      id: 1, 
-      subjectId: 1, 
-      dayOfWeek: "Lundi", 
-      startTime: "08:00", 
-      endTime: "10:00",
-      createdAt: new Date(),
-      updatedAt: new Date()
-    },
-    { 
-      id: 2, 
-      subjectId: 1, 
-      dayOfWeek: "Mercredi", 
-      startTime: "14:00", 
-      endTime: "16:00",
-      createdAt: new Date(),
-      updatedAt: new Date()
-    },
-    { 
-      id: 3, 
-      subjectId: 2, 
-      dayOfWeek: "Mardi", 
-      startTime: "10:00", 
-      endTime: "12:00",
-      createdAt: new Date(),
-      updatedAt: new Date()
-    }
-  ],
-  students: [
+    
+    // Calculate overall average
+    let overallSum = 0;
+    let overallWeightSum = 0;
+    
+    Object.entries(subjectAverages).forEach(([subjectName, { average, coefficient }]) => {
+      if (useWeightedAverage) {
+        overallSum += average * coefficient;
+        overallWeightSum += coefficient;
+      } else {
+        overallSum += average;
+        overallWeightSum += 1;
+      }
+    });
+    
+    const overallAverage = overallWeightSum > 0 ? overallSum / overallWeightSum : 0;
+    
+    return {
+      studentId: student.id,
+      studentName: `${student.firstName} ${student.lastName}`,
+      average: overallAverage,
+      subjects: subjectAverages,
+      // These will be filled in after sorting
+      rank: 0,
+      status: overallAverage >= 10 ? 'admis' as const : 'échec' as const
+    };
+  })
+  .filter(result => Object.keys(result.subjects).length > 0)
+  .sort((a, b) => b.average - a.average)
+  .map((result, index) => ({
+    ...result,
+    rank: index + 1
+  }));
+};
+
+// INITIALIZATION
+export const initializeMockData = () => {
+  // Initialize teachers
+  teachers = [
+    { id: 1, firstName: "Jean", lastName: "Dupont", email: "jean.dupont@email.com", phone: "0123456789" },
+    { id: 2, firstName: "Marie", lastName: "Laurent", email: "marie.laurent@email.com", phone: "0234567891" },
+    { id: 3, firstName: "Philippe", lastName: "Martin", email: "philippe.martin@email.com", phone: "0345678912" },
+    { id: 4, firstName: "Sophie", lastName: "Bernard", email: "sophie.bernard@email.com", phone: "0456789123" },
+    { id: 5, firstName: "Thomas", lastName: "Petit", email: "thomas.petit@email.com", phone: "0567891234" },
+  ];
+
+  // Initialize subjects with coefficient
+  subjects = [
+    { id: 1, name: "Mathématiques", classId: 2, teacherId: 1, coefficient: 4 },
+    { id: 2, name: "Physique", classId: 2, teacherId: 2, coefficient: 3 },
+    { id: 3, name: "Français", classId: 2, teacherId: 3, coefficient: 2 },
+    { id: 4, name: "Histoire-Géo", classId: 2, teacherId: 4, coefficient: 2 },
+    { id: 5, name: "Anglais", classId: 2, teacherId: 5, coefficient: 2 },
+    { id: 6, name: "Philosophie", classId: 1, teacherId: 3, coefficient: 4 },
+    { id: 7, name: "Littérature", classId: 1, teacherId: 3, coefficient: 3 },
+    { id: 8, name: "SVT", classId: 3, teacherId: 5, coefficient: 3 },
+  ];
+
+  // Initialize students
+  students = [
     {
       id: 1,
-      firstName: "Marie",
-      lastName: "Dupont",
-      email: "marie.dupont@example.com",
-      phone: "06 12 34 56 78",
-      dateOfBirth: "2005-05-15",
-      address: "123 Rue de Paris, 75001 Paris",
-      enrollmentDate: "2022-09-01",
-      status: "active" as const,
-      className: "Terminale S",
+      firstName: "Adam",
+      lastName: "Diop",
+      email: "adam.diop@email.com",
+      phone: "0600000001",
+      dateOfBirth: "2005-03-15",
+      address: "123 Rue Principale, Dakar",
+      enrollmentDate: "2023-09-01",
+      status: "active",
+      className: "Terminale C",
       parentInfo: {
-        fatherName: "Pierre Dupont",
-        fatherPhone: "06 87 65 43 21",
-        fatherEmail: "pierre.dupont@example.com",
-        motherName: "Sophie Dupont",
-        motherPhone: "06 76 54 32 10",
-        motherEmail: "sophie.dupont@example.com"
+        fatherName: "Mohamed Diop",
+        fatherPhone: "0600000002",
+        fatherEmail: "mohamed.diop@email.com",
+        motherName: "Fatou Diop",
+        motherPhone: "0600000003",
+        motherEmail: "fatou.diop@email.com"
       }
     },
     {
       id: 2,
-      firstName: "Thomas",
-      lastName: "Martin",
-      email: "thomas.martin@example.com", 
-      phone: "07 23 45 67 89",
-      dateOfBirth: "2004-08-22",
-      address: "456 Avenue Victor Hugo, 69002 Lyon",
-      enrollmentDate: "2021-09-01",
-      status: "active" as const,
-      className: "Première ES",
+      firstName: "Aminata",
+      lastName: "Sow",
+      email: "aminata.sow@email.com",
+      phone: "0600000004",
+      dateOfBirth: "2006-05-22",
+      address: "456 Avenue Centrale, Dakar",
+      enrollmentDate: "2023-09-01",
+      status: "active",
+      className: "Première A",
       parentInfo: {
-        fatherName: "Jean Martin",
-        fatherPhone: "06 12 34 56 78",
-        fatherEmail: "jean.martin@example.com",
-        motherName: "Marie Martin",
-        motherPhone: "06 98 76 54 32",
-        motherEmail: "marie.martin@example.com"
+        fatherName: "Ibrahima Sow",
+        fatherPhone: "0600000005",
+        fatherEmail: "ibrahima.sow@email.com",
+        motherName: "Mariama Sow",
+        motherPhone: "0600000006",
+        motherEmail: "mariama.sow@email.com"
+      }
+    },
+    {
+      id: 3,
+      firstName: "Omar",
+      lastName: "Ndiaye",
+      email: "omar.ndiaye@email.com",
+      phone: "0600000007",
+      dateOfBirth: "2005-11-10",
+      address: "789 Boulevard du Commerce, Dakar",
+      enrollmentDate: "2022-09-01",
+      status: "active",
+      className: "Terminale C",
+      parentInfo: {
+        fatherName: "Mamadou Ndiaye",
+        fatherPhone: "0600000008",
+        fatherEmail: "mamadou.ndiaye@email.com",
+        motherName: "Aïssatou Ndiaye",
+        motherPhone: "0600000009",
+        motherEmail: "aissatou.ndiaye@email.com"
+      }
+    },
+    {
+      id: 4,
+      firstName: "Fatima",
+      lastName: "Ba",
+      email: "fatima.ba@email.com",
+      phone: "0600000010",
+      dateOfBirth: "2007-02-18",
+      address: "101 Rue de l'École, Dakar",
+      enrollmentDate: "2023-09-01",
+      status: "active",
+      className: "Seconde C",
+      parentInfo: {
+        fatherName: "Abdoulaye Ba",
+        fatherPhone: "0600000011",
+        fatherEmail: "abdoulaye.ba@email.com",
+        motherName: "Rama Ba",
+        motherPhone: "0600000012",
+        motherEmail: "rama.ba@email.com"
       }
     }
-  ],
-  attendance: [
+  ];
+
+  // Initialize attendance records
+  const today = new Date();
+  const yesterday = new Date(today);
+  yesterday.setDate(yesterday.getDate() - 1);
+  const lastWeek = new Date(today);
+  lastWeek.setDate(lastWeek.getDate() - 7);
+
+  attendanceRecords = [
     {
       id: 1,
       studentId: 1,
-      date: "2023-11-06",
-      status: "present" as const,
-      notes: ""
+      date: today.toISOString().split('T')[0],
+      status: "present",
+      notes: "Arrivé à l'heure"
     },
     {
       id: 2,
       studentId: 2,
-      date: "2023-11-06", 
-      status: "absent" as const,
-      notes: "Maladie"
+      date: today.toISOString().split('T')[0],
+      status: "absent",
+      notes: "Absent sans justificatif"
+    },
+    {
+      id: 3,
+      studentId: 3,
+      date: today.toISOString().split('T')[0],
+      status: "late",
+      notes: "Retard de 15 minutes"
+    },
+    {
+      id: 4,
+      studentId: 4,
+      date: today.toISOString().split('T')[0],
+      status: "present",
+      notes: ""
+    },
+    {
+      id: 5,
+      studentId: 1,
+      date: yesterday.toISOString().split('T')[0],
+      status: "present",
+      notes: ""
+    },
+    {
+      id: 6,
+      studentId: 2,
+      date: yesterday.toISOString().split('T')[0],
+      status: "present",
+      notes: ""
+    },
+    {
+      id: 7,
+      studentId: 3,
+      date: yesterday.toISOString().split('T')[0],
+      status: "excused",
+      notes: "Rendez-vous médical"
+    },
+    {
+      id: 8,
+      studentId: 4,
+      date: yesterday.toISOString().split('T')[0],
+      status: "present",
+      notes: ""
     }
-  ],
-  payments: [
+  ];
+
+  // Initialize payments
+  payments = [
     {
       id: 1,
       studentId: 1,
-      amount: 500.0,
+      amount: 150000,
+      date: "2023-09-05",
+      type: "tuition",
+      status: "paid",
+      currency: "FCFA"
+    },
+    {
+      id: 2,
+      studentId: 1,
+      amount: 25000,
+      date: "2023-09-10",
+      type: "books",
+      status: "paid",
+      currency: "FCFA"
+    },
+    {
+      id: 3,
+      studentId: 2,
+      amount: 150000,
+      date: "2023-09-03",
+      type: "tuition",
+      status: "paid",
+      currency: "FCFA"
+    },
+    {
+      id: 4,
+      studentId: 3,
+      amount: 150000,
+      date: "2023-09-15",
+      type: "tuition",
+      status: "paid",
+      currency: "FCFA"
+    },
+    {
+      id: 5,
+      studentId: 4,
+      amount: 150000,
       date: "2023-10-05",
-      type: "tuition" as const,
-      status: "paid" as const,
-      notes: "",
-      currency: "FCFA" as const
+      type: "tuition",
+      status: "overdue",
+      notes: "Rappel envoyé",
+      currency: "FCFA"
     }
-  ],
-  grades: [
+  ];
+
+  // Initialize grades
+  grades = [
     {
       id: 1,
       studentId: 1,
       subject: "Mathématiques",
-      score: 17,
-      date: "2023-10-20",
-      notes: "",
-      evaluationType: "composition" as const,
-      term: "1er trimestre" as const,
-      coefficient: 4
-    }
-  ]
-};
-
-// Class operations
-export const getClasses = async () => {
-  return [...mockData.classes];
-};
-
-export const getClassWithDetails = async (id: number): Promise<ClassWithDetails | null> => {
-  const classObj = mockData.classes.find(c => c.id === id);
-  if (!classObj) return null;
-  
-  const subjects = mockData.subjects
-    .filter(s => s.classId === id)
-    .map(subject => {
-      const teacher = mockData.teachers.find(t => t.id === subject.teacherId);
-      const schedules = mockData.schedules.filter(s => s.subjectId === subject.id);
-      return {
-        ...subject,
-        teacher,
-        schedules
-      };
-    });
-  
-  return {
-    id: classObj.id,
-    name: classObj.name,
-    subjects
-  };
-};
-
-export const getClass = async (id: number) => {
-  return mockData.classes.find(c => c.id === id) || null;
-};
-
-export const addClass = async (name: string) => {
-  const newId = Math.max(0, ...mockData.classes.map(c => c.id)) + 1;
-  const newClass = { 
-    id: newId, 
-    name, 
-    createdAt: new Date(), 
-    updatedAt: new Date() 
-  };
-  mockData.classes.push(newClass);
-  return newClass;
-};
-
-export const updateClass = async (id: number, name: string) => {
-  const classObj = mockData.classes.find(c => c.id === id);
-  if (classObj) {
-    classObj.name = name;
-    classObj.updatedAt = new Date();
-    return {...classObj};
-  }
-  throw new Error(`Class with id ${id} not found`);
-};
-
-export const deleteClass = async (id: number) => {
-  const index = mockData.classes.findIndex(c => c.id === id);
-  if (index !== -1) {
-    const deleted = mockData.classes.splice(index, 1)[0];
-    return deleted;
-  }
-  throw new Error(`Class with id ${id} not found`);
-};
-
-// Teacher operations
-export const getTeachers = async (): Promise<Teacher[]> => {
-  return [...mockData.teachers];
-};
-
-export const getTeacher = async (id: number): Promise<Teacher | undefined> => {
-  return mockData.teachers.find(t => t.id === id);
-};
-
-export const addTeacher = async (teacher: Omit<Teacher, "id">): Promise<Teacher> => {
-  const newId = Math.max(0, ...mockData.teachers.map(t => t.id)) + 1;
-  const newTeacher: Teacher = {
-    id: newId,
-    firstName: teacher.firstName,
-    lastName: teacher.lastName,
-    email: teacher.email,
-    phone: teacher.phone
-  };
-  mockData.teachers.push(newTeacher as any);
-  return newTeacher;
-};
-
-export const updateTeacher = async (id: number, data: Partial<Teacher>): Promise<Teacher> => {
-  const teacher = mockData.teachers.find(t => t.id === id);
-  if (!teacher) {
-    throw new Error(`Teacher with id ${id} not found`);
-  }
-  Object.assign(teacher, data);
-  return {...teacher};
-};
-
-export const deleteTeacher = async (id: number): Promise<boolean> => {
-  const index = mockData.teachers.findIndex(t => t.id === id);
-  if (index !== -1) {
-    mockData.teachers.splice(index, 1);
-    return true;
-  }
-  throw new Error(`Teacher with id ${id} not found`);
-};
-
-// Subject operations
-export const getSubjects = async (): Promise<Subject[]> => {
-  return [...mockData.subjects];
-};
-
-export const getClassSubjects = async (classId: number): Promise<Subject[]> => {
-  return mockData.subjects
-    .filter(s => s.classId === classId)
-    .map(subject => {
-      const teacher = mockData.teachers.find(t => t.id === subject.teacherId);
-      return {
-        ...subject,
-        teacher
-      };
-    });
-};
-
-export const addSubject = async (subject: Omit<Subject, "id">): Promise<Subject> => {
-  const newId = Math.max(0, ...mockData.subjects.map(s => s.id)) + 1;
-  const newSubject: Subject = {
-    id: newId,
-    name: subject.name,
-    classId: subject.classId,
-    teacherId: subject.teacherId,
-    coefficient: subject.coefficient || 1
-  };
-  mockData.subjects.push(newSubject as any);
-  return newSubject;
-};
-
-export const updateSubject = async (id: number, data: Partial<Subject>): Promise<Subject> => {
-  const subject = mockData.subjects.find(s => s.id === id);
-  if (!subject) {
-    throw new Error(`Subject with id ${id} not found`);
-  }
-  Object.assign(subject, data);
-  return {...subject};
-};
-
-export const deleteSubject = async (id: number): Promise<boolean> => {
-  const index = mockData.subjects.findIndex(s => s.id === id);
-  if (index !== -1) {
-    mockData.subjects.splice(index, 1);
-    return true;
-  }
-  throw new Error(`Subject with id ${id} not found`);
-};
-
-// Schedule operations
-export const getSchedules = async (): Promise<Schedule[]> => {
-  return [...mockData.schedules];
-};
-
-export const getSubjectSchedules = async (subjectId: number): Promise<Schedule[]> => {
-  return mockData.schedules.filter(s => s.subjectId === subjectId);
-};
-
-export const addSchedule = async (schedule: Omit<Schedule, "id">): Promise<Schedule> => {
-  const newId = Math.max(0, ...mockData.schedules.map(s => s.id)) + 1;
-  const newSchedule: Schedule = {
-    id: newId,
-    subjectId: schedule.subjectId,
-    dayOfWeek: schedule.dayOfWeek,
-    startTime: schedule.startTime,
-    endTime: schedule.endTime
-  };
-  mockData.schedules.push(newSchedule as any);
-  return newSchedule;
-};
-
-export const updateSchedule = async (id: number, data: Partial<Schedule>): Promise<Schedule> => {
-  const schedule = mockData.schedules.find(s => s.id === id);
-  if (!schedule) {
-    throw new Error(`Schedule with id ${id} not found`);
-  }
-  Object.assign(schedule, data);
-  return {...schedule};
-};
-
-export const deleteSchedule = async (id: number): Promise<boolean> => {
-  const index = mockData.schedules.findIndex(s => s.id === id);
-  if (index !== -1) {
-    mockData.schedules.splice(index, 1);
-    return true;
-  }
-  throw new Error(`Schedule with id ${id} not found`);
-};
-
-// Student operations
-export const getStudents = async () => {
-  return [...mockData.students];
-};
-
-export const getStudent = async (id: number) => {
-  return mockData.students.find(s => s.id === id);
-};
-
-export const addStudent = async (student: Omit<Student, "id">) => {
-  const newId = Math.max(0, ...mockData.students.map(s => s.id)) + 1;
-  
-  // Create a new student object with correct typing
-  const newStudent: Student = { 
-    id: newId,
-    firstName: student.firstName,
-    lastName: student.lastName,
-    email: student.email,
-    phone: student.phone,
-    dateOfBirth: student.dateOfBirth,
-    address: student.address,
-    enrollmentDate: student.enrollmentDate,
-    status: student.status,
-    className: student.className,
-    parentInfo: student.parentInfo
-  };
-  
-  mockData.students.push(newStudent);
-  return newStudent;
-};
-
-export const updateStudent = async (id: number, studentData: Partial<Student>) => {
-  const student = mockData.students.find(s => s.id === id);
-  if (student) {
-    Object.assign(student, studentData);
-    return {...student};
-  }
-  throw new Error(`Student with id ${id} not found`);
-};
-
-export const deleteStudent = async (id: number) => {
-  const index = mockData.students.findIndex(s => s.id === id);
-  if (index !== -1) {
-    mockData.students.splice(index, 1);
-    return true;
-  }
-  throw new Error(`Student with id ${id} not found`);
-};
-
-// Attendance operations
-export const getAttendanceRecords = async () => {
-  return [...mockData.attendance];
-};
-
-export const getStudentAttendance = async (studentId: number) => {
-  return mockData.attendance.filter(a => a.studentId === studentId);
-};
-
-export const addAttendanceRecord = async (record: Omit<AttendanceRecord, "id">) => {
-  const newId = Math.max(0, ...mockData.attendance.map(a => a.id)) + 1;
-  
-  // Create a new attendance record with explicit typing
-  const newRecord: AttendanceRecord = { 
-    id: newId, 
-    studentId: record.studentId,
-    date: record.date,
-    status: record.status,
-    notes: record.notes || ""
-  };
-  
-  mockData.attendance.push(newRecord);
-  return newRecord;
-};
-
-export const updateAttendanceRecord = async (id: number, data: Partial<AttendanceRecord>) => {
-  const record = mockData.attendance.find(a => a.id === id);
-  if (record) {
-    Object.assign(record, data);
-    return {...record};
-  }
-  throw new Error(`Attendance record with id ${id} not found`);
-};
-
-export const deleteAttendanceRecord = async (id: number) => {
-  const index = mockData.attendance.findIndex(a => a.id === id);
-  if (index !== -1) {
-    mockData.attendance.splice(index, 1);
-    return true;
-  }
-  throw new Error(`Attendance record with id ${id} not found`);
-};
-
-// Payment operations
-export const getPayments = async () => {
-  return [...mockData.payments];
-};
-
-export const getStudentPayments = async (studentId: number) => {
-  return mockData.payments.filter(p => p.studentId === studentId);
-};
-
-export const addPayment = async (payment: Omit<Payment, "id">) => {
-  const newId = Math.max(0, ...mockData.payments.map(p => p.id)) + 1;
-  
-  // Create a new payment with explicitly typed properties
-  const newPayment: Payment = { 
-    id: newId, 
-    studentId: payment.studentId,
-    amount: payment.amount,
-    date: payment.date,
-    type: payment.type,
-    status: payment.status,
-    notes: payment.notes || "",
-    currency: payment.currency
-  };
-  
-  mockData.payments.push(newPayment as any);
-  return newPayment;
-};
-
-export const updatePayment = async (id: number, data: Partial<Payment>) => {
-  const payment = mockData.payments.find(p => p.id === id);
-  if (payment) {
-    Object.assign(payment, data);
-    return {...payment};
-  }
-  throw new Error(`Payment with id ${id} not found`);
-};
-
-export const deletePayment = async (id: number) => {
-  const index = mockData.payments.findIndex(p => p.id === id);
-  if (index !== -1) {
-    mockData.payments.splice(index, 1);
-    return true;
-  }
-  throw new Error(`Payment with id ${id} not found`);
-};
-
-// Grade operations
-export const getGrades = async () => {
-  return [...mockData.grades];
-};
-
-export const getStudentGrades = async (studentId: number) => {
-  return mockData.grades.filter(g => g.studentId === studentId);
-};
-
-export const addGrade = async (grade: Omit<Grade, "id">) => {
-  const newId = Math.max(0, ...mockData.grades.map(g => g.id)) + 1;
-  
-  // Create a new grade with explicitly typed properties
-  const newGrade: Grade = { 
-    id: newId, 
-    studentId: grade.studentId,
-    subject: grade.subject,
-    score: grade.score,
-    date: grade.date,
-    notes: grade.notes || "", 
-    evaluationType: grade.evaluationType || "composition",
-    term: grade.term || "1er trimestre",
-    coefficient: grade.coefficient || 1
-  };
-  
-  mockData.grades.push(newGrade as any);
-  return newGrade;
-};
-
-export const updateGrade = async (id: number, data: Partial<Grade>) => {
-  const grade = mockData.grades.find(g => g.id === id);
-  if (grade) {
-    Object.assign(grade, data);
-    return {...grade};
-  }
-  throw new Error(`Grade with id ${id} not found`);
-};
-
-export const deleteGrade = async (id: number) => {
-  const index = mockData.grades.findIndex(g => g.id === id);
-  if (index !== -1) {
-    mockData.grades.splice(index, 1);
-    return true;
-  }
-  throw new Error(`Grade with id ${id} not found`);
-};
-
-// Dashboard statistics
-export const getDashboardStats = async (): Promise<DashboardStats> => {
-  const today = new Date().toISOString().split('T')[0];
-  const thisMonth = new Date().toISOString().substring(0, 7);
-  
-  const totalStudents = mockData.students.length;
-  
-  const todayAttendance = mockData.attendance.filter(a => a.date === today);
-  
-  const present = todayAttendance.filter(record => record.status === 'present').length;
-  const absent = todayAttendance.filter(record => record.status === 'absent').length;
-  const late = todayAttendance.filter(record => record.status === 'late').length;
-  
-  const paymentsThisMonth = mockData.payments
-    .filter(p => p.date.startsWith(thisMonth))
-    .reduce((sum, payment) => sum + payment.amount, 0);
-  
-  const recentGrades = mockData.grades.length;
-  
-  return {
-    totalStudents,
-    attendanceToday: {
-      present,
-      absent,
-      late
+      score: 16,
+      date: "2023-10-15",
+      notes: "Excellent travail",
+      evaluationType: "devoir",
+      term: "1er trimestre",
+      coefficient: 2
     },
-    paymentsThisMonth,
-    recentGrades
-  };
+    {
+      id: 2,
+      studentId: 1,
+      subject: "Physique",
+      score: 14,
+      date: "2023-10-20",
+      evaluationType: "devoir",
+      term: "1er trimestre",
+      coefficient: 1
+    },
+    {
+      id: 3,
+      studentId: 2,
+      subject: "Philosophie",
+      score: 12,
+      date: "2023-10-10",
+      evaluationType: "devoir",
+      term: "1er trimestre",
+      coefficient: 1
+    },
+    {
+      id: 4,
+      studentId: 3,
+      subject: "Mathématiques",
+      score: 15,
+      date: "2023-10-15",
+      evaluationType: "composition",
+      term: "1er trimestre",
+      coefficient: 4
+    },
+    {
+      id: 5,
+      studentId: 4,
+      subject: "SVT",
+      score: 18,
+      date: "2023-10-18",
+      notes: "Très bon travail",
+      evaluationType: "devoir",
+      term: "1er trimestre",
+      coefficient: 1
+    }
+  ];
+
+  // Initialize schedules
+  schedules = [
+    {
+      id: 1,
+      subjectId: 1,
+      dayOfWeek: "Lundi",
+      startTime: "08:00",
+      endTime: "10:00"
+    },
+    {
+      id: 2,
+      subjectId: 2,
+      dayOfWeek: "Lundi",
+      startTime: "10:15",
+      endTime: "12:15"
+    },
+    {
+      id: 3,
+      subjectId: 3,
+      dayOfWeek: "Mardi",
+      startTime: "08:00",
+      endTime: "10:00"
+    },
+    {
+      id: 4,
+      subjectId: 4,
+      dayOfWeek: "Mardi",
+      startTime: "10:15",
+      endTime: "12:15"
+    }
+  ];
 };
 
-// Available classes
-export const getAvailableClasses = async (): Promise<string[]> => {
-  return mockData.classes.map(c => c.name);
-};
-
-// Get all available subjects
-export const getAllSubjects = async (): Promise<Subject[]> => {
-  return [...mockData.subjects];
-};
-
-// Get subjects for a specific class
-export const getSubjectsByClass = async (className: string): Promise<Subject[]> => {
-  // Find class ID from class name
-  const classObj = mockData.classes.find(c => c.name === className);
-  if (!classObj) return [];
-  
-  return mockData.subjects.filter(s => s.classId === classObj.id);
-};
-
-// Class results
-export const getClassResults = async (
-  className: string, 
-  term: '1er trimestre' | '2e trimestre' | '3e trimestre',
-  useWeightedAverage: boolean = true
-): Promise<ClassResult[]> => {
-  // Find students in the class
-  const students = mockData.students.filter(s => s.className === className);
-  
-  const results: ClassResult[] = [];
-  
-  // For each student, calculate average
-  for (const student of students) {
-    // Get composition grades for the term
-    const studentGrades = mockData.grades.filter(g => 
-      g.studentId === student.id && 
-      g.evaluationType === 'composition' &&
-      g.term === term
-    );
-    
-    if (studentGrades.length === 0) continue;
-    
-    // Group grades by subject
-    const subjectGrades: {[subject: string]: typeof studentGrades} = {};
-    
-    studentGrades.forEach(grade => {
-      if (!subjectGrades[grade.subject]) {
-        subjectGrades[grade.subject] = [];
-      }
-      subjectGrades[grade.subject].push(grade);
-    });
-    
-    // Calculate average for each subject
-    const subjectAverages: {
-      [subject: string]: {
-        average: number;
-        coefficient: number;
-      }
-    } = {};
-    
-    let totalPoints = 0;
-    let totalCoefficients = 0;
-    
-    Object.keys(subjectGrades).forEach(subject => {
-      const grades = subjectGrades[subject];
-      const average = grades.reduce((sum, grade) => sum + grade.score, 0) / grades.length;
-      const coefficient = grades[0].coefficient || 1;
-      
-      subjectAverages[subject] = { average, coefficient };
-      
-      if (useWeightedAverage) {
-        totalPoints += average * coefficient;
-        totalCoefficients += coefficient;
-      } else {
-        totalPoints += average;
-        totalCoefficients += 1;
-      }
-    });
-    
-    // Calculate overall average
-    const average = totalCoefficients > 0 ? totalPoints / totalCoefficients : 0;
-    
-    // Add to results
-    results.push({
-      studentId: student.id,
-      studentName: `${student.firstName} ${student.lastName}`,
-      average: parseFloat(average.toFixed(2)),
-      rank: 0,
-      status: average >= 10 ? 'admis' : 'échec',
-      subjects: subjectAverages
-    });
-  }
-  
-  // Sort by average and assign ranks
-  results.sort((a, b) => b.average - a.average);
-  results.forEach((result, index) => {
-    result.rank = index + 1;
-  });
-  
-  return results;
-};
+// Initialize the mock data
+initializeMockData();

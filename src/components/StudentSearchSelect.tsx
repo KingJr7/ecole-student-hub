@@ -13,7 +13,7 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { Button } from "@/components/ui/button";
-import { Check, ChevronsUpDown } from "lucide-react";
+import { Check, ChevronsUpDown, Search } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Student } from "@/types";
 
@@ -47,17 +47,24 @@ const StudentSearchSelect = ({
           variant="outline"
           role="combobox"
           aria-expanded={open}
-          className={cn("w-full justify-between", className)}
+          className={cn("w-full justify-between relative", className)}
         >
-          {value && selectedStudent
-            ? `${selectedStudent.firstName} ${selectedStudent.lastName}`
-            : placeholder}
-          <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+          <div className="flex items-center w-full">
+            <Search className="h-4 w-4 text-gray-400 absolute left-3" />
+            <span className={cn("ml-8 text-left truncate", !selectedStudent && "text-muted-foreground")}>
+              {value && selectedStudent
+                ? `${selectedStudent.firstName} ${selectedStudent.lastName}`
+                : placeholder}
+            </span>
+          </div>
+          <ChevronsUpDown className="h-4 w-4 shrink-0 opacity-50" />
         </Button>
       </PopoverTrigger>
       <PopoverContent className="w-full p-0">
         <Command>
-          <CommandInput placeholder={placeholder} />
+          <CommandInput placeholder={placeholder} className="pl-8">
+            <Search className="h-4 w-4 text-gray-400 absolute left-3 top-1/2 transform -translate-y-1/2" />
+          </CommandInput>
           <CommandEmpty>Aucun élève trouvé</CommandEmpty>
           <CommandGroup className="max-h-60 overflow-y-auto">
             {safeStudents.map((student) => (
