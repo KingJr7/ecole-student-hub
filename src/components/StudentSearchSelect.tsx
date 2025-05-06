@@ -26,7 +26,7 @@ interface StudentSearchSelectProps {
 }
 
 const StudentSearchSelect = ({
-  students,
+  students = [],  // Provide default empty array
   value,
   onValueChange,
   placeholder = "Rechercher un élève...",
@@ -34,8 +34,10 @@ const StudentSearchSelect = ({
 }: StudentSearchSelectProps) => {
   const [open, setOpen] = useState(false);
   
-  // Trouver l'étudiant actuel pour l'affichage
-  const selectedStudent = students.find(student => student.id === value);
+  // Ensure students is an array before finding
+  const selectedStudent = Array.isArray(students) 
+    ? students.find(student => student.id === value)
+    : undefined;
   
   return (
     <Popover open={open} onOpenChange={setOpen}>
@@ -57,7 +59,7 @@ const StudentSearchSelect = ({
           <CommandInput placeholder={placeholder} />
           <CommandEmpty>Aucun élève trouvé</CommandEmpty>
           <CommandGroup className="max-h-60 overflow-y-auto">
-            {students.map((student) => (
+            {Array.isArray(students) && students.map((student) => (
               <CommandItem
                 key={student.id}
                 value={`${student.firstName} ${student.lastName}`.toLowerCase()}

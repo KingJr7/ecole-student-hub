@@ -12,7 +12,15 @@ let students: Student[] = [
     address: "123 Rue de Paris, 75001 Paris",
     enrollmentDate: "2022-09-01",
     status: "active",
-    className: "Terminale S"
+    className: "Terminale S",
+    parentInfo: {
+      fatherName: "Pierre Dupont",
+      fatherPhone: "06 87 65 43 21",
+      fatherEmail: "pierre.dupont@example.com",
+      motherName: "Sophie Dupont",
+      motherPhone: "06 76 54 32 10",
+      motherEmail: "sophie.dupont@example.com"
+    }
   },
   {
     id: 2,
@@ -24,7 +32,15 @@ let students: Student[] = [
     address: "456 Avenue Victor Hugo, 69002 Lyon",
     enrollmentDate: "2021-09-01",
     status: "active",
-    className: "Première ES"
+    className: "Première ES",
+    parentInfo: {
+      fatherName: "Jean Martin",
+      fatherPhone: "06 12 34 56 78",
+      fatherEmail: "jean.martin@example.com",
+      motherName: "Marie Martin",
+      motherPhone: "06 98 76 54 32",
+      motherEmail: "marie.martin@example.com"
+    }
   },
   {
     id: 3,
@@ -36,7 +52,15 @@ let students: Student[] = [
     address: "789 Boulevard Voltaire, 13001 Marseille",
     enrollmentDate: "2022-09-01",
     status: "active",
-    className: "Terminale S"
+    className: "Terminale S",
+    parentInfo: {
+      fatherName: "Michel Bernard",
+      fatherPhone: "06 23 45 67 89",
+      fatherEmail: "michel.bernard@example.com",
+      motherName: "Claire Bernard",
+      motherPhone: "06 34 56 78 90",
+      motherEmail: "claire.bernard@example.com"
+    }
   }
 ];
 

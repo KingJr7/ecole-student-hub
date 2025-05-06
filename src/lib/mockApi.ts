@@ -1,4 +1,3 @@
-
 // Mock data for browser environment
 import { Student, AttendanceRecord, Payment, Grade, DashboardStats, ClassResult, ParentInfo } from "../types";
 
@@ -145,26 +144,10 @@ export const getStudent = async (id: number) => {
 export const addStudent = async (student: Omit<Student, "id">) => {
   const newId = Math.max(0, ...mockData.students.map(s => s.id)) + 1;
   
-  // Create a new student object with explicit typing to ensure type safety
+  // Create a new student object with explicit typing
   const newStudent: Student = { 
-    id: newId, 
-    firstName: student.firstName,
-    lastName: student.lastName,
-    email: student.email,
-    phone: student.phone,
-    dateOfBirth: student.dateOfBirth,
-    address: student.address,
-    enrollmentDate: student.enrollmentDate,
-    status: student.status,
-    className: student.className,
-    parentInfo: {
-      fatherName: student.parentInfo.fatherName,
-      fatherPhone: student.parentInfo.fatherPhone,
-      fatherEmail: student.parentInfo.fatherEmail,
-      motherName: student.parentInfo.motherName,
-      motherPhone: student.parentInfo.motherPhone,
-      motherEmail: student.parentInfo.motherEmail
-    }
+    ...student,
+    id: newId
   };
   
   mockData.students.push(newStudent);
@@ -336,7 +319,7 @@ export const getDashboardStats = async (): Promise<DashboardStats> => {
   
   const present = todayAttendance.filter(record => record.status === 'present').length;
   const absent = todayAttendance.filter(record => record.status === 'absent').length;
-  // Correction du bug ici
+  // Fix type error by checking the exact string value
   const late = todayAttendance.filter(record => record.status === 'late').length;
   
   const paymentsThisMonth = mockData.payments
