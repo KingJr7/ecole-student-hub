@@ -93,6 +93,7 @@ export interface Subject {
   name: string;
   classId: number;
   teacherId: number;
+  coefficient: number; // Nouveau: coefficient pour la matière
   teacher?: Teacher;
   schedules?: Schedule[];
 }

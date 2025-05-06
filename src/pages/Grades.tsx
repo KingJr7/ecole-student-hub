@@ -26,6 +26,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { FileText, Pencil, Trash2, Search, ListCheck } from "lucide-react";
 import { useToast } from "@/components/ui/use-toast";
 import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from "@/components/ui/table";
+import GradeForm from "@/components/GradeForm";
 
 const Grades = () => {
   const [grades, setGrades] = useState<Grade[]>([]);
@@ -90,37 +91,18 @@ const Grades = () => {
     setIsDeleteDialogOpen(true);
   };
 
-  const handleSaveGrade = () => {
-    if (!currentGrade.studentId || !currentGrade.subject || !currentGrade.date || 
-        currentGrade.score === undefined || !currentGrade.evaluationType || !currentGrade.term) {
-      toast({
-        title: "Erreur",
-        description: "Veuillez remplir tous les champs obligatoires.",
-        variant: "destructive",
-      });
-      return;
-    }
-
-    if (currentGrade.score < 0 || currentGrade.score > 20) {
-      toast({
-        title: "Erreur",
-        description: "La note doit être comprise entre 0 et 20.",
-        variant: "destructive",
-      });
-      return;
-    }
-
+  const handleSaveGrade = (gradeData: Omit<Grade, "id">) => {
     try {
       if (currentGrade.id) {
         // Update existing grade
-        updateGrade(currentGrade.id, currentGrade);
+        updateGrade(currentGrade.id, gradeData);
         toast({
           title: "Succès",
           description: "La note a été mise à jour avec succès.",
         });
       } else {
         // Add new grade
-        addGrade(currentGrade as Omit<Grade, "id">);
+        addGrade(gradeData);
         toast({
           title: "Succès",
           description: "La note a été ajoutée avec succès.",
@@ -356,166 +338,15 @@ const Grades = () => {
           </CardContent>
         </Card>
 
-        {/* Add/Edit Grade Dialog */}
-        <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-          <DialogContent>
-            <DialogHeader>
-              <DialogTitle>
-                {currentGrade.id ? "Modifier la note" : "Ajouter une note"}
-              </DialogTitle>
-            </DialogHeader>
-            <div className="grid gap-4 py-4">
-              <div className="space-y-2">
-                <Label htmlFor="student">Élève</Label>
-                <Select
-                  value={currentGrade.studentId?.toString() || ""}
-                  onValueChange={(value) =>
-                    setCurrentGrade({
-                      ...currentGrade,
-                      studentId: Number(value),
-                    })
-                  }
-                >
-                  <SelectTrigger id="student">
-                    <SelectValue placeholder="Sélectionnez un élève" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {students.map((student) => (
-                      <SelectItem key={student.id} value={student.id.toString()}>
-                        {student.firstName} {student.lastName} ({student.className})
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="subject">Matière</Label>
-                <Input
-                  id="subject"
-                  value={currentGrade.subject || ""}
-                  onChange={(e) =>
-                    setCurrentGrade({
-                      ...currentGrade,
-                      subject: e.target.value,
-                    })
-                  }
-                />
-              </div>
-              <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <Label htmlFor="evaluationType">Type d'évaluation</Label>
-                  <Select
-                    value={currentGrade.evaluationType || "devoir"}
-                    onValueChange={(value) =>
-                      setCurrentGrade({
-                        ...currentGrade,
-                        evaluationType: value as 'devoir' | 'composition',
-                      })
-                    }
-                  >
-                    <SelectTrigger id="evaluationType">
-                      <SelectValue placeholder="Type d'évaluation" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="devoir">Devoir</SelectItem>
-                      <SelectItem value="composition">Composition</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="term">Trimestre</Label>
-                  <Select
-                    value={currentGrade.term || "1er trimestre"}
-                    onValueChange={(value) =>
-                      setCurrentGrade({
-                        ...currentGrade,
-                        term: value as '1er trimestre' | '2e trimestre' | '3e trimestre',
-                      })
-                    }
-                  >
-                    <SelectTrigger id="term">
-                      <SelectValue placeholder="Trimestre" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="1er trimestre">1er Trimestre</SelectItem>
-                      <SelectItem value="2e trimestre">2e Trimestre</SelectItem>
-                      <SelectItem value="3e trimestre">3e Trimestre</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-              </div>
-              <div className="grid grid-cols-3 gap-4">
-                <div className="space-y-2">
-                  <Label htmlFor="score">Note (sur 20)</Label>
-                  <Input
-                    id="score"
-                    type="number"
-                    min="0"
-                    max="20"
-                    step="0.5"
-                    value={currentGrade.score?.toString() || ""}
-                    onChange={(e) =>
-                      setCurrentGrade({
-                        ...currentGrade,
-                        score: parseFloat(e.target.value),
-                      })
-                    }
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="coefficient">Coefficient</Label>
-                  <Input
-                    id="coefficient"
-                    type="number"
-                    min="1"
-                    max="10"
-                    step="1"
-                    value={currentGrade.coefficient?.toString() || "1"}
-                    onChange={(e) =>
-                      setCurrentGrade({
-                        ...currentGrade,
-                        coefficient: parseInt(e.target.value),
-                      })
-                    }
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="date">Date</Label>
-                  <Input
-                    id="date"
-                    type="date"
-                    value={currentGrade.date || ""}
-                    onChange={(e) =>
-                      setCurrentGrade({
-                        ...currentGrade,
-                        date: e.target.value,
-                      })
-                    }
-                  />
-                </div>
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="notes">Notes (optionnel)</Label>
-                <Textarea
-                  id="notes"
-                  value={currentGrade.notes || ""}
-                  onChange={(e) =>
-                    setCurrentGrade({
-                      ...currentGrade,
-                      notes: e.target.value,
-                    })
-                  }
-                />
-              </div>
-            </div>
-            <DialogFooter>
-              <Button variant="outline" onClick={() => setIsDialogOpen(false)}>
-                Annuler
-              </Button>
-              <Button onClick={handleSaveGrade}>Enregistrer</Button>
-            </DialogFooter>
-          </DialogContent>
-        </Dialog>
+        {/* Add/Edit Grade Form using GradeForm Component */}
+        <GradeForm
+          isOpen={isDialogOpen}
+          onClose={() => setIsDialogOpen(false)}
+          onSave={handleSaveGrade}
+          students={students}
+          initialData={currentGrade}
+          isEdit={!!currentGrade.id}
+        />
 
         {/* Delete Confirmation Dialog */}
         <Dialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>

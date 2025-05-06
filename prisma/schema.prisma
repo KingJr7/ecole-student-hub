@@ -25,6 +25,7 @@ model Subject {
   name        String       
   classId     Int
   teacherId   Int
+  coefficient Int          @default(1)  // Added coefficient with default value 1
   class       Class        @relation(fields: [classId], references: [id])
   teacher     Teacher      @relation(fields: [teacherId], references: [id])
   schedules   Schedule[]

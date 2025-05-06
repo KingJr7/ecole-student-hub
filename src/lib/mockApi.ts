@@ -1,4 +1,3 @@
-
 // Mock data for browser environment
 import { Student, AttendanceRecord, Payment, Grade, DashboardStats, ClassResult, ParentInfo, Teacher, Subject, Schedule, ClassWithDetails } from "../types";
 
@@ -34,6 +33,7 @@ const mockData = {
       name: "Mathématiques", 
       classId: 1, 
       teacherId: 1,
+      coefficient: 4, // Mathématiques a un coefficient élevé
       createdAt: new Date(),
       updatedAt: new Date()
     },
@@ -42,6 +42,7 @@ const mockData = {
       name: "Physique-Chimie", 
       classId: 1, 
       teacherId: 1,
+      coefficient: 3, // Physique-Chimie a un coefficient important aussi
       createdAt: new Date(),
       updatedAt: new Date()
     },
@@ -50,6 +51,25 @@ const mockData = {
       name: "Sciences Économiques", 
       classId: 2, 
       teacherId: 2,
+      coefficient: 4, // Sciences Éco avec un coefficient élevé pour la filière ES
+      createdAt: new Date(),
+      updatedAt: new Date()
+    },
+    { 
+      id: 4, 
+      name: "Français", 
+      classId: 1, 
+      teacherId: 2,
+      coefficient: 2, // Coefficient moyen pour le français
+      createdAt: new Date(),
+      updatedAt: new Date()
+    },
+    { 
+      id: 5, 
+      name: "Anglais", 
+      classId: 1, 
+      teacherId: 2,
+      coefficient: 2, // Coefficient moyen pour l'anglais
       createdAt: new Date(),
       updatedAt: new Date()
     }
@@ -294,7 +314,8 @@ export const addSubject = async (subject: Omit<Subject, "id">): Promise<Subject>
     id: newId,
     name: subject.name,
     classId: subject.classId,
-    teacherId: subject.teacherId
+    teacherId: subject.teacherId,
+    coefficient: subject.coefficient || 1
   };
   mockData.subjects.push(newSubject as any);
   return newSubject;
@@ -420,13 +441,13 @@ export const addAttendanceRecord = async (record: Omit<AttendanceRecord, "id">) 
   const newId = Math.max(0, ...mockData.attendance.map(a => a.id)) + 1;
   
   // Create a new attendance record with explicit typing
-  const newRecord = { 
+  const newRecord: AttendanceRecord = { 
     id: newId, 
     studentId: record.studentId,
     date: record.date,
     status: record.status,
     notes: record.notes || ""
-  } as AttendanceRecord; // Use type assertion to fix the compatibility issue
+  };
   
   mockData.attendance.push(newRecord);
   return newRecord;
@@ -554,8 +575,7 @@ export const getDashboardStats = async (): Promise<DashboardStats> => {
   
   const present = todayAttendance.filter(record => record.status === 'present').length;
   const absent = todayAttendance.filter(record => record.status === 'absent').length;
-  // Use type assertion to handle late status which might not be in the type definition
-  const late = todayAttendance.filter(record => (record.status as string) === 'late').length;
+  const late = todayAttendance.filter(record => record.status === 'late').length;
   
   const paymentsThisMonth = mockData.payments
     .filter(p => p.date.startsWith(thisMonth))
@@ -578,6 +598,20 @@ export const getDashboardStats = async (): Promise<DashboardStats> => {
 // Available classes
 export const getAvailableClasses = async (): Promise<string[]> => {
   return mockData.classes.map(c => c.name);
+};
+
+// Get all available subjects
+export const getAllSubjects = async (): Promise<Subject[]> => {
+  return [...mockData.subjects];
+};
+
+// Get subjects for a specific class
+export const getSubjectsByClass = async (className: string): Promise<Subject[]> => {
+  // Find class ID from class name
+  const classObj = mockData.classes.find(c => c.name === className);
+  if (!classObj) return [];
+  
+  return mockData.subjects.filter(s => s.classId === classObj.id);
 };
 
 // Class results

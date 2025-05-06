@@ -134,7 +134,8 @@ export const addSubject = isBrowser ? mockApi.addSubject : async (subject: Omit<
     data: {
       name: subject.name,
       classId: subject.classId,
-      teacherId: subject.teacherId
+      teacherId: subject.teacherId,
+      coefficient: subject.coefficient || 1
     }
   });
 };
@@ -151,6 +152,27 @@ export const deleteSubject = isBrowser ? mockApi.deleteSubject : async (id: numb
     where: { id }
   });
   return true;
+};
+
+// Get all available subjects
+export const getAllSubjects = isBrowser ? mockApi.getAllSubjects : async () => {
+  return await prisma.subject.findMany({
+    include: { teacher: true }
+  });
+};
+
+// Get subjects for a specific class by class name
+export const getSubjectsByClass = isBrowser ? mockApi.getSubjectsByClass : async (className: string) => {
+  const classObj = await prisma.class.findFirst({
+    where: { name: className }
+  });
+  
+  if (!classObj) return [];
+  
+  return await prisma.subject.findMany({
+    where: { classId: classObj.id },
+    include: { teacher: true }
+  });
 };
 
 // Schedule operations
