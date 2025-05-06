@@ -1,4 +1,3 @@
-
 import prisma from './prisma';
 import { Student, AttendanceRecord, Payment, Grade, DashboardStats, ClassResult, Teacher, Subject, Schedule, ClassWithDetails } from "../types";
 
@@ -13,16 +12,17 @@ export const getClasses = isBrowser ? mockApi.getClasses : async () => {
   return await prisma.class.findMany();
 };
 
-export const getClassWithDetails = isBrowser ? mockApi.getClassWithDetails : async (id: number) => {
-  const classObj = await prisma.class.findUnique({
-    where: { id },
+export const getClassWithDetails = isBrowser ? mockApi.getClassWithDetails : async (className: string) => {
+  const classObj = await prisma.class.findFirst({
+    where: { name: className },
     include: {
       subjects: {
         include: {
           teacher: true,
           schedules: true
         }
-      }
+      },
+      students: true
     }
   });
   
@@ -36,13 +36,8 @@ export const getClassWithDetails = isBrowser ? mockApi.getClassWithDetails : asy
       name: subject.name,
       classId: subject.classId,
       teacherId: subject.teacherId,
-      teacher: subject.teacher ? {
-        id: subject.teacher.id,
-        firstName: subject.teacher.firstName,
-        lastName: subject.teacher.lastName,
-        email: subject.teacher.email,
-        phone: subject.teacher.phone
-      } : undefined,
+      teacherName: subject.teacher ? `${subject.teacher.firstName} ${subject.teacher.lastName}` : '',
+      coefficient: subject.coefficient || 1,
       schedules: subject.schedules.map(schedule => ({
         id: schedule.id,
         subjectId: schedule.subjectId,
@@ -50,6 +45,12 @@ export const getClassWithDetails = isBrowser ? mockApi.getClassWithDetails : asy
         startTime: schedule.startTime,
         endTime: schedule.endTime
       }))
+    })),
+    students: classObj.students.map(student => ({
+      id: student.id,
+      firstName: student.firstName,
+      lastName: student.lastName,
+      enrollmentDate: student.enrollmentDate
     }))
   };
 };

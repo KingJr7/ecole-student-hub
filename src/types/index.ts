@@ -1,4 +1,3 @@
-
 export interface Student {
   id: number;
   firstName: string;
@@ -91,10 +90,10 @@ export interface Teacher {
 export interface Subject {
   id: number;
   name: string;
-  classId: number;
-  teacherId: number;
-  coefficient: number; // Nouveau: coefficient pour la matière
-  teacher?: Teacher;
+  classId: string;
+  teacherId?: number;
+  teacherName: string;
+  coefficient: number;
   schedules?: Schedule[];
 }
 
@@ -110,4 +109,5 @@ export interface ClassWithDetails {
   id: number;
   name: string;
   subjects: Subject[];
+  students: Student[];
 }

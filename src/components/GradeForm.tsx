@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import {
   Dialog,
@@ -86,8 +85,8 @@ const GradeForm = ({
     setFormData({
       ...formData,
       studentId,
-      // Réinitialiser la matière si l'étudiant change
-      subject: "",
+      subject: undefined,
+      coefficient: 1
     });
   };
 
@@ -160,8 +159,8 @@ const GradeForm = ({
             <Label htmlFor="subject">Matière</Label>
             <Select
               value={formData.subject ? 
-                subjects.find(s => s.name === formData.subject)?.id.toString() || "" : 
-                ""}
+                subjects.find(s => s.name === formData.subject)?.id.toString() : 
+                undefined}
               onValueChange={handleSubjectChange}
               disabled={!selectedStudent}
             >
@@ -176,7 +175,7 @@ const GradeForm = ({
                     </SelectItem>
                   ))
                 ) : (
-                  <SelectItem value="" disabled>
+                  <SelectItem value="placeholder" disabled>
                     {selectedStudent 
                       ? "Aucune matière disponible pour cette classe" 
                       : "Veuillez d'abord sélectionner un élève"}

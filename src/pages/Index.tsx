@@ -1,10 +1,10 @@
-
 import { useEffect, useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { DashboardStats } from "@/types";
-import { getDashboardStats, getStudents } from "@/lib/db";
+import { getDashboardStats, getStudents } from "@/lib/api";
 import MainLayout from "@/components/Layout/MainLayout";
 import { Book, CalendarCheck, FileText, FileMinus, Users } from "lucide-react";
+import { useToast } from "@/components/ui/use-toast";
 
 const Dashboard = () => {
   const [stats, setStats] = useState<DashboardStats>({
@@ -17,10 +17,28 @@ const Dashboard = () => {
     paymentsThisMonth: 0,
     recentGrades: 0,
   });
+  const [recentStudents, setRecentStudents] = useState([]);
+  const { toast } = useToast();
 
   useEffect(() => {
-    // In a real app, we would fetch this data from the backend
-    setStats(getDashboardStats());
+    const loadData = async () => {
+      try {
+        const [statsData, studentsData] = await Promise.all([
+          getDashboardStats(),
+          getStudents()
+        ]);
+        setStats(statsData);
+        setRecentStudents(studentsData.slice(0, 5));
+      } catch (error) {
+        toast({
+          title: "Erreur",
+          description: "Impossible de charger les données du tableau de bord.",
+          variant: "destructive",
+        });
+      }
+    };
+
+    loadData();
   }, []);
 
   const cards = [
@@ -80,7 +98,7 @@ const Dashboard = () => {
             </CardHeader>
             <CardContent>
               <div className="space-y-2">
-                {getStudents().slice(0, 5).map((student) => (
+                {recentStudents.map((student) => (
                   <div key={student.id} className="flex items-center p-2 border-b">
                     <Users className="h-4 w-4 mr-2 text-school-600" />
                     <div>

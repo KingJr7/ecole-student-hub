@@ -1,19 +1,6 @@
-
-import { useState } from "react";
-import {
-  Command,
-  CommandEmpty,
-  CommandGroup,
-  CommandInput,
-  CommandItem,
-} from "@/components/ui/command";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
-import { Button } from "@/components/ui/button";
-import { Check, ChevronsUpDown, Search } from "lucide-react";
+import { useState, useRef, useEffect } from "react";
+import { Input } from "@/components/ui/input";
+import { Search } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Student } from "@/types";
 
@@ -26,69 +13,84 @@ interface StudentSearchSelectProps {
 }
 
 const StudentSearchSelect = ({
-  students = [],  // Provide default empty array
+  students = [],
   value,
   onValueChange,
   placeholder = "Rechercher un élève...",
   className,
 }: StudentSearchSelectProps) => {
-  const [open, setOpen] = useState(false);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [isOpen, setIsOpen] = useState(false);
+  const wrapperRef = useRef<HTMLDivElement>(null);
   
-  // Make sure students is defined and is an array before processing it
   const safeStudents = Array.isArray(students) ? students : [];
-  
-  // Find the selected student safely
-  const selectedStudent = safeStudents.find(student => student.id === value);
-  
+  const selectedStudent = value ? safeStudents.find(student => student.id === value) : null;
+
+  const filteredStudents = safeStudents.filter(student => {
+    const searchString = `${student.firstName} ${student.lastName} ${student.className}`.toLowerCase();
+    return searchString.includes(searchTerm.toLowerCase());
+  });
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (wrapperRef.current && !wrapperRef.current.contains(event.target as Node)) {
+        setIsOpen(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
+  const handleStudentSelect = (student: Student) => {
+    onValueChange(student.id);
+    setSearchTerm(`${student.firstName} ${student.lastName}`);
+    setIsOpen(false);
+  };
+
   return (
-    <Popover open={open} onOpenChange={setOpen}>
-      <PopoverTrigger asChild>
-        <Button
-          variant="outline"
-          role="combobox"
-          aria-expanded={open}
-          className={cn("w-full justify-between relative", className)}
-        >
-          <div className="flex items-center w-full">
-            <Search className="h-4 w-4 text-gray-400 absolute left-3" />
-            <span className={cn("ml-8 text-left truncate", !selectedStudent && "text-muted-foreground")}>
-              {value && selectedStudent
-                ? `${selectedStudent.firstName} ${selectedStudent.lastName}`
-                : placeholder}
-            </span>
-          </div>
-          <ChevronsUpDown className="h-4 w-4 shrink-0 opacity-50" />
-        </Button>
-      </PopoverTrigger>
-      <PopoverContent className="w-full p-0">
-        <Command>
-          <CommandInput placeholder={placeholder} className="pl-8">
-            <Search className="h-4 w-4 text-gray-400 absolute left-3 top-1/2 transform -translate-y-1/2" />
-          </CommandInput>
-          <CommandEmpty>Aucun élève trouvé</CommandEmpty>
-          <CommandGroup className="max-h-60 overflow-y-auto">
-            {safeStudents.map((student) => (
-              <CommandItem
+    <div ref={wrapperRef} className={cn("relative", className)}>
+      <div className="relative">
+        <Search className="h-4 w-4 text-gray-400 absolute left-3 top-1/2 transform -translate-y-1/2" />
+        <Input
+          type="text"
+          placeholder={placeholder}
+          value={searchTerm}
+          onChange={(e) => {
+            setSearchTerm(e.target.value);
+            setIsOpen(true);
+          }}
+          onFocus={() => {
+            if (selectedStudent) {
+              setSearchTerm(`${selectedStudent.firstName} ${selectedStudent.lastName}`);
+            }
+            setIsOpen(true);
+          }}
+          className="pl-8"
+        />
+      </div>
+      
+      {isOpen && (
+        <div className="absolute z-10 w-full mt-1 bg-white border rounded-md shadow-lg max-h-60 overflow-y-auto">
+          {filteredStudents.length > 0 ? (
+            filteredStudents.map((student) => (
+              <div
                 key={student.id}
-                value={`${student.firstName} ${student.lastName}`.toLowerCase()}
-                onSelect={() => {
-                  onValueChange(student.id);
-                  setOpen(false);
-                }}
+                className={cn(
+                  "px-4 py-2 cursor-pointer hover:bg-gray-100",
+                  value === student.id && "bg-gray-100"
+                )}
+                onClick={() => handleStudentSelect(student)}
               >
-                <Check
-                  className={cn(
-                    "mr-2 h-4 w-4",
-                    value === student.id ? "opacity-100" : "opacity-0"
-                  )}
-                />
                 {student.firstName} {student.lastName} - {student.className}
-              </CommandItem>
-            ))}
-          </CommandGroup>
-        </Command>
-      </PopoverContent>
-    </Popover>
+              </div>
+            ))
+          ) : (
+            <div className="px-4 py-2 text-gray-500">Aucun élève trouvé</div>
+          )}
+        </div>
+      )}
+    </div>
   );
 };
 

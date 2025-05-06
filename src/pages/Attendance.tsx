@@ -1,6 +1,5 @@
-
 import { useState, useEffect } from "react";
-import { getAttendanceRecords, getStudents, addAttendanceRecord, updateAttendanceRecord, deleteAttendanceRecord } from "@/lib/db";
+import { getAttendanceRecords, getStudents, addAttendanceRecord, updateAttendanceRecord, deleteAttendanceRecord } from "@/lib/api";
 import { AttendanceRecord, Student } from "@/types";
 import MainLayout from "@/components/Layout/MainLayout";
 import { Button } from "@/components/ui/button";
@@ -24,6 +23,7 @@ import {
 import { Textarea } from "@/components/ui/textarea";
 import { CalendarCheck, Pencil, Trash2 } from "lucide-react";
 import { useToast } from "@/components/ui/use-toast";
+import StudentSearchSelect from "@/components/StudentSearchSelect";
 
 const Attendance = () => {
   const [attendanceRecords, setAttendanceRecords] = useState<AttendanceRecord[]>([]);
@@ -35,9 +35,25 @@ const Attendance = () => {
   const [selectedDate, setSelectedDate] = useState<string>(new Date().toISOString().split('T')[0]);
   const { toast } = useToast();
 
+  const loadData = async () => {
+    try {
+      const [studentsData, recordsData] = await Promise.all([
+        getStudents(),
+        getAttendanceRecords()
+      ]);
+      setStudents(studentsData);
+      setAttendanceRecords(recordsData);
+    } catch (error) {
+      toast({
+        title: "Erreur",
+        description: "Impossible de charger les données.",
+        variant: "destructive",
+      });
+    }
+  };
+
   useEffect(() => {
-    setStudents(getStudents());
-    setAttendanceRecords(getAttendanceRecords());
+    loadData();
   }, []);
 
   const filteredRecords = attendanceRecords.filter(
@@ -59,7 +75,7 @@ const Attendance = () => {
     setIsDeleteDialogOpen(true);
   };
 
-  const handleSaveRecord = () => {
+  const handleSaveRecord = async () => {
     if (!currentRecord.studentId || !currentRecord.date || !currentRecord.status) {
       toast({
         title: "Erreur",
@@ -72,14 +88,14 @@ const Attendance = () => {
     try {
       if (currentRecord.id) {
         // Update existing record
-        updateAttendanceRecord(currentRecord.id, currentRecord);
+        await updateAttendanceRecord(currentRecord.id, currentRecord);
         toast({
           title: "Succès",
           description: "La présence a été mise à jour avec succès.",
         });
       } else {
         // Add new record
-        addAttendanceRecord(currentRecord as Omit<AttendanceRecord, "id">);
+        await addAttendanceRecord(currentRecord as Omit<AttendanceRecord, "id">);
         toast({
           title: "Succès",
           description: "La présence a été ajoutée avec succès.",
@@ -87,7 +103,7 @@ const Attendance = () => {
       }
 
       // Refresh record list
-      setAttendanceRecords(getAttendanceRecords());
+      await loadData();
       setIsDialogOpen(false);
     } catch (error) {
       toast({
@@ -98,11 +114,11 @@ const Attendance = () => {
     }
   };
 
-  const handleDeleteRecord = () => {
+  const handleDeleteRecord = async () => {
     if (recordToDelete) {
       try {
-        deleteAttendanceRecord(recordToDelete);
-        setAttendanceRecords(getAttendanceRecords());
+        await deleteAttendanceRecord(recordToDelete);
+        await loadData();
         toast({
           title: "Succès",
           description: "L'enregistrement a été supprimé avec succès.",
@@ -249,26 +265,17 @@ const Attendance = () => {
             <div className="grid gap-4 py-4">
               <div className="space-y-2">
                 <Label htmlFor="student">Élève</Label>
-                <Select
-                  value={currentRecord.studentId?.toString() || ""}
-                  onValueChange={(value) =>
+                <StudentSearchSelect
+                  students={students}
+                  value={currentRecord.studentId}
+                  onValueChange={(studentId) =>
                     setCurrentRecord({
                       ...currentRecord,
-                      studentId: Number(value),
+                      studentId,
                     })
                   }
-                >
-                  <SelectTrigger id="student">
-                    <SelectValue placeholder="Sélectionnez un élève" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {students.map((student) => (
-                      <SelectItem key={student.id} value={student.id.toString()}>
-                        {student.firstName} {student.lastName}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+                  placeholder="Rechercher un élève..."
+                />
               </div>
               <div className="space-y-2">
                 <Label htmlFor="date">Date</Label>
