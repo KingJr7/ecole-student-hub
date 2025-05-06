@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import MainLayout from "@/components/Layout/MainLayout";
@@ -10,6 +9,7 @@ import {
   DialogHeader,
   DialogTitle,
   DialogFooter,
+  DialogDescription,
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -25,6 +25,7 @@ import { FileMinus, Pencil, Trash2 } from "lucide-react";
 import { useToast } from "@/components/ui/use-toast";
 import * as api from "@/lib/api";
 import { Payment, Student } from "@/types";
+import StudentSearchSelect from "@/components/StudentSearchSelect";
 
 const Payments = () => {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
@@ -297,30 +298,24 @@ const Payments = () => {
               <DialogTitle>
                 {currentPayment.id ? "Modifier le paiement" : "Ajouter un paiement"}
               </DialogTitle>
+              <DialogDescription>
+                Entrez les informations du paiement ci-dessous.
+              </DialogDescription>
             </DialogHeader>
             <div className="grid gap-4 py-4">
               <div className="space-y-2">
                 <Label htmlFor="student">Élève</Label>
-                <Select
-                  value={currentPayment.studentId?.toString() || ""}
-                  onValueChange={(value) =>
+                <StudentSearchSelect
+                  students={students}
+                  value={currentPayment.studentId}
+                  onValueChange={(studentId) =>
                     setCurrentPayment({
                       ...currentPayment,
-                      studentId: Number(value),
+                      studentId,
                     })
                   }
-                >
-                  <SelectTrigger id="student">
-                    <SelectValue placeholder="Sélectionnez un élève" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {students.map((student) => (
-                      <SelectItem key={student.id} value={student.id.toString()}>
-                        {student.firstName} {student.lastName}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+                  placeholder="Sélectionnez un élève"
+                />
               </div>
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
@@ -427,8 +422,11 @@ const Payments = () => {
           <DialogContent>
             <DialogHeader>
               <DialogTitle>Confirmer la suppression</DialogTitle>
+              <DialogDescription>
+                Cette action est irréversible.
+              </DialogDescription>
             </DialogHeader>
-            <p>Êtes-vous sûr de vouloir supprimer ce paiement? Cette action est irréversible.</p>
+            <p>Êtes-vous sûr de vouloir supprimer ce paiement?</p>
             <DialogFooter>
               <Button variant="outline" onClick={() => setIsDeleteDialogOpen(false)}>
                 Annuler

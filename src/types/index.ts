@@ -10,7 +10,7 @@ export interface Student {
   enrollmentDate: string;
   status: 'active' | 'inactive' | 'graduated';
   className: string;
-  parentInfo: ParentInfo; // Ajout des informations des parents
+  parentInfo: ParentInfo;
 }
 
 export interface ParentInfo {

@@ -1,3 +1,4 @@
+
 // Mock data for browser environment
 import { Student, AttendanceRecord, Payment, Grade, DashboardStats, ClassResult, ParentInfo } from "../types";
 
@@ -156,10 +157,17 @@ export const addStudent = async (student: Omit<Student, "id">) => {
     enrollmentDate: student.enrollmentDate,
     status: student.status,
     className: student.className,
-    parentInfo: student.parentInfo
+    parentInfo: {
+      fatherName: student.parentInfo.fatherName,
+      fatherPhone: student.parentInfo.fatherPhone,
+      fatherEmail: student.parentInfo.fatherEmail,
+      motherName: student.parentInfo.motherName,
+      motherPhone: student.parentInfo.motherPhone,
+      motherEmail: student.parentInfo.motherEmail
+    }
   };
   
-  mockData.students.push(newStudent as any);
+  mockData.students.push(newStudent);
   return newStudent;
 };
 
@@ -328,8 +336,8 @@ export const getDashboardStats = async (): Promise<DashboardStats> => {
   
   const present = todayAttendance.filter(record => record.status === 'present').length;
   const absent = todayAttendance.filter(record => record.status === 'absent').length;
-  // Explicitly type this to avoid type errors
-  const late = todayAttendance.filter(record => record.status === ('late' as AttendanceRecord['status'])).length;
+  // Correction du bug ici
+  const late = todayAttendance.filter(record => record.status === 'late').length;
   
   const paymentsThisMonth = mockData.payments
     .filter(p => p.date.startsWith(thisMonth))

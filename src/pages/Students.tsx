@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import MainLayout from "@/components/Layout/MainLayout";
@@ -9,6 +10,7 @@ import {
   DialogHeader,
   DialogTitle,
   DialogFooter,
+  DialogDescription,
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -27,8 +29,25 @@ import { Student, Payment, ParentInfo } from "@/types";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 // Define the interface for the currentStudent state
-interface CurrentStudent extends Partial<Student> {
-  parentInfo?: Partial<ParentInfo>;
+interface CurrentStudent {
+  id?: number;
+  firstName?: string;
+  lastName?: string;
+  email?: string;
+  phone?: string;
+  dateOfBirth?: string;
+  address?: string;
+  enrollmentDate?: string;
+  status?: 'active' | 'inactive' | 'graduated';
+  className?: string;
+  parentInfo?: {
+    fatherName?: string;
+    fatherPhone?: string;
+    fatherEmail?: string;
+    motherName?: string;
+    motherPhone?: string;
+    motherEmail?: string;
+  };
 }
 
 const Students = () => {
@@ -431,6 +450,9 @@ const Students = () => {
                   ? "Modifier l'élève"
                   : "Ajouter un nouvel élève"}
               </DialogTitle>
+              <DialogDescription>
+                Remplissez les informations de l'élève et de ses parents ci-dessous.
+              </DialogDescription>
             </DialogHeader>
             
             <Tabs defaultValue="student" className="w-full">
@@ -731,8 +753,11 @@ const Students = () => {
           <DialogContent>
             <DialogHeader>
               <DialogTitle>Confirmer la suppression</DialogTitle>
+              <DialogDescription>
+                Cette action est irréversible.
+              </DialogDescription>
             </DialogHeader>
-            <p>Êtes-vous sûr de vouloir supprimer cet élève? Cette action est irréversible.</p>
+            <p>Êtes-vous sûr de vouloir supprimer cet élève?</p>
             <DialogFooter>
               <Button variant="outline" onClick={() => setIsDeleteDialogOpen(false)}>
                 Annuler
@@ -749,6 +774,9 @@ const Students = () => {
           <DialogContent className="sm:max-w-[500px]">
             <DialogHeader>
               <DialogTitle>Encaisser un paiement</DialogTitle>
+              <DialogDescription>
+                Entrez les détails du paiement à encaisser.
+              </DialogDescription>
             </DialogHeader>
             {studentForPayment && (
               <div className="py-4">
@@ -815,6 +843,9 @@ const Students = () => {
           <DialogContent>
             <DialogHeader>
               <DialogTitle>Encaisser un paiement</DialogTitle>
+              <DialogDescription>
+                Confirmez l'opération de paiement.
+              </DialogDescription>
             </DialogHeader>
             {studentForPayment && (
               <p>Vous allez encaisser un paiement pour {studentForPayment.firstName} {studentForPayment.lastName}.</p>
