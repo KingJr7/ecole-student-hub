@@ -1,3 +1,4 @@
+
 // Mock data for browser environment
 import { Student, AttendanceRecord, Payment, Grade, DashboardStats, ClassResult, ParentInfo } from "../types";
 
@@ -144,12 +145,19 @@ export const getStudent = async (id: number) => {
 export const addStudent = async (student: Omit<Student, "id">) => {
   const newId = Math.max(0, ...mockData.students.map(s => s.id)) + 1;
   
-  // Create a new student object with explicit typing
+  // Create a new student object with explicit typing and fully typed properties
   const newStudent: Student = { 
-    ...student,
     id: newId,
-    // Ensure status is typed correctly
-    status: student.status as "active" | "inactive" | "graduated"
+    firstName: student.firstName,
+    lastName: student.lastName,
+    email: student.email,
+    phone: student.phone,
+    dateOfBirth: student.dateOfBirth,
+    address: student.address,
+    enrollmentDate: student.enrollmentDate,
+    status: student.status,
+    className: student.className,
+    parentInfo: student.parentInfo
   };
   
   mockData.students.push(newStudent);
@@ -195,7 +203,7 @@ export const addAttendanceRecord = async (record: Omit<AttendanceRecord, "id">) 
     notes: record.notes || ""
   };
   
-  mockData.attendance.push(newRecord as any);
+  mockData.attendance.push(newRecord);
   return newRecord;
 };
 
@@ -321,8 +329,8 @@ export const getDashboardStats = async (): Promise<DashboardStats> => {
   
   const present = todayAttendance.filter(record => record.status === 'present').length;
   const absent = todayAttendance.filter(record => record.status === 'absent').length;
-  // Fix type error by ensuring this is type-safe
-  const late = todayAttendance.filter(record => record.status === 'late' as any).length;
+  // Fix type error by using type assertion
+  const late = todayAttendance.filter(record => (record.status as string) === 'late').length;
   
   const paymentsThisMonth = mockData.payments
     .filter(p => p.date.startsWith(thisMonth))

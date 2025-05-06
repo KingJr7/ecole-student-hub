@@ -35,12 +35,12 @@ const StudentSearchSelect = ({
   const [open, setOpen] = useState(false);
   
   // Ensure students is an array before finding
-  const selectedStudent = Array.isArray(students) 
+  const selectedStudent = students && Array.isArray(students) 
     ? students.find(student => student.id === value)
     : undefined;
   
   // Create a safe version of students to use in the CommandGroup
-  const safeStudents = Array.isArray(students) ? students : [];
+  const safeStudents = students && Array.isArray(students) ? students : [];
   
   return (
     <Popover open={open} onOpenChange={setOpen}>
@@ -57,7 +57,7 @@ const StudentSearchSelect = ({
           <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
         </Button>
       </PopoverTrigger>
-      <PopoverContent className="w-full p-0" align="start">
+      <PopoverContent className="w-full p-0">
         <Command>
           <CommandInput placeholder={placeholder} />
           <CommandEmpty>Aucun élève trouvé</CommandEmpty>
