@@ -1,3 +1,4 @@
+
 import { useEffect, useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { DashboardStats } from "@/types";
@@ -5,9 +6,12 @@ import { getDashboardStats, getStudents } from "@/lib/api";
 import MainLayout from "@/components/Layout/MainLayout";
 import { Book, CalendarCheck, FileText, FileMinus, Users } from "lucide-react";
 import { useToast } from "@/components/ui/use-toast";
+import { useQuery } from "@tanstack/react-query";
 
 const Dashboard = () => {
-  const [stats, setStats] = useState<DashboardStats>({
+  const { toast } = useToast();
+
+  const { data: stats = {
     totalStudents: 0,
     attendanceToday: {
       present: 0,
@@ -16,30 +20,27 @@ const Dashboard = () => {
     },
     paymentsThisMonth: 0,
     recentGrades: 0,
+  }, isError: statsError } = useQuery({
+    queryKey: ['dashboardStats'],
+    queryFn: getDashboardStats
   });
-  const [recentStudents, setRecentStudents] = useState([]);
-  const { toast } = useToast();
+
+  const { data: studentsData = [], isError: studentsError } = useQuery({
+    queryKey: ['students'],
+    queryFn: getStudents
+  });
+
+  const recentStudents = studentsData.slice(0, 5);
 
   useEffect(() => {
-    const loadData = async () => {
-      try {
-        const [statsData, studentsData] = await Promise.all([
-          getDashboardStats(),
-          getStudents()
-        ]);
-        setStats(statsData);
-        setRecentStudents(studentsData.slice(0, 5));
-      } catch (error) {
-        toast({
-          title: "Erreur",
-          description: "Impossible de charger les données du tableau de bord.",
-          variant: "destructive",
-        });
-      }
-    };
-
-    loadData();
-  }, []);
+    if (statsError || studentsError) {
+      toast({
+        title: "Erreur",
+        description: "Impossible de charger les données du tableau de bord.",
+        variant: "destructive",
+      });
+    }
+  }, [statsError, studentsError, toast]);
 
   const cards = [
     {

@@ -8,76 +8,100 @@ import * as mockApi from './mockApi';
 const isBrowser = typeof window !== 'undefined';
 
 // Class operations
-export const getClasses = isBrowser ? mockApi.getClasses : async () => {
-  return await prisma.class.findMany();
+export const getClasses = async () => {
+  if (isBrowser) {
+    return Promise.resolve(mockApi.getClasses());
+  } else {
+    return await prisma.class.findMany();
+  }
 };
 
-export const getClassWithDetails = isBrowser ? mockApi.getClassWithDetails : async (className: string) => {
-  const classObj = await prisma.class.findFirst({
-    where: { name: className },
-    include: {
-      subjects: {
-        include: {
-          teacher: true,
-          schedules: true
-        }
-      },
-      students: true
-    }
-  });
-  
-  if (!classObj) return null;
-  
-  return {
-    id: classObj.id,
-    name: classObj.name,
-    subjects: classObj.subjects.map(subject => ({
-      id: subject.id,
-      name: subject.name,
-      classId: subject.classId,
-      teacherId: subject.teacherId,
-      teacherName: subject.teacher ? `${subject.teacher.firstName} ${subject.teacher.lastName}` : '',
-      coefficient: subject.coefficient || 1,
-      schedules: subject.schedules.map(schedule => ({
-        id: schedule.id,
-        subjectId: schedule.subjectId,
-        dayOfWeek: schedule.dayOfWeek,
-        startTime: schedule.startTime,
-        endTime: schedule.endTime
+export const getClassWithDetails = async (className: string) => {
+  if (isBrowser) {
+    return Promise.resolve(mockApi.getClassDetails(className));
+  } else {
+    const classObj = await prisma.class.findFirst({
+      where: { name: className },
+      include: {
+        subjects: {
+          include: {
+            teacher: true,
+            schedules: true
+          }
+        },
+        students: true
+      }
+    });
+    
+    if (!classObj) return null;
+    
+    return {
+      id: classObj.id,
+      name: classObj.name,
+      subjects: classObj.subjects.map(subject => ({
+        id: subject.id,
+        name: subject.name,
+        classId: subject.classId,
+        teacherId: subject.teacherId,
+        teacherName: subject.teacher ? `${subject.teacher.firstName} ${subject.teacher.lastName}` : '',
+        coefficient: subject.coefficient || 1,
+        schedules: subject.schedules.map(schedule => ({
+          id: schedule.id,
+          subjectId: schedule.subjectId,
+          dayOfWeek: schedule.dayOfWeek,
+          startTime: schedule.startTime,
+          endTime: schedule.endTime
+        }))
+      })),
+      students: classObj.students.map(student => ({
+        id: student.id,
+        firstName: student.firstName,
+        lastName: student.lastName,
+        enrollmentDate: student.enrollmentDate
       }))
-    })),
-    students: classObj.students.map(student => ({
-      id: student.id,
-      firstName: student.firstName,
-      lastName: student.lastName,
-      enrollmentDate: student.enrollmentDate
-    }))
-  };
+    };
+  }
 };
 
-export const getClass = isBrowser ? mockApi.getClass : async (id: number) => {
-  return await prisma.class.findUnique({
-    where: { id }
-  });
+export const getClass = async (id: number) => {
+  if (isBrowser) {
+    return Promise.resolve(mockApi.getClass(id));
+  } else {
+    return await prisma.class.findUnique({
+      where: { id }
+    });
+  }
 };
 
-export const addClass = isBrowser ? mockApi.addClass : async (name: string) => {
-  return await prisma.class.create({
-    data: { name }
-  });
+export const addClass = async (name: string) => {
+  if (isBrowser) {
+    return Promise.resolve(mockApi.addClass(name));
+  } else {
+    return await prisma.class.create({
+      data: { name }
+    });
+  }
 };
 
-export const updateClass = isBrowser ? mockApi.updateClass : async (id: number, name: string) => {
-  return await prisma.class.update({
-    where: { id },
-    data: { name }
-  });
+export const updateClass = async (id: number, name: string) => {
+  if (isBrowser) {
+    return Promise.resolve(mockApi.updateClass(id, name));
+  } else {
+    return await prisma.class.update({
+      where: { id },
+      data: { name }
+    });
+  }
 };
 
-export const deleteClass = isBrowser ? mockApi.deleteClass : async (id: number) => {
-  return await prisma.class.delete({
-    where: { id }
-  });
+export const deleteClass = async (id: number) => {
+  if (isBrowser) {
+    return Promise.resolve(mockApi.deleteClass(id));
+  } else {
+    return await prisma.class.delete({
+      where: { id }
+    });
+  }
 };
 
 // Teacher operations
@@ -117,17 +141,25 @@ export const deleteTeacher = isBrowser ? mockApi.deleteTeacher : async (id: numb
 };
 
 // Subject operations
-export const getSubjects = isBrowser ? mockApi.getSubjects : async () => {
-  return await prisma.subject.findMany({
-    include: { teacher: true }
-  });
+export const getSubjects = async () => {
+  if (isBrowser) {
+    return Promise.resolve(mockApi.getSubjects());
+  } else {
+    return await prisma.subject.findMany({
+      include: { teacher: true }
+    });
+  }
 };
 
-export const getClassSubjects = isBrowser ? mockApi.getClassSubjects : async (classId: number) => {
-  return await prisma.subject.findMany({
-    where: { classId },
-    include: { teacher: true }
-  });
+export const getClassSubjects = async (classId: number) => {
+  if (isBrowser) {
+    return Promise.resolve(mockApi.getClassSubjects(classId));
+  } else {
+    return await prisma.subject.findMany({
+      where: { classId },
+      include: { teacher: true }
+    });
+  }
 };
 
 export const addSubject = isBrowser ? mockApi.addSubject : async (subject: Omit<Subject, "id">) => {
@@ -576,42 +608,46 @@ export const deleteGrade = isBrowser ? mockApi.deleteGrade : async (id: number) 
 };
 
 // Dashboard statistics
-export const getDashboardStats = isBrowser ? mockApi.getDashboardStats : async (): Promise<DashboardStats> => {
-  const today = new Date().toISOString().split('T')[0];
-  const thisMonth = new Date().toISOString().substring(0, 7);
-  
-  const totalStudents = await prisma.student.count({});
-  
-  const todayAttendance = await prisma.attendanceRecord.findMany({
-    where: { date: today }
-  });
-  
-  const present = todayAttendance.filter(record => record.status === 'present').length;
-  const absent = todayAttendance.filter(record => record.status === 'absent').length;
-  const late = todayAttendance.filter(record => record.status === 'late').length;
-  
-  const payments = await prisma.payment.findMany({
-    where: {
-      date: {
-        startsWith: thisMonth
+export const getDashboardStats = async (): Promise<DashboardStats> => {
+  if (isBrowser) {
+    return Promise.resolve(mockApi.getDashboardStats());
+  } else {
+    const today = new Date().toISOString().split('T')[0];
+    const thisMonth = new Date().toISOString().substring(0, 7);
+    
+    const totalStudents = await prisma.student.count({});
+    
+    const todayAttendance = await prisma.attendanceRecord.findMany({
+      where: { date: today }
+    });
+    
+    const present = todayAttendance.filter(record => record.status === 'present').length;
+    const absent = todayAttendance.filter(record => record.status === 'absent').length;
+    const late = todayAttendance.filter(record => record.status === 'late').length;
+    
+    const payments = await prisma.payment.findMany({
+      where: {
+        date: {
+          startsWith: thisMonth
+        }
       }
-    }
-  });
-  
-  const paymentsThisMonth = payments.reduce((sum, payment) => sum + payment.amount, 0);
-  
-  const recentGrades = await prisma.grade.count({});
-  
-  return {
-    totalStudents,
-    attendanceToday: {
-      present,
-      absent,
-      late
-    },
-    paymentsThisMonth,
-    recentGrades
-  };
+    });
+    
+    const paymentsThisMonth = payments.reduce((sum, payment) => sum + payment.amount, 0);
+    
+    const recentGrades = await prisma.grade.count({});
+    
+    return {
+      totalStudents,
+      attendanceToday: {
+        present,
+        absent,
+        late
+      },
+      paymentsThisMonth,
+      recentGrades
+    };
+  }
 };
 
 // Available classes

@@ -1,4 +1,5 @@
-import React, { useState, useEffect } from 'react';
+
+import React, { useState } from 'react';
 import MainLayout from '@/components/Layout/MainLayout';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
@@ -7,83 +8,39 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { getAvailableClasses, getClassWithDetails, addSubject } from '@/lib/api';
 import { useToast } from '@/components/ui/use-toast';
-import { ClassWithDetails, Subject } from '@/types';
+import { ClassWithDetails } from '@/types';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 
 const Classes = () => {
-  const [availableClasses, setAvailableClasses] = useState<string[]>([]);
   const [currentClass, setCurrentClass] = useState<string>('');
-  const [classDetails, setClassDetails] = useState<ClassWithDetails | null>(null);
   const [isAddingSubject, setIsAddingSubject] = useState(false);
   const [newSubjectName, setNewSubjectName] = useState('');
   const [newSubjectTeacherName, setNewSubjectTeacherName] = useState('');
   const [newSubjectCoefficient, setNewSubjectCoefficient] = useState('1');
   const { toast } = useToast();
+  const queryClient = useQueryClient();
 
-  useEffect(() => {
-    const loadClasses = async () => {
-      try {
-        const classes = await getAvailableClasses();
-        setAvailableClasses(classes);
-        
-        if (classes.length > 0) {
-          setCurrentClass(classes[0]);
-        }
-      } catch (error) {
-        toast({
-          title: "Erreur",
-          description: "Impossible de charger la liste des classes",
-          variant: "destructive"
-        });
+  const { data: availableClasses = [], isLoading: classesLoading } = useQuery({
+    queryKey: ['availableClasses'],
+    queryFn: getAvailableClasses,
+    onSuccess: (data) => {
+      if (data.length > 0 && !currentClass) {
+        setCurrentClass(data[0]);
       }
-    };
+    },
+  });
 
-    loadClasses();
-  }, []);
+  const { data: classDetails, isLoading: detailsLoading } = useQuery({
+    queryKey: ['classDetails', currentClass],
+    queryFn: () => getClassWithDetails(currentClass),
+    enabled: !!currentClass,
+  });
 
-  useEffect(() => {
-    const loadClassDetails = async () => {
-      if (!currentClass) return;
-
-      try {
-        const details = await getClassWithDetails(currentClass);
-        setClassDetails(details);
-      } catch (error) {
-        toast({
-          title: "Erreur",
-          description: "Impossible de charger les détails de la classe",
-          variant: "destructive"
-        });
-      }
-    };
-
-    loadClassDetails();
-  }, [currentClass]);
-
-  const handleClassChange = (className: string) => {
-    setCurrentClass(className);
-  };
-
-  const handleAddSubject = async () => {
-    if (!currentClass || !newSubjectName || !newSubjectTeacherName || !newSubjectCoefficient) {
-      toast({
-        title: "Erreur",
-        description: "Veuillez remplir tous les champs obligatoires",
-        variant: "destructive"
-      });
-      return;
-    }
-    
-    try {
-      await addSubject({
-        name: newSubjectName,
-        classId: currentClass,
-        teacherName: newSubjectTeacherName,
-        coefficient: parseInt(newSubjectCoefficient) || 1
-      });
-      
+  const addSubjectMutation = useMutation({
+    mutationFn: addSubject,
+    onSuccess: () => {
       // Refresh class details
-      const updatedClassDetails = await getClassWithDetails(currentClass);
-      setClassDetails(updatedClassDetails);
+      queryClient.invalidateQueries({ queryKey: ['classDetails', currentClass] });
       
       // Reset form
       setNewSubjectName('');
@@ -95,14 +52,47 @@ const Classes = () => {
         title: "Matière ajoutée",
         description: `${newSubjectName} a été ajoutée à ${currentClass}.`,
       });
-    } catch (error) {
+    },
+    onError: () => {
       toast({
         title: "Erreur",
         description: "Une erreur est survenue lors de l'ajout de la matière.",
         variant: "destructive",
       });
     }
+  });
+
+  const handleClassChange = (className: string) => {
+    setCurrentClass(className);
   };
+
+  const handleAddSubject = () => {
+    if (!currentClass || !newSubjectName || !newSubjectTeacherName || !newSubjectCoefficient) {
+      toast({
+        title: "Erreur",
+        description: "Veuillez remplir tous les champs obligatoires",
+        variant: "destructive"
+      });
+      return;
+    }
+    
+    addSubjectMutation.mutate({
+      name: newSubjectName,
+      classId: currentClass,
+      teacherName: newSubjectTeacherName,
+      coefficient: parseInt(newSubjectCoefficient) || 1
+    });
+  };
+
+  if (classesLoading) {
+    return (
+      <MainLayout>
+        <div className="p-6">
+          <h1 className="text-2xl font-bold mb-6">Chargement des classes...</h1>
+        </div>
+      </MainLayout>
+    );
+  }
 
   return (
     <MainLayout>
@@ -170,7 +160,9 @@ const Classes = () => {
                     />
                   </div>
                   <div className="flex justify-end">
-                    <Button onClick={handleAddSubject}>Ajouter</Button>
+                    <Button onClick={handleAddSubject} disabled={addSubjectMutation.isPending}>
+                      {addSubjectMutation.isPending ? 'Ajout en cours...' : 'Ajouter'}
+                    </Button>
                   </div>
                 </div>
               </DialogContent>
@@ -186,19 +178,29 @@ const Classes = () => {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {classDetails?.subjects?.map((subject) => (
-                <TableRow key={subject.id}>
-                  <TableCell>{subject.name}</TableCell>
-                  <TableCell>{subject.teacherName || 'Non assigné'}</TableCell>
-                  <TableCell>{subject.coefficient || 1}</TableCell>
-                </TableRow>
-              ))}
-              {(!classDetails?.subjects || classDetails.subjects.length === 0) && (
+              {detailsLoading ? (
                 <TableRow>
-                  <TableCell colSpan={3} className="text-center py-4 text-gray-500">
-                    Aucune matière définie pour cette classe
+                  <TableCell colSpan={3} className="text-center py-4">
+                    Chargement des matières...
                   </TableCell>
                 </TableRow>
+              ) : (
+                <>
+                  {classDetails?.subjects?.map((subject) => (
+                    <TableRow key={subject.id}>
+                      <TableCell>{subject.name}</TableCell>
+                      <TableCell>{subject.teacherName || 'Non assigné'}</TableCell>
+                      <TableCell>{subject.coefficient || 1}</TableCell>
+                    </TableRow>
+                  ))}
+                  {(!classDetails?.subjects || classDetails.subjects.length === 0) && (
+                    <TableRow>
+                      <TableCell colSpan={3} className="text-center py-4 text-gray-500">
+                        Aucune matière définie pour cette classe
+                      </TableCell>
+                    </TableRow>
+                  )}
+                </>
               )}
             </TableBody>
           </Table>

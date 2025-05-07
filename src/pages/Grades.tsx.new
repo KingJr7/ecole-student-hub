@@ -1,1 +1,184 @@
- 
+
+import React, { useState } from 'react';
+import MainLayout from '@/components/Layout/MainLayout';
+import { useToast } from '@/components/ui/use-toast';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { Button } from '@/components/ui/button';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { getAvailableClasses, getClassResults, getSubjectsByClass } from '@/lib/api';
+import { ClassResult } from '@/types';
+import GradeForm from '@/components/GradeForm';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+
+const GradesPage = () => {
+  const [currentClass, setCurrentClass] = useState<string>('');
+  const [currentTerm, setCurrentTerm] = useState<'1er trimestre' | '2e trimestre' | '3e trimestre'>('1er trimestre');
+  const [useWeightedAverage, setUseWeightedAverage] = useState(true);
+  const [isAddingGrade, setIsAddingGrade] = useState(false);
+  const { toast } = useToast();
+  const queryClient = useQueryClient();
+
+  const { data: availableClasses = [], isLoading: classesLoading } = useQuery({
+    queryKey: ['availableClasses'],
+    queryFn: getAvailableClasses,
+    onSuccess: (data) => {
+      if (data.length > 0 && !currentClass) {
+        setCurrentClass(data[0]);
+      }
+    },
+  });
+
+  const { data: subjects = [], isLoading: subjectsLoading } = useQuery({
+    queryKey: ['subjects', currentClass],
+    queryFn: () => getSubjectsByClass(currentClass),
+    enabled: !!currentClass,
+  });
+
+  const { data: classResults = [], isLoading: resultsLoading } = useQuery({
+    queryKey: ['classResults', currentClass, currentTerm, useWeightedAverage],
+    queryFn: () => getClassResults(currentClass, currentTerm, useWeightedAverage),
+    enabled: !!currentClass && !!currentTerm,
+  });
+
+  const handleClassChange = (className: string) => {
+    setCurrentClass(className);
+  };
+
+  const handleTermChange = (term: '1er trimestre' | '2e trimestre' | '3e trimestre') => {
+    setCurrentTerm(term);
+  };
+
+  const handleToggleWeightedAverage = () => {
+    setUseWeightedAverage(!useWeightedAverage);
+  };
+
+  const handleGradeAdded = () => {
+    queryClient.invalidateQueries({ queryKey: ['classResults'] });
+    setIsAddingGrade(false);
+    toast({
+      title: "Note ajoutée",
+      description: "La note a été ajoutée avec succès."
+    });
+  };
+
+  if (classesLoading) {
+    return (
+      <MainLayout>
+        <div className="p-6">
+          <h1 className="text-2xl font-bold mb-6">Chargement des classes...</h1>
+        </div>
+      </MainLayout>
+    );
+  }
+
+  return (
+    <MainLayout>
+      <div className="p-6">
+        <h1 className="text-2xl font-bold mb-6">Gestion des Notes</h1>
+
+        <div className="flex flex-wrap items-center gap-4 mb-6">
+          <Select value={currentClass} onValueChange={handleClassChange}>
+            <SelectTrigger className="w-[200px]">
+              <SelectValue placeholder="Sélectionner une classe" />
+            </SelectTrigger>
+            <SelectContent>
+              {availableClasses.map(className => (
+                <SelectItem key={className} value={className}>{className}</SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+
+          <Select value={currentTerm} onValueChange={handleTermChange}>
+            <SelectTrigger className="w-[200px]">
+              <SelectValue placeholder="Sélectionner un trimestre" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="1er trimestre">1er Trimestre</SelectItem>
+              <SelectItem value="2e trimestre">2ème Trimestre</SelectItem>
+              <SelectItem value="3e trimestre">3ème Trimestre</SelectItem>
+            </SelectContent>
+          </Select>
+
+          <Button variant="outline" onClick={handleToggleWeightedAverage}>
+            {useWeightedAverage ? 'Moyenne pondérée' : 'Moyenne simple'}
+          </Button>
+
+          <Dialog open={isAddingGrade} onOpenChange={setIsAddingGrade}>
+            <DialogTrigger asChild>
+              <Button className="ml-auto">Ajouter une note</Button>
+            </DialogTrigger>
+            <DialogContent className="sm:max-w-[500px]">
+              <DialogHeader>
+                <DialogTitle>Ajouter une note</DialogTitle>
+              </DialogHeader>
+              <GradeForm 
+                classNames={availableClasses}
+                terms={['1er trimestre', '2e trimestre', '3e trimestre']}
+                onSuccess={handleGradeAdded}
+                defaultValues={{ className: currentClass, term: currentTerm }}
+              />
+            </DialogContent>
+          </Dialog>
+        </div>
+
+        <Card>
+          <CardHeader>
+            <CardTitle>Résultats de classe: {currentClass} - {currentTerm}</CardTitle>
+          </CardHeader>
+          <CardContent>
+            {resultsLoading ? (
+              <p>Chargement des résultats...</p>
+            ) : classResults.length > 0 ? (
+              <div className="overflow-x-auto">
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>Rang</TableHead>
+                      <TableHead>Élève</TableHead>
+                      {subjects.map(subject => (
+                        <TableHead key={subject.id}>{subject.name}</TableHead>
+                      ))}
+                      <TableHead>Moyenne</TableHead>
+                      <TableHead>Statut</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {classResults.map((result) => (
+                      <TableRow key={result.studentId}>
+                        <TableCell>{result.rank}</TableCell>
+                        <TableCell>{result.studentName}</TableCell>
+                        {subjects.map(subject => (
+                          <TableCell key={`${result.studentId}-${subject.id}`}>
+                            {result.subjects[subject.name] 
+                              ? result.subjects[subject.name].average.toFixed(2)
+                              : 'N/A'}
+                          </TableCell>
+                        ))}
+                        <TableCell className="font-bold">{result.average.toFixed(2)}</TableCell>
+                        <TableCell>
+                          <span className={`px-2 py-1 rounded-full text-xs ${
+                            result.status === 'admis' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
+                          }`}>
+                            {result.status === 'admis' ? 'Admis' : 'Échec'}
+                          </span>
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </div>
+            ) : (
+              <p className="text-center py-4 text-gray-500">
+                Aucun résultat disponible pour cette classe et ce trimestre
+              </p>
+            )}
+          </CardContent>
+        </Card>
+      </div>
+    </MainLayout>
+  );
+};
+
+export default GradesPage;

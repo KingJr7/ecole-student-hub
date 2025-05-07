@@ -1,4 +1,3 @@
-
 import { Student, AttendanceRecord, Payment, Grade, Subject, Teacher, Schedule, ClassWithDetails } from '@/types';
 
 // Mock data store
@@ -258,6 +257,10 @@ export const deleteSchedule = (id: number): void => {
 };
 
 // CLASS OPERATIONS
+export const getClasses = (): string[] => {
+  return getAvailableClasses();
+};
+
 export const getClassDetails = (className: string): ClassWithDetails | undefined => {
   const classIdMap: Record<string, number> = {
     'Terminale A': 1,
@@ -273,7 +276,7 @@ export const getClassDetails = (className: string): ClassWithDetails | undefined
   const classId = classIdMap[className];
   if (!classId) return undefined;
   
-  const classSubjects = subjects.filter(subject => subject.classId === classId);
+  const classSubjects = subjects.filter(subject => subject.classId === classId.toString());
   
   // Attach teacher details to each subject
   const subjectsWithDetails = classSubjects.map(subject => {
@@ -286,109 +289,90 @@ export const getClassDetails = (className: string): ClassWithDetails | undefined
     };
   });
   
+  const classStudents = students.filter(student => student.className === className);
+  
   return {
     id: classId,
     name: className,
-    subjects: subjectsWithDetails
+    subjects: subjectsWithDetails,
+    students: classStudents
   };
 };
 
-export const getAvailableClasses = (): string[] => {
-  return [
-    'Terminale A',
-    'Terminale C',
-    'Terminale D',
-    'Première A',
-    'Première C',
-    'Première D',
-    'Seconde A',
-    'Seconde C',
-  ];
+export const getClass = (id: number) => {
+  const classNameMap: Record<number, string> = {
+    1: 'Terminale A',
+    2: 'Terminale C',
+    3: 'Terminale D',
+    4: 'Première A',
+    5: 'Première C',
+    6: 'Première D',
+    7: 'Seconde A',
+    8: 'Seconde C',
+  };
+
+  const className = classNameMap[id];
+  if (!className) return undefined;
+
+  return {
+    id,
+    name: className
+  };
 };
 
-// Helper function to get the students in a specific class
-export const getStudentsByClass = (className: string): Student[] => {
-  return students.filter(student => student.className === className);
+export const addClass = (name: string) => {
+  const nextId = Math.max(0, ...Object.keys(getClass).map(Number)) + 1;
+  return {
+    id: nextId,
+    name
+  };
 };
 
-// Function to calculate class results
-export const getClassResults = (className: string, term: '1er trimestre' | '2e trimestre' | '3e trimestre', useWeightedAverage: boolean = true) => {
-  const classStudents = getStudentsByClass(className);
-  const classSubjects = getSubjectsByClass(className);
+export const updateClass = (id: number, name: string) => {
+  return {
+    id,
+    name
+  };
+};
+
+export const deleteClass = (id: number) => {
+  return true;
+};
+
+export const getClassSubjects = (classId: number) => {
+  return subjects.filter(subject => subject.classId === classId.toString());
+};
+
+export const getDashboardStats = (): DashboardStats => {
+  const today = new Date().toISOString().split('T')[0];
+  const thisMonth = new Date().toISOString().substring(0, 7);
   
-  return classStudents.map(student => {
-    const studentGrades = grades.filter(
-      grade => grade.studentId === student.id && grade.term === term
-    );
-    
-    // Group grades by subject
-    const subjectGrades = studentGrades.reduce((acc, grade) => {
-      if (!acc[grade.subject]) {
-        acc[grade.subject] = [];
-      }
-      acc[grade.subject].push(grade);
-      return acc;
-    }, {} as Record<string, Grade[]>);
-    
-    // Calculate average for each subject
-    const subjectAverages = {} as Record<string, { average: number; coefficient: number }>;
-    
-    for (const subject of classSubjects) {
-      const subjectName = subject.name;
-      const gradesForSubject = subjectGrades[subjectName] || [];
-      
-      if (gradesForSubject.length > 0) {
-        // Calculate the average for this subject
-        let sum = 0;
-        let weightSum = 0;
-        
-        for (const grade of gradesForSubject) {
-          const weight = grade.coefficient || 1;
-          sum += grade.score * weight;
-          weightSum += weight;
-        }
-        
-        const average = weightSum > 0 ? sum / weightSum : 0;
-        
-        subjectAverages[subjectName] = {
-          average,
-          coefficient: subject.coefficient
-        };
-      }
-    }
-    
-    // Calculate overall average
-    let overallSum = 0;
-    let overallWeightSum = 0;
-    
-    Object.entries(subjectAverages).forEach(([subjectName, { average, coefficient }]) => {
-      if (useWeightedAverage) {
-        overallSum += average * coefficient;
-        overallWeightSum += coefficient;
-      } else {
-        overallSum += average;
-        overallWeightSum += 1;
-      }
-    });
-    
-    const overallAverage = overallWeightSum > 0 ? overallSum / overallWeightSum : 0;
-    
-    return {
-      studentId: student.id,
-      studentName: `${student.firstName} ${student.lastName}`,
-      average: overallAverage,
-      subjects: subjectAverages,
-      // These will be filled in after sorting
-      rank: 0,
-      status: overallAverage >= 10 ? 'admis' as const : 'échec' as const
-    };
-  })
-  .filter(result => Object.keys(result.subjects).length > 0)
-  .sort((a, b) => b.average - a.average)
-  .map((result, index) => ({
-    ...result,
-    rank: index + 1
-  }));
+  const totalStudents = students.length;
+  
+  const todayAttendance = attendanceRecords.filter(record => record.date === today);
+  
+  const present = todayAttendance.filter(record => record.status === 'present').length;
+  const absent = todayAttendance.filter(record => record.status === 'absent').length;
+  const late = todayAttendance.filter(record => record.status === 'late').length;
+  
+  const monthlyPayments = payments.filter(payment => 
+    payment.date.startsWith(thisMonth)
+  );
+  
+  const paymentsThisMonth = monthlyPayments.reduce((sum, payment) => sum + payment.amount, 0);
+  
+  const recentGrades = grades.length;
+  
+  return {
+    totalStudents,
+    attendanceToday: {
+      present,
+      absent,
+      late
+    },
+    paymentsThisMonth,
+    recentGrades
+  };
 };
 
 // INITIALIZATION
