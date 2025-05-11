@@ -2,7 +2,7 @@
 import { useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { cn } from "@/lib/utils";
-import { Book, CalendarCheck, FileText, FileMinus, Users, Database } from "lucide-react";
+import { Book, CalendarCheck, FileText, FileMinus, Users, Database, Settings as SettingsIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 export default function Sidebar() {
@@ -13,6 +13,7 @@ export default function Sidebar() {
     { name: "Tableau de bord", href: "/", icon: Book },
     { name: "Élèves", href: "/students", icon: Users },
     { name: "Classes", href: "/classes", icon: Database },
+    { name: "Matières par classe", href: "/Class_Subjects", icon: FileText },
     { name: "Présences", href: "/attendance", icon: CalendarCheck },
     { name: "Paiements", href: "/payments", icon: FileMinus },
     { name: "Notes", href: "/grades", icon: FileText },
@@ -71,7 +72,17 @@ export default function Sidebar() {
         </nav>
       </div>
 
-      <div className="p-4 border-t border-sidebar-border text-sidebar-foreground text-xs">
+      <div className="p-4 border-t border-sidebar-border text-sidebar-foreground text-xs flex flex-col gap-2">
+        <Link
+          to="/settings"
+          className={cn(
+            "group flex items-center px-2 py-2 text-sm font-medium rounded-md hover:bg-sidebar-accent hover:text-sidebar-foreground",
+            location.pathname === "/settings" ? "bg-sidebar-accent text-sidebar-foreground" : "text-sidebar-foreground"
+          )}
+        >
+          <SettingsIcon className="flex-shrink-0 h-5 w-5" aria-hidden="true" />
+          {!collapsed && <span className="ml-3">Paramètres</span>}
+        </Link>
         {!collapsed && <div>© EcoleHub {new Date().getFullYear()}</div>}
       </div>
     </div>

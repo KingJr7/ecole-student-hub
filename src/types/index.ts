@@ -8,7 +8,8 @@ export interface Student {
   address: string;
   enrollmentDate: string;
   status: 'active' | 'inactive' | 'graduated';
-  className: string;
+  classId: number;
+  className?: string;
   parentInfo: ParentInfo;
 }
 

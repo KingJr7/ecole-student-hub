@@ -1,174 +1,150 @@
 import { useState, useEffect } from "react";
-import { getAttendanceRecords, getStudents, addAttendanceRecord, updateAttendanceRecord, deleteAttendanceRecord } from "@/lib/api";
-import { AttendanceRecord, Student } from "@/types";
-import MainLayout from "@/components/Layout/MainLayout";
+import { useDatabase } from "../hooks/useDatabase";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
 import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
-  DialogFooter,
+  DialogTrigger,
 } from "@/components/ui/dialog";
-import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { CalendarCheck, Pencil, Trash2 } from "lucide-react";
-import { useToast } from "@/components/ui/use-toast";
+import MainLayout from "@/components/Layout/MainLayout";
 import StudentSearchSelect from "@/components/StudentSearchSelect";
+import { useToast } from "@/components/ui/use-toast";
+
+interface Attendance {
+  id: number;
+  studentId: number;
+  date: string;
+  status: string;
+  notes?: string;
+}
+
+interface Student {
+  id: number;
+  firstName: string;
+  lastName: string;
+  classId: number;
+}
+
+interface Class {
+  id: number;
+  name: string;
+}
 
 const Attendance = () => {
-  const [attendanceRecords, setAttendanceRecords] = useState<AttendanceRecord[]>([]);
+  const { getAllAttendances, getAllStudents, getAllClasses, createAttendance } = useDatabase();
+  const [attendances, setAttendances] = useState<Attendance[]>([]);
   const [students, setStudents] = useState<Student[]>([]);
+  const [classes, setClasses] = useState<Class[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
-  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
-  const [currentRecord, setCurrentRecord] = useState<Partial<AttendanceRecord>>({});
-  const [recordToDelete, setRecordToDelete] = useState<number | null>(null);
-  const [selectedDate, setSelectedDate] = useState<string>(new Date().toISOString().split('T')[0]);
-  const { toast } = useToast();
-
-  const loadData = async () => {
-    try {
-      const [studentsData, recordsData] = await Promise.all([
-        getStudents(),
-        getAttendanceRecords()
-      ]);
-      setStudents(studentsData);
-      setAttendanceRecords(recordsData);
-    } catch (error) {
-      toast({
-        title: "Erreur",
-        description: "Impossible de charger les données.",
-        variant: "destructive",
-      });
-    }
-  };
+  const [currentAttendance, setCurrentAttendance] = useState<Partial<Attendance>>({});
+  const [searchQuery, setSearchQuery] = useState("");
+  const [selectedClass, setSelectedClass] = useState("all");
+  const [selectedDate, setSelectedDate] = useState(new Date().toISOString().split("T")[0]);
+const [selectedStatusFilter, setSelectedStatusFilter] = useState<string>("all");
 
   useEffect(() => {
     loadData();
   }, []);
 
-  const filteredRecords = attendanceRecords.filter(
-    (record) => record.date === selectedDate
-  );
-
-  const handleOpenAddDialog = () => {
-    setCurrentRecord({ date: selectedDate, status: "present" });
-    setIsDialogOpen(true);
-  };
-
-  const handleOpenEditDialog = (record: AttendanceRecord) => {
-    setCurrentRecord({ ...record });
-    setIsDialogOpen(true);
-  };
-
-  const handleOpenDeleteDialog = (recordId: number) => {
-    setRecordToDelete(recordId);
-    setIsDeleteDialogOpen(true);
-  };
-
-  const handleSaveRecord = async () => {
-    if (!currentRecord.studentId || !currentRecord.date || !currentRecord.status) {
-      toast({
-        title: "Erreur",
-        description: "Veuillez remplir tous les champs obligatoires.",
-        variant: "destructive",
-      });
-      return;
-    }
-
+  const loadData = async () => {
     try {
-      if (currentRecord.id) {
-        // Update existing record
-        await updateAttendanceRecord(currentRecord.id, currentRecord);
-        toast({
-          title: "Succès",
-          description: "La présence a été mise à jour avec succès.",
-        });
-      } else {
-        // Add new record
-        await addAttendanceRecord(currentRecord as Omit<AttendanceRecord, "id">);
-        toast({
-          title: "Succès",
-          description: "La présence a été ajoutée avec succès.",
-        });
-      }
-
-      // Refresh record list
-      await loadData();
-      setIsDialogOpen(false);
+      const [attendancesData, studentsData, classesData] = await Promise.all([
+        getAllAttendances(),
+        getAllStudents(),
+        getAllClasses()
+      ]);
+      setAttendances(attendancesData);
+      setStudents(studentsData);
+      setClasses(classesData);
     } catch (error) {
-      toast({
-        title: "Erreur",
-        description: "Une erreur est survenue.",
-        variant: "destructive",
-      });
+      // useToast({ variant: "destructive", description: 'Erreur lors du chargement des données' });
+      console.error(error);
+    } finally {
+      setIsLoading(false);
     }
   };
 
-  const handleDeleteRecord = async () => {
-    if (recordToDelete) {
-      try {
-        await deleteAttendanceRecord(recordToDelete);
-        await loadData();
-        toast({
-          title: "Succès",
-          description: "L'enregistrement a été supprimé avec succès.",
-        });
-      } catch (error) {
-        toast({
-          title: "Erreur",
-          description: "Une erreur est survenue lors de la suppression.",
-          variant: "destructive",
-        });
-      }
-    }
-    setIsDeleteDialogOpen(false);
-    setRecordToDelete(null);
+  const handleOpenDialog = (student: Student) => {
+    setCurrentAttendance({
+      studentId: student.id,
+      date: selectedDate,
+      status: "present"
+    });
+    setIsDialogOpen(true);
   };
 
-  const getStudentName = (studentId: number): string => {
-    const student = students.find((s) => s.id === studentId);
+  const handleCloseDialog = () => {
+    setCurrentAttendance({});
+    setIsDialogOpen(false);
+  };
+
+  const handleSaveAttendance = async () => {
+    try {
+      await createAttendance(currentAttendance as Required<Attendance>);
+      // useToastToast({ description: "Présence enregistrée avec succès" });
+      handleCloseDialog();
+      loadData();
+    } catch (error) {
+      // useToastToast({ variant: "destructive", description: "Erreur lors de l'enregistrement de la présence" });
+      console.error(error);
+    }
+  };
+
+  const getStudentName = (studentId: number) => {
+    const student = students.find(s => s.id === studentId);
     return student ? `${student.firstName} ${student.lastName}` : "Étudiant inconnu";
   };
 
-  const getStatusBadgeClass = (status: string): string => {
-    switch (status) {
-      case "present":
-        return "bg-green-100 text-green-800";
-      case "absent":
-        return "bg-red-100 text-red-800";
-      case "late":
-        return "bg-amber-100 text-amber-800";
-      case "excused":
-        return "bg-blue-100 text-blue-800";
-      default:
-        return "bg-gray-100 text-gray-800";
-    }
+  const formatStatus = (status: string) => {
+    const statusMap: { [key: string]: string } = {
+      "present": "Présent",
+      "absent": "Absent",
+      "late": "En retard",
+      "excused": "Excusé"
+    };
+    return statusMap[status] || status;
   };
 
-  const getStatusText = (status: string): string => {
-    switch (status) {
-      case "present":
-        return "Présent";
-      case "absent":
-        return "Absent";
-      case "late":
-        return "En retard";
-      case "excused":
-        return "Excusé";
-      default:
-        return status;
+  const filteredStudents = students.filter(student => {
+    const fullName = `${student.firstName} ${student.lastName}`.toLowerCase();
+    const matchesSearch = fullName.includes(searchQuery.toLowerCase());
+    const matchesClass = selectedClass === "all" || student.classId === parseInt(selectedClass);
+    const attendance = attendances.find(a => a.studentId === student.id && a.date === selectedDate);
+    let matchesStatus = true;
+    if (selectedStatusFilter === "present") {
+      matchesStatus = attendance?.status === "present";
+    } else if (selectedStatusFilter === "absent") {
+      matchesStatus = attendance?.status === "absent";
     }
+    return matchesSearch && matchesClass && matchesStatus;
+  });
+
+  const getAttendanceForStudent = (studentId: number) => {
+    return attendances.find(a => 
+      a.studentId === studentId && 
+      a.date === selectedDate
+    );
   };
+
+  if (isLoading) {
+    return <div>Chargement...</div>;
+  }
 
   return (
     <MainLayout>
@@ -189,121 +165,109 @@ const Attendance = () => {
                 className="w-40"
               />
             </div>
-            <Button onClick={handleOpenAddDialog} className="bg-school-600 hover:bg-school-700">
+            <Button onClick={() => setIsDialogOpen(true)} className="bg-school-600 hover:bg-school-700">
               Ajouter une présence
             </Button>
           </div>
         </div>
 
-        <Card>
-          <CardContent className="p-0">
-            <div className="overflow-x-auto">
-              <table className="w-full">
-                <thead className="bg-muted/50">
-                  <tr>
-                    <th className="py-3 px-4 text-left text-sm font-medium">Élève</th>
-                    <th className="py-3 px-4 text-left text-sm font-medium">Date</th>
-                    <th className="py-3 px-4 text-left text-sm font-medium">Statut</th>
-                    <th className="py-3 px-4 text-left text-sm font-medium">Notes</th>
-                    <th className="py-3 px-4 text-right text-sm font-medium">Actions</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {filteredRecords.length > 0 ? (
-                    filteredRecords.map((record) => (
-                      <tr key={record.id} className="border-t">
-                        <td className="py-3 px-4 text-sm">{getStudentName(record.studentId)}</td>
-                        <td className="py-3 px-4 text-sm">{record.date}</td>
-                        <td className="py-3 px-4">
-                          <span
-                            className={`px-2 py-1 text-xs rounded-md ${getStatusBadgeClass(record.status)}`}
-                          >
-                            {getStatusText(record.status)}
-                          </span>
-                        </td>
-                        <td className="py-3 px-4 text-sm">{record.notes || "-"}</td>
-                        <td className="py-3 px-4 text-right space-x-2">
-                          <Button
-                            size="sm"
-                            variant="ghost"
-                            onClick={() => handleOpenEditDialog(record)}
-                          >
-                            <Pencil className="h-4 w-4" />
-                          </Button>
-                          <Button
-                            size="sm"
-                            variant="ghost"
-                            className="text-red-600 hover:text-red-800"
-                            onClick={() => handleOpenDeleteDialog(record.id)}
-                          >
-                            <Trash2 className="h-4 w-4" />
-                          </Button>
-                        </td>
-                      </tr>
-                    ))
-                  ) : (
-                    <tr>
-                      <td colSpan={5} className="py-8 text-center text-muted-foreground">
-                        Aucune présence enregistrée pour cette date.
-                      </td>
-                    </tr>
-                  )}
-                </tbody>
-              </table>
-            </div>
-          </CardContent>
-        </Card>
+        <div className="flex gap-4 mb-4">
+          <Input
+            placeholder="Rechercher un étudiant..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="max-w-sm"
+          />
+          <Select value={selectedClass} onValueChange={setSelectedClass}>
+            <SelectTrigger className="w-[200px]">
+              <SelectValue placeholder="Filtrer par classe" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">Toutes les classes</SelectItem>
+              {classes.map((cls) => (
+                <SelectItem key={cls.id} value={cls.id.toString()}>
+                  {cls.name}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+          <Select value={selectedStatusFilter} onValueChange={setSelectedStatusFilter}>
+            <SelectTrigger className="w-[180px]">
+              <SelectValue placeholder="Filtrer par présence" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">Tous</SelectItem>
+              <SelectItem value="present">Présents</SelectItem>
+              <SelectItem value="absent">Absents</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
 
-        {/* Add/Edit Attendance Dialog */}
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHead>Étudiant</TableHead>
+              <TableHead>Statut</TableHead>
+              <TableHead>Notes</TableHead>
+              <TableHead>Actions</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {filteredStudents.map((student) => {
+              const attendance = getAttendanceForStudent(student.id);
+              return (
+                <TableRow key={student.id}>
+                  <TableCell>{getStudentName(student.id)}</TableCell>
+                  <TableCell>
+                    {attendance ? formatStatus(attendance.status) : "Non enregistré"}
+                  </TableCell>
+                  <TableCell>{attendance?.notes || "-"}</TableCell>
+                  <TableCell>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => handleOpenDialog(student)}
+                    >
+                      {attendance ? "Modifier" : "Enregistrer"}
+                    </Button>
+                  </TableCell>
+                </TableRow>
+              );
+            })}
+          </TableBody>
+        </Table>
+
         <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
           <DialogContent>
             <DialogHeader>
               <DialogTitle>
-                {currentRecord.id ? "Modifier la présence" : "Ajouter une présence"}
+                Enregistrer la présence
               </DialogTitle>
             </DialogHeader>
             <div className="grid gap-4 py-4">
-              <div className="space-y-2">
-                <Label htmlFor="student">Élève</Label>
-                <StudentSearchSelect
-                  students={students}
-                  value={currentRecord.studentId}
-                  onValueChange={(studentId) =>
-                    setCurrentRecord({
-                      ...currentRecord,
-                      studentId,
-                    })
-                  }
-                  placeholder="Rechercher un élève..."
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="date">Date</Label>
+              <div className="grid gap-2">
+                <Label>Étudiant</Label>
                 <Input
-                  id="date"
-                  type="date"
-                  value={currentRecord.date || ""}
-                  onChange={(e) =>
-                    setCurrentRecord({
-                      ...currentRecord,
-                      date: e.target.value,
-                    })
-                  }
+                  value={getStudentName(currentAttendance.studentId || 0)}
+                  disabled
                 />
               </div>
-              <div className="space-y-2">
-                <Label htmlFor="status">Statut</Label>
+              <div className="grid gap-2">
+                <Label>Date</Label>
+                <Input
+                  type="date"
+                  value={currentAttendance.date || ""}
+                  onChange={(e) => setCurrentAttendance({ ...currentAttendance, date: e.target.value })}
+                />
+              </div>
+              <div className="grid gap-2">
+                <Label>Statut</Label>
                 <Select
-                  value={currentRecord.status || "present"}
-                  onValueChange={(value) =>
-                    setCurrentRecord({
-                      ...currentRecord,
-                      status: value as "present" | "absent" | "late" | "excused",
-                    })
-                  }
+                  value={currentAttendance.status}
+                  onValueChange={(value) => setCurrentAttendance({ ...currentAttendance, status: value })}
                 >
-                  <SelectTrigger id="status">
-                    <SelectValue placeholder="Sélectionnez un statut" />
+                  <SelectTrigger>
+                    <SelectValue placeholder="Sélectionner un statut" />
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="present">Présent</SelectItem>
@@ -313,44 +277,22 @@ const Attendance = () => {
                   </SelectContent>
                 </Select>
               </div>
-              <div className="space-y-2">
-                <Label htmlFor="notes">Notes (optionnel)</Label>
+              <div className="grid gap-2">
+                <Label>Notes</Label>
                 <Textarea
-                  id="notes"
-                  value={currentRecord.notes || ""}
-                  onChange={(e) =>
-                    setCurrentRecord({
-                      ...currentRecord,
-                      notes: e.target.value,
-                    })
-                  }
+                  value={currentAttendance.notes || ""}
+                  onChange={(e) => setCurrentAttendance({ ...currentAttendance, notes: e.target.value })}
                 />
               </div>
             </div>
-            <DialogFooter>
-              <Button variant="outline" onClick={() => setIsDialogOpen(false)}>
+            <div className="flex justify-end gap-2">
+              <Button variant="outline" onClick={handleCloseDialog}>
                 Annuler
               </Button>
-              <Button onClick={handleSaveRecord}>Enregistrer</Button>
-            </DialogFooter>
-          </DialogContent>
-        </Dialog>
-
-        {/* Delete Confirmation Dialog */}
-        <Dialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
-          <DialogContent>
-            <DialogHeader>
-              <DialogTitle>Confirmer la suppression</DialogTitle>
-            </DialogHeader>
-            <p>Êtes-vous sûr de vouloir supprimer cet enregistrement? Cette action est irréversible.</p>
-            <DialogFooter>
-              <Button variant="outline" onClick={() => setIsDeleteDialogOpen(false)}>
-                Annuler
+              <Button onClick={handleSaveAttendance}>
+                Enregistrer
               </Button>
-              <Button variant="destructive" onClick={handleDeleteRecord}>
-                Supprimer
-              </Button>
-            </DialogFooter>
+            </div>
           </DialogContent>
         </Dialog>
       </div>

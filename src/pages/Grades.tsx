@@ -1,5 +1,4 @@
 import { useState, useEffect } from "react";
-import { getGrades, getStudents, addGrade, updateGrade, deleteGrade, getAvailableClasses, getClassResults } from "@/lib/api";
 import { Grade, Student, ClassResult } from "@/types";
 import MainLayout from "@/components/Layout/MainLayout";
 import { Button } from "@/components/ui/button";
@@ -25,11 +24,12 @@ import { FileText, Pencil, Trash2, Search, ListCheck } from "lucide-react";
 import { useToast } from "@/components/ui/use-toast";
 import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from "@/components/ui/table";
 import GradeForm from "@/components/GradeForm";
+import { useDatabase } from "@/hooks/useDatabase";
 
 const Grades = () => {
   const [grades, setGrades] = useState<Grade[]>([]);
   const [students, setStudents] = useState<Student[]>([]);
-  const [availableClasses, setAvailableClasses] = useState<string[]>([]);
+  const [classes, setClasses] = useState<any[]>([]);
   const [selectedClass, setSelectedClass] = useState<string>("all");
   const [selectedTerm, setSelectedTerm] = useState<'1er trimestre' | '2e trimestre' | '3e trimestre'>('1er trimestre');
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
@@ -38,24 +38,30 @@ const Grades = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [classResults, setClassResults] = useState<ClassResult[]>([]);
   const [isResultsDialogOpen, setIsResultsDialogOpen] = useState(false);
-  const { toast } = useToast();
+  const { toast: useToastToast } = useToast();
+
+  const { 
+    getAllGrades, 
+    getAllStudents, 
+    getAllClasses,
+    createGrade,
+    deleteGrade,
+    getClassResults
+  } = useDatabase();
 
   const loadData = async () => {
     try {
       const [gradesData, studentsData, classesData] = await Promise.all([
-        getGrades(),
-        getStudents(),
-        getAvailableClasses()
+        getAllGrades(),
+        getAllStudents(),
+        getAllClasses()
       ]);
       setGrades(gradesData);
       setStudents(studentsData);
-      setAvailableClasses(classesData);
+      setClasses(classesData);
     } catch (error) {
-      toast({
-        title: "Erreur",
-        description: "Impossible de charger les données.",
-        variant: "destructive",
-      });
+      console.error('Erreur lors du chargement des données:', error);
+      useToastToast({ variant: "destructive", description: 'Erreur lors du chargement des données' });
     }
   };
 
@@ -80,16 +86,10 @@ const Grades = () => {
       try {
         await deleteGrade(gradeToDelete);
         await loadData();
-        toast({
-          title: "Succès",
-          description: "La note a été supprimée avec succès.",
-        });
+        useToastToast({ description: 'Note supprimée avec succès' });
       } catch (error) {
-        toast({
-          title: "Erreur",
-          description: "Une erreur est survenue lors de la suppression.",
-          variant: "destructive",
-        });
+        console.error('Erreur lors de la suppression:', error);
+        useToastToast({ variant: "destructive", description: 'Erreur lors de la suppression' });
       }
     }
     setIsDeleteDialogOpen(false);
@@ -103,11 +103,7 @@ const Grades = () => {
 
   const handleGenerateResults = async () => {
     if (selectedClass === "all") {
-      toast({
-        title: "Erreur",
-        description: "Veuillez sélectionner une classe pour générer les résultats.",
-        variant: "destructive",
-      });
+      useToastToast({ variant: "destructive", description: 'Veuillez sélectionner une classe' });
       return;
     }
 
@@ -116,11 +112,8 @@ const Grades = () => {
       setClassResults(results);
       setIsResultsDialogOpen(true);
     } catch (error) {
-      toast({
-        title: "Erreur",
-        description: "Impossible de générer les résultats de la classe.",
-        variant: "destructive",
-      });
+      console.error('Erreur lors de la génération des résultats:', error);
+      useToastToast({ variant: "destructive", description: 'Erreur lors de la génération des résultats' });
     }
   };
 
@@ -177,9 +170,9 @@ const Grades = () => {
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="all">Toutes les classes</SelectItem>
-                {availableClasses.map((className) => (
-                  <SelectItem key={className} value={className}>
-                    {className}
+                {classes.map((cls) => (
+                  <SelectItem key={cls.id} value={cls.name}>
+                    {cls.name}
                   </SelectItem>
                 ))}
               </SelectContent>
@@ -261,19 +254,13 @@ const Grades = () => {
               onClose={() => setIsAddDialogOpen(false)}
               onSave={async (grade) => {
                 try {
-                  await addGrade(grade);
+                  await createGrade(grade);
                   await loadData();
                   setIsAddDialogOpen(false);
-                  toast({
-                    title: "Succès",
-                    description: "La note a été ajoutée avec succès.",
-                  });
+                  useToastToast({description: 'Note créée avec succès'});
                 } catch (error) {
-                  toast({
-                    title: "Erreur",
-                    description: "Une erreur est survenue lors de l'ajout de la note.",
-                    variant: "destructive",
-                  });
+                  useToastToast({description: 'Erreur lors de la sauvegarde de la note'});
+                  console.error(error);
                 }
               }}
               students={students}

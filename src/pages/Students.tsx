@@ -1,6 +1,5 @@
-
-import { useState } from "react";
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useState, useEffect } from "react";
+import { useQueryClient } from "@tanstack/react-query";
 import MainLayout from "@/components/Layout/MainLayout";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -24,9 +23,18 @@ import {
 import { Textarea } from "@/components/ui/textarea";
 import { Users, Pencil, Trash2, Search, CreditCard } from "lucide-react";
 import { useToast } from "@/components/ui/use-toast";
-import * as api from "@/lib/api";
-import { Student, Payment, ParentInfo } from "@/types";
+import { Student, Payment } from "@/types";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { useDatabase } from "@/hooks/useDatabase";
+// import { toast } from "react-hot-toast";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 
 // Define the interface for the currentStudent state
 interface CurrentStudent {
@@ -72,19 +80,54 @@ const Students = () => {
       motherEmail: ""
     }
   });
-  const { toast } = useToast();
+  const [students, setStudents] = useState<Student[]>([]);
+  const [classes, setClasses] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  const { toast: useToastToast } = useToast();
   const queryClient = useQueryClient();
-  
-  // Use React Query to fetch data
-  const { data: students = [], isLoading: isLoadingStudents } = useQuery({
-    queryKey: ['students'],
-    queryFn: api.getStudents
-  });
-  
-  const { data: availableClasses = [] } = useQuery({
-    queryKey: ['availableClasses'],
-    queryFn: api.getAvailableClasses
-  });
+  const { 
+    getAllStudents, 
+    createStudent, 
+    getAllClasses,
+    createPayment,
+    updateStudent,
+    deleteStudent
+  } = useDatabase();
+
+  useEffect(() => {
+    loadData();
+  }, []);
+
+  const loadData = async () => {
+    try {
+      const [studentsData, classesData] = await Promise.all([
+        getAllStudents(),
+        getAllClasses()
+      ]);
+      
+      // Ajouter le nom de la classe à chaque étudiant
+      const studentsWithClassNames = studentsData.map(student => {
+        const studentClass = classesData.find(c => c.id === student.classId);
+        return {
+          ...student,
+          className: studentClass?.name || ''
+        };
+      });
+      
+      setStudents(studentsWithClassNames);
+      setClasses(classesData);
+    } catch (error) {
+      console.error('Erreur lors du chargement des données:', error);
+      useToastToast({
+        title: "Erreur",
+        description: "Une erreur est survenue lors du chargement des données.",
+        variant: "destructive",
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
 
   // Filtrer les étudiants en fonction de la recherche et de la classe sélectionnée
   const filteredStudents = students.filter((student: Student) => {
@@ -93,84 +136,115 @@ const Students = () => {
     const classMatches = selectedClass === "all" || student.className === selectedClass;
     return nameMatches && classMatches;
   });
-  
-  // Mutations
-  const addStudentMutation = useMutation({
-    mutationFn: (student: Omit<Student, "id">) => api.addStudent(student),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['students'] });
-      toast({
-        title: "Succès",
-        description: "L'élève a été ajouté avec succès."
+
+  const handleSaveStudent = async () => {
+    if (
+      !currentStudent.firstName ||
+      !currentStudent.lastName ||
+      !currentStudent.email ||
+      !currentStudent.className ||
+      !currentStudent.parentInfo?.fatherName ||
+      !currentStudent.parentInfo?.motherName
+    ) {
+      useToastToast({
+        title: "Erreur",
+        description: "Veuillez remplir tous les champs obligatoires, y compris la classe.",
+        variant: "destructive",
       });
+      return;
+    }
+
+    try {
+      // Trouver l'ID de la classe sélectionnée
+      const selectedClass = classes.find(c => c.name === currentStudent.className);
+      if (!selectedClass) {
+        useToastToast({
+          title: "Erreur",
+          description: "Classe invalide sélectionnée.",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      const studentData = {
+        firstName: currentStudent.firstName,
+        lastName: currentStudent.lastName,
+        email: currentStudent.email,
+        phone: currentStudent.phone || '',
+        dateOfBirth: currentStudent.dateOfBirth || new Date().toISOString(),
+        address: currentStudent.address || '',
+        enrollmentDate: currentStudent.enrollmentDate || new Date().toISOString(),
+        status: currentStudent.status || 'active',
+        classId: selectedClass.id,
+        parentInfo: currentStudent.parentInfo
+      };
+
+      if (currentStudent.id) {
+        // Update existing student
+        await updateStudent(currentStudent.id, studentData);
+        useToastToast({
+          title: "Succès",
+          description: "Étudiant mis à jour avec succès.",
+        });
+      } else {
+        // Create new student
+        const newStudent = await createStudent(studentData);
+        setStudents([...students, { ...newStudent, className: selectedClass.name }]);
+        useToastToast({
+          title: "Succès",
+          description: "Étudiant créé avec succès.",
+        });
+      }
       setIsDialogOpen(false);
-    },
-    onError: (error: any) => {
-      toast({
+      loadData();
+    } catch (error) {
+      console.error('Erreur lors de la sauvegarde:', error);
+      useToastToast({
         title: "Erreur",
-        description: error.message || "Une erreur est survenue.",
-        variant: "destructive"
+        description: "Une erreur est survenue lors de la sauvegarde.",
+        variant: "destructive",
       });
     }
-  });
-  
-  const updateStudentMutation = useMutation({
-    mutationFn: ({ id, data }: { id: number, data: Partial<Student> }) =>
-      api.updateStudent(id, data),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['students'] });
-      toast({
-        title: "Succès",
-        description: "L'élève a été mis à jour avec succès."
-      });
-      setIsDialogOpen(false);
-    },
-    onError: (error: any) => {
-      toast({
-        title: "Erreur",
-        description: error.message || "Une erreur est survenue.",
-        variant: "destructive"
-      });
+  };
+
+  const handleDeleteStudent = async () => {
+    if (!studentToDelete) return;
+
+    if (window.confirm('Êtes-vous sûr de vouloir supprimer cet étudiant ?')) {
+      try {
+        await deleteStudent(studentToDelete);
+        setStudents(students.filter(s => s.id !== studentToDelete));
+        // toast.success('Étudiant supprimé avec succès');
+        setIsDeleteDialogOpen(false);
+      } catch (error) {
+        console.error('Erreur lors de la suppression:', error);
+        // toast.error('Une erreur est survenue lors de la suppression.');
+      }
     }
-  });
-  
-  const deleteStudentMutation = useMutation({
-    mutationFn: (id: number) => api.deleteStudent(id),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['students'] });
-      toast({
-        title: "Succès",
-        description: "L'élève a été supprimé avec succès."
-      });
-      setIsDeleteDialogOpen(false);
-    },
-    onError: (error: any) => {
-      toast({
-        title: "Erreur",
-        description: error.message || "Une erreur est survenue.",
-        variant: "destructive"
-      });
-    }
-  });
-  
-  const addPaymentMutation = useMutation({
-    mutationFn: (payment: Omit<Payment, "id">) => api.addPayment(payment),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['payments'] });
-      toast({
-        title: "Succès",
-        description: `Paiement enregistré avec succès.`
-      });
+  };
+
+  const handleSubmitPayment = async () => {
+    if (!studentForPayment || !paymentAmount) return;
+
+    try {
+      const paymentData = {
+        studentId: studentForPayment.id,
+        amount: Number(paymentAmount),
+        date: new Date().toISOString(),
+        type: paymentType,
+        status: 'paid',
+        notes: paymentNotes,
+        currency: 'FCFA'
+      };
+
+      await createPayment(paymentData);
+      // toast.success('Le paiement a été enregistré avec succès');
       setIsPaymentFormOpen(false);
-    },
-    onError: (error: any) => {
-      toast({
-        title: "Erreur",
-        description: error.message || "Une erreur est survenue.",
-        variant: "destructive"
-      });
+    } catch (error) {
+      console.error('Erreur lors de l\'enregistrement du paiement:', error);
+      // toast.error('Une erreur est survenue lors de l\'enregistrement du paiement.');
     }
-  });
+  };
 
   const handleOpenAddDialog = () => {
     setCurrentStudent({
@@ -187,8 +261,10 @@ const Students = () => {
   };
 
   const handleOpenEditDialog = (student: Student) => {
+    const selectedClass = classes.find(c => c.id === student.classId);
     setCurrentStudent({ 
       ...student,
+      className: selectedClass?.name || '',
       parentInfo: student.parentInfo || {
         fatherName: "",
         fatherPhone: "",
@@ -214,105 +290,33 @@ const Students = () => {
     setIsPaymentFormOpen(true);
   };
 
-  const handleSaveStudent = () => {
-    if (
-      !currentStudent.firstName ||
-      !currentStudent.lastName ||
-      !currentStudent.email ||
-      !currentStudent.className ||
-      !currentStudent.parentInfo?.fatherName ||
-      !currentStudent.parentInfo?.motherName
-    ) {
-      toast({
-        title: "Erreur",
-        description: "Veuillez remplir tous les champs obligatoires.",
-        variant: "destructive",
-      });
-      return;
-    }
-
-    // Assurez-vous que parentInfo est complètement défini
-    const studentToSave: any = {
-      ...currentStudent,
-      parentInfo: {
-        fatherName: currentStudent.parentInfo?.fatherName || "",
-        fatherPhone: currentStudent.parentInfo?.fatherPhone || "",
-        fatherEmail: currentStudent.parentInfo?.fatherEmail || "",
-        motherName: currentStudent.parentInfo?.motherName || "",
-        motherPhone: currentStudent.parentInfo?.motherPhone || "",
-        motherEmail: currentStudent.parentInfo?.motherEmail || ""
-      }
-    };
-
-    try {
-      if (currentStudent.id) {
-        // Update existing student
-        updateStudentMutation.mutate({ 
-          id: currentStudent.id, 
-          data: studentToSave 
-        });
-      } else {
-        // Add new student
-        addStudentMutation.mutate(studentToSave as Omit<Student, "id">);
-      }
-    } catch (error) {
-      toast({
-        title: "Erreur",
-        description: "Une erreur est survenue.",
-        variant: "destructive",
-      });
-    }
-  };
-
-  const handleDeleteStudent = () => {
-    if (studentToDelete) {
-      deleteStudentMutation.mutate(studentToDelete);
-    }
-  };
-
-  const handleSubmitPayment = () => {
-    if (!studentForPayment || paymentAmount === '' || paymentAmount <= 0) {
-      toast({
-        title: "Erreur",
-        description: "Veuillez entrer un montant de paiement valide.",
-        variant: "destructive",
-      });
-      return;
-    }
-
-    try {
-      const newPayment: Omit<Payment, "id"> = {
-        studentId: studentForPayment.id,
-        amount: Number(paymentAmount),
-        date: new Date().toISOString().split('T')[0],
-        type: paymentType,
-        status: 'paid',
-        notes: paymentNotes || undefined,
-        currency: 'FCFA'
-      };
-
-      addPaymentMutation.mutate(newPayment);
-    } catch (error) {
-      toast({
-        title: "Erreur",
-        description: "Une erreur est survenue lors de l'enregistrement du paiement.",
-        variant: "destructive",
-      });
-    }
-  };
-
   // Rediriger vers la page de paiements avec l'ID de l'élève
   const handleRedirectToPayment = () => {
     if (studentForPayment) {
       // Dans une application réelle, nous redirigerions vers la page de paiement
       // Pour cette démo, nous afficherons juste une notification
-      toast({
-        title: "Paiement",
-        description: `Redirection vers la page de paiement pour ${studentForPayment.firstName} ${studentForPayment.lastName}`,
-      });
+      // toast({
+      //   title: "Paiement",
+      //   description: `Redirection vers la page de paiement pour ${studentForPayment.firstName} ${studentForPayment.lastName}`,
+      // });
     }
     setIsPaymentDialogOpen(false);
     setStudentForPayment(null);
+  };
+
+  const getClassName = (classId: number) => {
+    const cls = classes.find(c => c.id === classId);
+    return cls ? cls.name : 'Classe inconnue';
+  };
+
+  const formatStatus = (status: string) => {
+    const statusMap: { [key: string]: string } = {
+      'active': 'Actif',
+      'inactive': 'Inactif',
+      'graduated': 'Diplômé',
+      'suspended': 'Suspendu'
+    };
+    return statusMap[status] || status;
   };
 
   return (
@@ -349,9 +353,9 @@ const Students = () => {
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="all">Toutes les classes</SelectItem>
-                {availableClasses.map((className: string) => (
-                  <SelectItem key={className} value={className}>
-                    {className}
+                {classes.map((cls) => (
+                  <SelectItem key={cls.id} value={cls.name}>
+                    {cls.name}
                   </SelectItem>
                 ))}
               </SelectContent>
@@ -359,7 +363,7 @@ const Students = () => {
           </div>
         </div>
 
-        {isLoadingStudents ? (
+        {loading ? (
           <div className="flex justify-center p-8">
             <div className="animate-spin rounded-full h-10 w-10 border-t-2 border-primary"></div>
           </div>
@@ -397,9 +401,7 @@ const Students = () => {
                           student.status === "inactive" ? "text-red-600" : 
                           "text-amber-600"
                         }`}>
-                          {student.status === "active" ? "Actif" : 
-                           student.status === "inactive" ? "Inactif" : 
-                           "Diplômé"}
+                          {formatStatus(student.status)}
                         </span>
                       </div>
                       <div className="pt-2">
@@ -507,23 +509,11 @@ const Students = () => {
                         <SelectValue placeholder="Sélectionnez une classe" />
                       </SelectTrigger>
                       <SelectContent>
-                        {availableClasses.length > 0 ? (
-                          availableClasses.map((className: string) => (
-                            <SelectItem key={className} value={className}>
-                              {className}
-                            </SelectItem>
-                          ))
-                        ) : (
-                          <>
-                            <SelectItem value="Terminale S">Terminale S</SelectItem>
-                            <SelectItem value="Terminale ES">Terminale ES</SelectItem>
-                            <SelectItem value="Terminale L">Terminale L</SelectItem>
-                            <SelectItem value="Première S">Première S</SelectItem>
-                            <SelectItem value="Première ES">Première ES</SelectItem>
-                            <SelectItem value="Première L">Première L</SelectItem>
-                            <SelectItem value="Seconde">Seconde</SelectItem>
-                          </>
-                        )}
+                        {classes.map((cls) => (
+                          <SelectItem key={cls.id} value={cls.name}>
+                            {cls.name}
+                          </SelectItem>
+                        ))}
                       </SelectContent>
                     </Select>
                   </div>
@@ -596,7 +586,7 @@ const Students = () => {
                       onChange={(e) =>
                         setCurrentStudent({
                           ...currentStudent,
-                          address: e.target.value,
+                          address: e.target.value
                         })
                       }
                     />

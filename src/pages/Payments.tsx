@@ -1,5 +1,4 @@
-import { useState } from "react";
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useState, useEffect } from "react";
 import MainLayout from "@/components/Layout/MainLayout";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -23,100 +22,96 @@ import {
 import { Textarea } from "@/components/ui/textarea";
 import { FileMinus, Pencil, Trash2 } from "lucide-react";
 import { useToast } from "@/components/ui/use-toast";
-import * as api from "@/lib/api";
 import { Payment, Student } from "@/types";
 import StudentSearchSelect from "@/components/StudentSearchSelect";
+import { useDatabase } from "@/hooks/useDatabase";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+
+// Helper to format YYYY-MM to 'Mois AAAA' in French
+const formatMonthYear = (ym: string) => {
+  if (!ym || ym.length !== 7) return "-";
+  const [year, month] = ym.split("-");
+  const monthsFr = [
+    "",
+    "Janvier", "Février", "Mars", "Avril", "Mai", "Juin",
+    "Juillet", "Août", "Septembre", "Octobre", "Novembre", "Décembre"
+  ];
+  const m = parseInt(month, 10);
+  if (isNaN(m) || m < 1 || m > 12) return ym;
+  return `${monthsFr[m]} ${year}`;
+};
 
 const Payments = () => {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [currentPayment, setCurrentPayment] = useState<Partial<Payment>>({});
   const [paymentToDelete, setPaymentToDelete] = useState<number | null>(null);
-  const { toast } = useToast();
-  const queryClient = useQueryClient();
+  const [payments, setPayments] = useState<Payment[]>([]);
+  const [students, setStudents] = useState<Student[]>([]);
+  const [loading, setLoading] = useState(true);
+  const { toast: useToastToast } = useToast();
+  const [searchQuery, setSearchQuery] = useState('');
+  const [availableMonths, setAvailableMonths] = useState<string[]>([]);
+  const [selectedMonth, setSelectedMonth] = useState<string>("");
 
-  // Utiliser React Query pour récupérer les données
-  const { data: payments = [], isLoading: isLoadingPayments } = useQuery({
-    queryKey: ['payments'],
-    queryFn: api.getPayments
-  });
+  const { 
+    getAllPayments, 
+    getAllStudents,
+    getSettings,
+    createPayment,
+    updatePayment,
+    deletePayment 
+  } = useDatabase();
 
-  const { data: students = [] } = useQuery({
-    queryKey: ['students'],
-    queryFn: api.getStudents
-  });
-
-  // Mutations
-  const addPaymentMutation = useMutation({
-    mutationFn: (payment: Omit<Payment, "id">) => api.addPayment(payment),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['payments'] });
-      toast({
-        title: "Succès",
-        description: "Le paiement a été ajouté avec succès."
-      });
-      setIsDialogOpen(false);
-    },
-    onError: (error: any) => {
-      toast({
-        title: "Erreur",
-        description: error.message || "Une erreur est survenue.",
-        variant: "destructive"
-      });
+  const loadData = async () => {
+    try {
+      const [paymentsData, studentsData] = await Promise.all([
+        getAllPayments(),
+        getAllStudents()
+      ]);
+      setPayments(paymentsData);
+      setStudents(studentsData);
+    } catch (error) {
+      console.error('Erreur lors du chargement des données:', error);
+      useToastToast({ variant: "destructive", description: 'Erreur lors du chargement des données' });
+    } finally {
+      setLoading(false);
     }
-  });
+  };
 
-  const updatePaymentMutation = useMutation({
-    mutationFn: ({ id, data }: { id: number, data: Partial<Payment> }) => 
-      api.updatePayment(id, data),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['payments'] });
-      toast({
-        title: "Succès",
-        description: "Le paiement a été mis à jour avec succès."
-      });
-      setIsDialogOpen(false);
-    },
-    onError: (error: any) => {
-      toast({
-        title: "Erreur",
-        description: error.message || "Une erreur est survenue.",
-        variant: "destructive"
-      });
-    }
-  });
-
-  const deletePaymentMutation = useMutation({
-    mutationFn: (id: number) => api.deletePayment(id),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['payments'] });
-      toast({
-        title: "Succès",
-        description: "Le paiement a été supprimé avec succès."
-      });
-      setIsDeleteDialogOpen(false);
-    },
-    onError: (error: any) => {
-      toast({
-        title: "Erreur",
-        description: error.message || "Une erreur est survenue.",
-        variant: "destructive"
-      });
-    }
-  });
+  useEffect(() => {
+    loadData();
+    // Fetch available months from settings
+    getSettings()
+      .then(settings => setAvailableMonths(settings?.paymentMonths || []))
+      .catch(() => setAvailableMonths([]));
+  }, []);
 
   const handleOpenAddDialog = () => {
+    let defaultMonth = "";
+    if (availableMonths.length > 0) {
+      defaultMonth = availableMonths[0];
+    }
     setCurrentPayment({ 
-      date: new Date().toISOString().split('T')[0],
+      date: defaultMonth ? defaultMonth + "-01" : new Date().toISOString().split('T')[0],
       status: "paid", 
-      type: "tuition",
-      currency: "FCFA"
+      currency: "FCFA",
+      month: defaultMonth
     });
+    setSelectedMonth(defaultMonth);
     setIsDialogOpen(true);
   };
 
   const handleOpenEditDialog = (payment: Payment) => {
     setCurrentPayment({ ...payment });
+    setSelectedMonth(payment.month || (payment.date ? payment.date.slice(0, 7) : ""));
     setIsDialogOpen(true);
   };
 
@@ -125,9 +120,10 @@ const Payments = () => {
     setIsDeleteDialogOpen(true);
   };
 
-  const handleSavePayment = () => {
-    if (!currentPayment.studentId || !currentPayment.date || !currentPayment.type || !currentPayment.status || currentPayment.amount === undefined) {
-      toast({
+  const handleSavePayment = async () => {
+    // Use selectedMonth to set the payment month (e.g., as YYYY-MM-01)
+    if (!currentPayment.studentId || !selectedMonth || !currentPayment.status || currentPayment.amount === undefined) {
+      useToastToast({
         title: "Erreur",
         description: "Veuillez remplir tous les champs obligatoires.",
         variant: "destructive",
@@ -136,28 +132,60 @@ const Payments = () => {
     }
 
     try {
+      const paymentToSave = {
+        ...currentPayment,
+        month: selectedMonth,
+        // Set date to the first day of the selected month if not set
+        date: selectedMonth + "-01",
+      };
       if (currentPayment.id) {
-        // Update existing payment
-        updatePaymentMutation.mutate({ 
-          id: currentPayment.id, 
-          data: currentPayment 
+        await updatePayment(currentPayment.id, paymentToSave);
+        useToastToast({
+          title: "Succès",
+          description: "Le paiement a été mis à jour avec succès."
         });
       } else {
-        // Add new payment
-        addPaymentMutation.mutate(currentPayment as Omit<Payment, "id">);
+        const newPayment = await createPayment(paymentToSave as Required<Payment>);
+        setPayments([...payments, newPayment]);
+        useToastToast({
+          title: "Succès",
+          description: "Le paiement a été ajouté avec succès."
+        });
       }
+      setIsDialogOpen(false);
+      loadData();
     } catch (error) {
-      toast({
+      console.error('Erreur lors de la sauvegarde:', error);
+      useToastToast({
         title: "Erreur",
-        description: "Une erreur est survenue.",
+        description: "Une erreur est survenue lors de la sauvegarde.",
         variant: "destructive",
       });
     }
   };
 
-  const handleDeletePayment = () => {
-    if (paymentToDelete) {
-      deletePaymentMutation.mutate(paymentToDelete);
+
+  const handleDeletePayment = async () => {
+    if (!paymentToDelete) return;
+
+    if (window.confirm('Êtes-vous sûr de vouloir supprimer ce paiement?')) {
+      try {
+        await deletePayment(paymentToDelete);
+        setPayments(payments.filter(p => p.id !== paymentToDelete));
+        useToastToast({
+          title: "Succès",
+          description: "Le paiement a été supprimé avec succès."
+        });
+        setIsDeleteDialogOpen(false);
+        loadData();
+      } catch (error) {
+        console.error('Erreur lors de la suppression:', error);
+        useToastToast({
+          title: "Erreur",
+          description: "Une erreur est survenue lors de la suppression.",
+          variant: "destructive"
+        });
+      }
     }
   };
 
@@ -207,6 +235,11 @@ const Payments = () => {
     }
   };
 
+  const filteredPayments = payments.filter(payment => {
+    const studentName = getStudentName(payment.studentId).toLowerCase();
+    return studentName.includes(searchQuery.toLowerCase());
+  });
+
   return (
     <MainLayout>
       <div className="space-y-6">
@@ -220,46 +253,55 @@ const Payments = () => {
           </Button>
         </div>
 
+        <div className="mb-4">
+          <Input
+            placeholder="Rechercher un étudiant..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="max-w-sm"
+          />
+        </div>
+
         <Card>
           <CardContent className="p-0">
             <div className="overflow-x-auto">
-              <table className="w-full">
-                <thead className="bg-muted/50">
-                  <tr>
-                    <th className="py-3 px-4 text-left text-sm font-medium">Élève</th>
-                    <th className="py-3 px-4 text-left text-sm font-medium">Date</th>
-                    <th className="py-3 px-4 text-left text-sm font-medium">Montant</th>
-                    <th className="py-3 px-4 text-left text-sm font-medium">Type</th>
-                    <th className="py-3 px-4 text-left text-sm font-medium">Statut</th>
-                    <th className="py-3 px-4 text-left text-sm font-medium">Notes</th>
-                    <th className="py-3 px-4 text-right text-sm font-medium">Actions</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {isLoadingPayments ? (
-                    <tr>
-                      <td colSpan={7} className="py-8 text-center">
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead className="w-1/4">Étudiant</TableHead>
+                    <TableHead className="w-1/4">Date</TableHead>
+                    <TableHead className="w-1/4">Montant</TableHead>
+                    <TableHead className="w-1/4">Mois payé</TableHead>
+                    <TableHead className="w-1/4">Statut</TableHead>
+                    <TableHead className="w-1/4">Notes</TableHead>
+                    <TableHead className="w-1/4">Actions</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {loading ? (
+                    <TableRow>
+                      <TableCell colSpan={7} className="py-8 text-center">
                         <div className="flex justify-center">
                           <div className="animate-spin rounded-full h-6 w-6 border-t-2 border-primary"></div>
                         </div>
-                      </td>
-                    </tr>
-                  ) : payments.length > 0 ? (
-                    payments.map((payment) => (
-                      <tr key={payment.id} className="border-t">
-                        <td className="py-3 px-4 text-sm">{getStudentName(payment.studentId)}</td>
-                        <td className="py-3 px-4 text-sm">{payment.date}</td>
-                        <td className="py-3 px-4 text-sm font-medium">{payment.amount.toFixed(2)} {payment.currency}</td>
-                        <td className="py-3 px-4 text-sm">{getTypeText(payment.type)}</td>
-                        <td className="py-3 px-4">
+                      </TableCell>
+                    </TableRow>
+                  ) : filteredPayments.length > 0 ? (
+                    filteredPayments.map((payment) => (
+                      <TableRow key={payment.id} className="border-t">
+                        <TableCell className="py-3 px-4 text-sm">{getStudentName(payment.studentId)}</TableCell>
+                        <TableCell className="py-3 px-4 text-sm">{new Date(payment.date).toLocaleDateString()}</TableCell>
+                        <TableCell className="py-3 px-4 text-sm font-medium">{payment.amount.toFixed(2)} {payment.currency}</TableCell>
+                        <TableCell className="py-3 px-4 text-sm">{formatMonthYear(payment.month || (payment.date ? payment.date.slice(0, 7) : ""))}</TableCell>
+                        <TableCell className="py-3 px-4">
                           <span
                             className={`px-2 py-1 text-xs rounded-md ${getStatusBadgeClass(payment.status)}`}
                           >
                             {getStatusText(payment.status)}
                           </span>
-                        </td>
-                        <td className="py-3 px-4 text-sm">{payment.notes || "-"}</td>
-                        <td className="py-3 px-4 text-right space-x-2">
+                        </TableCell>
+                        <TableCell className="py-3 px-4 text-sm">{payment.notes || "-"}</TableCell>
+                        <TableCell className="py-3 px-4 text-right space-x-2">
                           <Button
                             size="sm"
                             variant="ghost"
@@ -275,18 +317,18 @@ const Payments = () => {
                           >
                             <Trash2 className="h-4 w-4" />
                           </Button>
-                        </td>
-                      </tr>
+                        </TableCell>
+                      </TableRow>
                     ))
                   ) : (
-                    <tr>
-                      <td colSpan={7} className="py-8 text-center text-muted-foreground">
+                    <TableRow>
+                      <TableCell colSpan={7} className="py-8 text-center text-muted-foreground">
                         Aucun paiement enregistré.
-                      </td>
-                    </tr>
+                      </TableCell>
+                    </TableRow>
                   )}
-                </tbody>
-              </table>
+                </TableBody>
+              </Table>
             </div>
           </CardContent>
         </Card>
@@ -351,24 +393,34 @@ const Payments = () => {
               </div>
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label htmlFor="type">Type</Label>
+                  <Label htmlFor="month">Mois</Label>
                   <Select
-                    value={currentPayment.type || "tuition"}
-                    onValueChange={(value) =>
+                    value={selectedMonth || ""}
+                    onValueChange={(value) => {
+                      setSelectedMonth(value);
                       setCurrentPayment({
                         ...currentPayment,
-                        type: value as "tuition" | "books" | "activities" | "other",
-                      })
-                    }
+                        month: value,
+                        date: value + "-01",
+                      });
+                    }}
+                    disabled={availableMonths.length === 0}
                   >
-                    <SelectTrigger id="type">
-                      <SelectValue placeholder="Sélectionnez un type" />
+                    <SelectTrigger id="month">
+                      <SelectValue placeholder="Sélectionnez un mois" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="tuition">Frais de scolarité</SelectItem>
-                      <SelectItem value="books">Livres</SelectItem>
-                      <SelectItem value="activities">Activités</SelectItem>
-                      <SelectItem value="other">Autre</SelectItem>
+                      {availableMonths.length > 0 ? (
+                        availableMonths.map((month) => (
+                          <SelectItem key={month} value={month}>
+                            {formatMonthYear(month)}
+                          </SelectItem>
+                        ))
+                      ) : (
+                        <SelectItem value="none" disabled>
+                          Aucun mois disponible
+                        </SelectItem>
+                      )}
                     </SelectContent>
                   </Select>
                 </div>
@@ -412,7 +464,7 @@ const Payments = () => {
               <Button variant="outline" onClick={() => setIsDialogOpen(false)}>
                 Annuler
               </Button>
-              <Button onClick={handleSavePayment}>Enregistrer</Button>
+              <Button onClick={handleSavePayment} disabled={availableMonths.length === 0}>Enregistrer</Button>
             </DialogFooter>
           </DialogContent>
         </Dialog>

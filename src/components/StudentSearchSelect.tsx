@@ -27,7 +27,7 @@ const StudentSearchSelect = ({
   const selectedStudent = value ? safeStudents.find(student => student.id === value) : null;
 
   const filteredStudents = safeStudents.filter(student => {
-    const searchString = `${student.firstName} ${student.lastName} ${student.className}`.toLowerCase();
+    const searchString = `${student.firstName} ${student.lastName} ${student.className || ''}`.toLowerCase();
     return searchString.includes(searchTerm.toLowerCase());
   });
 
@@ -82,7 +82,8 @@ const StudentSearchSelect = ({
                 )}
                 onClick={() => handleStudentSelect(student)}
               >
-                {student.firstName} {student.lastName} - {student.className}
+                {student.firstName} {student.lastName}
+                {student.className && ` - ${student.className}`}
               </div>
             ))
           ) : (

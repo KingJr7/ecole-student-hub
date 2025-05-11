@@ -11,6 +11,7 @@ import Attendance from "./pages/Attendance";
 import Payments from "./pages/Payments";
 import Grades from "./pages/Grades";
 import NotFound from "./pages/NotFound";
+import Settings from "./pages/Settings";
 
 const queryClient = new QueryClient();
 
@@ -27,6 +28,7 @@ const App = () => (
           <Route path="/attendance" element={<Attendance />} />
           <Route path="/payments" element={<Payments />} />
           <Route path="/grades" element={<Grades />} />
+          <Route path="/settings" element={<Settings />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>

@@ -1,5 +1,11 @@
 import { Student, AttendanceRecord, Payment, Grade, DashboardStats, ClassResult } from "../types";
 
+// Demo settings (mock)
+let settings = {
+  schoolName: "Nom de l'école",
+  paymentMonths: ["2025-01", "2025-02", "2025-03"]
+};
+
 // Demo data
 let students: Student[] = [
   {
@@ -183,6 +189,16 @@ let grades: Grade[] = [
   }
 ];
 
+// Settings functions (mock)
+export const getSettings = () => {
+  return { ...settings };
+};
+export const updateSettings = (newSettings: { schoolName?: string; paymentMonths?: string[] }) => {
+  if (newSettings.schoolName !== undefined) settings.schoolName = newSettings.schoolName;
+  if (newSettings.paymentMonths !== undefined) settings.paymentMonths = [...newSettings.paymentMonths];
+  return { ...settings };
+};
+
 // Student functions
 export const getStudents = (): Student[] => {
   return [...students];
@@ -246,6 +262,21 @@ export const deleteAttendanceRecord = (id: number): boolean => {
 };
 
 // Payment functions
+
+// Get all unique months (YYYY-MM) for which there are payments
+export const getAvailablePaymentMonths = (): string[] => {
+  const monthSet = new Set<string>();
+  payments.forEach(payment => {
+    if (payment.date) {
+      // Extract YYYY-MM
+      const month = payment.date.slice(0, 7);
+      monthSet.add(month);
+    }
+  });
+  // Return sorted months descending (most recent first)
+  return Array.from(monthSet).sort((a, b) => b.localeCompare(a));
+};
+
 export const getPayments = (): Payment[] => {
   return [...payments];
 };
