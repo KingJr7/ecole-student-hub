@@ -11,6 +11,7 @@ import {
   DialogFooter,
   DialogDescription,
 } from "@/components/ui/dialog";
+import jsPDF from "jspdf";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
@@ -30,6 +31,7 @@ const Grades = () => {
   const [grades, setGrades] = useState<Grade[]>([]);
   const [students, setStudents] = useState<Student[]>([]);
   const [classes, setClasses] = useState<any[]>([]);
+  const [subjects, setSubjects] = useState<any[]>([]);
   const [selectedClass, setSelectedClass] = useState<string>("all");
   const [selectedTerm, setSelectedTerm] = useState<'1er trimestre' | '2e trimestre' | '3e trimestre'>('1er trimestre');
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
@@ -44,21 +46,25 @@ const Grades = () => {
     getAllGrades, 
     getAllStudents, 
     getAllClasses,
+    getAllSubjects,
     createGrade,
     deleteGrade,
-    getClassResults
+    getClassResults,
+    getSettings
   } = useDatabase();
 
   const loadData = async () => {
     try {
-      const [gradesData, studentsData, classesData] = await Promise.all([
+      const [gradesData, studentsData, classesData, subjectsData] = await Promise.all([
         getAllGrades(),
         getAllStudents(),
-        getAllClasses()
+        getAllClasses(),
+        getAllSubjects()
       ]);
       setGrades(gradesData);
       setStudents(studentsData);
       setClasses(classesData);
+      setSubjects(subjectsData);
     } catch (error) {
       console.error('Erreur lors du chargement des données:', error);
       useToastToast({ variant: "destructive", description: 'Erreur lors du chargement des données' });
@@ -94,6 +100,84 @@ const Grades = () => {
     }
     setIsDeleteDialogOpen(false);
     setGradeToDelete(null);
+  };
+
+  // Fonction pour générer le PDF de la liste d'admission
+  const generatePDF = async () => {
+    try {
+      // Récupérer le nom de l'école depuis les paramètres
+      const settings = await getSettings();
+      const schoolName = settings?.schoolName || 'Ntik';
+      
+      const doc = new jsPDF();
+      
+      // Ajouter un en-tête stylisé avec le nom de l'école
+      // Background rectangulaire pour l'en-tête
+      doc.setFillColor(0, 113, 188); // Bleu école
+      doc.rect(0, 0, 210, 30, 'F');
+      
+      // Nom de l'école en blanc
+      doc.setTextColor(255, 255, 255); // Texte blanc
+      doc.setFontSize(22);
+      doc.setFont('helvetica', 'bold');
+      doc.text(schoolName.toUpperCase(), 105, 15, { align: 'center' });
+      
+      // Titre de la liste en blanc
+      doc.setFontSize(14);
+      doc.text(`LISTE D'ADMISSION - ${selectedClass.toUpperCase()} (${selectedTerm.toUpperCase()})`, 105, 25, { align: 'center' });
+      
+      // Réinitialiser les couleurs pour le contenu
+      doc.setTextColor(0, 0, 0);
+      
+      // Entête du tableau
+      const headers = ['Rang', 'Élève', 'Moyenne', 'Statut'];
+      let y = 40;
+      
+      // Dessiner les en-têtes
+      doc.setFont('helvetica', 'bold');
+      doc.text(headers[0], 20, y);
+      doc.text(headers[1], 40, y);
+      doc.text(headers[2], 140, y);
+      doc.text(headers[3], 170, y);
+      
+      // Ligne de séparation
+      y += 5;
+      doc.line(20, y, 190, y);
+      y += 5;
+      
+      // Contenu du tableau
+      doc.setFont('helvetica', 'normal');
+      classResults.forEach((result) => {
+        doc.text(result.rank.toString(), 20, y);
+        doc.text(result.studentName, 40, y);
+        doc.text(result.average.toFixed(2), 140, y);
+        doc.text(result.status === 'admis' ? 'Admis' : 'Échec', 170, y);
+        y += 8;
+        
+        // Ajouter une nouvelle page si nécessaire
+        if (y > 280) {
+          doc.addPage();
+          y = 20;
+        }
+      });
+      
+      // Ajouter un pied de page avec logo Ntik
+      const pageCount = doc.getNumberOfPages();
+      for (let i = 1; i <= pageCount; i++) {
+        doc.setPage(i);
+        doc.setFontSize(8);
+        doc.setTextColor(100, 100, 100);
+        doc.text(`Ntik - Système de gestion scolaire - Page ${i} sur ${pageCount}`, 105, 290, { align: 'center' });
+      }
+      
+      // Enregistrer le PDF
+      doc.save(`liste_admission_${selectedClass}_${selectedTerm.replace(/ /g, '_')}.pdf`);
+      
+      useToastToast({ description: 'PDF généré avec succès' });
+    } catch (error) {
+      console.error('Erreur lors de la génération du PDF:', error);
+      useToastToast({ variant: "destructive", description: 'Erreur lors de la génération du PDF' });
+    }
   };
 
   const getStudentName = (studentId: number): string => {
@@ -201,9 +285,15 @@ const Grades = () => {
                     filteredGrades.map((grade) => (
                       <TableRow key={grade.id}>
                         <TableCell>{getStudentName(grade.studentId)}</TableCell>
-                        <TableCell>{grade.subject}</TableCell>
-                        <TableCell>{grade.score}</TableCell>
-                        <TableCell>{grade.coefficient}</TableCell>
+                        <TableCell>{(() => {
+                          const subject = subjects.find((s: any) => s.id === grade.subjectId);
+                          return subject ? subject.name || subject.subjectName : 'Matière inconnue';
+                        })()}</TableCell>
+                        <TableCell>{grade.value}</TableCell>
+                        <TableCell>{(() => {
+                          const subject = subjects.find((s: any) => s.id === grade.subjectId);
+                          return subject ? subject.coefficient : '';
+                        })()}</TableCell>
                         <TableCell>{grade.evaluationType === 'devoir' ? 'Devoir' : 'Composition'}</TableCell>
                         <TableCell>{grade.date}</TableCell>
                         <TableCell>{grade.notes || "-"}</TableCell>
@@ -291,6 +381,14 @@ const Grades = () => {
           <DialogContent className="max-w-4xl">
             <DialogHeader>
               <DialogTitle>Liste d'admission - {selectedClass} ({selectedTerm})</DialogTitle>
+              <div className="flex justify-end mt-2">
+                <Button 
+                  onClick={() => generatePDF()} 
+                  className="bg-blue-600 hover:bg-blue-700"
+                >
+                  Générer PDF
+                </Button>
+              </div>
             </DialogHeader>
             <div className="mt-4">
               <Table>
@@ -320,14 +418,26 @@ const Grades = () => {
                       </TableCell>
                       <TableCell>
                         <div className="space-y-1">
-                          {Object.entries(result.subjects).map(([subject, { average, coefficient }]) => (
-                            <div key={subject} className="text-sm">
-                              <span className="font-medium">{subject}:</span>{' '}
-                              <span className="text-gray-600">
-                                {average.toFixed(2)} (coef. {coefficient})
-                              </span>
-                            </div>
-                          ))}
+                          {Object.entries(result.subjects).map(([subjectKey, { average, coefficient }]) => {
+                            // Tenter de trouver le vrai nom de la matière si subjectKey est un id ou code
+                            let subjectName = subjectKey;
+                            // Chercher dans la classe courante
+                            const classObj = classes.find(cls => cls.name === selectedClass);
+                            if (classObj && classObj.subjects) {
+                              const found = classObj.subjects.find(
+                                (s: any) => s.subjectName === subjectKey || s.name === subjectKey || s.id?.toString() === subjectKey
+                              );
+                              if (found) subjectName = found.subjectName || found.name;
+                            }
+                            return (
+                              <div key={subjectKey} className="text-sm">
+                                <span className="font-medium">{subjectName}:</span>{' '}
+                                <span className="text-gray-600">
+                                  {average.toFixed(2)} (coef. {coefficient})
+                                </span>
+                              </div>
+                            );
+                          })}
                         </div>
                       </TableCell>
                     </TableRow>

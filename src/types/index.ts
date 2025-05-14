@@ -86,6 +86,9 @@ export interface Teacher {
   lastName: string;
   email: string;
   phone: string;
+  address?: string;
+  hourlyRate?: number;
+  speciality?: string;
 }
 
 export interface Subject {
@@ -96,6 +99,7 @@ export interface Subject {
   teacherName: string;
   coefficient: number;
   schedules?: Schedule[];
+  hoursPerWeek?: number;
 }
 
 export interface Schedule {
@@ -111,4 +115,25 @@ export interface ClassWithDetails {
   name: string;
   subjects: Subject[];
   students: Student[];
+}
+
+export interface TeacherWorkHours {
+  id: number;
+  teacherId: number;
+  hours: number;
+  date: string;
+  subjectId?: number;
+  subjectName?: string;
+  notes?: string;
+}
+
+export interface TeacherStats {
+  totalHoursThisMonth: number;
+  totalEarningsThisMonth: number;
+  hourlyRate: number;
+  subjectHours: Array<{
+    id: number;
+    name: string;
+    hours: number;
+  }>;
 }

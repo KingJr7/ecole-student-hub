@@ -2,7 +2,7 @@
 import { useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { cn } from "@/lib/utils";
-import { Book, CalendarCheck, FileText, FileMinus, Users, Database, Settings as SettingsIcon } from "lucide-react";
+import { Book, CalendarCheck, FileText, FileMinus, Users, GraduationCap, Database, Settings as SettingsIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 export default function Sidebar() {
@@ -12,8 +12,9 @@ export default function Sidebar() {
   const navigation = [
     { name: "Tableau de bord", href: "/", icon: Book },
     { name: "Élèves", href: "/students", icon: Users },
+    { name: "Professeurs", href: "/teachers", icon: GraduationCap },
     { name: "Classes", href: "/classes", icon: Database },
-    { name: "Matières par classe", href: "/Class_Subjects", icon: FileText },
+
     { name: "Présences", href: "/attendance", icon: CalendarCheck },
     { name: "Paiements", href: "/payments", icon: FileMinus },
     { name: "Notes", href: "/grades", icon: FileText },
@@ -32,7 +33,7 @@ export default function Sidebar() {
     >
       <div className="flex items-center justify-between p-4 border-b border-sidebar-border">
         {!collapsed && (
-          <h1 className="text-sidebar-foreground font-bold text-xl">EcoleHub</h1>
+          <h1 className="text-sidebar-foreground font-bold text-xl">Ntik</h1>
         )}
         <Button
           variant="ghost"
@@ -83,7 +84,7 @@ export default function Sidebar() {
           <SettingsIcon className="flex-shrink-0 h-5 w-5" aria-hidden="true" />
           {!collapsed && <span className="ml-3">Paramètres</span>}
         </Link>
-        {!collapsed && <div>© EcoleHub {new Date().getFullYear()}</div>}
+        {!collapsed && <div>© Ntik {new Date().getFullYear()}</div>}
       </div>
     </div>
   );

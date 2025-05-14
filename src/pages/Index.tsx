@@ -1,7 +1,7 @@
 
 import { useEffect, useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { DashboardStats } from "@/types";
+import type { DashboardStats, Student } from "@/types";
 import { getDashboardStats, getStudents } from "@/lib/api";
 import MainLayout from "@/components/Layout/MainLayout";
 import { Book, CalendarCheck, FileText, FileMinus, Users } from "lucide-react";
@@ -27,10 +27,10 @@ const Dashboard = () => {
 
   const { data: studentsData = [], isError: studentsError } = useQuery({
     queryKey: ['students'],
-    queryFn: getStudents
+    queryFn: () => getStudents(5) // Appeler avec 5 comme limite fixe
   });
 
-  const recentStudents = studentsData.slice(0, 5);
+  const recentStudents = studentsData as Student[];
 
   useEffect(() => {
     if (statsError || studentsError) {
@@ -57,7 +57,7 @@ const Dashboard = () => {
     },
     {
       title: "Paiements ce Mois",
-      value: `${stats.paymentsThisMonth}€`,
+      value: `${stats.paymentsThisMonth.toLocaleString()} FCFA`,
       icon: FileMinus,
       color: "bg-purple-100 text-purple-800",
     },
@@ -139,7 +139,7 @@ const Dashboard = () => {
           <CardHeader>
             <CardTitle className="flex items-center">
               <Book className="mr-2 h-5 w-5 text-school-600" />
-              EcoleHub - Gestion des élèves
+              Ntik - Gestion des élèves
             </CardTitle>
           </CardHeader>
           <CardContent>

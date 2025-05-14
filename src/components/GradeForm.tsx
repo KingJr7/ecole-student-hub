@@ -21,7 +21,7 @@ import {
 import { useToast } from "@/components/ui/use-toast";
 import { Grade, Student, Subject } from "@/types";
 import StudentSearchSelect from "./StudentSearchSelect";
-import { getSubjectsByClass, getAllSubjects } from "@/lib/mockApi";
+import { useDatabase } from "@/hooks/useDatabase";
 
 interface GradeFormProps {
   isOpen: boolean;
@@ -40,21 +40,22 @@ const GradeForm = ({
   initialData = {},
   isEdit = false
 }: GradeFormProps) => {
-  const [formData, setFormData] = useState<Partial<Grade>>(initialData);
+  const [formData, setFormData] = useState<any>(initialData);
   const [subjects, setSubjects] = useState<Subject[]>([]);
   const [selectedStudent, setSelectedStudent] = useState<Student | null>(null);
   const { toast } = useToast();
+  const { getClassSubjects, getAllSubjects, getAllClasses } = useDatabase();
 
-  // Charger les matières disponibles
+  // Charger les matières disponibles dynamiquement selon l'élève sélectionné
   useEffect(() => {
     const loadSubjects = async () => {
       try {
-        // Si un étudiant est sélectionné, chargez les matières de sa classe
-        if (selectedStudent) {
-          const classSubjects = await getSubjectsByClass(selectedStudent.className);
+        if (selectedStudent && selectedStudent.classId) {
+          // On récupère les matières de la classe avec leur id
+          const classSubjects = await getClassSubjects(selectedStudent.classId);
           setSubjects(classSubjects);
         } else {
-          // Sinon, chargez toutes les matières
+          // Sinon, charge toutes les matières
           const allSubjects = await getAllSubjects();
           setSubjects(allSubjects);
         }
@@ -67,9 +68,8 @@ const GradeForm = ({
         });
       }
     };
-
     loadSubjects();
-  }, [selectedStudent, toast]);
+  }, [selectedStudent, toast, getClassSubjects, getAllSubjects]);
 
   // Mettre à jour l'étudiant sélectionné lorsque studentId change
   useEffect(() => {
@@ -86,7 +86,8 @@ const GradeForm = ({
       ...formData,
       studentId,
       subject: undefined,
-      coefficient: 1
+      coefficient: 1,
+      score: undefined // Réinitialiser le score lors du changement d'étudiant
     });
   };
 
@@ -95,8 +96,7 @@ const GradeForm = ({
     if (selectedSubject) {
       setFormData({
         ...formData,
-        subject: selectedSubject.name,
-        // Utiliser le coefficient de la matière par défaut
+        subjectId: selectedSubject.id,
         coefficient: selectedSubject.coefficient
       });
     }
@@ -105,8 +105,8 @@ const GradeForm = ({
   const handleSubmit = () => {
     if (
       !formData.studentId ||
-      !formData.subject ||
-      !formData.score ||
+      !formData.subjectId ||
+      formData.score === undefined || formData.score === null ||
       formData.score < 0 || 
       formData.score > 20 ||
       !formData.date ||
@@ -122,7 +122,21 @@ const GradeForm = ({
       return;
     }
 
-    onSave(formData as Omit<Grade, "id">);
+    // Adapter le champ pour la base (score → value)
+    const subjectObj = subjects.find(s => s.id === formData.subjectId);
+    const payload = {
+      studentId: formData.studentId,
+      subjectId: formData.subjectId,
+      subject: subjectObj ? subjectObj.name : '',
+      score: formData.score,
+      value: formData.score,
+      coefficient: formData.coefficient,
+      date: formData.date,
+      evaluationType: formData.evaluationType,
+      term: formData.term,
+      notes: formData.notes,
+    };
+    onSave(payload as Omit<Grade, "id">);
     onClose();
   };
 
@@ -134,13 +148,18 @@ const GradeForm = ({
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-[550px]">
+      <DialogContent className="max-w-2xl w-full">
+        {/* DEBUG: Affichage temporaire pour diagnostiquer la correspondance des matières */}
+        <div style={{background: '#ffe', color: '#a00', padding: 8, marginBottom: 8, fontSize: 12}}>
+          <div><b>DEBUG subjects:</b> {JSON.stringify(subjects)}</div>
+          <div><b>DEBUG formData.subjectId:</b> {JSON.stringify(formData.subjectId)}</div>
+        </div>
         <DialogHeader>
-          <DialogTitle>
-            {isEdit ? "Modifier la note" : "Ajouter une note"}
-          </DialogTitle>
+          <DialogTitle>{isEdit ? "Modifier la note" : "Ajouter une note"}</DialogTitle>
           <DialogDescription>
-            Entrez les détails de la note de l'élève ci-dessous.
+            {isEdit
+              ? "Modifiez les informations de la note."
+              : "Remplissez le formulaire pour ajouter une nouvelle note."}
           </DialogDescription>
         </DialogHeader>
 
@@ -158,9 +177,7 @@ const GradeForm = ({
           <div className="space-y-2">
             <Label htmlFor="subject">Matière</Label>
             <Select
-              value={formData.subject ? 
-                subjects.find(s => s.name === formData.subject)?.id.toString() : 
-                undefined}
+              value={formData.subjectId ? formData.subjectId.toString() : undefined}
               onValueChange={handleSubjectChange}
               disabled={!selectedStudent}
             >

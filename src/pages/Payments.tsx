@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import MainLayout from "@/components/Layout/MainLayout";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -20,11 +20,12 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
-import { FileMinus, Pencil, Trash2 } from "lucide-react";
+import { FileMinus, Pencil, Printer, Receipt, Trash2 } from "lucide-react";
 import { useToast } from "@/components/ui/use-toast";
 import { Payment, Student } from "@/types";
 import StudentSearchSelect from "@/components/StudentSearchSelect";
 import { useDatabase } from "@/hooks/useDatabase";
+import PaymentReceipt from "@/components/PaymentReceipt";
 import {
   Table,
   TableBody,
@@ -51,6 +52,7 @@ const formatMonthYear = (ym: string) => {
 const Payments = () => {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+  const [isReceiptDialogOpen, setIsReceiptDialogOpen] = useState(false);
   const [currentPayment, setCurrentPayment] = useState<Partial<Payment>>({});
   const [paymentToDelete, setPaymentToDelete] = useState<number | null>(null);
   const [payments, setPayments] = useState<Payment[]>([]);
@@ -60,6 +62,10 @@ const Payments = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [availableMonths, setAvailableMonths] = useState<string[]>([]);
   const [selectedMonth, setSelectedMonth] = useState<string>("");
+  const [schoolName, setSchoolName] = useState<string>("");
+  const [receiptPayment, setReceiptPayment] = useState<Payment | null>(null);
+  const [receiptStudent, setReceiptStudent] = useState<Student | null>(null);
+  const receiptRef = useRef<HTMLDivElement>(null);
 
   const { 
     getAllPayments, 
@@ -67,7 +73,7 @@ const Payments = () => {
     getSettings,
     createPayment,
     updatePayment,
-    deletePayment 
+    deletePayment
   } = useDatabase();
 
   const loadData = async () => {
@@ -88,10 +94,16 @@ const Payments = () => {
 
   useEffect(() => {
     loadData();
-    // Fetch available months from settings
+    // Fetch available months and school name from settings
     getSettings()
-      .then(settings => setAvailableMonths(settings?.paymentMonths || []))
-      .catch(() => setAvailableMonths([]));
+      .then(settings => {
+        setAvailableMonths(settings?.paymentMonths || [])
+        setSchoolName(settings?.schoolName || "Nom de l'école")
+      })
+      .catch(() => {
+        setAvailableMonths([])
+        setSchoolName("Nom de l'école")
+      });
   }, []);
 
   const handleOpenAddDialog = () => {
@@ -120,6 +132,33 @@ const Payments = () => {
     setIsDeleteDialogOpen(true);
   };
 
+  // Gérer l'ouverture du modal du reçu
+  const handleOpenReceiptDialog = (payment: Payment) => {
+    const student = students.find(s => s.id === payment.studentId) || null;
+    setReceiptPayment(payment);
+    setReceiptStudent(student);
+    setIsReceiptDialogOpen(true);
+  };
+
+  // Imprimer le reçu
+  const handlePrintReceipt = () => {
+    if (receiptRef.current) {
+      const printContents = receiptRef.current.innerHTML;
+      const originalContents = document.body.innerHTML;
+      
+      // Créer une feuille de style pour l'impression
+      const printStyles = `
+        @page { size: 80mm auto; margin: 0; }
+        body { margin: 1cm; }
+      `;
+      
+      document.body.innerHTML = `<style>${printStyles}</style>${printContents}`;
+      window.print();
+      document.body.innerHTML = originalContents;
+      window.location.reload(); // Recharger la page après l'impression
+    }
+  };
+
   const handleSavePayment = async () => {
     // Use selectedMonth to set the payment month (e.g., as YYYY-MM-01)
     if (!currentPayment.studentId || !selectedMonth || !currentPayment.status || currentPayment.amount === undefined) {
@@ -138,22 +177,31 @@ const Payments = () => {
         // Set date to the first day of the selected month if not set
         date: selectedMonth + "-01",
       };
+      let savedPayment;
+      
       if (currentPayment.id) {
-        await updatePayment(currentPayment.id, paymentToSave);
+        savedPayment = await updatePayment(currentPayment.id, paymentToSave);
         useToastToast({
           title: "Succès",
           description: "Le paiement a été mis à jour avec succès."
         });
       } else {
-        const newPayment = await createPayment(paymentToSave as Required<Payment>);
-        setPayments([...payments, newPayment]);
+        savedPayment = await createPayment(paymentToSave as Required<Payment>);
         useToastToast({
           title: "Succès",
           description: "Le paiement a été ajouté avec succès."
         });
+        
+        // Demander à l'utilisateur s'il souhaite imprimer un reçu
+        useToastToast({
+          title: "Reçu disponible",
+          description: "Le paiement a été enregistré. Vous pouvez imprimer un reçu maintenant.",
+          action: <Button onClick={() => handleOpenReceiptDialog(savedPayment)} size="sm">Imprimer reçu</Button>,
+        });
       }
+      
       setIsDialogOpen(false);
-      loadData();
+      await loadData();
     } catch (error) {
       console.error('Erreur lors de la sauvegarde:', error);
       useToastToast({
@@ -302,36 +350,44 @@ const Payments = () => {
                         </TableCell>
                         <TableCell className="py-3 px-4 text-sm">{payment.notes || "-"}</TableCell>
                         <TableCell className="py-3 px-4 text-right space-x-2">
-                          <Button
-                            size="sm"
-                            variant="ghost"
-                            onClick={() => handleOpenEditDialog(payment)}
-                          >
-                            <Pencil className="h-4 w-4" />
-                          </Button>
-                          <Button
-                            size="sm"
-                            variant="ghost"
-                            className="text-red-600 hover:text-red-800"
-                            onClick={() => handleOpenDeleteDialog(payment.id)}
-                          >
-                            <Trash2 className="h-4 w-4" />
-                          </Button>
+                          <div className="flex items-center space-x-2">
+                            <Button
+                              onClick={() => handleOpenEditDialog(payment)}
+                              size="icon"
+                              variant="outline"
+                            >
+                              <Pencil className="h-4 w-4" />
+                            </Button>
+                            <Button
+                              onClick={() => handleOpenReceiptDialog(payment)}
+                              size="icon"
+                              variant="outline"
+                            >
+                              <Receipt className="h-4 w-4" />
+                            </Button>
+                            <Button
+                              onClick={() => handleOpenDeleteDialog(payment.id)}
+                              size="icon"
+                              variant="destructive"
+                            >
+                              <Trash2 className="h-4 w-4" />
+                            </Button>
+                          </div>
                         </TableCell>
                       </TableRow>
                     ))
                   ) : (
                     <TableRow>
                       <TableCell colSpan={7} className="py-8 text-center text-muted-foreground">
-                        Aucun paiement enregistré.
-                      </TableCell>
-                    </TableRow>
-                  )}
-                </TableBody>
-              </Table>
-            </div>
-          </CardContent>
-        </Card>
+                      Aucun paiement enregistré.
+                    </TableCell>
+                  </TableRow>
+                )}
+              </TableBody>
+            </Table>
+          </div>
+        </CardContent>
+      </Card>
 
         {/* Add/Edit Payment Dialog */}
         <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
@@ -485,6 +541,35 @@ const Payments = () => {
               </Button>
               <Button variant="destructive" onClick={handleDeletePayment}>
                 Supprimer
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+
+        {/* Receipt Dialog */}
+        <Dialog open={isReceiptDialogOpen} onOpenChange={setIsReceiptDialogOpen}>
+          <DialogContent className="min-w-[400px]">
+            <DialogHeader>
+              <DialogTitle>Reçu de paiement</DialogTitle>
+              <DialogDescription>
+                Prévisualisation du reçu à imprimer
+              </DialogDescription>
+            </DialogHeader>
+            <div ref={receiptRef} className="border p-4 rounded-md">
+              {receiptPayment && receiptStudent && (
+                <PaymentReceipt 
+                  payment={receiptPayment} 
+                  student={receiptStudent} 
+                  schoolName={schoolName} 
+                />
+              )}
+            </div>
+            <DialogFooter>
+              <Button variant="outline" onClick={() => setIsReceiptDialogOpen(false)}>
+                Fermer
+              </Button>
+              <Button onClick={handlePrintReceipt}>
+                <Printer className="mr-2 h-4 w-4" /> Imprimer
               </Button>
             </DialogFooter>
           </DialogContent>

@@ -325,9 +325,9 @@ export function useDatabase() {
     }
   }, [])
 
-  const addClassSubject = useCallback(async (classId: number, subjectName: string, coefficient: number) => {
+  const addClassSubject = useCallback(async (classId: number, subjectName: string, coefficient: number, hoursPerWeek?: number) => {
     try {
-      return await ipcRenderer.invoke('db:classSubjects:add', { classId, subjectName, coefficient })
+      return await ipcRenderer.invoke('db:classSubjects:add', { classId, subjectName, coefficient, hoursPerWeek })
     } catch (error) {
       console.error('Erreur lors de l\'ajout d\'une matière à une classe:', error)
       throw error
@@ -359,6 +359,9 @@ export function useDatabase() {
     createClass,
     updateClass,
     deleteClass,
+    // Matières
+    getAllSubjects,
+    createSubject,
     // Étudiants
     getAllStudents,
     createStudent,
