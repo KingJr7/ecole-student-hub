@@ -406,14 +406,7 @@ const Students = () => {
                       </div>
                       <div className="pt-2">
                         <div className="grid grid-cols-2 gap-2">
-                          <Button
-                            size="sm"
-                            variant="outline"
-                            className="text-green-600 hover:text-green-700 border-green-600 hover:border-green-700"
-                            onClick={() => handleOpenPaymentForm(student)}
-                          >
-                            <CreditCard className="h-4 w-4 mr-1" /> Encaisser
-                          </Button>
+        
                           <Button
                             size="sm"
                             variant="outline"

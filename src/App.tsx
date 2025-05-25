@@ -3,9 +3,9 @@ import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import { HashRouter, Routes, Route, Navigate } from "react-router-dom";
 import { useEffect, useState } from "react";
-import Index from "./pages/Index";
+import Dashboard from "./pages/Dashboard";
 import Students from "./pages/Students";
 import Classes from "./pages/Classes";
 import Attendance from "./pages/Attendance";
@@ -15,6 +15,7 @@ import Teachers from "./pages/Teachers";
 import NotFound from "./pages/NotFound";
 import Settings from "./pages/Settings";
 import Activation from "./pages/Activation";
+import DefaultClasses from "./pages/DefaultClasses";
 import activationService from "./lib/activationService";
 
 const queryClient = new QueryClient();
@@ -59,13 +60,14 @@ const App = () => (
     <TooltipProvider>
       <Toaster />
       <Sonner />
-      <BrowserRouter>
+      <HashRouter>
         <Routes>
-          {/* Route d'activation accessible sans protection */}
+          {/* Routes accessibles sans protection */}
           <Route path="/activation" element={<Activation />} />
+          <Route path="/default-classes" element={<DefaultClasses />} />
           
           {/* Routes protégées */}
-          <Route path="/" element={<ProtectedRoute><Index /></ProtectedRoute>} />
+          <Route path="/" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
           <Route path="/students" element={<ProtectedRoute><Students /></ProtectedRoute>} />
           <Route path="/teachers" element={<ProtectedRoute><Teachers /></ProtectedRoute>} />
           <Route path="/classes" element={<ProtectedRoute><Classes /></ProtectedRoute>} />
@@ -74,10 +76,10 @@ const App = () => (
           <Route path="/grades" element={<ProtectedRoute><Grades /></ProtectedRoute>} />
           <Route path="/settings" element={<ProtectedRoute><Settings /></ProtectedRoute>} />
           
-          {/* Redirection par défaut vers l'activation */}
+          {/* Redirection par défaut */}
           <Route path="*" element={<NotFound />} />
         </Routes>
-      </BrowserRouter>
+      </HashRouter>
     </TooltipProvider>
   </QueryClientProvider>
 );

@@ -149,11 +149,6 @@ const GradeForm = ({
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="max-w-2xl w-full">
-        {/* DEBUG: Affichage temporaire pour diagnostiquer la correspondance des matières */}
-        <div style={{background: '#ffe', color: '#a00', padding: 8, marginBottom: 8, fontSize: 12}}>
-          <div><b>DEBUG subjects:</b> {JSON.stringify(subjects)}</div>
-          <div><b>DEBUG formData.subjectId:</b> {JSON.stringify(formData.subjectId)}</div>
-        </div>
         <DialogHeader>
           <DialogTitle>{isEdit ? "Modifier la note" : "Ajouter une note"}</DialogTitle>
           <DialogDescription>

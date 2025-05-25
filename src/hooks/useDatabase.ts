@@ -290,16 +290,19 @@ export function useDatabase() {
   }, [])
 
   const updatePayment = useCallback(async (id: number, data: {
-    studentId?: number
-    amount?: number
-    date?: string
-    type?: string
-    status?: string
-    notes?: string
-    currency?: string
+    data: {
+      studentId?: number
+      amount?: number
+      date?: string
+      type?: string
+      status?: string
+      notes?: string
+      currency?: string
+      [key: string]: any  // Pour permettre d'autres propriétés comme 'month'
+    }
   }) => {
     try {
-      return await ipcRenderer.invoke('db:payments:update', { id, data })
+      return await ipcRenderer.invoke('db:payments:update', { id, data: data.data })
     } catch (error) {
       console.error('Erreur lors de la mise à jour du paiement:', error)
       throw error
@@ -311,6 +314,16 @@ export function useDatabase() {
       return await ipcRenderer.invoke('db:payments:delete', id)
     } catch (error) {
       console.error('Erreur lors de la suppression du paiement:', error)
+      throw error
+    }
+  }, [])
+
+  // Incrementer le compteur d'impressions d'un reçu de paiement
+  const incrementPrintCount = useCallback(async (id: number) => {
+    try {
+      return await ipcRenderer.invoke('db:payments:incrementPrintCount', id)
+    } catch (error) {
+      console.error('Erreur lors de l\'incrémentation du compteur d\'impressions:', error)
       throw error
     }
   }, [])
@@ -391,6 +404,7 @@ export function useDatabase() {
     getAvailablePaymentMonths,
     createPayment,
     updatePayment,
-    deletePayment
+    deletePayment,
+    incrementPrintCount
   }
 } 

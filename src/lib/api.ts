@@ -868,28 +868,48 @@ export const getClassResults = isBrowser ? mockApi.getClassResults : async (
   
   // For each student, calculate average
   for (const student of students) {
-    // Get composition grades for the term
+    // Get ALL grades for the term (both devoirs and compositions)
     const studentGrades = await prisma.grade.findMany({
       where: {
         studentId: student.id,
-        evaluationType: 'composition',
         term: term
       }
     });
     
     if (studentGrades.length === 0) continue;
     
-    // Group grades by subject
-    const subjectGrades: {[subject: string]: typeof studentGrades} = {};
+    // Group grades by subject and by type (devoir/composition)
+    const subjectGradesByType: {
+      [subject: string]: {
+        devoirs: typeof studentGrades,
+        compositions: typeof studentGrades,
+        coefficient: number
+      }
+    } = {};
+    
+    // Get subjects to use their coefficients
+    const allSubjects = await prisma.subject.findMany();
     
     studentGrades.forEach(grade => {
-      if (!subjectGrades[grade.subject]) {
-        subjectGrades[grade.subject] = [];
+      const subjectInfo = allSubjects.find(s => s.id === grade.subjectId);
+      const subjectName = subjectInfo ? subjectInfo.name : `Matière ID ${grade.subjectId}`;
+      
+      if (!subjectGradesByType[subjectName]) {
+        subjectGradesByType[subjectName] = {
+          devoirs: [],
+          compositions: [],
+          coefficient: subjectInfo?.coefficient || 1
+        };
       }
-      subjectGrades[grade.subject].push(grade);
+      
+      if (grade.evaluationType === 'devoir') {
+        subjectGradesByType[subjectName].devoirs.push(grade);
+      } else { // composition
+        subjectGradesByType[subjectName].compositions.push(grade);
+      }
     });
     
-    // Calculate average for each subject
+    // Calculate average for each subject using 40/60 weighting for devoirs/compositions
     const subjectAverages: {
       [subject: string]: {
         average: number;
@@ -897,27 +917,48 @@ export const getClassResults = isBrowser ? mockApi.getClassResults : async (
       }
     } = {};
     
-    let totalPoints = 0;
-    let totalCoefficients = 0;
+    let totalWeightedAverage = 0;
+    let totalCoefficient = 0;
     
-    Object.keys(subjectGrades).forEach(subject => {
-      const grades = subjectGrades[subject];
-      const average = grades.reduce((sum, grade) => sum + grade.score, 0) / grades.length;
-      const coefficient = grades[0].coefficient || 1;
+    Object.keys(subjectGradesByType).forEach(subjectName => {
+      const subject = subjectGradesByType[subjectName];
       
-      subjectAverages[subject] = { average, coefficient };
+        // Calculer la moyenne en prenant toutes les notes (devoirs et compositions)
+      // Utiliser la formule somme(chaque_note × son_coefficient) / somme(coefficients)
+      const allGrades = [...subject.devoirs, ...subject.compositions];
+      
+      let subjectAverage = 0;
+      
+      if (allGrades.length > 0) {
+        let totalWeightedGrades = 0;
+        let totalCoefficients = 0;
+        
+        allGrades.forEach(grade => {
+          // Le coefficient de la note
+          const noteCoefficient = grade.coefficient || 1;
+          totalWeightedGrades += grade.value * noteCoefficient;
+          totalCoefficients += noteCoefficient;
+        });
+        
+        subjectAverage = totalCoefficients > 0 ? totalWeightedGrades / totalCoefficients : 0;
+      }
+      
+      subjectAverages[subjectName] = { 
+        average: subjectAverage, 
+        coefficient: subject.coefficient 
+      };
       
       if (useWeightedAverage) {
-        totalPoints += average * coefficient;
-        totalCoefficients += coefficient;
+        totalWeightedAverage += subjectAverage * subject.coefficient;
+        totalCoefficient += subject.coefficient;
       } else {
-        totalPoints += average;
-        totalCoefficients += 1;
+        totalWeightedAverage += subjectAverage;
+        totalCoefficient += 1;
       }
     });
     
     // Calculate overall average
-    const average = totalCoefficients > 0 ? totalPoints / totalCoefficients : 0;
+    const average = totalCoefficient > 0 ? totalWeightedAverage / totalCoefficient : 0;
     
     // Add to results
     results.push({

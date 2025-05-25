@@ -45,6 +45,8 @@ export interface Grade {
   id: number;
   studentId: number;
   subject: string;
+  subjectId?: number; // ID de la matière dans la table subjects
+  value?: number; // Valeur de la note
   score: number; // Note: sera maintenant sur 20 au lieu de 100
   date: string;
   notes?: string;
@@ -136,4 +138,24 @@ export interface TeacherStats {
     name: string;
     hours: number;
   }>;
+}
+
+// Interfaces pour les bulletins de notes
+export interface SubjectGrade {
+  subjectId: number;
+  subjectName?: string;
+  coefficient: number;
+  devoirs: Array<{ value: number; date: string; notes?: string }>;
+  compositions: Array<{ value: number; date: string; notes?: string }>;
+  average: number;
+}
+
+export interface StudentBulletin {
+  student: Student;
+  className: string;
+  term: string;
+  rank: number;
+  isAdmitted: boolean;
+  generalAverage: number;
+  subjectGrades: Record<string, SubjectGrade>;
 }

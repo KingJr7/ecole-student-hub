@@ -86,7 +86,7 @@ const workHoursFormSchema = z.object({
     (val) => (val === "" ? 0 : Number(val)),
     z.number().min(0.5, "Le nombre d'heures doit être d'au moins 0.5")
   ),
-  date: z.string(),
+  // La date et l'heure sont automatiquement celles du moment de l'enregistrement
   subjectId: z.number().optional(),
   notes: z.string().optional(),
 });
@@ -231,7 +231,6 @@ const Teachers = () => {
     defaultValues: {
       teacherId: 0,
       hours: 0,
-      date: format(new Date(), "yyyy-MM-dd"),
       notes: "",
     },
   });
@@ -247,10 +246,19 @@ const Teachers = () => {
 
   const onWorkHoursFormSubmit: SubmitHandler<WorkHoursFormValues> = (data) => {
     if (selectedTeacher) {
+      // Utiliser la date et l'heure actuelles au moment de l'enregistrement
+      const now = new Date();
+      const isoDateTime = now.toISOString();
+      const formattedDate = format(now, "yyyy-MM-dd");
+      const formattedTime = format(now, "HH:mm:ss");
+      
       addWorkHoursMutation.mutate({
         ...data,
         teacherId: selectedTeacher.id,
+        date: isoDateTime, // Utiliser la date et l'heure exactes au moment de l'enregistrement
       });
+      
+      console.log(`Pointage enregistré pour ${selectedTeacher.firstName} ${selectedTeacher.lastName}: ${data.hours}h le ${formattedDate} à ${formattedTime}`);
     }
   };
 
@@ -297,7 +305,6 @@ const Teachers = () => {
       workHoursForm.reset({
         teacherId: selectedTeacher.id,
         hours: 0,
-        date: format(new Date(), "yyyy-MM-dd"),
         notes: "",
       });
       setOpenWorkHoursDialog(true);
@@ -316,6 +323,28 @@ const Teachers = () => {
   // via l'API, mais nous la gardons pour la compatibilité avec le reste du code
   const getTeacherSubjects = () => {
     return teacherSubjects || [];
+  };
+
+  // Obtenir les classes uniques où le professeur enseigne
+  const getTeacherClasses = () => {
+    const subjects = getTeacherSubjects();
+    // Créer un ensemble pour éviter les doublons
+    const uniqueClasses = new Set();
+    
+    // Stocker chaque classe unique avec son ID et son nom
+    const classes = [];
+    
+    subjects.forEach(subject => {
+      if (subject.className && !uniqueClasses.has(subject.className)) {
+        uniqueClasses.add(subject.className);
+        classes.push({
+          id: subject.classId,
+          name: subject.className
+        });
+      }
+    });
+    
+    return classes;
   };
 
   return (
@@ -475,6 +504,27 @@ const Teachers = () => {
                     </div>
                   </div>
 
+                  {/* Classes où le professeur enseigne */}
+                  <div className="mb-6">
+                    <h3 className="text-lg font-medium mb-2">Classes</h3>
+                    {isLoadingSubjects ? (
+                      <p className="text-center py-4">Chargement...</p>
+                    ) : getTeacherClasses().length === 0 ? (
+                      <p className="text-muted-foreground">Aucune classe assignée</p>
+                    ) : (
+                      <div className="flex flex-wrap gap-2">
+                        {getTeacherClasses().map(classItem => (
+                          <div 
+                            key={classItem.id} 
+                            className="bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-sm font-medium"
+                          >
+                            {classItem.name}
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+
                   {/* Répartition des heures par matière */}
                   <div>
                     <div className="flex justify-between items-center mb-2">
@@ -560,7 +610,7 @@ const Teachers = () => {
                     <Table>
                       <TableHeader>
                         <TableRow>
-                          <TableHead>Date</TableHead>
+                          <TableHead>Date et heure</TableHead>
                           <TableHead>Matière</TableHead>
                           <TableHead className="text-right">Heures</TableHead>
                           <TableHead>Notes</TableHead>
@@ -570,7 +620,7 @@ const Teachers = () => {
                         {workHours.map((record) => (
                           <TableRow key={record.id}>
                             <TableCell>
-                              {format(new Date(record.date), "dd MMMM yyyy", { locale: fr })}
+                              {format(new Date(record.date), "dd MMMM yyyy à HH:mm", { locale: fr })}
                             </TableCell>
                             <TableCell>{getSubjectName(record.subjectId)}</TableCell>
                             <TableCell className="text-right">{record.hours}h</TableCell>
@@ -755,19 +805,12 @@ const Teachers = () => {
                 )}
               />
               
-              <FormField
-                control={workHoursForm.control}
-                name="date"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Date</FormLabel>
-                    <FormControl>
-                      <Input type="date" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+              <div className="py-2 px-4 mb-4 rounded-md bg-muted">
+                <p className="text-sm flex items-center">
+                  <Clock className="mr-2 h-4 w-4" />
+                  Le pointage sera enregistré avec la date et l'heure actuelles : {format(new Date(), "dd/MM/yyyy à HH:mm")}
+                </p>
+              </div>
               
               <FormField
                 control={workHoursForm.control}
@@ -787,7 +830,7 @@ const Teachers = () => {
                       <SelectContent>
                         {getTeacherSubjects().map((subject) => (
                           <SelectItem key={subject.id} value={subject.id.toString()}>
-                            {subject.name}
+                            {subject.name} {subject.className && ` - ${subject.className}`}
                           </SelectItem>
                         ))}
                       </SelectContent>

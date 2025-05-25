@@ -1,5 +1,5 @@
 import React from 'react';
-import type { Payment, Student } from '@/types/index';
+import type { Payment, Student } from '@/types';
 
 interface PaymentReceiptProps {
   payment: Payment;
@@ -80,6 +80,13 @@ const PaymentReceipt: React.FC<PaymentReceiptProps> = ({ payment, student, schoo
         <div className="divider my-2 border-t border-dashed border-gray-400"></div>
         <p className="text-xs">Merci pour votre paiement!</p>
         <p className="text-xs mt-1">Ce reçu est une preuve de paiement. Veuillez le conserver.</p>
+        {/* Utiliser le compteur d'impressions avec vérification pour éviter les erreurs */}
+        {(payment as any).printCount > 0 && (
+          <p className="text-xs mt-2 text-gray-500">
+            Reçu imprimé {(payment as any).printCount} fois
+            <span className="text-xs ml-1">{(payment as any).printCount > 1 ? '(duplicata)' : ''}</span>
+          </p>
+        )}
       </div>
     </div>
   );

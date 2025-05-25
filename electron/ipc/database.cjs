@@ -1,21 +1,56 @@
-const { ipcMain } = require('electron');
+const { app, ipcMain } = require('electron');
 const sqlite3 = require('sqlite3').verbose();
 const path = require('path');
+const fs = require('fs');
 
 let db;
 
 function initializeDatabase() {
-  db = new sqlite3.Database(path.join(__dirname, '../../database.sqlite'), (err) => {
+  // Utiliser le dossier userData d'Electron qui est conçu pour les données persistantes
+  const userDataPath = app.getPath('userData');
+  const dbPath = path.join(userDataPath, 'database.sqlite');
+  
+  console.log(`Chemin de la base de données: ${dbPath}`);
+  
+  // S'assurer que le dossier existe
+  const dbDir = path.dirname(dbPath);
+  if (!fs.existsSync(dbDir)) {
+    fs.mkdirSync(dbDir, { recursive: true });
+  }
+  
+  db = new sqlite3.Database(dbPath, (err) => {
     if (err) {
       console.error('Erreur lors de la connexion à la base de données:', err);
     } else {
       console.log('Connecté à la base de données SQLite');
       db.serialize(() => {
+        // 1. Créer d'abord les tables sans dépendances (pas de clés étrangères)
         db.run(`CREATE TABLE IF NOT EXISTS classes (
           id INTEGER PRIMARY KEY AUTOINCREMENT,
           name TEXT NOT NULL,
           created_at DATETIME DEFAULT CURRENT_TIMESTAMP
         )`);
+
+        db.run(`CREATE TABLE IF NOT EXISTS settings (
+          id INTEGER PRIMARY KEY,
+          schoolName TEXT,
+          paymentMonths TEXT
+        )`);
+
+        // 2. Créer la table des professeurs (référencée par subjects)
+        db.run(`CREATE TABLE IF NOT EXISTS teachers (
+          id INTEGER PRIMARY KEY AUTOINCREMENT,
+          firstName TEXT NOT NULL,
+          lastName TEXT NOT NULL,
+          email TEXT,
+          phone TEXT,
+          address TEXT,
+          hourlyRate REAL DEFAULT 3000,
+          speciality TEXT,
+          created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+        )`);
+
+        // 3. Créer la table students qui dépend uniquement de classes
         db.run(`CREATE TABLE IF NOT EXISTS students (
           id INTEGER PRIMARY KEY AUTOINCREMENT,
           firstName TEXT NOT NULL,
@@ -31,18 +66,48 @@ function initializeDatabase() {
           created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
           FOREIGN KEY (classId) REFERENCES classes (id)
         )`);
+
+        // 4. Créer subjects qui dépend de teachers et classes
+        db.run(`CREATE TABLE IF NOT EXISTS subjects (
+          id INTEGER PRIMARY KEY AUTOINCREMENT,
+          name TEXT NOT NULL,
+          coefficient REAL,
+          classId INTEGER,
+          teacherId INTEGER,
+          hoursPerWeek INTEGER,
+          created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+          FOREIGN KEY (teacherId) REFERENCES teachers (id),
+          FOREIGN KEY (classId) REFERENCES classes (id)
+        )`);
+
+        // 5. Créer payments qui dépend de students
         db.run(`CREATE TABLE IF NOT EXISTS payments (
           id INTEGER PRIMARY KEY AUTOINCREMENT,
           studentId INTEGER,
           amount REAL NOT NULL,
           date TEXT,
+          month TEXT,
           type TEXT,
           status TEXT,
           notes TEXT,
           currency TEXT DEFAULT 'FCFA',
+          printCount INTEGER DEFAULT 0,
           created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
           FOREIGN KEY (studentId) REFERENCES students (id)
         )`);
+
+        // 6. Créer attendances qui dépend de students
+        db.run(`CREATE TABLE IF NOT EXISTS attendances (
+          id INTEGER PRIMARY KEY AUTOINCREMENT,
+          studentId INTEGER,
+          date TEXT NOT NULL,
+          status TEXT NOT NULL,
+          notes TEXT,
+          created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+          FOREIGN KEY (studentId) REFERENCES students (id)
+        )`);
+
+        // 7. Créer grades qui dépend de students et subjects
         db.run(`CREATE TABLE IF NOT EXISTS grades (
           id INTEGER PRIMARY KEY AUTOINCREMENT,
           studentId INTEGER,
@@ -56,30 +121,8 @@ function initializeDatabase() {
           FOREIGN KEY (studentId) REFERENCES students (id),
           FOREIGN KEY (subjectId) REFERENCES subjects (id)
         )`);
-        db.run(`CREATE TABLE IF NOT EXISTS subjects (
-          id INTEGER PRIMARY KEY AUTOINCREMENT,
-          name TEXT NOT NULL,
-          coefficient REAL,
-          classId INTEGER,
-          teacherId INTEGER,
-          hoursPerWeek INTEGER,
-          created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-          FOREIGN KEY (teacherId) REFERENCES teachers (id)
-        )`);
-        db.run(`CREATE TABLE IF NOT EXISTS attendances (
-          id INTEGER PRIMARY KEY AUTOINCREMENT,
-          studentId INTEGER,
-          date TEXT NOT NULL,
-          status TEXT NOT NULL,
-          notes TEXT,
-          created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-          FOREIGN KEY (studentId) REFERENCES students (id)
-        )`);
-        db.run(`CREATE TABLE IF NOT EXISTS settings (
-          id INTEGER PRIMARY KEY,
-          schoolName TEXT,
-          paymentMonths TEXT
-        )`);
+
+        // 8. Créer class_subjects qui dépend de classes
         db.run(`CREATE TABLE IF NOT EXISTS class_subjects (
           id INTEGER PRIMARY KEY AUTOINCREMENT,
           classId INTEGER NOT NULL,
@@ -89,20 +132,7 @@ function initializeDatabase() {
           FOREIGN KEY (classId) REFERENCES classes(id)
         )`);
 
-        // Création de la table des professeurs
-        db.run(`CREATE TABLE IF NOT EXISTS teachers (
-          id INTEGER PRIMARY KEY AUTOINCREMENT,
-          firstName TEXT NOT NULL,
-          lastName TEXT NOT NULL,
-          email TEXT,
-          phone TEXT,
-          address TEXT,
-          hourlyRate REAL DEFAULT 3000,
-          speciality TEXT,
-          created_at DATETIME DEFAULT CURRENT_TIMESTAMP
-        )`);
-
-        // Création de la table de pointage des heures de travail des professeurs
+        // 9. Créer teacher_work_hours qui dépend de teachers et subjects
         db.run(`CREATE TABLE IF NOT EXISTS teacher_work_hours (
           id INTEGER PRIMARY KEY AUTOINCREMENT,
           teacherId INTEGER NOT NULL,
@@ -132,6 +162,50 @@ function initializeDatabase() {
                 console.log('Colonne hoursPerWeek ajoutée à la table subjects');
               }
             });
+          }
+        });
+
+        // Migration : Vérifier si la colonne printCount existe déjà dans la table payments
+        db.all("PRAGMA table_info(payments)", [], (err, rows) => {
+          if (err) {
+            console.error('Erreur lors de la vérification de la colonne printCount:', err);
+            return;
+          }
+          
+          const printCountExists = rows.some(row => row.name === 'printCount');
+          if (!printCountExists) {
+            // Ajouter la colonne printCount
+            db.run(`ALTER TABLE payments ADD COLUMN printCount INTEGER DEFAULT 0`, [], function(err) {
+              if (err) {
+                console.error('Erreur lors de l\'ajout de la colonne printCount:', err);
+              } else {
+                console.log('Colonne printCount ajoutée à la table payments');
+              }
+            });
+          } else {
+            console.log('La colonne printCount existe déjà dans la table payments');
+          }
+        });
+        
+        // Vérifier si la colonne month existe déjà dans la table payments
+        db.all("PRAGMA table_info(payments)", [], (err, rows) => {
+          if (err) {
+            console.error('Erreur lors de la vérification de la colonne month:', err);
+            return;
+          }
+          
+          const monthExists = rows.some(row => row.name === 'month');
+          if (!monthExists) {
+            // Ajouter la colonne month
+            db.run(`ALTER TABLE payments ADD COLUMN month TEXT`, [], function(err) {
+              if (err) {
+                console.error('Erreur lors de l\'ajout de la colonne month:', err);
+              } else {
+                console.log('Colonne month ajoutée à la table payments');
+              }
+            });
+          } else {
+            console.log('La colonne month existe déjà dans la table payments');
           }
         });
 
@@ -345,7 +419,29 @@ function setupDatabaseIPC() {
         ORDER BY s.lastName, s.firstName
       `, [], (err, rows) => {
         if (err) reject(err);
-        else resolve(rows);
+        else {
+          // Convertir le champ parentInfo (JSON string) en objet JavaScript
+          const processedRows = rows.map(student => {
+            if (student.parentInfo) {
+              try {
+                student.parentInfo = JSON.parse(student.parentInfo);
+              } catch (e) {
+                console.error(`Erreur lors du parsing de parentInfo pour l'étudiant ${student.id}:`, e);
+                // En cas d'erreur, fournir un objet vide
+                student.parentInfo = {
+                  fatherName: "",
+                  fatherPhone: "",
+                  fatherEmail: "",
+                  motherName: "",
+                  motherPhone: "",
+                  motherEmail: ""
+                };
+              }
+            }
+            return student;
+          });
+          resolve(processedRows);
+        }
       });
     });
   });
@@ -447,10 +543,10 @@ function setupDatabaseIPC() {
 
   ipcMain.handle('db:payments:create', async (event, paymentData) => {
     return new Promise((resolve, reject) => {
-      const { studentId, amount, date, type, status, notes, currency } = paymentData;
+      const { studentId, amount, date, month, type, status, notes, currency } = paymentData;
       db.run(
-        'INSERT INTO payments (studentId, amount, date, type, status, notes, currency) VALUES (?, ?, ?, ?, ?, ?, ?)',
-        [studentId, amount, date, type, status, notes, currency],
+        'INSERT INTO payments (studentId, amount, date, month, type, status, notes, currency) VALUES (?, ?, ?, ?, ?, ?, ?, ?)',
+        [studentId, amount, date, month, type, status, notes, currency],
         function(err) {
           if (err) reject(err);
           else resolve({ id: this.lastID, ...paymentData });
@@ -459,17 +555,72 @@ function setupDatabaseIPC() {
     });
   });
 
-  ipcMain.handle('db:payments:update', async (event, { id, ...paymentData }) => {
+  ipcMain.handle('db:payments:update', async (event, { id, data }) => {
     return new Promise((resolve, reject) => {
-      const { studentId, amount, date, type, status, notes, currency } = paymentData;
-      db.run(
-        'UPDATE payments SET studentId = ?, amount = ?, date = ?, type = ?, status = ?, notes = ?, currency = ? WHERE id = ?',
-        [studentId, amount, date, type, status, notes, currency, id],
-        function(err) {
-          if (err) reject(err);
-          else resolve({ id, ...paymentData });
+      console.log('Mise à jour du paiement:', id, 'avec données:', data); // Debug log
+      
+      // Récupérer d'abord les données actuelles du paiement
+      db.get('SELECT * FROM payments WHERE id = ?', [id], (err, currentPayment) => {
+        if (err) {
+          console.error('Erreur lors de la récupération du paiement existant:', err);
+          reject(err);
+          return;
         }
-      );
+        
+        if (!currentPayment) {
+          console.error(`Paiement avec l'ID ${id} non trouvé`);
+          reject(new Error(`Paiement avec l'ID ${id} non trouvé`));
+          return;
+        }
+        
+        console.log('Paiement existant:', currentPayment); // Debug log
+        
+        // Vérifier si data est défini et non vide
+        if (!data || Object.keys(data).length === 0) {
+          console.error('Données de mise à jour vides ou non définies');
+          reject(new Error('Données de mise à jour vides ou non définies'));
+          return;
+        }
+
+        // Fusionner les données actuelles avec les nouvelles données
+        const updatedPayment = {
+          studentId: data.studentId !== undefined ? data.studentId : currentPayment.studentId,
+          amount: data.amount !== undefined ? data.amount : currentPayment.amount,
+          date: data.date !== undefined ? data.date : currentPayment.date,
+          month: data.month !== undefined ? data.month : currentPayment.month,
+          type: data.type !== undefined ? data.type : currentPayment.type,
+          status: data.status !== undefined ? data.status : currentPayment.status,
+          notes: data.notes !== undefined ? data.notes : currentPayment.notes,
+          currency: data.currency !== undefined ? data.currency : currentPayment.currency
+        };
+        
+        console.log('Paiement fusionné:', updatedPayment); // Debug log
+        
+        // Mettre à jour avec les valeurs fusionnées
+        db.run(
+          'UPDATE payments SET studentId = ?, amount = ?, date = ?, month = ?, type = ?, status = ?, notes = ?, currency = ? WHERE id = ?',
+          [
+            updatedPayment.studentId,
+            updatedPayment.amount,
+            updatedPayment.date,
+            updatedPayment.month,
+            updatedPayment.type,
+            updatedPayment.status,
+            updatedPayment.notes,
+            updatedPayment.currency,
+            id
+          ],
+          function(err) {
+            if (err) {
+              console.error('Erreur lors de la mise à jour du paiement:', err);
+              reject(err);
+            } else {
+              console.log('Paiement mis à jour avec succès');
+              resolve({ id, ...updatedPayment });
+            }
+          }
+        );
+      });
     });
   });
 
@@ -478,6 +629,43 @@ function setupDatabaseIPC() {
       db.run('DELETE FROM payments WHERE id = ?', [id], function(err) {
         if (err) reject(err);
         else resolve({ id });
+      });
+    });
+  });
+  
+  // Handler pour incrémenter le compteur d'impressions d'un reçu de paiement
+  ipcMain.handle('db:payments:incrementPrintCount', async (event, id) => {
+    return new Promise((resolve, reject) => {
+      // D'abord récupérer le compteur actuel
+      db.get('SELECT printCount FROM payments WHERE id = ?', [id], (err, row) => {
+        if (err) {
+          console.error('Erreur lors de la récupération du compteur d\'impressions:', err);
+          reject(err);
+          return;
+        }
+        
+        if (!row) {
+          reject(new Error(`Paiement avec l'ID ${id} non trouvé`));
+          return;
+        }
+        
+        const currentCount = row.printCount || 0;
+        const newCount = currentCount + 1;
+        
+        // Incrémenter le compteur
+        db.run(
+          'UPDATE payments SET printCount = ? WHERE id = ?',
+          [newCount, id],
+          function(err) {
+            if (err) {
+              console.error('Erreur lors de l\'incrémentation du compteur d\'impressions:', err);
+              reject(err);
+            } else {
+              console.log(`Compteur d'impressions incrémenté pour le paiement ${id}: ${newCount}`);
+              resolve({ id, printCount: newCount });
+            }
+          }
+        );
       });
     });
   });
@@ -1315,8 +1503,15 @@ ipcMain.handle('db:dashboard:getStats', async () => {
 
 ipcMain.handle('db:students:getRecent', async (event, limit = 5) => {
   return new Promise((resolve, reject) => {
-    // Utiliser la requête sans LIMIT paramétré
-    db.all('SELECT * FROM students ORDER BY created_at DESC', [], (err, rows) => {
+    // Utiliser une requête avec une jointure pour inclure le nom de la classe
+    const query = `
+      SELECT s.*, c.name as className 
+      FROM students s
+      LEFT JOIN classes c ON s.classId = c.id
+      ORDER BY s.created_at DESC
+    `;
+    
+    db.all(query, [], (err, rows) => {
       if (err) {
         console.error('Erreur lors de la récupération des étudiants récents:', err);
         reject(err);

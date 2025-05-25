@@ -24,9 +24,42 @@ export default defineConfig(({ mode }) => ({
     exclude: ['@prisma/client'],
   },
   build: {
+    // Générer des sourcemaps pour faciliter le débogage
+    sourcemap: true,
+    // Assurer que les assets sont correctement référencés
+    assetsDir: 'assets',
+    // Empêcher la minification pour des erreurs plus lisibles
+    minify: mode === 'production',
+    // Configurations pour améliorer la compatibilité avec Electron
     commonjsOptions: {
-      // This prevents Vite from trying to resolve Node.js modules in the browser
+      // Permettre la transformation des modules mixtes (ESM et CommonJS)
       transformMixedEsModules: true,
+      // Inclure des modules Node.js
+      include: [
+        /node_modules/,
+      ]
     },
-  }
+    rollupOptions: {
+      // Assurer que les modules natifs ne sont pas inclus dans le build
+      external: [
+        'electron',
+        'electron-settings',
+        'node-machine-id',
+        'sqlite3',
+        'fs',
+        'path'
+      ],
+      output: {
+        // Assurer que les chemins sont relatifs (important pour Electron)
+        format: 'es',
+        entryFileNames: '[name].js',
+        chunkFileNames: '[name].js',
+        assetFileNames: '[name].[ext]'
+      }
+    }
+  },
+  // Assurer que les assets statiques sont correctement gérés
+  publicDir: 'public',
+  // Configuration de base pour le chemin de base
+  base: './'
 }));

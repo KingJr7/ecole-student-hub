@@ -53,9 +53,9 @@ export default function Activation() {
       
       if (result.success) {
         setSuccess(result.message);
-        // Rediriger après un court délai
+        // Rediriger vers la page de classes par défaut après un court délai
         setTimeout(() => {
-          navigate("/");
+          navigate("/default-classes");
         }, 2000);
       } else {
         setError(result.message);

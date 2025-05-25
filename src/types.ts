@@ -38,3 +38,17 @@ export interface ClassResult {
   status: string;
   subjects: Record<string, { average: number; coefficient: number }>;
 }
+
+export interface Payment {
+  id: number;
+  studentId: number;
+  amount: number;
+  date: string;
+  type: string;
+  status: string;
+  notes?: string;
+  currency: string;
+  printCount: number;
+  month?: string;
+  created_at?: string;
+}

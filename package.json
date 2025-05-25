@@ -2,6 +2,11 @@
   "name": "ntik",
   "private": true,
   "version": "0.0.0",
+  "description": "Système de gestion scolaire Ntik pour l'administration des élèves, des notes et des paiements",
+  "author": {
+    "name": "Ntik",
+    "email": "imboujunior91@gmail.com"
+  },
   "main": "electron/main.cjs",
   "type": "module",
   "scripts": {
@@ -11,7 +16,57 @@
     "lint": "eslint .",
     "preview": "vite preview",
     "electron:dev": "NODE_ENV=development ./node_modules/.bin/electron .",
-    "electron:build": "vite build && electron-builder"
+    "electron:build": "vite build && cross-env NODE_ENV=production electron-builder",
+    "pack": "electron-builder --dir",
+    "dist": "vite build && electron-builder",
+    "build:all": "vite build && cross-env NODE_ENV=production electron-builder --linux AppImage --linux deb --win nsis -p always",
+    "build:linux": "vite build && cross-env NODE_ENV=production electron-builder --linux AppImage --linux deb -p always",
+    "build:windows": "vite build && cross-env NODE_ENV=production electron-builder --win nsis -p always",
+    "release": "vite build && electron-builder build --publish always",
+    "postinstall": "electron-builder install-app-deps",
+    "rebuild": "electron-rebuild -f -w sqlite3"
+  },
+  "build": {
+    "appId": "com.ntik.school",
+    "productName": "Ntik",
+    "mac": {
+      "category": "Education"
+    },
+    "win": {
+      "target": "nsis",
+      "icon": "build/icon.ico"
+    },
+    "linux": {
+      "target": [
+        "AppImage",
+        "deb"
+      ],
+      "icon": "build/icon.png",
+      "category": "Education",
+      "maintainer": "Ntik <contact@ntik-school.com>",
+      "vendor": "Ntik"
+    },
+    "directories": {
+      "output": "release",
+      "buildResources": "build"
+    },
+    "files": [
+      "dist/**/*",
+      "electron/**/*",
+      "package.json"
+    ],
+    "extraResources": [
+      {
+        "from": "dist",
+        "to": "dist"
+      }
+    ],
+    "publish": {
+      "provider": "github",
+      "owner": "KingJr7",
+      "repo": "ecole-student-hub",
+      "releaseType": "release"
+    }
   },
   "dependencies": {
     "@hookform/resolvers": "^3.9.0",
@@ -49,9 +104,9 @@
     "clsx": "^2.1.1",
     "cmdk": "^1.0.0",
     "date-fns": "^3.6.0",
-    "electron-builder": "^26.0.12",
     "electron-settings": "^4.0.4",
     "electron-store": "^10.0.1",
+    "electron-updater": "^6.6.2",
     "embla-carousel-react": "^8.3.0",
     "input-otp": "^1.2.4",
     "jspdf": "^3.0.1",
@@ -80,7 +135,10 @@
     "@types/react-dom": "^18.3.0",
     "@vitejs/plugin-react-swc": "^3.5.0",
     "autoprefixer": "^10.4.20",
+    "cross-env": "^7.0.3",
     "electron": "^36.2.0",
+    "electron-builder": "^26.0.12",
+    "electron-rebuild": "^3.2.9",
     "electron-vite": "^3.1.0",
     "eslint": "^9.9.0",
     "eslint-plugin-react-hooks": "^5.1.0-rc.0",

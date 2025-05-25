@@ -377,11 +377,12 @@ export const getAvailableClasses = (): string[] => {
   return Array.from(classSet).sort();
 };
 
-// Nouvelles fonctions pour calculer les résultats d'une classe
+// Fonction pour calculer les résultats d'une classe (liste d'admission)
 export const getClassResults = (
   className: string, 
   term: '1er trimestre' | '2e trimestre' | '3e trimestre',
-  useWeightedAverage: boolean = true
+  useWeightedAverage: boolean = true,
+  subjectsList: any[] = []
 ): ClassResult[] => {
   // Récupérer tous les étudiants de cette classe
   const classStudents = students.filter(student => student.className === className);
@@ -391,27 +392,45 @@ export const getClassResults = (
   
   // Pour chaque étudiant, calculer sa moyenne
   for (const student of classStudents) {
-    // Récupérer toutes les notes de composition de l'étudiant pour ce trimestre
+    // Récupérer toutes les notes de l'étudiant pour ce trimestre (devoirs ET compositions)
     const studentGrades = grades.filter(
-      grade => grade.studentId === student.id && 
-              grade.evaluationType === 'composition' && 
-              grade.term === term
+      grade => grade.studentId === student.id && grade.term === term
     );
     
     // Si l'étudiant n'a pas de notes pour ce trimestre, continuer au suivant
     if (studentGrades.length === 0) continue;
     
-    // Regrouper les notes par matière
-    const subjectGrades: {[subject: string]: Grade[]} = {};
-    
-    studentGrades.forEach(grade => {
-      if (!subjectGrades[grade.subject]) {
-        subjectGrades[grade.subject] = [];
+    // Regrouper les notes par matière et par type (devoir/composition)
+    const subjectGradesByType: {
+      [subject: string]: {
+        devoirs: Grade[],
+        compositions: Grade[],
+        coefficient: number
       }
-      subjectGrades[grade.subject].push(grade);
+    } = {};
+    
+    // Pour chaque note, l'ajouter au bon groupe (par matière et type d'évaluation)
+    studentGrades.forEach(grade => {
+      // Trouver la matière correspondant à l'ID
+      const subject = subjectsList.find(s => s.id === grade.subjectId);
+      const subjectName = subject ? subject.name : `Matière ID ${grade.subjectId}`;
+      
+      if (!subjectGradesByType[subjectName]) {
+        subjectGradesByType[subjectName] = {
+          devoirs: [],
+          compositions: [],
+          coefficient: subject?.coefficient || 1
+        };
+      }
+      
+      if (grade.evaluationType === 'devoir') {
+        subjectGradesByType[subjectName].devoirs.push(grade);
+      } else { // composition
+        subjectGradesByType[subjectName].compositions.push(grade);
+      }
     });
     
-    // Calculer la moyenne pour chaque matière
+    // Calculer la moyenne pour chaque matière en utilisant la même logique que les bulletins
     const subjectAverages: {
       [subject: string]: {
         average: number;
@@ -419,35 +438,62 @@ export const getClassResults = (
       }
     } = {};
     
-    let totalPoints = 0;
-    let totalCoefficients = 0;
+    let totalWeightedAverage = 0;
+    let totalCoefficient = 0;
     
-    Object.keys(subjectGrades).forEach(subject => {
-      const grades = subjectGrades[subject];
-      const average = grades.reduce((sum, grade) => sum + grade.score, 0) / grades.length;
-      const coefficient = grades[0].coefficient || 1; // Utiliser le coefficient de la première note si disponible
+    Object.keys(subjectGradesByType).forEach(subjectName => {
+      const subject = subjectGradesByType[subjectName];
       
-      subjectAverages[subject] = { average, coefficient };
+      // Calculer la moyenne en prenant toutes les notes (devoirs et compositions)
+      // Utiliser la formule somme(chaque_note × son_coefficient) / somme(coefficients)
+      const allGrades = [...subject.devoirs, ...subject.compositions];
+      
+      let subjectAverage = 0;
+      
+      if (allGrades.length > 0) {
+        let totalWeightedGrades = 0;
+        let totalCoefficients = 0;
+        
+        allGrades.forEach(grade => {
+          // Le coefficient de la note
+          const noteCoefficient = grade.coefficient || 1;
+          totalWeightedGrades += grade.value * noteCoefficient;
+          totalCoefficients += noteCoefficient;
+        });
+        
+        subjectAverage = totalCoefficients > 0 ? totalWeightedGrades / totalCoefficients : 0;
+      }
+      
+      subjectAverages[subjectName] = { 
+        average: subjectAverage, 
+        coefficient: subject.coefficient 
+      };
       
       if (useWeightedAverage) {
-        totalPoints += average * coefficient;
-        totalCoefficients += coefficient;
+        totalWeightedAverage += subjectAverage * subject.coefficient;
+        totalCoefficient += subject.coefficient;
       } else {
-        totalPoints += average;
-        totalCoefficients += 1;
+        totalWeightedAverage += subjectAverage;
+        totalCoefficient += 1;
       }
     });
     
     // Calculer la moyenne générale
-    const average = totalCoefficients > 0 ? totalPoints / totalCoefficients : 0;
+    const generalAverage = totalCoefficient > 0 ? 
+      totalWeightedAverage / totalCoefficient : 
+      0;
+    
+    // Déterminer le statut d'admission (admis si moyenne >= 10)
+    const studentAverage = parseFloat(generalAverage.toFixed(2));
+    const studentStatus = studentAverage >= 10 ? 'admis' : 'échec';
     
     // Ajouter aux résultats
     results.push({
       studentId: student.id,
       studentName: `${student.firstName} ${student.lastName}`,
-      average: parseFloat(average.toFixed(2)),
+      average: studentAverage,
       rank: 0, // Sera déterminé plus tard
-      status: average >= 10 ? 'admis' : 'échec',
+      status: studentStatus,
       subjects: subjectAverages
     });
   }
