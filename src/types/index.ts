@@ -1,5 +1,7 @@
 export interface Student {
-  id: number;
+  id: string;
+  sqlite_id?: number;
+  supabase_id?: string;
   firstName: string;
   lastName: string;
   email: string;
@@ -8,9 +10,12 @@ export interface Student {
   address: string;
   enrollmentDate: string;
   status: 'active' | 'inactive' | 'graduated';
-  classId: number;
+  classId: string;
   className?: string;
   parentInfo: ParentInfo;
+  is_synced?: boolean;
+  is_deleted?: boolean;
+  last_modified?: string;
 }
 
 export interface ParentInfo {
@@ -23,22 +28,34 @@ export interface ParentInfo {
 }
 
 export interface AttendanceRecord {
-  id: number;
-  studentId: number;
+  id: string;
+  sqlite_id?: number;
+  supabase_id?: string;
+  studentId: string;
   date: string;
   status: 'present' | 'absent' | 'late' | 'excused';
   notes?: string;
+  is_synced?: boolean;
+  is_deleted?: boolean;
+  last_modified?: string;
 }
 
 export interface Payment {
-  id: number;
-  studentId: number;
+  id: string;
+  sqlite_id?: number;
+  supabase_id?: string;
+  studentId: string;
   amount: number;
   date: string;
   type: 'tuition' | 'books' | 'activities' | 'other';
   status: 'paid' | 'pending' | 'overdue';
   notes?: string;
   currency: 'FCFA'; // La monnaie utilisée est le FCFA
+  printCount?: number;
+  month?: string;
+  is_synced?: boolean;
+  is_deleted?: boolean;
+  last_modified?: string;
 }
 
 export interface Grade {
@@ -83,7 +100,9 @@ export interface ClassResult {
 
 // Nouvelles interfaces pour les matières, professeurs et emploi du temps
 export interface Teacher {
-  id: number;
+  id: string;
+  sqlite_id?: number;
+  supabase_id?: string;
   firstName: string;
   lastName: string;
   email: string;
@@ -91,17 +110,25 @@ export interface Teacher {
   address?: string;
   hourlyRate?: number;
   speciality?: string;
+  is_synced?: boolean;
+  is_deleted?: boolean;
+  last_modified?: string;
 }
 
 export interface Subject {
-  id: number;
+  id: string;
+  sqlite_id?: number;
+  supabase_id?: string;
   name: string;
   classId: string;
-  teacherId?: number;
-  teacherName: string;
+  teacherId?: string;
+  teacherName?: string;
   coefficient: number;
   schedules?: Schedule[];
   hoursPerWeek?: number;
+  is_synced?: boolean;
+  is_deleted?: boolean;
+  last_modified?: string;
 }
 
 export interface Schedule {
@@ -158,4 +185,16 @@ export interface StudentBulletin {
   isAdmitted: boolean;
   generalAverage: number;
   subjectGrades: Record<string, SubjectGrade>;
+}
+
+export interface Class {
+  id: string;
+  sqlite_id?: number;
+  supabase_id?: string;
+  name: string;
+  level?: string;
+  school_id?: string;
+  is_synced?: boolean;
+  is_deleted?: boolean;
+  last_modified?: string;
 }

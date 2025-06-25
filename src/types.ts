@@ -1,12 +1,17 @@
 // Types globaux pour l'app (ajouté car il n'existait pas)
 
 export interface Subject {
-  id: number;
+  id: string;
+  sqlite_id?: number;
+  supabase_id?: string;
   name: string;
   coefficient: number;
-  teacherId?: number;
-  classId?: number;
-  subjectName?: string; // pour compatibilité
+  teacherId?: string;
+  classId?: string;
+  subjectName?: string;
+  is_synced?: boolean;
+  is_deleted?: boolean;
+  last_modified?: string;
 }
 
 export interface Grade {
@@ -31,7 +36,7 @@ export interface Student {
 }
 
 export interface ClassResult {
-  studentId: number;
+  studentId: string;
   studentName: string;
   average: number;
   rank: number;
@@ -40,15 +45,20 @@ export interface ClassResult {
 }
 
 export interface Payment {
-  id: number;
-  studentId: number;
+  id: string;
+  sqlite_id?: number;
+  supabase_id?: string;
+  studentId: string;
   amount: number;
   date: string;
   type: string;
   status: string;
   notes?: string;
   currency: string;
-  printCount: number;
+  printCount?: number;
   month?: string;
   created_at?: string;
+  is_synced?: boolean;
+  is_deleted?: boolean;
+  last_modified?: string;
 }

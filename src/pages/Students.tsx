@@ -38,7 +38,7 @@ import {
 
 // Define the interface for the currentStudent state
 interface CurrentStudent {
-  id?: number;
+  id?: string;
   firstName?: string;
   lastName?: string;
   email?: string;
@@ -48,6 +48,7 @@ interface CurrentStudent {
   enrollmentDate?: string;
   status?: 'active' | 'inactive' | 'graduated';
   className?: string;
+  classId?: string;
   parentInfo?: {
     fatherName?: string;
     fatherPhone?: string;
@@ -56,6 +57,11 @@ interface CurrentStudent {
     motherPhone?: string;
     motherEmail?: string;
   };
+  supabase_id?: string;
+  sqlite_id?: number;
+  is_synced?: boolean;
+  is_deleted?: boolean;
+  last_modified?: string;
 }
 
 const Students = () => {
@@ -66,7 +72,7 @@ const Students = () => {
   const [paymentAmount, setPaymentAmount] = useState<number | ''>('');
   const [paymentType, setPaymentType] = useState<'tuition' | 'books' | 'activities' | 'other'>('tuition');
   const [paymentNotes, setPaymentNotes] = useState<string>('');
-  const [studentToDelete, setStudentToDelete] = useState<number | null>(null);
+  const [studentToDelete, setStudentToDelete] = useState<string | null>(null);
   const [studentForPayment, setStudentForPayment] = useState<Student | null>(null);
   const [searchQuery, setSearchQuery] = useState<string>("");
   const [selectedClass, setSelectedClass] = useState<string>("all");
@@ -111,7 +117,8 @@ const Students = () => {
         const studentClass = classesData.find(c => c.id === student.classId);
         return {
           ...student,
-          className: studentClass?.name || ''
+          className: studentClass?.name || '',
+          classId: student.classId
         };
       });
       
@@ -156,7 +163,7 @@ const Students = () => {
 
     try {
       // Trouver l'ID de la classe sélectionnée
-      const selectedClass = classes.find(c => c.name === currentStudent.className);
+      const selectedClass = classes.find(c => c.id === currentStudent.className);
       if (!selectedClass) {
         useToastToast({
           title: "Erreur",
@@ -265,6 +272,7 @@ const Students = () => {
     setCurrentStudent({ 
       ...student,
       className: selectedClass?.name || '',
+      classId: student.classId,
       parentInfo: student.parentInfo || {
         fatherName: "",
         fatherPhone: "",
@@ -277,7 +285,7 @@ const Students = () => {
     setIsDialogOpen(true);
   };
 
-  const handleOpenDeleteDialog = (studentId: number) => {
+  const handleOpenDeleteDialog = (studentId: string) => {
     setStudentToDelete(studentId);
     setIsDeleteDialogOpen(true);
   };
@@ -304,7 +312,7 @@ const Students = () => {
     setStudentForPayment(null);
   };
 
-  const getClassName = (classId: number) => {
+  const getClassName = (classId: string) => {
     const cls = classes.find(c => c.id === classId);
     return cls ? cls.name : 'Classe inconnue';
   };

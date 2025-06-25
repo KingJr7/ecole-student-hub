@@ -2,17 +2,19 @@ const { app, ipcMain } = require('electron');
 const sqlite3 = require('sqlite3').verbose();
 const path = require('path');
 const fs = require('fs');
+const { createClient } = require('@supabase/supabase-js');
+const SUPABASE_URL = 'https://<ton-url>.supabase.co'; // À remplacer par ton URL
+const SUPABASE_KEY = '<ta-clé-anon-ou-service>'; // À remplacer par ta clé
+const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
 
 let db;
 
 function initializeDatabase() {
-  // Utiliser le dossier userData d'Electron qui est conçu pour les données persistantes
   const userDataPath = app.getPath('userData');
   const dbPath = path.join(userDataPath, 'database.sqlite');
   
   console.log(`Chemin de la base de données: ${dbPath}`);
   
-  // S'assurer que le dossier existe
   const dbDir = path.dirname(dbPath);
   if (!fs.existsSync(dbDir)) {
     fs.mkdirSync(dbDir, { recursive: true });
@@ -24,252 +26,234 @@ function initializeDatabase() {
     } else {
       console.log('Connecté à la base de données SQLite');
       db.serialize(() => {
-        // 1. Créer d'abord les tables sans dépendances (pas de clés étrangères)
-        db.run(`CREATE TABLE IF NOT EXISTS classes (
-          id INTEGER PRIMARY KEY AUTOINCREMENT,
-          name TEXT NOT NULL,
-          created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+        // Activer les clés étrangères
+        db.run('PRAGMA foreign_keys = ON');
+
+        // Table pour le suivi de synchronisation
+        db.run(`CREATE TABLE IF NOT EXISTS sync_status (
+          table_name TEXT PRIMARY KEY,
+          last_sync TIMESTAMP,
+          pending_changes INTEGER DEFAULT 0
         )`);
 
-        db.run(`CREATE TABLE IF NOT EXISTS settings (
-          id INTEGER PRIMARY KEY,
-          schoolName TEXT,
-          paymentMonths TEXT
-        )`);
+        // Tables principales avec colonnes de synchronisation
+        const tables = [
+          `CREATE TABLE IF NOT EXISTS classes (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            supabase_id TEXT,
+            name TEXT NOT NULL,
+            is_synced BOOLEAN DEFAULT 0,
+            last_modified TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            is_deleted BOOLEAN DEFAULT 0,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+          )`,
 
-        // 2. Créer la table des professeurs (référencée par subjects)
-        db.run(`CREATE TABLE IF NOT EXISTS teachers (
-          id INTEGER PRIMARY KEY AUTOINCREMENT,
-          firstName TEXT NOT NULL,
-          lastName TEXT NOT NULL,
-          email TEXT,
-          phone TEXT,
-          address TEXT,
-          hourlyRate REAL DEFAULT 3000,
-          speciality TEXT,
-          created_at DATETIME DEFAULT CURRENT_TIMESTAMP
-        )`);
+          `CREATE TABLE IF NOT EXISTS teachers (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            supabase_id TEXT,
+            firstName TEXT NOT NULL,
+            lastName TEXT NOT NULL,
+            email TEXT,
+            phone TEXT,
+            address TEXT,
+            hourlyRate REAL DEFAULT 3000,
+            speciality TEXT,
+            is_synced BOOLEAN DEFAULT 0,
+            last_modified TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            is_deleted BOOLEAN DEFAULT 0,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+          )`,
 
-        // 3. Créer la table students qui dépend uniquement de classes
-        db.run(`CREATE TABLE IF NOT EXISTS students (
-          id INTEGER PRIMARY KEY AUTOINCREMENT,
-          firstName TEXT NOT NULL,
-          lastName TEXT NOT NULL,
-          email TEXT,
-          phone TEXT,
-          dateOfBirth TEXT,
-          address TEXT,
-          enrollmentDate TEXT,
-          status TEXT DEFAULT 'active',
-          classId INTEGER,
-          parentInfo TEXT,
-          created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-          FOREIGN KEY (classId) REFERENCES classes (id)
-        )`);
+          `CREATE TABLE IF NOT EXISTS students (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            supabase_id TEXT,
+            firstName TEXT NOT NULL,
+            lastName TEXT NOT NULL,
+            email TEXT,
+            phone TEXT,
+            dateOfBirth TEXT,
+            address TEXT,
+            enrollmentDate TEXT,
+            status TEXT DEFAULT 'active',
+            classId INTEGER,
+            parentInfo TEXT,
+            is_synced BOOLEAN DEFAULT 0,
+            last_modified TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            is_deleted BOOLEAN DEFAULT 0,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            FOREIGN KEY (classId) REFERENCES classes (id)
+          )`,
 
-        // 4. Créer subjects qui dépend de teachers et classes
-        db.run(`CREATE TABLE IF NOT EXISTS subjects (
-          id INTEGER PRIMARY KEY AUTOINCREMENT,
-          name TEXT NOT NULL,
-          coefficient REAL,
-          classId INTEGER,
-          teacherId INTEGER,
-          hoursPerWeek INTEGER,
-          created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-          FOREIGN KEY (teacherId) REFERENCES teachers (id),
-          FOREIGN KEY (classId) REFERENCES classes (id)
-        )`);
+          `CREATE TABLE IF NOT EXISTS subjects (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            supabase_id TEXT,
+            name TEXT NOT NULL,
+            coefficient REAL,
+            classId INTEGER,
+            teacherId INTEGER,
+            hoursPerWeek INTEGER,
+            is_synced BOOLEAN DEFAULT 0,
+            last_modified TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            is_deleted BOOLEAN DEFAULT 0,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            FOREIGN KEY (teacherId) REFERENCES teachers (id),
+            FOREIGN KEY (classId) REFERENCES classes (id)
+          )`,
 
-        // 5. Créer payments qui dépend de students
-        db.run(`CREATE TABLE IF NOT EXISTS payments (
-          id INTEGER PRIMARY KEY AUTOINCREMENT,
-          studentId INTEGER,
-          amount REAL NOT NULL,
-          date TEXT,
-          month TEXT,
-          type TEXT,
-          status TEXT,
-          notes TEXT,
-          currency TEXT DEFAULT 'FCFA',
-          printCount INTEGER DEFAULT 0,
-          created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-          FOREIGN KEY (studentId) REFERENCES students (id)
-        )`);
+          `CREATE TABLE IF NOT EXISTS payments (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            supabase_id TEXT,
+            studentId INTEGER,
+            amount REAL NOT NULL,
+            date TEXT,
+            month TEXT,
+            type TEXT,
+            status TEXT,
+            notes TEXT,
+            currency TEXT DEFAULT 'FCFA',
+            printCount INTEGER DEFAULT 0,
+            is_synced BOOLEAN DEFAULT 0,
+            last_modified TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            is_deleted BOOLEAN DEFAULT 0,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            FOREIGN KEY (studentId) REFERENCES students (id)
+          )`,
 
-        // 6. Créer attendances qui dépend de students
-        db.run(`CREATE TABLE IF NOT EXISTS attendances (
-          id INTEGER PRIMARY KEY AUTOINCREMENT,
-          studentId INTEGER,
-          date TEXT NOT NULL,
-          status TEXT NOT NULL,
-          notes TEXT,
-          created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-          FOREIGN KEY (studentId) REFERENCES students (id)
-        )`);
+          `CREATE TABLE IF NOT EXISTS attendances (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            supabase_id TEXT,
+            studentId INTEGER,
+            date TEXT NOT NULL,
+            status TEXT NOT NULL,
+            notes TEXT,
+            is_synced BOOLEAN DEFAULT 0,
+            last_modified TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            is_deleted BOOLEAN DEFAULT 0,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            FOREIGN KEY (studentId) REFERENCES students (id)
+          )`,
 
-        // 7. Créer grades qui dépend de students et subjects
-        db.run(`CREATE TABLE IF NOT EXISTS grades (
-          id INTEGER PRIMARY KEY AUTOINCREMENT,
-          studentId INTEGER,
-          subjectId INTEGER,
-          value REAL NOT NULL,
-          term TEXT,
-          evaluationType TEXT DEFAULT 'composition',
-          coefficient REAL DEFAULT 1,
-          notes TEXT,
-          created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-          FOREIGN KEY (studentId) REFERENCES students (id),
-          FOREIGN KEY (subjectId) REFERENCES subjects (id)
-        )`);
+          `CREATE TABLE IF NOT EXISTS grades (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            supabase_id TEXT,
+            studentId INTEGER,
+            subjectId INTEGER,
+            value REAL NOT NULL,
+            term TEXT,
+            evaluationType TEXT DEFAULT 'composition',
+            coefficient REAL DEFAULT 1,
+            notes TEXT,
+            is_synced BOOLEAN DEFAULT 0,
+            last_modified TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            is_deleted BOOLEAN DEFAULT 0,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            FOREIGN KEY (studentId) REFERENCES students (id),
+            FOREIGN KEY (subjectId) REFERENCES subjects (id)
+          )`,
 
-        // 8. Créer class_subjects qui dépend de classes
-        db.run(`CREATE TABLE IF NOT EXISTS class_subjects (
-          id INTEGER PRIMARY KEY AUTOINCREMENT,
-          classId INTEGER NOT NULL,
-          subjectName TEXT NOT NULL,
-          coefficient REAL NOT NULL,
-          hoursPerWeek INTEGER,
-          FOREIGN KEY (classId) REFERENCES classes(id)
-        )`);
+          `CREATE TABLE IF NOT EXISTS settings (
+            id INTEGER PRIMARY KEY DEFAULT 1,
+            schoolName TEXT,
+            paymentMonths TEXT,
+            is_synced BOOLEAN DEFAULT 0,
+            last_modified TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+          )`
+        ];
 
-        // 9. Créer teacher_work_hours qui dépend de teachers et subjects
-        db.run(`CREATE TABLE IF NOT EXISTS teacher_work_hours (
-          id INTEGER PRIMARY KEY AUTOINCREMENT,
-          teacherId INTEGER NOT NULL,
-          hours REAL NOT NULL,
-          date TEXT NOT NULL,
-          subjectId INTEGER,
-          notes TEXT,
-          created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-          FOREIGN KEY (teacherId) REFERENCES teachers (id),
-          FOREIGN KEY (subjectId) REFERENCES subjects (id)
-        )`);
-        
-        // Migration : Vérifier si le champ hoursPerWeek existe dans la table subjects et l'ajouter si nécessaire
-        db.all("PRAGMA table_info(subjects)", [], (err, rows) => {
-          if (err) {
-            console.error('Erreur lors de la vérification des colonnes de la table subjects:', err);
-            return;
-          }
-          
-          const columns = rows.map(row => row.name);
-          
-          if (!columns.includes('hoursPerWeek')) {
-            db.run('ALTER TABLE subjects ADD COLUMN hoursPerWeek INTEGER', [], function(err) {
-              if (err) {
-                console.error('Erreur lors de l\'ajout de la colonne hoursPerWeek:', err);
-              } else {
-                console.log('Colonne hoursPerWeek ajoutée à la table subjects');
-              }
-            });
-          }
+        tables.forEach(tableSql => {
+          db.run(tableSql, err => {
+            if (err) console.error('Erreur création table:', err);
+          });
         });
 
-        // Migration : Vérifier si la colonne printCount existe déjà dans la table payments
-        db.all("PRAGMA table_info(payments)", [], (err, rows) => {
-          if (err) {
-            console.error('Erreur lors de la vérification de la colonne printCount:', err);
-            return;
-          }
-          
-          const printCountExists = rows.some(row => row.name === 'printCount');
-          if (!printCountExists) {
-            // Ajouter la colonne printCount
-            db.run(`ALTER TABLE payments ADD COLUMN printCount INTEGER DEFAULT 0`, [], function(err) {
-              if (err) {
-                console.error('Erreur lors de l\'ajout de la colonne printCount:', err);
-              } else {
-                console.log('Colonne printCount ajoutée à la table payments');
-              }
-            });
-          } else {
-            console.log('La colonne printCount existe déjà dans la table payments');
-          }
-        });
-        
-        // Vérifier si la colonne month existe déjà dans la table payments
-        db.all("PRAGMA table_info(payments)", [], (err, rows) => {
-          if (err) {
-            console.error('Erreur lors de la vérification de la colonne month:', err);
-            return;
-          }
-          
-          const monthExists = rows.some(row => row.name === 'month');
-          if (!monthExists) {
-            // Ajouter la colonne month
-            db.run(`ALTER TABLE payments ADD COLUMN month TEXT`, [], function(err) {
-              if (err) {
-                console.error('Erreur lors de l\'ajout de la colonne month:', err);
-              } else {
-                console.log('Colonne month ajoutée à la table payments');
-              }
-            });
-          } else {
-            console.log('La colonne month existe déjà dans la table payments');
-          }
-        });
-
-        // Migration : Ajouter les colonnes manquantes à la table grades si elles n'existent pas
-        db.all("PRAGMA table_info(grades)", [], (err, rows) => {
-          if (err) {
-            console.error('Erreur lors de la vérification des colonnes de la table grades:', err);
-            return;
-          }
-          
-          // Vérifier si les colonnes existent déjà
-          if (!rows || !Array.isArray(rows)) {
-            console.error('Résultat inattendu lors de la vérification des colonnes:', rows);
-            return;
-          }
-          
-          console.log('Colonnes existantes dans grades:', rows.map(row => row.name).join(', '));
-          
-          const columns = rows.map(row => row.name);
-          
-          if (!columns.includes('evaluationType')) {
-            db.run('ALTER TABLE grades ADD COLUMN evaluationType TEXT DEFAULT \'composition\'', [], function(err) {
-              if (err) {
-                console.error('Erreur lors de l\'ajout de la colonne evaluationType:', err);
-              } else {
-                console.log('Colonne evaluationType ajoutée à la table grades');
-              }
-            });
-          }
-          
-          if (!columns.includes('coefficient')) {
-            db.run('ALTER TABLE grades ADD COLUMN coefficient REAL DEFAULT 1', [], function(err) {
-              if (err) {
-                console.error('Erreur lors de l\'ajout de la colonne coefficient:', err);
-              } else {
-                console.log('Colonne coefficient ajoutée à la table grades');
-              }
-            });
-          }
-          
-          if (!columns.includes('notes')) {
-            db.run('ALTER TABLE grades ADD COLUMN notes TEXT', [], function(err) {
-              if (err) {
-                console.error('Erreur lors de l\'ajout de la colonne notes:', err);
-              } else {
-                console.log('Colonne notes ajoutée à la table grades');
-              }
-            });
-          }
-        });
-        
-        // Insérer une ligne par défaut si la table est vide
+        // Initialiser les paramètres si la table est vide
         db.get('SELECT COUNT(*) as count FROM settings', (err, row) => {
           if (!err && row.count === 0) {
-            db.run('INSERT INTO settings (id, schoolName, paymentMonths) VALUES (1, "Nom de l\'école", "[\"2025-01\",\"2025-02\",\"2025-03\"]")');
+            db.run(`INSERT INTO settings (schoolName, paymentMonths) 
+                   VALUES ('Nom de l\'école', '["2025-01","2025-02","2025-03"]')`);
           }
         });
+
+        // Créer des index pour améliorer les performances
+        db.run('CREATE INDEX IF NOT EXISTS idx_students_classId ON students(classId)');
+        db.run('CREATE INDEX IF NOT EXISTS idx_subjects_teacherId ON subjects(teacherId)');
+        db.run('CREATE INDEX IF NOT EXISTS idx_grades_studentId ON grades(studentId)');
+        db.run('CREATE INDEX IF NOT EXISTS idx_sync_status ON sync_status(table_name)');
       });
     }
   });
 }
 
+// Fonctions de synchronisation
+function setupSyncIPC() {
+  // Marquer les modifications locales
+  ipcMain.handle('markLocalChanges', (event, tableName) => {
+    db.run(`UPDATE ${tableName} SET is_synced = 0 WHERE is_synced = 1`);
+  });
+
+  // Récupérer les modifications non synchronisées
+  ipcMain.handle('getUnsyncedData', (event, tableName) => {
+    return new Promise((resolve, reject) => {
+      db.all(`SELECT * FROM ${tableName} WHERE is_synced = 0 AND is_deleted = 0`, [], (err, rows) => {
+        if (err) reject(err);
+        else resolve(rows);
+      });
+    });
+  });
+
+  // Marquer les données comme synchronisées
+  ipcMain.handle('markAsSynced', (event, {tableName, ids}) => {
+    const placeholders = ids.map(() => '?').join(',');
+    return new Promise((resolve, reject) => {
+      db.run(
+        `UPDATE ${tableName} SET is_synced = 1 WHERE id IN (${placeholders})`,
+        ids,
+        function(err) {
+          if (err) reject(err);
+          else resolve(this.changes);
+        }
+      );
+    });
+  });
+
+  // Mettre à jour le timestamp de synchronisation
+  ipcMain.handle('updateSyncTimestamp', (event, {tableName, timestamp}) => {
+    return new Promise((resolve, reject) => {
+      db.run(
+        `INSERT OR REPLACE INTO sync_status (table_name, last_sync) VALUES (?, ?)`,
+        [tableName, timestamp],
+        function(err) {
+          if (err) reject(err);
+          else resolve();
+        }
+      );
+    });
+  });
+}
+
+// Gardez vos handlers IPC existants mais ajoutez la gestion des nouveaux champs
+// Exemple pour la création d'étudiant :
+ipcMain.handle('db:students:create', async (event, studentData) => {
+  return new Promise((resolve, reject) => {
+    const { firstName, lastName, email, phone, dateOfBirth, address, enrollmentDate, status, classId, parentInfo } = studentData;
+    db.run(
+      `INSERT INTO students (
+        firstName, lastName, email, phone, dateOfBirth, address, 
+        enrollmentDate, status, classId, parentInfo, is_synced
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 0)`,
+      [firstName, lastName, email, phone, dateOfBirth, address, enrollmentDate, status, classId, JSON.stringify(parentInfo)],
+      function(err) {
+        if (err) reject(err);
+        else resolve({ id: this.lastID, ...studentData });
+      }
+    );
+  });
+});
+
+// Initialisation
 function setupDatabaseIPC() {
   initializeDatabase();
+  setupSyncIPC();
 
   // Handler pour récupérer les settings
   ipcMain.handle('db:settings:get', async () => {
@@ -1437,107 +1421,209 @@ function setupDatabaseIPC() {
   });
 
   // Handler pour les statistiques du dashboard
-ipcMain.handle('db:dashboard:getStats', async () => {
-  try {
-    // Récupérer le nombre total d'élèves
-    const totalStudentsPromise = new Promise((resolve, reject) => {
-      db.get('SELECT COUNT(*) as count FROM students WHERE status = "active"', (err, row) => {
-        if (err) reject(err);
-        else resolve(row?.count || 0);
+  ipcMain.handle('db:dashboard:getStats', async () => {
+    try {
+      // Récupérer le nombre total d'élèves
+      const totalStudentsPromise = new Promise((resolve, reject) => {
+        db.get('SELECT COUNT(*) as count FROM students WHERE status = "active"', (err, row) => {
+          if (err) reject(err);
+          else resolve(row?.count || 0);
+        });
       });
-    });
-    
-    // Récupérer les présences d'aujourd'hui
-    const today = new Date().toISOString().split('T')[0];
-    const attendanceTodayPromise = new Promise((resolve, reject) => {
-      db.all('SELECT status FROM attendances WHERE date = ?', [today], (err, rows) => {
-        if (err) reject(err);
-        else {
-          const present = rows?.filter(r => r.status === 'present').length || 0;
-          const absent = rows?.filter(r => r.status === 'absent').length || 0;
-          const late = rows?.filter(r => r.status === 'late').length || 0;
-          resolve({ present, absent, late });
-        }
-      });
-    });
-    
-    // Récupérer les paiements du mois en cours
-    const thisMonth = new Date().toISOString().substring(0, 7);
-    const paymentsPromise = new Promise((resolve, reject) => {
-      db.all('SELECT amount FROM payments WHERE date LIKE ?', [`${thisMonth}%`], (err, rows) => {
-        if (err) reject(err);
-        else {
-          const total = rows?.reduce((sum, payment) => sum + payment.amount, 0) || 0;
-          resolve(total);
-        }
-      });
-    });
-    
-    // Récupérer le nombre de notes récentes (du mois en cours)
-    const recentGradesPromise = new Promise((resolve, reject) => {
-      db.get('SELECT COUNT(*) as count FROM grades WHERE created_at >= datetime("now", "-30 days")', (err, row) => {
-        if (err) reject(err);
-        else resolve(row?.count || 0);
-      });
-    });
-    
-    // Attendre toutes les promesses
-    const [totalStudents, attendanceToday, paymentsThisMonth, recentGrades] = await Promise.all([
-      totalStudentsPromise,
-      attendanceTodayPromise,
-      paymentsPromise,
-      recentGradesPromise
-    ]);
-    
-    return {
-      totalStudents,
-      attendanceToday,
-      paymentsThisMonth,
-      recentGrades
-    };
-  } catch (error) {
-    console.error('Erreur lors de la récupération des statistiques du dashboard:', error);
-    throw error;
-  }
-});
-
-ipcMain.handle('db:students:getRecent', async (event, limit = 5) => {
-  return new Promise((resolve, reject) => {
-    // Utiliser une requête avec une jointure pour inclure le nom de la classe
-    const query = `
-      SELECT s.*, c.name as className 
-      FROM students s
-      LEFT JOIN classes c ON s.classId = c.id
-      ORDER BY s.created_at DESC
-    `;
-    
-    db.all(query, [], (err, rows) => {
-      if (err) {
-        console.error('Erreur lors de la récupération des étudiants récents:', err);
-        reject(err);
-      } else {
-        // Convertir la limite en nombre sécuritaire et limiter les résultats en JavaScript
-        let limitNum = 5; // Valeur par défaut
-        try {
-          if (limit) {
-            const parsed = parseInt(limit, 10);
-            if (!isNaN(parsed) && parsed > 0) {
-              limitNum = parsed;
-            }
+      
+      // Récupérer les présences d'aujourd'hui
+      const today = new Date().toISOString().split('T')[0];
+      const attendanceTodayPromise = new Promise((resolve, reject) => {
+        db.all('SELECT status FROM attendances WHERE date = ?', [today], (err, rows) => {
+          if (err) reject(err);
+          else {
+            const present = rows?.filter(r => r.status === 'present').length || 0;
+            const absent = rows?.filter(r => r.status === 'absent').length || 0;
+            const late = rows?.filter(r => r.status === 'late').length || 0;
+            resolve({ present, absent, late });
           }
-        } catch (e) {
-          console.log('Erreur lors de la conversion de limit:', e);
+        });
+      });
+      
+      // Récupérer les paiements du mois en cours
+      const thisMonth = new Date().toISOString().substring(0, 7);
+      const paymentsPromise = new Promise((resolve, reject) => {
+        db.all('SELECT amount FROM payments WHERE date LIKE ?', [`${thisMonth}%`], (err, rows) => {
+          if (err) reject(err);
+          else {
+            const total = rows?.reduce((sum, payment) => sum + payment.amount, 0) || 0;
+            resolve(total);
+          }
+        });
+      });
+      
+      // Récupérer le nombre de notes récentes (du mois en cours)
+      const recentGradesPromise = new Promise((resolve, reject) => {
+        db.get('SELECT COUNT(*) as count FROM grades WHERE created_at >= datetime("now", "-30 days")', (err, row) => {
+          if (err) reject(err);
+          else resolve(row?.count || 0);
+        });
+      });
+      
+      // Attendre toutes les promesses
+      const [totalStudents, attendanceToday, paymentsThisMonth, recentGrades] = await Promise.all([
+        totalStudentsPromise,
+        attendanceTodayPromise,
+        paymentsPromise,
+        recentGradesPromise
+      ]);
+      
+      return {
+        totalStudents,
+        attendanceToday,
+        paymentsThisMonth,
+        recentGrades
+      };
+    } catch (error) {
+      console.error('Erreur lors de la récupération des statistiques du dashboard:', error);
+      throw error;
+    }
+  });
+
+  ipcMain.handle('db:students:getRecent', async (event, limit = 5) => {
+    return new Promise((resolve, reject) => {
+      // Utiliser une requête avec une jointure pour inclure le nom de la classe
+      const query = `
+        SELECT s.*, c.name as className 
+        FROM students s
+        LEFT JOIN classes c ON s.classId = c.id
+        ORDER BY s.created_at DESC
+      `;
+      
+      db.all(query, [], (err, rows) => {
+        if (err) {
+          console.error('Erreur lors de la récupération des étudiants récents:', err);
+          reject(err);
+        } else {
+          // Convertir la limite en nombre sécuritaire et limiter les résultats en JavaScript
+          let limitNum = 5; // Valeur par défaut
+          try {
+            if (limit) {
+              const parsed = parseInt(limit, 10);
+              if (!isNaN(parsed) && parsed > 0) {
+                limitNum = parsed;
+              }
+            }
+          } catch (e) {
+            console.log('Erreur lors de la conversion de limit:', e);
+          }
+          
+          console.log(`Récupération de ${limitNum} étudiants récents sur ${rows.length} trouvés`);
+          
+          // Limiter les résultats à la limite spécifiée
+          const limitedRows = rows.slice(0, limitNum);
+          resolve(limitedRows);
         }
-        
-        console.log(`Récupération de ${limitNum} étudiants récents sur ${rows.length} trouvés`);
-        
-        // Limiter les résultats à la limite spécifiée
-        const limitedRows = rows.slice(0, limitNum);
-        resolve(limitedRows);
-      }
+      });
     });
   });
-});
+
+  // Synchronisation étudiants avec Supabase
+  async function syncLocalStudentsToSupabase() {
+    return new Promise((resolve, reject) => {
+      db.all('SELECT * FROM students WHERE is_synced = 0 AND is_deleted = 0', async (err, rows) => {
+        if (err) return reject(err);
+        for (const student of rows) {
+          const payload = {
+            name: student.lastName,
+            first_name: student.firstName,
+            genre: student.genre || null,
+            birth_date: student.dateOfBirth || null,
+            picture_url: null,
+            class_id: student.supabase_class_id || null, // à mapper si besoin
+            school_id: '<votre-id-ecole-fixe>', // à remplacer
+            enrollment_date: student.enrollmentDate || null,
+            status: student.status,
+            parent_info: student.parentInfo ? JSON.parse(student.parentInfo) : null,
+            sqlite_id: student.id,
+            is_synced: true,
+            last_modified: new Date().toISOString(),
+            is_deleted: false
+          };
+          let result;
+          if (student.supabase_id) {
+            result = await supabase
+              .from('students')
+              .update(payload)
+              .eq('id', student.supabase_id)
+              .select();
+          } else {
+            result = await supabase
+              .from('students')
+              .insert([payload])
+              .select();
+          }
+          if (result.error) {
+            console.error('Erreur de sync student:', result.error);
+            continue;
+          }
+          const supaId = result.data[0].id;
+          db.run('UPDATE students SET supabase_id = ?, is_synced = 1 WHERE id = ?', [supaId, student.id]);
+        }
+        resolve();
+      });
+    });
+  }
+
+  async function syncSupabaseStudentsToLocal(lastSyncDate) {
+    const { data, error } = await supabase
+      .from('students')
+      .select('*')
+      .gt('last_modified', lastSyncDate);
+    if (error) {
+      console.error('Erreur récupération Supabase:', error);
+      return;
+    }
+    for (const remote of data) {
+      db.get('SELECT * FROM students WHERE id = ? OR supabase_id = ?', [remote.sqlite_id, remote.id], (err, local) => {
+        if (err) return;
+        if (local) {
+          db.run(
+            `UPDATE students SET \
+              firstName = ?, lastName = ?, email = ?, phone = ?, dateOfBirth = ?, address = ?, \
+              enrollmentDate = ?, status = ?, classId = ?, parentInfo = ?, is_synced = 1, supabase_id = ?\
+             WHERE id = ?`,
+            [
+              remote.first_name, remote.name, null, remote.phone, remote.birth_date, null,
+              remote.enrollment_date, remote.status, null, JSON.stringify(remote.parent_info), remote.id,
+              local.id
+            ]
+          );
+        } else {
+          db.run(
+            `INSERT INTO students (
+              firstName, lastName, email, phone, dateOfBirth, address, 
+              enrollmentDate, status, classId, parentInfo, is_synced, supabase_id
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 1, ?)`,
+            [
+              remote.first_name, remote.name, null, remote.phone, remote.birth_date, null,
+              remote.enrollment_date, remote.status, null, JSON.stringify(remote.parent_info), remote.id
+            ]
+          );
+        }
+      });
+    }
+  }
+
+  ipcMain.handle('sync:students', async () => {
+    return new Promise((resolve, reject) => {
+      db.get('SELECT last_sync FROM sync_status WHERE table_name = "students"', async (err, row) => {
+        const lastSync = row ? row.last_sync : '1970-01-01T00:00:00Z';
+        await syncLocalStudentsToSupabase();
+        await syncSupabaseStudentsToLocal(lastSync);
+        const now = new Date().toISOString();
+        db.run('INSERT OR REPLACE INTO sync_status (table_name, last_sync) VALUES (?, ?)', ['students', now], (err2) => {
+          if (err2) reject(err2);
+          else resolve({ success: true });
+        });
+      });
+    });
+  });
 }
 
 module.exports = {

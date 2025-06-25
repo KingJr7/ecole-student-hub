@@ -42,32 +42,48 @@ import {
 } from "lucide-react"
 
 interface Class {
-  id: number
+  id: string
   name: string
   students?: Student[]
   subjects?: Subject[]
+  supabase_id?: string
+  sqlite_id?: number
+  is_synced?: boolean
+  is_deleted?: boolean
+  last_modified?: string
 }
 
 interface Student {
-  id: number
+  id: string
   firstName: string
   lastName: string
   className: string
+  classId?: string
+  supabase_id?: string
+  sqlite_id?: number
+  is_synced?: boolean
+  is_deleted?: boolean
+  last_modified?: string
 }
 
 interface Subject {
-  id: number
+  id: string
   name: string
-  teacherId: number
+  teacherId: string
   teacherName?: string
   coefficient: number
-  classId: number
+  classId: string
   hoursPerWeek?: number
   subjectName?: string
+  supabase_id?: string
+  sqlite_id?: number
+  is_synced?: boolean
+  is_deleted?: boolean
+  last_modified?: string
 }
 
 interface Teacher {
-  id: number
+  id: string
   firstName: string
   lastName: string
   email: string
@@ -75,6 +91,11 @@ interface Teacher {
   address?: string
   hourlyRate?: number
   speciality?: string
+  supabase_id?: string
+  sqlite_id?: number
+  is_synced?: boolean
+  is_deleted?: boolean
+  last_modified?: string
 }
 
 export default function Classes() {
@@ -125,7 +146,7 @@ export default function Classes() {
       const classesWithSubjects = await Promise.all(
         classesData.map(async (cls) => {
           try {
-            const subjects = await getClassSubjects(cls.id)
+            const subjects = await getClassSubjects(cls.id as string)
             console.log(`Classes: ${subjects.length} matières chargées pour la classe ${cls.name}`)
             return { ...cls, subjects }
           } catch (error) {
@@ -141,7 +162,8 @@ export default function Classes() {
         const studentClass = classesData.find(c => c.id === student.classId)
         return {
           ...student,
-          className: studentClass?.name || ''
+          className: studentClass?.name || '',
+          classId: student.classId
         }
       })
       
@@ -185,13 +207,13 @@ export default function Classes() {
   }
 
   // Fonction pour supprimer toutes les matières d'une classe
-  const deleteAllSubjectsForClass = async (classId: number) => {
+  const deleteAllSubjectsForClass = async (classId: string) => {
     try {
       // Récupérer les matières existantes
-      const subjects = await getClassSubjects(classId);
+      const subjects = await getClassSubjects(classId as string);
       // Supprimer chaque matière
       for (const subject of subjects) {
-        await deleteClassSubject(subject.id);
+        await deleteClassSubject(subject.id as string);
       }
       return true;
     } catch (error) {
@@ -225,7 +247,8 @@ export default function Classes() {
               name: subject.name,
               classId,
               coefficient: subject.coefficient,
-              hoursPerWeek: subject.hoursPerWeek || 0
+              teacherId: subject.teacherId,
+              ...(subject.hoursPerWeek !== undefined ? { hoursPerWeek: subject.hoursPerWeek } : {})
             });
           } catch (error) {
             console.error(`Erreur lors de l'ajout de la matière ${subject.name}:`, error);
@@ -258,10 +281,10 @@ export default function Classes() {
     try {
       await createSubject({
         name: currentSubject.name || '',
-        classId: currentClass.id || 0,
+        classId: currentClass.id || '',
         coefficient: currentSubject.coefficient || 1,
         teacherId: currentSubject.teacherId,
-        hoursPerWeek: currentSubject.hoursPerWeek || 0
+        ...(currentSubject.hoursPerWeek !== undefined ? { hoursPerWeek: currentSubject.hoursPerWeek } : {})
       });
       
       toast({
@@ -285,7 +308,7 @@ export default function Classes() {
     return students.filter(student => student.className === className).length
   }
 
-  const getSubjectCount = (classId: number) => {
+  const getSubjectCount = (classId: string) => {
     return subjects.filter(subject => subject.classId === classId).length
   }
 
@@ -478,15 +501,15 @@ export default function Classes() {
                   </div>
                 ) : (
                   <Select
-                    onValueChange={(value) => setCurrentSubject({ ...currentSubject, teacherId: Number(value) })}
-                    value={currentSubject.teacherId ? String(currentSubject.teacherId) : undefined}
+                    onValueChange={(value) => setCurrentSubject({ ...currentSubject, teacherId: value })}
+                    value={currentSubject.teacherId || ''}
                   >
                     <SelectTrigger>
                       <SelectValue placeholder="Sélectionnez un professeur" />
                     </SelectTrigger>
                     <SelectContent>
                       {teachers.map((teacher) => (
-                        <SelectItem key={teacher.id} value={String(teacher.id)}>
+                        <SelectItem key={teacher.id} value={teacher.id}>
                           {teacher.firstName} {teacher.lastName}
                         </SelectItem>
                       ))}

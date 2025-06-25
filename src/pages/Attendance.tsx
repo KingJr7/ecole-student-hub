@@ -26,23 +26,38 @@ import StudentSearchSelect from "@/components/StudentSearchSelect";
 import { useToast } from "@/components/ui/use-toast";
 
 interface Attendance {
-  id: number;
-  studentId: number;
+  id: string;
+  studentId: string;
   date: string;
   status: string;
   notes?: string;
+  supabase_id?: string;
+  sqlite_id?: number;
+  is_synced?: boolean;
+  is_deleted?: boolean;
+  last_modified?: string;
 }
 
 interface Student {
-  id: number;
+  id: string;
   firstName: string;
   lastName: string;
-  classId: number;
+  classId: string;
+  supabase_id?: string;
+  sqlite_id?: number;
+  is_synced?: boolean;
+  is_deleted?: boolean;
+  last_modified?: string;
 }
 
 interface Class {
-  id: number;
+  id: string;
   name: string;
+  supabase_id?: string;
+  sqlite_id?: number;
+  is_synced?: boolean;
+  is_deleted?: boolean;
+  last_modified?: string;
 }
 
 const Attendance = () => {
@@ -106,7 +121,7 @@ const [selectedStatusFilter, setSelectedStatusFilter] = useState<string>("all");
     }
   };
 
-  const getStudentName = (studentId: number) => {
+  const getStudentName = (studentId: string) => {
     const student = students.find(s => s.id === studentId);
     return student ? `${student.firstName} ${student.lastName}` : "Étudiant inconnu";
   };
@@ -124,7 +139,7 @@ const [selectedStatusFilter, setSelectedStatusFilter] = useState<string>("all");
   const filteredStudents = students.filter(student => {
     const fullName = `${student.firstName} ${student.lastName}`.toLowerCase();
     const matchesSearch = fullName.includes(searchQuery.toLowerCase());
-    const matchesClass = selectedClass === "all" || student.classId === parseInt(selectedClass);
+    const matchesClass = selectedClass === "all" || student.classId === selectedClass;
     const attendance = attendances.find(a => a.studentId === student.id && a.date === selectedDate);
     let matchesStatus = true;
     if (selectedStatusFilter === "present") {
@@ -135,7 +150,7 @@ const [selectedStatusFilter, setSelectedStatusFilter] = useState<string>("all");
     return matchesSearch && matchesClass && matchesStatus;
   });
 
-  const getAttendanceForStudent = (studentId: number) => {
+  const getAttendanceForStudent = (studentId: string) => {
     return attendances.find(a => 
       a.studentId === studentId && 
       a.date === selectedDate
@@ -185,7 +200,7 @@ const [selectedStatusFilter, setSelectedStatusFilter] = useState<string>("all");
             <SelectContent>
               <SelectItem value="all">Toutes les classes</SelectItem>
               {classes.map((cls) => (
-                <SelectItem key={cls.id} value={cls.id.toString()}>
+                <SelectItem key={cls.id} value={cls.id}>
                   {cls.name}
                 </SelectItem>
               ))}
@@ -248,7 +263,7 @@ const [selectedStatusFilter, setSelectedStatusFilter] = useState<string>("all");
               <div className="grid gap-2">
                 <Label>Étudiant</Label>
                 <Input
-                  value={getStudentName(currentAttendance.studentId || 0)}
+                  value={getStudentName(currentAttendance.studentId || "")}
                   disabled
                 />
               </div>

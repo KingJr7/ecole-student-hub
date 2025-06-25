@@ -36,6 +36,40 @@ import {
   TableRow,
 } from "@/components/ui/table";
 
+// Types adaptés pour UUID
+interface Payment {
+  id: string;
+  studentId: string;
+  amount: number;
+  date: string;
+  type: string;
+  status: string;
+  notes?: string;
+  currency: string;
+  printCount?: number;
+  month?: string;
+  created_at?: string;
+  supabase_id?: string;
+  sqlite_id?: number;
+  is_synced?: boolean;
+  is_deleted?: boolean;
+  last_modified?: string;
+}
+
+interface Student {
+  id: string;
+  firstName: string;
+  lastName: string;
+  classId: string;
+  className?: string;
+  parentInfo?: any;
+  supabase_id?: string;
+  sqlite_id?: number;
+  is_synced?: boolean;
+  is_deleted?: boolean;
+  last_modified?: string;
+}
+
 // Helper to format YYYY-MM to 'Mois AAAA' in French
 const formatMonthYear = (ym: string) => {
   if (!ym || ym.length !== 7) return "-";
@@ -55,7 +89,7 @@ const Payments = () => {
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [isReceiptDialogOpen, setIsReceiptDialogOpen] = useState(false);
   const [currentPayment, setCurrentPayment] = useState<Partial<Payment>>({});
-  const [paymentToDelete, setPaymentToDelete] = useState<number | null>(null);
+  const [paymentToDelete, setPaymentToDelete] = useState<string | null>(null);
   const [payments, setPayments] = useState<Payment[]>([]);
   const [students, setStudents] = useState<Student[]>([]);
   const [loading, setLoading] = useState(true);
@@ -147,7 +181,7 @@ const Payments = () => {
     setIsDialogOpen(true);
   };
 
-  const handleOpenDeleteDialog = (paymentId: number) => {
+  const handleOpenDeleteDialog = (paymentId: string) => {
     setPaymentToDelete(paymentId);
     setIsDeleteDialogOpen(true);
   };
@@ -299,7 +333,7 @@ const Payments = () => {
     }
   };
 
-  const getStudentName = (studentId: number): string => {
+  const getStudentName = (studentId: string): string => {
     const student = students.find((s) => s.id === studentId);
     return student ? `${student.firstName} ${student.lastName}` : "Étudiant inconnu";
   };
@@ -346,7 +380,7 @@ const Payments = () => {
   };
 
   // Fonction helper pour déterminer si un étudiant a des paiements manquants pour les mois précédents
-  const hasOverduePayments = (studentId: number): boolean => {
+  const hasOverduePayments = (studentId: string): boolean => {
     if (!availableMonths.length) return false;
     
     // Trier les mois disponibles en ordre chronologique

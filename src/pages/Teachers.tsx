@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useForm, SubmitHandler } from "react-hook-form";
@@ -77,17 +76,31 @@ const teacherFormSchema = z.object({
   ),
 });
 
-type TeacherFormValues = z.infer<typeof teacherFormSchema>;
+type TeacherFormValues = {
+  id?: string;
+  firstName: string;
+  lastName: string;
+  email: string;
+  phone: string;
+  address?: string;
+  speciality?: string;
+  hourlyRate: number;
+  supabase_id?: string;
+  sqlite_id?: number;
+  is_synced?: boolean;
+  is_deleted?: boolean;
+  last_modified?: string;
+};
 
 // Schéma du formulaire d'ajout d'heures travaillées
 const workHoursFormSchema = z.object({
-  teacherId: z.number(),
+  teacherId: z.string(),
   hours: z.preprocess(
     (val) => (val === "" ? 0 : Number(val)),
     z.number().min(0.5, "Le nombre d'heures doit être d'au moins 0.5")
   ),
   // La date et l'heure sont automatiquement celles du moment de l'enregistrement
-  subjectId: z.number().optional(),
+  subjectId: z.string().optional(),
   notes: z.string().optional(),
 });
 
@@ -151,7 +164,7 @@ const Teachers = () => {
   });
 
   const updateTeacherMutation = useMutation({
-    mutationFn: ({ id, data }: { id: number; data: Partial<Teacher> }) => 
+    mutationFn: ({ id, data }: { id: string; data: Partial<Teacher> }) => 
       updateTeacher(id, data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["teachers"] });
@@ -229,7 +242,7 @@ const Teachers = () => {
   const workHoursForm = useForm<WorkHoursFormValues>({
     resolver: zodResolver(workHoursFormSchema),
     defaultValues: {
-      teacherId: 0,
+      teacherId: "",
       hours: 0,
       notes: "",
     },
@@ -280,7 +293,7 @@ const Teachers = () => {
     setOpenTeacherDialog(true);
   };
 
-  const handleDeleteTeacher = (id: number) => {
+  const handleDeleteTeacher = (id: string) => {
     if (confirm("Êtes-vous sûr de vouloir supprimer ce professeur ?")) {
       deleteTeacherMutation.mutate(id);
     }
@@ -312,7 +325,7 @@ const Teachers = () => {
   };
 
   // Fonctions utilitaires
-  const getSubjectName = (subjectId?: number) => {
+  const getSubjectName = (subjectId?: string) => {
     if (!subjectId) return "N/A";
     // Utiliser teacherSubjects au lieu de subjects
     const subject = teacherSubjects.find(s => s.id === subjectId);
@@ -819,8 +832,8 @@ const Teachers = () => {
                   <FormItem>
                     <FormLabel>Matière</FormLabel>
                     <Select 
-                      onValueChange={(value) => field.onChange(Number(value))}
-                      defaultValue={field.value?.toString()}
+                      onValueChange={(value) => field.onChange(value)}
+                      defaultValue={field.value}
                     >
                       <FormControl>
                         <SelectTrigger>
@@ -829,7 +842,7 @@ const Teachers = () => {
                       </FormControl>
                       <SelectContent>
                         {getTeacherSubjects().map((subject) => (
-                          <SelectItem key={subject.id} value={subject.id.toString()}>
+                          <SelectItem key={subject.id} value={subject.id}>
                             {subject.name} {subject.className && ` - ${subject.className}`}
                           </SelectItem>
                         ))}

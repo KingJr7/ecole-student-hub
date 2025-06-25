@@ -22,7 +22,7 @@ export function useDatabase() {
     }
   }, [])
 
-  const updateClass = useCallback(async (id: number, data: { name: string }) => {
+  const updateClass = useCallback(async (id: string, data: { name: string }) => {
     try {
       return await ipcRenderer.invoke('db:classes:update', { id, data })
     } catch (error) {
@@ -31,7 +31,7 @@ export function useDatabase() {
     }
   }, [])
 
-  const deleteClass = useCallback(async (id: number) => {
+  const deleteClass = useCallback(async (id: string) => {
     try {
       return await ipcRenderer.invoke('db:classes:delete', id)
     } catch (error) {
@@ -59,7 +59,8 @@ export function useDatabase() {
     address: string
     enrollmentDate: string
     status: string
-    classId: number
+    classId: string
+    parentInfo?: any
   }) => {
     try {
       return await ipcRenderer.invoke('db:students:create', data)
@@ -69,7 +70,7 @@ export function useDatabase() {
     }
   }, [])
 
-  const updateStudent = useCallback(async (id: number, data: {
+  const updateStudent = useCallback(async (id: string, data: {
     firstName?: string
     lastName?: string
     email?: string
@@ -78,7 +79,8 @@ export function useDatabase() {
     address?: string
     enrollmentDate?: string
     status?: string
-    classId?: number
+    classId?: string
+    parentInfo?: any
   }) => {
     try {
       return await ipcRenderer.invoke('db:students:update', { id, data })
@@ -88,7 +90,7 @@ export function useDatabase() {
     }
   }, [])
 
-  const deleteStudent = useCallback(async (id: number) => {
+  const deleteStudent = useCallback(async (id: string) => {
     try {
       return await ipcRenderer.invoke('db:students:delete', id)
     } catch (error) {
@@ -112,11 +114,32 @@ export function useDatabase() {
     lastName: string
     email: string
     phone: string
+    address?: string
+    hourlyRate?: number
+    speciality?: string
   }) => {
     try {
       return await ipcRenderer.invoke('db:teachers:create', data)
     } catch (error) {
       console.error('Erreur lors de la création du professeur:', error)
+      throw error
+    }
+  }, [])
+
+  const updateTeacher = useCallback(async (id: string, data: any) => {
+    try {
+      return await ipcRenderer.invoke('db:teachers:update', { id, ...data })
+    } catch (error) {
+      console.error('Erreur lors de la mise à jour du professeur:', error)
+      throw error
+    }
+  }, [])
+
+  const deleteTeacher = useCallback(async (id: string) => {
+    try {
+      return await ipcRenderer.invoke('db:teachers:delete', id)
+    } catch (error) {
+      console.error('Erreur lors de la suppression du professeur:', error)
       throw error
     }
   }, [])
@@ -133,9 +156,10 @@ export function useDatabase() {
 
   const createSubject = useCallback(async (data: {
     name: string
-    classId: number
-    teacherId: number
+    classId: string
+    teacherId: string
     coefficient: number
+    hoursPerWeek?: number
   }) => {
     try {
       return await ipcRenderer.invoke('db:subjects:create', data)
@@ -156,14 +180,13 @@ export function useDatabase() {
   }, [])
 
   const createGrade = useCallback(async (data: {
-    studentId: number
-    subject: string
-    score: number
-    date: string
-    notes?: string
-    evaluationType?: string
+    studentId: string
+    subjectId: string
+    value: number
     term?: string
+    evaluationType?: string
     coefficient?: number
+    notes?: string
   }) => {
     try {
       return await ipcRenderer.invoke('db:grades:create', data)
@@ -173,25 +196,24 @@ export function useDatabase() {
     }
   }, [])
 
-  const updateGrade = useCallback(async (id: number, data: {
-    studentId?: number
-    subject?: string
-    score?: number
-    date?: string
-    notes?: string
-    evaluationType?: string
+  const updateGrade = useCallback(async (id: string, data: {
+    studentId?: string
+    subjectId?: string
+    value?: number
     term?: string
+    evaluationType?: string
     coefficient?: number
+    notes?: string
   }) => {
     try {
-      return await ipcRenderer.invoke('db:grades:update', { id, data })
+      return await ipcRenderer.invoke('db:grades:update', { id, ...data })
     } catch (error) {
       console.error('Erreur lors de la mise à jour de la note:', error)
       throw error
     }
   }, [])
 
-  const deleteGrade = useCallback(async (id: number) => {
+  const deleteGrade = useCallback(async (id: string) => {
     try {
       return await ipcRenderer.invoke('db:grades:delete', id)
     } catch (error) {
@@ -220,7 +242,7 @@ export function useDatabase() {
   }, [])
 
   const createAttendance = useCallback(async (data: {
-    studentId: number
+    studentId: string
     date: string
     status: string
     notes?: string
@@ -273,13 +295,14 @@ export function useDatabase() {
   }, [])
 
   const createPayment = useCallback(async (data: {
-    studentId: number
+    studentId: string
     amount: number
     date: string
     type: string
     status: string
     notes?: string
     currency?: string
+    month?: string
   }) => {
     try {
       return await ipcRenderer.invoke('db:payments:create', data)
@@ -289,16 +312,17 @@ export function useDatabase() {
     }
   }, [])
 
-  const updatePayment = useCallback(async (id: number, data: {
+  const updatePayment = useCallback(async (id: string, data: {
     data: {
-      studentId?: number
+      studentId?: string
       amount?: number
       date?: string
       type?: string
       status?: string
       notes?: string
       currency?: string
-      [key: string]: any  // Pour permettre d'autres propriétés comme 'month'
+      month?: string
+      [key: string]: any
     }
   }) => {
     try {
@@ -309,7 +333,7 @@ export function useDatabase() {
     }
   }, [])
 
-  const deletePayment = useCallback(async (id: number) => {
+  const deletePayment = useCallback(async (id: string) => {
     try {
       return await ipcRenderer.invoke('db:payments:delete', id)
     } catch (error) {
@@ -319,7 +343,7 @@ export function useDatabase() {
   }, [])
 
   // Incrementer le compteur d'impressions d'un reçu de paiement
-  const incrementPrintCount = useCallback(async (id: number) => {
+  const incrementPrintCount = useCallback(async (id: string) => {
     try {
       return await ipcRenderer.invoke('db:payments:incrementPrintCount', id)
     } catch (error) {
@@ -329,7 +353,7 @@ export function useDatabase() {
   }, [])
 
   // Gestion des matières par classe
-  const getClassSubjects = useCallback(async (classId: number) => {
+  const getClassSubjects = useCallback(async (classId: string) => {
     try {
       return await ipcRenderer.invoke('db:classSubjects:getAll', classId)
     } catch (error) {
@@ -338,7 +362,7 @@ export function useDatabase() {
     }
   }, [])
 
-  const addClassSubject = useCallback(async (classId: number, subjectName: string, coefficient: number, hoursPerWeek?: number) => {
+  const addClassSubject = useCallback(async (classId: string, subjectName: string, coefficient: number, hoursPerWeek?: number) => {
     try {
       return await ipcRenderer.invoke('db:classSubjects:add', { classId, subjectName, coefficient, hoursPerWeek })
     } catch (error) {
@@ -347,7 +371,7 @@ export function useDatabase() {
     }
   }, [])
 
-  const deleteClassSubject = useCallback(async (id: number) => {
+  const deleteClassSubject = useCallback(async (id: string) => {
     try {
       return await ipcRenderer.invoke('db:classSubjects:delete', id)
     } catch (error) {
@@ -357,7 +381,7 @@ export function useDatabase() {
   }, [])
 
   // Modifier une matière d'une classe
-  const updateClassSubject = useCallback(async (id: number, subjectName: string, coefficient: number) => {
+  const updateClassSubject = useCallback(async (id: string, subjectName: string, coefficient: number) => {
     try {
       return await ipcRenderer.invoke('db:classSubjects:update', { id, subjectName, coefficient })
     } catch (error) {
@@ -383,6 +407,8 @@ export function useDatabase() {
     // Professeurs
     getAllTeachers,
     createTeacher,
+    updateTeacher,
+    deleteTeacher,
     // Matières
     getClassSubjects,
     addClassSubject,
