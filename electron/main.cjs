@@ -2,7 +2,8 @@ const { app, BrowserWindow, ipcMain } = require('electron')
 const path = require('path')
 const { autoUpdater } = require('electron-updater')
 const { setupDatabaseIPC } = require('./ipc/database.cjs')
-const { setupActivationIPC } = require('./ipc/activation.cjs')
+const { setupAuthIPC } = require('./ipc/auth.cjs')
+const { setupSyncIPC } = require('./ipc/sync.cjs')
 
 // Définir l'environnement par défaut si non spécifié
 if (!process.env.NODE_ENV) {
@@ -172,11 +173,9 @@ function setupAutoUpdater() {
 
 app.whenReady().then(() => {
   // Configuration des IPC pour la base de données
-  setupDatabaseIPC()
-  
-  // Configuration des IPC pour l'activation
-  setupActivationIPC()
-  
+  const db = setupDatabaseIPC();
+  setupAuthIPC(db);
+  setupSyncIPC();
   // Configurer les mises à jour automatiques
   setupAutoUpdater();
   

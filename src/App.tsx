@@ -14,45 +14,30 @@ import Grades from "./pages/Grades";
 import Teachers from "./pages/Teachers";
 import NotFound from "./pages/NotFound";
 import Settings from "./pages/Settings";
-import Activation from "./pages/Activation";
 import DefaultClasses from "./pages/DefaultClasses";
-import activationService from "./lib/activationService";
+import Login from "./pages/Login";
+import { authService } from "./lib/authService";
 
 const queryClient = new QueryClient();
 
-// Composant de protection des routes pour vérifier l'activation
-const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
-  const [isActivated, setIsActivated] = useState<boolean | null>(null);
-  const [loading, setLoading] = useState(true);
+const ProtectedRoute = ({ children }) => {
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    const checkActivation = async () => {
-      const activated = await activationService.verifyActivation();
-      setIsActivated(activated);
-      setLoading(false);
+    const checkAuth = async () => {
+      const status = await authService.getStatus();
+      setIsAuthenticated(status.loggedIn);
+      setIsLoading(false);
     };
-
-    checkActivation();
+    checkAuth();
   }, []);
 
-  if (loading) {
-    // Afficher un écran de chargement
-    return (
-      <div className="flex items-center justify-center h-screen">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary mx-auto"></div>
-          <p className="mt-4">Vérification de l'activation...</p>
-        </div>
-      </div>
-    );
+  if (isLoading) {
+    return <div>Chargement...</div>; // Ou un spinner
   }
 
-  // Si l'application n'est pas activée, rediriger vers la page d'activation
-  if (!isActivated) {
-    return <Navigate to="/activation" replace />;
-  }
-
-  return <>{children}</>;
+  return isAuthenticated ? children : <Navigate to="/login" replace />;
 };
 
 const App = () => (
@@ -62,10 +47,10 @@ const App = () => (
       <Sonner />
       <HashRouter>
         <Routes>
-          {/* Routes accessibles sans protection */}
-          <Route path="/activation" element={<Activation />} />
+          {/* Routes publiques */}
+          <Route path="/login" element={<Login />} />
           <Route path="/default-classes" element={<DefaultClasses />} />
-          
+
           {/* Routes protégées */}
           <Route path="/" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
           <Route path="/students" element={<ProtectedRoute><Students /></ProtectedRoute>} />
