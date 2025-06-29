@@ -3,11 +3,17 @@ const { ipcMain } = require('electron');
 const { createClient } = require('@supabase/supabase-js');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
-const { runSync } = require('./sync');
+const { runSync } = require('./sync.cjs');
 
 const supabase = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_ANON_KEY);
 
+let isAuthIpcSetup = false;
+
 function setupAuthIPC(db) {
+  if (isAuthIpcSetup) {
+    return;
+  }
+  isAuthIpcSetup = true;
   ipcMain.handle('auth:login', async (event, { email, password }) => {
     try {
       const { data: user, error: userError } = await supabase

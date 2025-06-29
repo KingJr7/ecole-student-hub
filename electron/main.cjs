@@ -1,7 +1,6 @@
 const { app, BrowserWindow, ipcMain } = require('electron')
 const path = require('path')
-const { autoUpdater } = require('electron-updater')
-const { setupDatabaseIPC } = require('./ipc/database.cjs')
+const { initializeDatabase, setupDatabaseIPC } = require('./ipc/database.cjs')
 const { setupAuthIPC } = require('./ipc/auth.cjs')
 const { setupSyncIPC } = require('./ipc/sync.cjs')
 
@@ -13,6 +12,7 @@ if (!process.env.NODE_ENV) {
 // Activer le logging pour le débogage en production
 const isDev = process.env.NODE_ENV === 'development';
 console.log(`Application démarrée en mode: ${process.env.NODE_ENV}`);
+
 
 
 function createWindow() {
@@ -192,4 +192,26 @@ app.on('window-all-closed', () => {
   if (process.platform !== 'darwin') {
     app.quit()
   }
-}) 
+})
+
+app.whenReady().then(() => {
+  // Initialiser la base de données et les gestionnaires IPC
+  const db = initializeDatabase();
+  setupDatabaseIPC(db);
+  setupAuthIPC(db);
+  setupSyncIPC(db);
+
+  createWindow()
+
+  app.on('activate', () => {
+    if (BrowserWindow.getAllWindows().length === 0) {
+      createWindow()
+    }
+  })
+
+  // Lancer la vérification des mises à jour
+  if (process.env.NODE_ENV !== 'development') {
+    const { autoUpdater } = require('electron-updater');
+    autoUpdater.checkForUpdatesAndNotify();
+  }
+}); 
