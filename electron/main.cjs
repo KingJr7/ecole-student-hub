@@ -181,6 +181,46 @@ app.whenReady().then(() => {
   
   createWindow()
 
+  // --- Synchronisation automatique au démarrage si internet disponible ---
+  const sqlite3 = require('sqlite3').verbose();
+  const { net } = require('electron');
+
+  function checkInternetConnection() {
+    return new Promise((resolve) => {
+      const request = net.request('https://supabase.io');
+      request.on('response', () => resolve(true));
+      request.on('error', () => resolve(false));
+      request.end();
+    });
+  }
+
+  async function autoSyncIfOnline() {
+    const dbPath = require('path').join(__dirname, '../database.sqlite');
+    const db = new sqlite3.Database(dbPath);
+    db.get('SELECT schoolId, userToken FROM settings WHERE id = 1', async (err, row) => {
+      if (err || !row || !row.schoolId || !row.userToken) {
+        console.log('Impossible de lancer la synchro auto : infos manquantes.');
+        db.close();
+        return;
+      }
+      const online = await checkInternetConnection();
+      if (online) {
+        const { BrowserWindow } = require('electron');
+        const win = BrowserWindow.getAllWindows()[0];
+        if (win) {
+          win.webContents.send('sync:auto:start'); // Pour feedback UI éventuel
+          win.webContents.send('sync:run:trigger', { schoolId: row.schoolId, token: row.userToken });
+          console.log('Synchronisation automatique déclenchée au démarrage.');
+        }
+      } else {
+        console.log('Pas de connexion internet, synchro auto non lancée.');
+      }
+      db.close();
+    });
+  }
+
+  setTimeout(autoSyncIfOnline, 2000); // Petit délai pour laisser l'UI se charger
+
   app.on('activate', () => {
     if (BrowserWindow.getAllWindows().length === 0) {
       createWindow()
