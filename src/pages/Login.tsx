@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { authService } from '../lib/authService';
+import { useAuth } from '../context/AuthContext';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -12,16 +12,13 @@ const Login = () => {
   const [password, setPassword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
+  const { login, user } = useAuth();
 
   useEffect(() => {
-    const checkStatus = async () => {
-      const status = await authService.getStatus();
-      if (status.loggedIn) {
-        navigate('/dashboard');
-      }
-    };
-    checkStatus();
-  }, [navigate]);
+    if (user) {
+      navigate('/dashboard');
+    }
+  }, [user, navigate]);
 
   const handleLogin = async () => {
     if (!email || !password) {
@@ -30,7 +27,7 @@ const Login = () => {
     }
     setIsLoading(true);
     try {
-      const result = await authService.login(email, password);
+      const result = await login(email, password);
       if (result.success) {
         toast.success('Connexion réussie !');
         navigate('/dashboard');

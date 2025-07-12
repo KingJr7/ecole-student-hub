@@ -22,7 +22,7 @@ class AuthService {
     
     try {
       const { ipcRenderer } = window.require('electron');
-      return await ipcRenderer.invoke('auth:login', { email, password });
+      return await ipcRenderer.invoke('auth:login-local', { email, password });
     } catch (error) {
       console.error('Erreur de connexion:', error);
       return { success: false, message: 'Erreur de communication avec le processus principal.' };

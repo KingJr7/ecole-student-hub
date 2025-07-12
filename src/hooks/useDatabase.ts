@@ -172,7 +172,7 @@ export function useDatabase() {
   // Notes
   const getAllGrades = useCallback(async () => {
     try {
-      return await ipcRenderer.invoke('db:grades:getAll')
+      return await ipcRenderer.invoke('db:notes:getAll')
     } catch (error) {
       console.error('Erreur lors de la récupération des notes:', error)
       throw error
@@ -390,6 +390,117 @@ export function useDatabase() {
     }
   }, [])
 
+  // Leçons
+  const getLessons = useCallback(async (classId: string) => {
+    try {
+      return await ipcRenderer.invoke('db:lessons:getAll', classId)
+    } catch (error) {
+      console.error('Erreur lors de la récupération des leçons:', error)
+      throw error
+    }
+  }, [])
+
+  const createLesson = useCallback(async (data: { classId: string; subjectId: string; teacherId: string }) => {
+    try {
+      return await ipcRenderer.invoke('db:lessons:create', data)
+    } catch (error) {
+      console.error('Erreur lors de la création de la leçon:', error)
+      throw error
+    }
+  }, [])
+
+  const updateLesson = useCallback(async (id: string, data: { teacherId: string }) => {
+    try {
+      return await ipcRenderer.invoke('db:lessons:update', { id, data })
+    } catch (error) {
+      console.error('Erreur lors de la mise à jour de la leçon:', error)
+      throw error
+    }
+  }, [])
+
+  const deleteLesson = useCallback(async (id: string) => {
+    try {
+      return await ipcRenderer.invoke('db:lessons:delete', id)
+    } catch (error) {
+      console.error('Erreur lors de la suppression de la leçon:', error)
+      throw error
+    }
+  }, [])
+
+  // Horaires
+  const getSchedulesForLesson = useCallback(async (lessonId: string) => {
+    try {
+      return await ipcRenderer.invoke('db:schedules:getAll', lessonId)
+    } catch (error) {
+      console.error('Erreur lors de la récupération des horaires:', error)
+      throw error
+    }
+  }, [])
+
+  const createSchedule = useCallback(async (data: { lessonId: string; dayOfWeek: string; startTime: string; endTime: string }) => {
+    try {
+      return await ipcRenderer.invoke('db:schedules:create', data)
+    } catch (error) {
+      console.error('Erreur lors de la création de l\'horaire:', error)
+      throw error
+    }
+  }, [])
+
+  const updateSchedule = useCallback(async (id: string, data: { dayOfWeek: string; startTime: string; endTime: string }) => {
+    try {
+      return await ipcRenderer.invoke('db:schedules:update', { id, data })
+    } catch (error) {
+      console.error('Erreur lors de la mise à jour de l\'horaire:', error)
+      throw error
+    }
+  }, [])
+
+  const deleteSchedule = useCallback(async (id: string) => {
+    try {
+      return await ipcRenderer.invoke('db:schedules:delete', id)
+    } catch (error) {
+      console.error('Erreur lors de la suppression de l\'horaire:', error)
+      throw error
+    }
+  }, [])
+
+  // Notes
+  const getAllNotes = useCallback(async (lessonId: string) => {
+    try {
+      return await ipcRenderer.invoke('db:notes:getAll', lessonId)
+    } catch (error) {
+      console.error('Erreur lors de la récupération des notes:', error)
+      throw error
+    }
+  }, [])
+
+  const createNote = useCallback(async (data: { lessonId: string; studentId: string; value: number; type: string; quarter: number }) => {
+    try {
+      return await ipcRenderer.invoke('db:notes:create', data)
+    } catch (error) {
+      console.error('Erreur lors de la création de la note:', error)
+      throw error
+    }
+  }, [])
+
+  const updateNote = useCallback(async (id: string, data: { value: number; type: string; quarter: number }) => {
+    try {
+      return await ipcRenderer.invoke('db:notes:update', { id, data })
+    } catch (error) {
+      console.error('Erreur lors de la mise à jour de la note:', error)
+      throw error
+    }
+  }, [])
+
+  const deleteNote = useCallback(async (id: string) => {
+    try {
+      return await ipcRenderer.invoke('db:notes:delete', id)
+    } catch (error) {
+      console.error('Erreur lors de la suppression de la note:', error)
+      throw error
+    }
+  }, [])
+
   return {
     // Classes
     getAllClasses,
@@ -414,11 +525,26 @@ export function useDatabase() {
     addClassSubject,
     deleteClassSubject,
     updateClassSubject,
+    // Leçons
+    getLessons,
+    createLesson,
+    updateLesson,
+    deleteLesson,
+    // Horaires
+    getSchedulesForLesson,
+    createSchedule,
+    updateSchedule,
+    deleteSchedule,
+    // Notes
+    getAllNotes,
+    createNote,
+    updateNote,
+    deleteNote,
+    getClassResults,
     getAllGrades,
     createGrade,
     updateGrade,
     deleteGrade,
-    getClassResults,
     // Présences
     getAllAttendances,
     createAttendance,
@@ -431,6 +557,6 @@ export function useDatabase() {
     createPayment,
     updatePayment,
     deletePayment,
-    incrementPrintCount
+    incrementPrintCount,
   }
-} 
+}

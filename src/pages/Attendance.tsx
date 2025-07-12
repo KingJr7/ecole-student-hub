@@ -278,8 +278,8 @@ const [selectedStatusFilter, setSelectedStatusFilter] = useState<string>("all");
               <div className="grid gap-2">
                 <Label>Statut</Label>
                 <Select
-                  value={currentAttendance.status}
-                  onValueChange={(value) => setCurrentAttendance({ ...currentAttendance, status: value })}
+                  value={currentAttendance.state}
+                  onValueChange={(value) => setCurrentAttendance({ ...currentAttendance, state: value })}
                 >
                   <SelectTrigger>
                     <SelectValue placeholder="Sélectionner un statut" />

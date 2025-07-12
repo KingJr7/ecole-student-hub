@@ -1,6 +1,6 @@
 const { app, BrowserWindow, ipcMain } = require('electron')
 const path = require('path')
-const { initializeDatabase, setupDatabaseIPC } = require('./ipc/database.cjs')
+const { setupDatabaseIPC, prisma } = require('./ipc/database.cjs')
 const { setupAuthIPC } = require('./ipc/auth.cjs')
 const { setupSyncIPC } = require('./ipc/sync.cjs')
 
@@ -12,8 +12,6 @@ if (!process.env.NODE_ENV) {
 // Activer le logging pour le débogage en production
 const isDev = process.env.NODE_ENV === 'development';
 console.log(`Application démarrée en mode: ${process.env.NODE_ENV}`);
-
-
 
 function createWindow() {
   const win = new BrowserWindow({
@@ -117,7 +115,7 @@ function createWindow() {
 }
 
 // Configuration des mises à jour automatiques
-function setupAutoUpdater() {
+function setupAutoUpdater(autoUpdater) {
   // Désactiver les notifications manuelles et activer les mises à jour automatiques
   autoUpdater.autoDownload = true;
   autoUpdater.autoInstallOnAppQuit = true;
@@ -172,17 +170,20 @@ function setupAutoUpdater() {
 }
 
 app.whenReady().then(() => {
-  // Configuration des IPC pour la base de données
-  const db = setupDatabaseIPC();
-  setupAuthIPC(db);
-  setupSyncIPC();
+  // Initialiser la base de données et les gestionnaires IPC
+  setupDatabaseIPC(prisma); // Passer l'instance de prisma
+  setupAuthIPC(prisma); // Passer l'instance de prisma
+  setupSyncIPC(prisma); // Passer l'instance de prisma
+
   // Configurer les mises à jour automatiques
-  setupAutoUpdater();
+  if (process.env.NODE_ENV !== 'development') {
+    const { autoUpdater } = require('electron-updater');
+    setupAutoUpdater(autoUpdater);
+  }
   
   createWindow()
 
   // --- Synchronisation automatique au démarrage si internet disponible ---
-  const sqlite3 = require('sqlite3').verbose();
   const { net } = require('electron');
 
   function checkInternetConnection() {
@@ -195,31 +196,30 @@ app.whenReady().then(() => {
   }
 
   async function autoSyncIfOnline() {
-    const dbPath = require('path').join(__dirname, '../database.sqlite');
-    const db = new sqlite3.Database(dbPath);
-    db.get('SELECT schoolId, userToken FROM settings WHERE id = 1', async (err, row) => {
-      if (err || !row || !row.schoolId || !row.userToken) {
+    try {
+      const settings = await prisma.settings.findUnique({ where: { id: 1 } });
+      if (!settings || !settings.schoolId || !settings.loggedIn) {
         console.log('Impossible de lancer la synchro auto : infos manquantes.');
-        db.close();
         return;
       }
+
       const online = await checkInternetConnection();
       if (online) {
-        const { BrowserWindow } = require('electron');
         const win = BrowserWindow.getAllWindows()[0];
         if (win) {
-          win.webContents.send('sync:auto:start'); // Pour feedback UI éventuel
-          win.webContents.send('sync:run:trigger', { schoolId: row.schoolId, token: row.userToken });
+          win.webContents.send('sync:auto:start');
+          win.webContents.send('sync:run:trigger', { schoolId: settings.schoolId, token: null });
           console.log('Synchronisation automatique déclenchée au démarrage.');
         }
       } else {
         console.log('Pas de connexion internet, synchro auto non lancée.');
       }
-      db.close();
-    });
+    } catch (err) {
+      console.error('Erreur pendant la synchro auto:', err);
+    }
   }
 
-  setTimeout(autoSyncIfOnline, 2000); // Petit délai pour laisser l'UI se charger
+  setTimeout(() => autoSyncIfOnline(), 2000); // Petit délai pour laisser l'UI se charger
 
   app.on('activate', () => {
     if (BrowserWindow.getAllWindows().length === 0) {
@@ -233,25 +233,3 @@ app.on('window-all-closed', () => {
     app.quit()
   }
 })
-
-app.whenReady().then(() => {
-  // Initialiser la base de données et les gestionnaires IPC
-  const db = initializeDatabase();
-  setupDatabaseIPC(db);
-  setupAuthIPC(db);
-  setupSyncIPC(db);
-
-  createWindow()
-
-  app.on('activate', () => {
-    if (BrowserWindow.getAllWindows().length === 0) {
-      createWindow()
-    }
-  })
-
-  // Lancer la vérification des mises à jour
-  if (process.env.NODE_ENV !== 'development') {
-    const { autoUpdater } = require('electron-updater');
-    autoUpdater.checkForUpdatesAndNotify();
-  }
-}); 

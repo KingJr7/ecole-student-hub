@@ -34,6 +34,9 @@ export function useSyncAuto() {
     // Handler pour feedback de démarrage auto (optionnel)
     const handleSyncAutoStart = () => {
       toast({ title: "Synchronisation automatique", description: "Synchronisation automatique lancée au démarrage.", variant: "default" });
+      // On ne reçoit pas le token ici, il faut le récupérer depuis le stockage local
+      // ou attendre que l'utilisateur soit connecté.
+      // Pour l'instant, on ne fait rien de plus ici.
     };
 
     ipcRenderer.on("sync:run:trigger", handleSyncRun);

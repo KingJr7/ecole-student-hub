@@ -235,7 +235,7 @@ const Teachers = () => {
       phone: "",
       address: "",
       speciality: "",
-      hourlyRate: 0,
+      matricule: "",
     },
   });
 
@@ -308,7 +308,7 @@ const Teachers = () => {
       phone: "",
       address: "",
       speciality: "",
-      hourlyRate: 0,
+      matricule: "",
     });
     setOpenTeacherDialog(true);
   };
@@ -762,14 +762,13 @@ const Teachers = () => {
               
               <FormField
                 control={teacherForm.control}
-                name="hourlyRate"
+                name="matricule"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Taux horaire (FCFA)</FormLabel>
+                    <FormLabel>Matricule</FormLabel>
                     <FormControl>
-                      <Input type="number" min="0" step="100" {...field} />
+                      <Input placeholder="Matricule du professeur" {...field} />
                     </FormControl>
-                    <FormDescription>Montant payé par heure de travail</FormDescription>
                     <FormMessage />
                   </FormItem>
                 )}

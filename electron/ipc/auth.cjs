@@ -1,76 +1,91 @@
 require('dotenv').config();
 const { ipcMain } = require('electron');
 const { createClient } = require('@supabase/supabase-js');
-const bcrypt = require('bcrypt');
-const jwt = require('jsonwebtoken');
 const { runSync } = require('./sync.cjs');
+const bcrypt = require('bcrypt');
 
 const supabase = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_ANON_KEY);
 
 let isAuthIpcSetup = false;
 
-function setupAuthIPC(db) {
+function setupAuthIPC(prisma) {
   if (isAuthIpcSetup) {
     return;
   }
   isAuthIpcSetup = true;
-  ipcMain.handle('auth:login', async (event, { email, password }) => {
+
+  ipcMain.handle('auth:login-local', async (event, { email, password }) => {
+    console.log(`[AUTH] Tentative de connexion locale pour: ${email}`);
     try {
-      const { data: user, error: userError } = await supabase
+      // Étape 1: Récupérer l'utilisateur depuis Supabase
+      const { data: userData, error: userError } = await supabase
         .from('users')
-        .select('*')
+        .select('*, roles(name)')
         .eq('email', email)
         .single();
 
-      if (userError || !user) {
-        return { success: false, message: 'Utilisateur non trouvé.' };
+      if (userError || !userData) {
+        console.error('[AUTH] Erreur: Utilisateur non trouvé ou plusieurs utilisateurs avec cet email.', userError?.message);
+        return { success: false, message: "Email ou mot de passe incorrect." };
       }
 
-      const match = await bcrypt.compare(password, user.password_hash);
-      if (!match) {
-        return { success: false, message: 'Mot de passe incorrect.' };
+      // Étape 2: Vérifier le mot de passe avec bcrypt
+      const passwordMatches = await bcrypt.compare(password, userData.password_hash);
+
+      if (!passwordMatches) {
+        console.warn('[AUTH] Avertissement: Mot de passe incorrect pour l\'utilisateur:', email);
+        return { success: false, message: "Email ou mot de passe incorrect." };
       }
 
-      const { data: roleData, error: roleError } = await supabase
-        .from('roles')
-        .select('name')
-        .eq('id', user.role_id)
-        .single();
+      const roleName = userData.roles.name;
+      const schoolId = userData.school_id;
+      const schoolName = userData.school_name; // Assumant que school_name est dans la table users
 
-      if (roleError || !roleData) {
-        return { success: false, message: 'Rôle introuvable.' };
-      }
-
-      const token = jwt.sign({ id: user.id, email: user.email, role: roleData.name, school_id: user.school_id }, process.env.JWT_SECRET, { expiresIn: '7d' });
-
-      // Stocker l'état de connexion dans la base de données locale
-      db.run('UPDATE settings SET schoolName = ?, loggedIn = 1, userRole = ?, schoolId = ? WHERE id = 1', 
-        [user.school_name || 'École', roleData.name, user.school_id]);
-
-      // Lancer la synchronisation en arrière-plan
-      runSync(user.school_id, token).catch(err => {
-        console.error('Sync failed after login:', err);
+      // Étape 3: Mettre à jour la base de données locale
+      await prisma.settings.upsert({
+        where: { id: 1 },
+        update: {
+          schoolName: schoolName || 'École',
+          loggedIn: 1,
+          userRole: roleName,
+          schoolId: schoolId,
+          userToken: null, // Pas de token avec cette méthode
+        },
+        create: {
+          id: 1,
+          schoolName: schoolName || 'École',
+          loggedIn: 1,
+          userRole: roleName,
+          schoolId: schoolId,
+          userToken: null,
+        },
       });
 
-      return { success: true, token, role: roleData.name, school_id: user.school_id };
+      // Étape 4: Lancer la synchronisation (sans token)
+      console.log('[AUTH] Authentification locale réussie. Lancement de la synchronisation...');
+      runSync(prisma, schoolId, null).catch(err => {
+        console.error('La synchronisation a échoué après la connexion:', err);
+      });
+
+      return { success: true, role: roleName, school_id: schoolId };
+
     } catch (error) {
-      console.error('Erreur de connexion:', error);
+      console.error('Erreur de connexion inattendue:', error);
       return { success: false, message: 'Une erreur est survenue.' };
     }
   });
 
   ipcMain.handle('auth:logout', async () => {
-    db.run('UPDATE settings SET loggedIn = 0, userRole = NULL, schoolId = NULL WHERE id = 1');
+    await prisma.settings.update({
+      where: { id: 1 },
+      data: { loggedIn: 0, userRole: null, schoolId: null, userToken: null },
+    });
     return { success: true };
   });
 
   ipcMain.handle('auth:getStatus', async () => {
-    return new Promise((resolve, reject) => {
-      db.get('SELECT loggedIn, userRole, schoolId FROM settings WHERE id = 1', (err, row) => {
-        if (err) return reject(err);
-        resolve(row || { loggedIn: 0 });
-      });
-    });
+    const settings = await prisma.settings.findUnique({ where: { id: 1 } });
+    return settings || { loggedIn: 0 };
   });
 }
 

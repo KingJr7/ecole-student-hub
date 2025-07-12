@@ -594,23 +594,22 @@ const Students = () => {
                   </div>
                   
                   <div className="space-y-2">
-                    <Label htmlFor="status">Statut</Label>
+                    <Label htmlFor="genre">Genre</Label>
                     <Select
-                      value={currentStudent.status || "active"}
+                      value={currentStudent.genre || ""}
                       onValueChange={(value) =>
                         setCurrentStudent({
                           ...currentStudent,
-                          status: value as "active" | "inactive" | "graduated",
+                          genre: value,
                         })
                       }
                     >
-                      <SelectTrigger id="status">
-                        <SelectValue placeholder="Sélectionnez un statut" />
+                      <SelectTrigger id="genre">
+                        <SelectValue placeholder="Sélectionnez le genre" />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="active">Actif</SelectItem>
-                        <SelectItem value="inactive">Inactif</SelectItem>
-                        <SelectItem value="graduated">Diplômé</SelectItem>
+                        <SelectItem value="male">Masculin</SelectItem>
+                        <SelectItem value="female">Féminin</SelectItem>
                       </SelectContent>
                     </Select>
                   </div>
