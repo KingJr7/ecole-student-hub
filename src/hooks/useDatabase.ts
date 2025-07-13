@@ -1,562 +1,143 @@
-import { useCallback } from 'react'
+import { useCallback } from 'react';
 
-const { ipcRenderer } = window.require('electron')
+const { ipcRenderer } = window.require('electron');
+
+// Typage générique pour les fonctions IPC pour réduire la répétition
+const invoke = <T,>(channel: string, ...args: any[]): Promise<T> => {
+  try {
+    return ipcRenderer.invoke(channel, ...args);
+  } catch (error) {
+    console.error(`Erreur IPC sur le canal ${channel}:`, error);
+    throw error;
+  }
+};
 
 export function useDatabase() {
-  // Classes
-  const getAllClasses = useCallback(async () => {
-    try {
-      return await ipcRenderer.invoke('db:classes:getAll')
-    } catch (error) {
-      console.error('Erreur lors de la récupération des classes:', error)
-      throw error
-    }
-  }, [])
+  // #region Settings
+  const getSettings = useCallback(() => invoke('db:settings:get'), []);
+  const updateSettings = useCallback((data: any) => invoke('db:settings:update', data), []);
+  // #endregion
 
-  const createClass = useCallback(async (data: { name: string }) => {
-    try {
-      return await ipcRenderer.invoke('db:classes:create', data)
-    } catch (error) {
-      console.error('Erreur lors de la création de la classe:', error)
-      throw error
-    }
-  }, [])
+  // #region Classes
+  const getAllClasses = useCallback(() => invoke('db:classes:getAll'), []);
+  const createClass = useCallback((data: any) => invoke('db:classes:create', data), []);
+  const updateClass = useCallback((id: number, data: any) => invoke('db:classes:update', { id, data }), []);
+  const deleteClass = useCallback((id: number) => invoke('db:classes:delete', id), []);
+  // #endregion
 
-  const updateClass = useCallback(async (id: string, data: { name: string }) => {
-    try {
-      return await ipcRenderer.invoke('db:classes:update', { id, data })
-    } catch (error) {
-      console.error('Erreur lors de la mise à jour de la classe:', error)
-      throw error
-    }
-  }, [])
+  // #region Students
+  const getAllStudents = useCallback(() => invoke('db:students:getAll'), []);
+  const createStudent = useCallback((data: any) => invoke('db:students:create', data), []);
+  const updateStudent = useCallback((id: number, data: any) => invoke('db:students:update', { id, data }), []);
+  const deleteStudent = useCallback((id: number) => invoke('db:students:delete', id), []);
+  const getRecentStudents = useCallback(() => invoke('db:students:getRecent'), []);
+  // #endregion
 
-  const deleteClass = useCallback(async (id: string) => {
-    try {
-      return await ipcRenderer.invoke('db:classes:delete', id)
-    } catch (error) {
-      console.error('Erreur lors de la suppression de la classe:', error)
-      throw error
-    }
-  }, [])
+  // #region Teachers
+  const getAllTeachers = useCallback(() => invoke('db:teachers:getAll'), []);
+  const createTeacher = useCallback((data: any) => invoke('db:teachers:create', data), []);
+  const updateTeacher = useCallback((id: number, data: any) => invoke('db:teachers:update', { id, data }), []);
+  const deleteTeacher = useCallback((id: number) => invoke('db:teachers:delete', id), []);
+  // #endregion
 
-  // Étudiants
-  const getAllStudents = useCallback(async () => {
-    try {
-      return await ipcRenderer.invoke('db:students:getAll')
-    } catch (error) {
-      console.error('Erreur lors de la récupération des étudiants:', error)
-      throw error
-    }
-  }, [])
+  // #region Payments
+  const getAllPayments = useCallback(() => invoke('db:payments:getAll'), []);
+  const createPayment = useCallback((data: any) => invoke('db:payments:create', data), []);
+  const updatePayment = useCallback((id: number, data: any) => invoke('db:payments:update', { id, data }), []);
+  const deletePayment = useCallback((id: number) => invoke('db:payments:delete', id), []);
+  // #endregion
 
-  const createStudent = useCallback(async (data: {
-    firstName: string
-    lastName: string
-    email: string
-    phone: string
-    dateOfBirth: string
-    address: string
-    enrollmentDate: string
-    status: string
-    classId: string
-    parentInfo?: any
-  }) => {
-    try {
-      return await ipcRenderer.invoke('db:students:create', data)
-    } catch (error) {
-      console.error('Erreur lors de la création de l\'étudiant:', error)
-      throw error
-    }
-  }, [])
+  // #region Subjects
+  const getAllSubjects = useCallback(() => invoke('db:subjects:getAll'), []);
+  const createSubject = useCallback((data: any) => invoke('db:subjects:create', data), []);
+  const updateSubject = useCallback((id: number, data: any) => invoke('db:subjects:update', { id, data }), []);
+  const deleteSubject = useCallback((id: number) => invoke('db:subjects:delete', id), []);
+  const getClassSubjects = useCallback((classId: number) => invoke('db:classSubjects:getAll', classId), []);
+  // #endregion
 
-  const updateStudent = useCallback(async (id: string, data: {
-    firstName?: string
-    lastName?: string
-    email?: string
-    phone?: string
-    dateOfBirth?: string
-    address?: string
-    enrollmentDate?: string
-    status?: string
-    classId?: string
-    parentInfo?: any
-  }) => {
-    try {
-      return await ipcRenderer.invoke('db:students:update', { id, data })
-    } catch (error) {
-      console.error('Erreur lors de la mise à jour de l\'étudiant:', error)
-      throw error
-    }
-  }, [])
+  // #region Attendances
+  const getAllAttendances = useCallback(() => invoke('db:attendances:getAll'), []);
+  const createAttendance = useCallback((data: any) => invoke('db:attendances:create', data), []);
+  const updateAttendance = useCallback((id: number, data: any) => invoke('db:attendances:update', { id, data }), []);
+  const deleteAttendance = useCallback((id: number) => invoke('db:attendances:delete', id), []);
+  // #endregion
 
-  const deleteStudent = useCallback(async (id: string) => {
-    try {
-      return await ipcRenderer.invoke('db:students:delete', id)
-    } catch (error) {
-      console.error('Erreur lors de la suppression de l\'étudiant:', error)
-      throw error
-    }
-  }, [])
+  // #region Parents
+  const getAllParents = useCallback(() => invoke('db:parents:getAll'), []);
+  const createParent = useCallback((data: any) => invoke('db:parents:create', data), []);
+  const updateParent = useCallback((id: number, data: any) => invoke('db:parents:update', { id, data }), []);
+  const deleteParent = useCallback((id: number) => invoke('db:parents:delete', id), []);
+  // #endregion
 
-  // Professeurs
-  const getAllTeachers = useCallback(async () => {
-    try {
-      return await ipcRenderer.invoke('db:teachers:getAll')
-    } catch (error) {
-      console.error('Erreur lors de la récupération des professeurs:', error)
-      throw error
-    }
-  }, [])
+  // #region Registrations
+  const getAllRegistrations = useCallback(() => invoke('db:registrations:getAll'), []);
+  const createRegistration = useCallback((data: any) => invoke('db:registrations:create', data), []);
+  const updateRegistration = useCallback((id: number, data: any) => invoke('db:registrations:update', { id, data }), []);
+  const deleteRegistration = useCallback((id: number) => invoke('db:registrations:delete', id), []);
+  // #endregion
 
-  const createTeacher = useCallback(async (data: {
-    firstName: string
-    lastName: string
-    email: string
-    phone: string
-    address?: string
-    hourlyRate?: number
-    speciality?: string
-  }) => {
-    try {
-      return await ipcRenderer.invoke('db:teachers:create', data)
-    } catch (error) {
-      console.error('Erreur lors de la création du professeur:', error)
-      throw error
-    }
-  }, [])
+  // #region Student-Parents
+  const getStudentParents = useCallback((studentId: number) => invoke('db:studentParents:getByStudent', studentId), []);
+  const linkStudentToParent = useCallback((studentId: number, parentId: number) => invoke('db:studentParents:link', { studentId, parentId }), []);
+  const unlinkStudentFromParent = useCallback((studentId: number, parentId: number) => invoke('db:studentParents:unlink', { studentId, parentId }), []);
+  // #endregion
 
-  const updateTeacher = useCallback(async (id: string, data: any) => {
-    try {
-      return await ipcRenderer.invoke('db:teachers:update', { id, ...data })
-    } catch (error) {
-      console.error('Erreur lors de la mise à jour du professeur:', error)
-      throw error
-    }
-  }, [])
+  // #region Lessons
+  const getAllLessons = useCallback(() => invoke('db:lessons:getAll'), []);
+  const createLesson = useCallback((data: any) => invoke('db:lessons:create', data), []);
+  const updateLesson = useCallback((id: number, data: any) => invoke('db:lessons:update', { id, data }), []);
+  const deleteLesson = useCallback((id: number) => invoke('db:lessons:delete', id), []);
+  // #endregion
 
-  const deleteTeacher = useCallback(async (id: string) => {
-    try {
-      return await ipcRenderer.invoke('db:teachers:delete', id)
-    } catch (error) {
-      console.error('Erreur lors de la suppression du professeur:', error)
-      throw error
-    }
-  }, [])
+  // #region Dashboard & Reports
+  const getDashboardStats = useCallback(() => invoke('db:dashboard:getStats'), []);
+  const getClassResults = useCallback((classId: number, quarter: number) => invoke('db:reports:getClassResults', { classId, quarter }), []);
+  // #endregion
 
-  // Matières
-  const getAllSubjects = useCallback(async () => {
-    try {
-      return await ipcRenderer.invoke('db:subjects:getAll')
-    } catch (error) {
-      console.error('Erreur lors de la récupération des matières:', error)
-      throw error
-    }
-  }, [])
+  // #region Schedules
+  const getAllSchedules = useCallback(() => invoke('db:schedules:getAll'), []);
+  const createSchedule = useCallback((data: any) => invoke('db:schedules:create', data), []);
+  const updateSchedule = useCallback((id: number, data: any) => invoke('db:schedules:update', { id, data }), []);
+  const deleteSchedule = useCallback((id: number) => invoke('db:schedules:delete', id), []);
+  // #endregion
 
-  const createSubject = useCallback(async (data: {
-    name: string
-    classId: string
-    teacherId: string
-    coefficient: number
-    hoursPerWeek?: number
-  }) => {
-    try {
-      return await ipcRenderer.invoke('db:subjects:create', data)
-    } catch (error) {
-      console.error('Erreur lors de la création de la matière:', error)
-      throw error
-    }
-  }, [])
+  // #region Notes
+  const getAllNotes = useCallback(() => invoke('db:notes:getAll'), []);
+  const createNote = useCallback((data: any) => invoke('db:notes:create', data), []);
+  const updateNote = useCallback((id: number, data: any) => invoke('db:notes:update', { id, data }), []);
+  const deleteNote = useCallback((id: number) => invoke('db:notes:delete', id), []);
+  // #endregion
 
-  // Notes
-  const getAllGrades = useCallback(async () => {
-    try {
-      return await ipcRenderer.invoke('db:notes:getAll')
-    } catch (error) {
-      console.error('Erreur lors de la récupération des notes:', error)
-      throw error
-    }
-  }, [])
+  // #region Employees
+  const getAllEmployees = useCallback(() => invoke('db:employees:getAll'), []);
+  const createEmployee = useCallback((data: any) => invoke('db:employees:create', data), []);
+  const updateEmployee = useCallback((id: number, data: any) => invoke('db:employees:update', { id, data }), []);
+  const deleteEmployee = useCallback((id: number) => invoke('db:employees:delete', id), []);
+  // #endregion
 
-  const createGrade = useCallback(async (data: {
-    studentId: string
-    subjectId: string
-    value: number
-    term?: string
-    evaluationType?: string
-    coefficient?: number
-    notes?: string
-  }) => {
-    try {
-      return await ipcRenderer.invoke('db:grades:create', data)
-    } catch (error) {
-      console.error('Erreur lors de la création de la note:', error)
-      throw error
-    }
-  }, [])
-
-  const updateGrade = useCallback(async (id: string, data: {
-    studentId?: string
-    subjectId?: string
-    value?: number
-    term?: string
-    evaluationType?: string
-    coefficient?: number
-    notes?: string
-  }) => {
-    try {
-      return await ipcRenderer.invoke('db:grades:update', { id, ...data })
-    } catch (error) {
-      console.error('Erreur lors de la mise à jour de la note:', error)
-      throw error
-    }
-  }, [])
-
-  const deleteGrade = useCallback(async (id: string) => {
-    try {
-      return await ipcRenderer.invoke('db:grades:delete', id)
-    } catch (error) {
-      console.error('Erreur lors de la suppression de la note:', error)
-      throw error
-    }
-  }, [])
-
-  const getClassResults = useCallback(async (className: string, term: string) => {
-    try {
-      return await ipcRenderer.invoke('db:grades:getClassResults', { className, term })
-    } catch (error) {
-      console.error('Erreur lors de la récupération des résultats de classe:', error)
-      throw error
-    }
-  }, [])
-
-  // Présences
-  const getAllAttendances = useCallback(async () => {
-    try {
-      return await ipcRenderer.invoke('db:attendances:getAll')
-    } catch (error) {
-      console.error('Erreur lors de la récupération des présences:', error)
-      throw error
-    }
-  }, [])
-
-  const createAttendance = useCallback(async (data: {
-    studentId: string
-    date: string
-    status: string
-    notes?: string
-  }) => {
-    try {
-      return await ipcRenderer.invoke('db:attendances:create', data)
-    } catch (error) {
-      console.error('Erreur lors de la création de la présence:', error)
-      throw error
-    }
-  }, [])
-
-  // Settings
-  const getSettings = useCallback(async () => {
-    try {
-      return await ipcRenderer.invoke('db:settings:get')
-    } catch (error) {
-      console.error('Erreur lors de la récupération des paramètres:', error)
-      throw error
-    }
-  }, [])
-
-  const updateSettings = useCallback(async (data: { schoolName?: string; paymentMonths?: string[] }) => {
-    try {
-      return await ipcRenderer.invoke('db:settings:update', data)
-    } catch (error) {
-      console.error('Erreur lors de la mise à jour des paramètres:', error)
-      throw error
-    }
-  }, [])
-
-  // Paiements
-  const getAllPayments = useCallback(async () => {
-    try {
-      return await ipcRenderer.invoke('db:payments:getAll')
-    } catch (error) {
-      console.error('Erreur lors de la récupération des paiements:', error)
-      throw error
-    }
-  }, [])
-
-  // Get all available payment months
-  const getAvailablePaymentMonths = useCallback(async () => {
-    try {
-      return await ipcRenderer.invoke('db:payments:getAvailableMonths')
-    } catch (error) {
-      console.error('Erreur lors de la récupération des mois de paiement:', error)
-      throw error
-    }
-  }, [])
-
-  const createPayment = useCallback(async (data: {
-    studentId: string
-    amount: number
-    date: string
-    type: string
-    status: string
-    notes?: string
-    currency?: string
-    month?: string
-  }) => {
-    try {
-      return await ipcRenderer.invoke('db:payments:create', data)
-    } catch (error) {
-      console.error('Erreur lors de la création du paiement:', error)
-      throw error
-    }
-  }, [])
-
-  const updatePayment = useCallback(async (id: string, data: {
-    data: {
-      studentId?: string
-      amount?: number
-      date?: string
-      type?: string
-      status?: string
-      notes?: string
-      currency?: string
-      month?: string
-      [key: string]: any
-    }
-  }) => {
-    try {
-      return await ipcRenderer.invoke('db:payments:update', { id, data: data.data })
-    } catch (error) {
-      console.error('Erreur lors de la mise à jour du paiement:', error)
-      throw error
-    }
-  }, [])
-
-  const deletePayment = useCallback(async (id: string) => {
-    try {
-      return await ipcRenderer.invoke('db:payments:delete', id)
-    } catch (error) {
-      console.error('Erreur lors de la suppression du paiement:', error)
-      throw error
-    }
-  }, [])
-
-  // Incrementer le compteur d'impressions d'un reçu de paiement
-  const incrementPrintCount = useCallback(async (id: string) => {
-    try {
-      return await ipcRenderer.invoke('db:payments:incrementPrintCount', id)
-    } catch (error) {
-      console.error('Erreur lors de l\'incrémentation du compteur d\'impressions:', error)
-      throw error
-    }
-  }, [])
-
-  // Gestion des matières par classe
-  const getClassSubjects = useCallback(async (classId: string) => {
-    try {
-      return await ipcRenderer.invoke('db:classSubjects:getAll', classId)
-    } catch (error) {
-      console.error('Erreur lors de la récupération des matières par classe:', error)
-      throw error
-    }
-  }, [])
-
-  const addClassSubject = useCallback(async (classId: string, subjectName: string, coefficient: number, hoursPerWeek?: number) => {
-    try {
-      return await ipcRenderer.invoke('db:classSubjects:add', { classId, subjectName, coefficient, hoursPerWeek })
-    } catch (error) {
-      console.error('Erreur lors de l\'ajout d\'une matière à une classe:', error)
-      throw error
-    }
-  }, [])
-
-  const deleteClassSubject = useCallback(async (id: string) => {
-    try {
-      return await ipcRenderer.invoke('db:classSubjects:delete', id)
-    } catch (error) {
-      console.error('Erreur lors de la suppression d\'une matière d\'une classe:', error)
-      throw error
-    }
-  }, [])
-
-  // Modifier une matière d'une classe
-  const updateClassSubject = useCallback(async (id: string, subjectName: string, coefficient: number) => {
-    try {
-      return await ipcRenderer.invoke('db:classSubjects:update', { id, subjectName, coefficient })
-    } catch (error) {
-      console.error('Erreur lors de la modification d\'une matière d\'une classe:', error)
-      throw error
-    }
-  }, [])
-
-  // Leçons
-  const getLessons = useCallback(async (classId: string) => {
-    try {
-      return await ipcRenderer.invoke('db:lessons:getAll', classId)
-    } catch (error) {
-      console.error('Erreur lors de la récupération des leçons:', error)
-      throw error
-    }
-  }, [])
-
-  const createLesson = useCallback(async (data: { classId: string; subjectId: string; teacherId: string }) => {
-    try {
-      return await ipcRenderer.invoke('db:lessons:create', data)
-    } catch (error) {
-      console.error('Erreur lors de la création de la leçon:', error)
-      throw error
-    }
-  }, [])
-
-  const updateLesson = useCallback(async (id: string, data: { teacherId: string }) => {
-    try {
-      return await ipcRenderer.invoke('db:lessons:update', { id, data })
-    } catch (error) {
-      console.error('Erreur lors de la mise à jour de la leçon:', error)
-      throw error
-    }
-  }, [])
-
-  const deleteLesson = useCallback(async (id: string) => {
-    try {
-      return await ipcRenderer.invoke('db:lessons:delete', id)
-    } catch (error) {
-      console.error('Erreur lors de la suppression de la leçon:', error)
-      throw error
-    }
-  }, [])
-
-  // Horaires
-  const getSchedulesForLesson = useCallback(async (lessonId: string) => {
-    try {
-      return await ipcRenderer.invoke('db:schedules:getAll', lessonId)
-    } catch (error) {
-      console.error('Erreur lors de la récupération des horaires:', error)
-      throw error
-    }
-  }, [])
-
-  const createSchedule = useCallback(async (data: { lessonId: string; dayOfWeek: string; startTime: string; endTime: string }) => {
-    try {
-      return await ipcRenderer.invoke('db:schedules:create', data)
-    } catch (error) {
-      console.error('Erreur lors de la création de l\'horaire:', error)
-      throw error
-    }
-  }, [])
-
-  const updateSchedule = useCallback(async (id: string, data: { dayOfWeek: string; startTime: string; endTime: string }) => {
-    try {
-      return await ipcRenderer.invoke('db:schedules:update', { id, data })
-    } catch (error) {
-      console.error('Erreur lors de la mise à jour de l\'horaire:', error)
-      throw error
-    }
-  }, [])
-
-  const deleteSchedule = useCallback(async (id: string) => {
-    try {
-      return await ipcRenderer.invoke('db:schedules:delete', id)
-    } catch (error) {
-      console.error('Erreur lors de la suppression de l\'horaire:', error)
-      throw error
-    }
-  }, [])
-
-  // Notes
-  const getAllNotes = useCallback(async (lessonId: string) => {
-    try {
-      return await ipcRenderer.invoke('db:notes:getAll', lessonId)
-    } catch (error) {
-      console.error('Erreur lors de la récupération des notes:', error)
-      throw error
-    }
-  }, [])
-
-  const createNote = useCallback(async (data: { lessonId: string; studentId: string; value: number; type: string; quarter: number }) => {
-    try {
-      return await ipcRenderer.invoke('db:notes:create', data)
-    } catch (error) {
-      console.error('Erreur lors de la création de la note:', error)
-      throw error
-    }
-  }, [])
-
-  const updateNote = useCallback(async (id: string, data: { value: number; type: string; quarter: number }) => {
-    try {
-      return await ipcRenderer.invoke('db:notes:update', { id, data })
-    } catch (error) {
-      console.error('Erreur lors de la mise à jour de la note:', error)
-      throw error
-    }
-  }, [])
-
-  const deleteNote = useCallback(async (id: string) => {
-    try {
-      return await ipcRenderer.invoke('db:notes:delete', id)
-    } catch (error) {
-      console.error('Erreur lors de la suppression de la note:', error)
-      throw error
-    }
-  }, [])
+  // #region Fees
+  const getAllFees = useCallback(() => invoke('db:fees:getAll'), []);
+  const createFee = useCallback((data: any) => invoke('db:fees:create', data), []);
+  const updateFee = useCallback((id: number, data: any) => invoke('db:fees:update', { id, data }), []);
+  const deleteFee = useCallback((id: number) => invoke('db:fees:delete', id), []);
+  // #endregion
 
   return {
-    // Classes
-    getAllClasses,
-    createClass,
-    updateClass,
-    deleteClass,
-    // Matières
-    getAllSubjects,
-    createSubject,
-    // Étudiants
-    getAllStudents,
-    createStudent,
-    updateStudent,
-    deleteStudent,
-    // Professeurs
-    getAllTeachers,
-    createTeacher,
-    updateTeacher,
-    deleteTeacher,
-    // Matières
-    getClassSubjects,
-    addClassSubject,
-    deleteClassSubject,
-    updateClassSubject,
-    // Leçons
-    getLessons,
-    createLesson,
-    updateLesson,
-    deleteLesson,
-    // Horaires
-    getSchedulesForLesson,
-    createSchedule,
-    updateSchedule,
-    deleteSchedule,
-    // Notes
-    getAllNotes,
-    createNote,
-    updateNote,
-    deleteNote,
-    getClassResults,
-    getAllGrades,
-    createGrade,
-    updateGrade,
-    deleteGrade,
-    // Présences
-    getAllAttendances,
-    createAttendance,
-    // Settings
-    getSettings,
-    updateSettings,
-    // Paiements
-    getAllPayments,
-    getAvailablePaymentMonths,
-    createPayment,
-    updatePayment,
-    deletePayment,
-    incrementPrintCount,
-  }
+    getSettings, updateSettings,
+    getAllClasses, createClass, updateClass, deleteClass,
+    getAllStudents, createStudent, updateStudent, deleteStudent, getRecentStudents,
+    getAllTeachers, createTeacher, updateTeacher, deleteTeacher,
+    getAllPayments, createPayment, updatePayment, deletePayment,
+    getAllSubjects, createSubject, updateSubject, deleteSubject, getClassSubjects,
+    getAllAttendances, createAttendance, updateAttendance, deleteAttendance,
+    getAllParents, createParent, updateParent, deleteParent,
+    getAllRegistrations, createRegistration, updateRegistration, deleteRegistration,
+    getStudentParents, linkStudentToParent, unlinkStudentFromParent,
+    getAllLessons, createLesson, updateLesson, deleteLesson,
+    getDashboardStats, getClassResults,
+    getAllSchedules, createSchedule, updateSchedule, deleteSchedule,
+    getAllNotes, createNote, updateNote, deleteNote,
+    getAllEmployees, createEmployee, updateEmployee, deleteEmployee,
+    getAllFees, createFee, updateFee, deleteFee,
+  };
 }

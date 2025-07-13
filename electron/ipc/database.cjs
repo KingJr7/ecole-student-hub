@@ -75,7 +75,7 @@ function setupDatabaseIPC() {
 
   ipcMain.handle('db:classes:delete', async (event, id) => {
     const registrationCount = await prisma.registrations.count({
-      where: { classId: id, is_deleted: false },
+      where: { class_id: id, is_deleted: false },
     });
 
     if (registrationCount > 0) {
@@ -107,7 +107,7 @@ function setupDatabaseIPC() {
           },
         },
       },
-      orderBy: [{ lastName: 'asc' }, { firstName: 'asc' }],
+      orderBy: [{ name: 'asc' }, { first_name: 'asc' }],
     }).then(students => 
       students.map(s => ({
         ...s,
@@ -116,36 +116,37 @@ function setupDatabaseIPC() {
     );
   });
 
-  ipcMain.handle('db:students:create', async (event, studentData) => {
-    const { firstName, lastName, birth_date, genre, matricul } = studentData;
-    return prisma.students.create({
-      data: {
-        firstName,
-        lastName,
-        birth_date,
-        genre,
-        matricul,
-        needs_sync: true,
-        last_modified: new Date(),
-      },
-    });
+  // Dans students:create et update, ajouter picture_url
+ipcMain.handle('db:students:create', async (event, studentData) => {
+  const { name, first_name, birth_date, genre, picture_url } = studentData;
+  return prisma.students.create({
+    data: {
+      name,
+      first_name,
+      birth_date,
+      genre,
+      picture_url, // Ajouté
+      needs_sync: true,
+      last_modified: new Date(),
+    },
   });
+});
 
-  ipcMain.handle('db:students:update', async (event, { id, data }) => {
-    const { firstName, lastName, birth_date, genre, matricul } = data;
-    return prisma.students.update({
-      where: { id },
-      data: {
-        firstName,
-        lastName,
-        birth_date,
-        genre,
-        matricul,
-        needs_sync: true,
-        last_modified: new Date(),
-      },
-    });
+ipcMain.handle('db:students:update', async (event, { id, data }) => {
+  const { name, first_name, birth_date, genre, picture_url } = data;
+  return prisma.students.update({
+    where: { id },
+    data: {
+      name,
+      first_name,
+      birth_date,
+      genre,
+      picture_url, // Ajouté
+      needs_sync: true,
+      last_modified: new Date(),
+    },
   });
+});
 
   ipcMain.handle('db:students:delete', async (event, id) => {
     return prisma.$transaction(async (tx) => {
@@ -158,7 +159,7 @@ function setupDatabaseIPC() {
         },
       });
       await tx.registrations.updateMany({
-        where: { studentId: id },
+        where: { student_id: id },
         data: { 
           is_deleted: true, 
           needs_sync: true,
@@ -183,38 +184,45 @@ function setupDatabaseIPC() {
     return prisma.teachers.findMany({ where: { is_deleted: false } });
   });
 
-  ipcMain.handle('db:teachers:create', async (event, teacherData) => {
-    const { firstName, lastName, email, phone, matricule, specialty } = teacherData;
-    return prisma.teachers.create({
-      data: {
-        firstName,
-        lastName,
-        email,
-        phone,
-        matricule,
-        specialty,
-        needs_sync: true,
-        last_modified: new Date(),
-      },
-    });
+  // Dans la partie Teachers
+ipcMain.handle('db:teachers:create', async (event, teacherData) => {
+  // Corriger 'specialty' en 'speciality' pour correspondre au schéma
+  const { name, first_name, email, phone, matricule, speciality, adress, gender } = teacherData;
+  return prisma.teachers.create({
+    data: {
+      name,
+      first_name,
+      email,
+      phone,
+      matricule,
+      speciality, // Correction ici
+      adress,
+      gender,
+      needs_sync: true,
+      last_modified: new Date(),
+    },
   });
+});
 
-  ipcMain.handle('db:teachers:update', async (event, { id, data }) => {
-    const { firstName, lastName, email, phone, matricule, specialty } = data;
-    return prisma.teachers.update({
-      where: { id },
-      data: {
-        firstName,
-        lastName,
-        email,
-        phone,
-        matricule,
-        specialty,
-        needs_sync: true,
-        last_modified: new Date(),
-      },
-    });
+// De même pour update
+ipcMain.handle('db:teachers:update', async (event, { id, data }) => {
+  const { name, first_name, email, phone, matricule, speciality, adress, gender } = data;
+  return prisma.teachers.update({
+    where: { id },
+    data: {
+      name,
+      first_name,
+      email,
+      phone,
+      matricule,
+      speciality, // Correction ici
+      adress,
+      gender,
+      needs_sync: true,
+      last_modified: new Date(),
+    },
   });
+});
 
   ipcMain.handle('db:teachers:delete', async (event, id) => {
     return prisma.teachers.update({
@@ -244,45 +252,52 @@ function setupDatabaseIPC() {
     }).then(payments => 
       payments.map(p => ({
         ...p,
-        firstName: p.registration?.student.firstName,
-        lastName: p.registration?.student.lastName,
+        firstName: p.registration?.student.first_name,
+        lastName: p.registration?.student.name,
         className: p.registration?.class.name,
       }))
     );
   });
 
-  ipcMain.handle('db:payments:create', async (event, paymentData) => {
-    const { registrationId, amount, date, method, reference, month } = paymentData;
-    return prisma.payments.create({
-      data: {
-        registrationId,
-        amount,
-        date,
-        method,
-        reference,
-        month,
-        needs_sync: true,
-        last_modified: new Date(),
-      },
-    });
+  // Supprimer le champ month qui n'existe pas dans le schéma
+ipcMain.handle('db:payments:create', async (event, paymentData) => {
+  const { registration_id, amount, date, method, reference } = paymentData;
+  return prisma.payments.create({
+    data: {
+      registration_id,
+      amount,
+      date,
+      method,
+      reference,
+      // Supprimer month
+      needs_sync: true,
+      last_modified: new Date(),
+    },
   });
+});
 
-  ipcMain.handle('db:payments:update', async (event, { id, data }) => {
-    const { registrationId, amount, date, method, reference, month } = data;
-    return prisma.payments.update({
-      where: { id },
-      data: {
-        registrationId,
-        amount,
-        date,
-        method,
-        reference,
-        month,
-        needs_sync: true,
-        last_modified: new Date(),
-      },
-    });
+// De même pour update
+ipcMain.handle('db:payments:update', async (event, { id, data }) => {
+  const { registration_id, amount, date, method, reference } = data;
+  return prisma.payments.update({
+    where: { id },
+    data: {
+      registration_id,
+      amount,
+      date,
+      method,
+      reference,
+      // Supprimer month
+      needs_sync: true,
+      last_modified: new Date(),
+    },
   });
+});
+
+// Supprimer ou adapter la fonction getAvailableMonths qui n'a plus de sens
+ipcMain.handle('db:payments:getAvailableMonths', async () => {
+  return []; // Ou supprimer complètement ce handler
+});
 
   ipcMain.handle('db:payments:delete', async (event, id) => {
     return prisma.payments.update({
@@ -293,16 +308,6 @@ function setupDatabaseIPC() {
         last_modified: new Date(),
       },
     });
-  });
-
-  ipcMain.handle('db:payments:getAvailableMonths', async () => {
-    const payments = await prisma.payments.findMany({
-      where: { is_deleted: false, month: { not: null } },
-      distinct: ['month'],
-      orderBy: { month: 'desc' },
-      select: { month: true },
-    });
-    return payments.map(p => p.month);
   });
   // #endregion
 
@@ -315,11 +320,13 @@ function setupDatabaseIPC() {
   });
 
   ipcMain.handle('db:subjects:create', async (event, subjectData) => {
-    const { name, coefficient } = subjectData;
+    const { name, coefficient, class_id, school_year } = subjectData;
     return prisma.subjects.create({
       data: {
         name,
         coefficient,
+        class_id,
+        school_year,
         needs_sync: true,
         last_modified: new Date(),
       },
@@ -327,12 +334,14 @@ function setupDatabaseIPC() {
   });
 
   ipcMain.handle('db:subjects:update', async (event, { id, data }) => {
-    const { name, coefficient } = data;
+    const { name, coefficient, class_id, school_year } = data;
     return prisma.subjects.update({
       where: { id },
       data: {
         name,
         coefficient,
+        class_id,
+        school_year,
         needs_sync: true,
         last_modified: new Date(),
       },
@@ -341,7 +350,7 @@ function setupDatabaseIPC() {
 
   ipcMain.handle('db:subjects:delete', async (event, id) => {
     const lessonCount = await prisma.lessons.count({
-      where: { subjectId: id, is_deleted: false },
+      where: { subject_id: id, is_deleted: false },
     });
 
     if (lessonCount > 0) {
@@ -361,7 +370,7 @@ function setupDatabaseIPC() {
   ipcMain.handle('db:classSubjects:getAll', async (event, classId) => {
     return prisma.lessons.findMany({
       where: {
-        classId: classId,
+        class_id: classId,
         is_deleted: false,
       },
       include: {
@@ -381,19 +390,19 @@ function setupDatabaseIPC() {
     }).then(attendances => 
       attendances.map(a => ({
         ...a,
-        firstName: a.student.firstName,
-        lastName: a.student.lastName,
+        firstName: a.student.first_name,
+        lastName: a.student.name,
       }))
     );
   });
 
   ipcMain.handle('db:attendances:create', async (event, attendanceData) => {
-    const { studentId, date, status, justification } = attendanceData;
+    const { student_id, date, state, justification } = attendanceData;
     return prisma.attendances.create({
       data: {
-        studentId,
+        student_id,
         date,
-        status,
+        state,
         justification,
         needs_sync: true,
         last_modified: new Date(),
@@ -402,13 +411,13 @@ function setupDatabaseIPC() {
   });
 
   ipcMain.handle('db:attendances:update', async (event, { id, data }) => {
-    const { studentId, date, status, justification } = data;
+    const { student_id, date, state, justification } = data;
     return prisma.attendances.update({
       where: { id },
       data: {
-        studentId,
+        student_id,
         date,
-        status,
+        state,
         justification,
         needs_sync: true,
         last_modified: new Date(),
@@ -433,40 +442,45 @@ function setupDatabaseIPC() {
     return prisma.parents.findMany({ where: { is_deleted: false } });
   });
 
-  ipcMain.handle('db:parents:create', async (event, parentData) => {
-    const { firstName, lastName, phone, email, profession } = parentData;
-    return prisma.parents.create({
-      data: {
-        firstName,
-        lastName,
-        phone,
-        email,
-        profession,
-        needs_sync: true,
-        last_modified: new Date(),
-      },
-    });
+  // Ajouter tous les champs manquants pour les parents
+ipcMain.handle('db:parents:create', async (event, parentData) => {
+  const { name, first_name, phone, email, adress, gender, profession } = parentData;
+  return prisma.parents.create({
+    data: {
+      name,
+      first_name,
+      phone,
+      email,
+      adress,
+      gender,
+      profession,
+      needs_sync: true,
+      last_modified: new Date(),
+    },
   });
+});
 
-  ipcMain.handle('db:parents:update', async (event, { id, data }) => {
-    const { firstName, lastName, phone, email, profession } = data;
-    return prisma.parents.update({
-      where: { id },
-      data: {
-        firstName,
-        lastName,
-        phone,
-        email,
-        profession,
-        needs_sync: true,
-        last_modified: new Date(),
-      },
-    });
+ipcMain.handle('db:parents:update', async (event, { id, data }) => {
+  const { name, first_name, phone, email, adress, gender, profession } = data;
+  return prisma.parents.update({
+    where: { id },
+    data: {
+      name,
+      first_name,
+      phone,
+      email,
+      adress,
+      gender,
+      profession,
+      needs_sync: true,
+      last_modified: new Date(),
+    },
   });
+});
 
   ipcMain.handle('db:parents:delete', async (event, id) => {
     const linkCount = await prisma.studentParents.count({
-      where: { parentId: id, is_deleted: false },
+      where: { parent_id: id, is_deleted: false },
     });
 
     if (linkCount > 0) {
@@ -496,8 +510,8 @@ function setupDatabaseIPC() {
       registrations.map(r => ({
         ...r,
         studentId: r.student.id,
-        firstName: r.student.firstName,
-        lastName: r.student.lastName,
+        firstName: r.student.first_name,
+        lastName: r.student.name,
         classId: r.class.id,
         className: r.class.name,
       }))
@@ -505,12 +519,12 @@ function setupDatabaseIPC() {
   });
 
   ipcMain.handle('db:registrations:create', async (event, regData) => {
-    const { studentId, classId, schoolYear, state, registration_date } = regData;
+    const { student_id, class_id, school_year, state, registration_date } = regData;
     return prisma.registrations.create({
       data: {
-        studentId,
-        classId,
-        schoolYear,
+        student_id,
+        class_id,
+        school_year,
         state,
         registration_date,
         needs_sync: true,
@@ -520,13 +534,13 @@ function setupDatabaseIPC() {
   });
 
   ipcMain.handle('db:registrations:update', async (event, { id, data }) => {
-    const { studentId, classId, schoolYear, state, registration_date } = data;
+    const { student_id, class_id, school_year, state, registration_date } = data;
     return prisma.registrations.update({
       where: { id },
       data: {
-        studentId,
-        classId,
-        schoolYear,
+        student_id,
+        class_id,
+        school_year,
         state,
         registration_date,
         needs_sync: true,
@@ -537,7 +551,7 @@ function setupDatabaseIPC() {
 
   ipcMain.handle('db:registrations:delete', async (event, id) => {
     const paymentCount = await prisma.payments.count({
-      where: { registrationId: id, is_deleted: false },
+      where: { registration_id: id, is_deleted: false },
     });
 
     if (paymentCount > 0) {
@@ -559,7 +573,7 @@ function setupDatabaseIPC() {
   ipcMain.handle('db:studentParents:getByStudent', async (event, studentId) => {
     return prisma.studentParents.findMany({
       where: {
-        studentId: studentId,
+        student_id: studentId,
         is_deleted: false,
         parent: { is_deleted: false },
       },
@@ -570,8 +584,8 @@ function setupDatabaseIPC() {
   ipcMain.handle('db:studentParents:link', async (event, { studentId, parentId }) => {
     return prisma.studentParents.create({
       data: {
-        studentId,
-        parentId,
+        student_id: studentId,
+        parent_id: parentId,
         needs_sync: true,
         last_modified: new Date(),
       },
@@ -581,8 +595,8 @@ function setupDatabaseIPC() {
   ipcMain.handle('db:studentParents:unlink', async (event, { studentId, parentId }) => {
     return prisma.studentParents.updateMany({
       where: { 
-        studentId: studentId,
-        parentId: parentId,
+        student_id: studentId,
+        parent_id: parentId,
       },
       data: { 
         is_deleted: true, 
@@ -606,21 +620,21 @@ function setupDatabaseIPC() {
       lessons.map(l => ({
         ...l,
         subjectName: l.subject.name,
-        teacherFirstName: l.teacher?.firstName,
-        teacherLastName: l.teacher?.lastName,
+        teacherFirstName: l.teacher?.first_name,
+        teacherLastName: l.teacher?.name,
         className: l.class.name,
       }))
     );
   });
 
   ipcMain.handle('db:lessons:create', async (event, lessonData) => {
-    const { subjectId, teacherId, classId, schoolYear } = lessonData;
+    const { subject_id, teacher_id, class_id, school_year } = lessonData;
     return prisma.lessons.create({
       data: {
-        subjectId,
-        teacherId,
-        classId,
-        schoolYear,
+        subject_id,
+        teacher_id,
+        class_id,
+        school_year,
         needs_sync: true,
         last_modified: new Date(),
       },
@@ -628,14 +642,14 @@ function setupDatabaseIPC() {
   });
 
   ipcMain.handle('db:lessons:update', async (event, { id, data }) => {
-    const { subjectId, teacherId, classId, schoolYear } = data;
+    const { subject_id, teacher_id, class_id, school_year } = data;
     return prisma.lessons.update({
       where: { id },
       data: {
-        subjectId,
-        teacherId,
-        classId,
-        schoolYear,
+        subject_id,
+        teacher_id,
+        class_id,
+        school_year,
         needs_sync: true,
         last_modified: new Date(),
       },
@@ -644,7 +658,7 @@ function setupDatabaseIPC() {
 
   ipcMain.handle('db:lessons:delete', async (event, id) => {
     const noteCount = await prisma.notes.count({
-      where: { lessonId: id, is_deleted: false },
+      where: { lesson_id: id, is_deleted: false },
     });
 
     if (noteCount > 0) {
@@ -673,14 +687,14 @@ function setupDatabaseIPC() {
   ipcMain.handle('db:reports:getClassResults', async (event, { classId, quarter }) => {
     const students = await prisma.students.findMany({
       where: {
-        registrations: { some: { classId: classId, is_deleted: false } },
+        registrations: { some: { class_id: classId, is_deleted: false } },
         is_deleted: false,
       },
     });
 
     const subjects = await prisma.subjects.findMany({
       where: {
-        lessons: { some: { classId: classId, is_deleted: false } },
+        lessons: { some: { class_id: classId, is_deleted: false } },
         is_deleted: false,
       },
     });
@@ -690,22 +704,22 @@ function setupDatabaseIPC() {
     const studentIds = students.map(s => s.id);
     const notes = await prisma.notes.findMany({
       where: {
-        studentId: { in: studentIds },
+        student_id: { in: studentIds },
         quarter: quarter,
         is_deleted: false,
-        lesson: { classId: classId },
+        lesson: { class_id: classId },
       },
       include: { lesson: true },
     });
 
     const results = students.map(student => {
-      const studentNotes = notes.filter(n => n.studentId === student.id);
+      const studentNotes = notes.filter(n => n.student_id === student.id);
       let totalPoints = 0;
       let totalCoef = 0;
       const subjectResults = {};
 
       subjects.forEach(subject => {
-        const subjectNotes = studentNotes.filter(n => n.lesson.subjectId === subject.id);
+        const subjectNotes = studentNotes.filter(n => n.lesson.subject_id === subject.id);
         if (subjectNotes.length > 0) {
           const sum = subjectNotes.reduce((acc, note) => acc + note.value, 0);
           const avg = sum / subjectNotes.length;
@@ -720,7 +734,7 @@ function setupDatabaseIPC() {
       const generalAverage = totalCoef > 0 ? totalPoints / totalCoef : 0;
       return { 
         studentId: student.id, 
-        studentName: `${student.firstName} ${student.lastName}`, 
+        studentName: `${student.first_name} ${student.name}`,
         average: generalAverage, 
         rank: 0, 
         subjects: subjectResults, 
@@ -747,26 +761,27 @@ function setupDatabaseIPC() {
     return prisma.schedules.findMany();
   });
 
-  ipcMain.handle('db:schedules:create', async (event, scheduleData) => {
-    const { lessonId, day_of_week, start_time, end_time } = scheduleData;
-    return prisma.schedules.create({
-      data: {
-        lessonId,
-        day_of_week,
-        start_time,
-        end_time,
-        needs_sync: true,
-        last_modified: new Date(),
-      },
-    });
+// Corriger le format des heures (string au lieu de time)
+ipcMain.handle('db:schedules:create', async (event, scheduleData) => {
+  const { lesson_id, day_of_week, start_time, end_time } = scheduleData;
+  return prisma.schedules.create({
+    data: {
+      lesson_id,
+      day_of_week,
+      start_time: start_time.toString(), // Conversion en string
+      end_time: end_time.toString(),     // Conversion en string
+      needs_sync: true,
+      last_modified: new Date(),
+    },
   });
+});
 
   ipcMain.handle('db:schedules:update', async (event, { id, data }) => {
-    const { lessonId, day_of_week, start_time, end_time } = data;
+    const { lesson_id, day_of_week, start_time, end_time } = data;
     return prisma.schedules.update({
       where: { id },
       data: {
-        lessonId,
+        lesson_id,
         day_of_week,
         start_time,
         end_time,
@@ -803,35 +818,36 @@ function setupDatabaseIPC() {
     }).then(notes => 
       notes.map(n => ({
         ...n,
-        firstName: n.student.firstName,
-        lastName: n.student.lastName,
+        firstName: n.student.first_name,
+        lastName: n.student.name,
         subjectName: n.lesson.subject.name,
       }))
     );
   });
 
-  ipcMain.handle('db:notes:create', async (event, noteData) => {
-    const { studentId, lessonId, value, type, quarter } = noteData;
-    return prisma.notes.create({
-      data: {
-        studentId,
-        lessonId,
-        value,
-        type,
-        quarter,
-        needs_sync: true,
-        last_modified: new Date(),
-      },
-    });
+// Ajouter le champ quarter manquant
+ipcMain.handle('db:notes:create', async (event, noteData) => {
+  const { student_id, lesson_id, value, type, quarter } = noteData;
+  return prisma.notes.create({
+    data: {
+      student_id,
+      lesson_id,
+      value,
+      type,
+      quarter, // Ajouté
+      needs_sync: true,
+      last_modified: new Date(),
+    },
   });
+});
 
   ipcMain.handle('db:notes:update', async (event, { id, data }) => {
-    const { studentId, lessonId, value, type, quarter } = data;
+    const { student_id, lesson_id, value, type, quarter } = data;
     return prisma.notes.update({
       where: { id },
       data: {
-        studentId,
-        lessonId,
+        student_id,
+        lesson_id,
         value,
         type,
         quarter,
@@ -851,6 +867,111 @@ function setupDatabaseIPC() {
       },
     });
   });
+  // #endregion
+
+  // #region employees
+  // Ajouter la gestion des employés manquante
+ipcMain.handle('db:employees:getAll', async () => {
+  return prisma.employees.findMany({ where: { is_deleted: false } });
+});
+
+ipcMain.handle('db:employees:create', async (event, employeeData) => {
+  const { name, first_name, phone, email, adress, gender, job_title, salary, matricule } = employeeData;
+  return prisma.employees.create({
+    data: {
+      name,
+      first_name,
+      phone,
+      email,
+      adress,
+      gender,
+      job_title,
+      salary,
+      matricule,
+      needs_sync: true,
+      last_modified: new Date(),
+    },
+  });
+});
+
+ipcMain.handle('db:employees:update', async (event, { id, data }) => {
+  const { name, first_name, phone, email, adress, gender, job_title, salary, matricule } = data;
+  return prisma.employees.update({
+    where: { id },
+    data: {
+      name,
+      first_name,
+      phone,
+      email,
+      adress,
+      gender,
+      job_title,
+      salary,
+      matricule,
+      needs_sync: true,
+      last_modified: new Date(),
+    },
+  });
+});
+
+ipcMain.handle('db:employees:delete', async (event, id) => {
+  return prisma.employees.update({
+    where: { id },
+    data: { 
+      is_deleted: true, 
+      needs_sync: true,
+      last_modified: new Date(),
+    },
+  });
+});
+  // #endregion
+
+  // #region fees
+  // Ajouter la gestion des frais manquante
+ipcMain.handle('db:fees:getAll', async () => {
+  return prisma.fees.findMany({ where: { is_deleted: false } });
+});
+
+ipcMain.handle('db:fees:create', async (event, feeData) => {
+  const { name, amount, due_date, school_year } = feeData;
+  return prisma.fees.create({
+    data: {
+      name,
+      amount,
+      due_date,
+      school_year,
+      needs_sync: true,
+      last_modified: new Date(),
+    },
+  });
+});
+
+ipcMain.handle('db:fees:update', async (event, { id, data }) => {
+  const { name, amount, due_date, school_year } = data;
+  return prisma.fees.update({
+    where: { id },
+    data: {
+      name,
+      amount,
+      due_date,
+      school_year,
+      needs_sync: true,
+      last_modified: new Date(),
+    },
+  });
+});
+
+ipcMain.handle('db:fees:delete', async (event, id) => {
+  return prisma.fees.update({
+    where: { id },
+    data: { 
+      is_deleted: true, 
+      needs_sync: true,
+      last_modified: new Date(),
+    },
+  });
+});
+
   // #endregion
 }
 

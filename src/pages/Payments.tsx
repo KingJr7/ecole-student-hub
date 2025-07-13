@@ -1,6 +1,5 @@
-import { useState, useEffect, useRef, useMemo } from "react";
+import { useState, useEffect, useRef } from "react";
 import MainLayout from "@/components/Layout/MainLayout";
-import { Switch } from "@/components/ui/switch";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import {
@@ -23,7 +22,6 @@ import {
 import { Textarea } from "@/components/ui/textarea";
 import { FileMinus, Pencil, Printer, Receipt, Trash2, Search } from "lucide-react";
 import { useToast } from "@/components/ui/use-toast";
-import { Payment, Student } from "@/types";
 import StudentSearchSelect from "@/components/StudentSearchSelect";
 import { useDatabase } from "@/hooks/useDatabase";
 import PaymentReceipt from "@/components/PaymentReceipt";
@@ -36,95 +34,86 @@ import {
   TableRow,
 } from "@/components/ui/table";
 
-// Types adaptés pour UUID
+// Interfaces alignées sur le schéma Prisma
+interface Student {
+  id: number;
+  name: string;
+  first_name: string;
+  // autres champs si nécessaire
+}
+
+interface Registration {
+  id: number;
+  student_id: number;
+  class_id: number;
+  school_year: string;
+}
+
 interface Payment {
-  id: string;
-  studentId: string;
+  id: number;
+  registration_id: number;
   amount: number;
   date: string;
-  type: string;
-  status: string;
-  notes?: string;
-  currency: string;
-  printCount?: number;
-  month?: string;
-  created_at?: string;
-  supabase_id?: string;
-  sqlite_id?: number;
-  is_synced?: boolean;
-  is_deleted?: boolean;
-  last_modified?: string;
-}
-
-interface Student {
-  id: string;
-  firstName: string;
-  lastName: string;
-  classId: string;
+  method: string;
+  reference?: string;
+  registration?: {
+    student: Student;
+    class: { name: string };
+  };
+  // Champs ajoutés par le handler IPC
+  firstName?: string;
+  lastName?: string;
   className?: string;
-  parentInfo?: any;
-  supabase_id?: string;
-  sqlite_id?: number;
-  is_synced?: boolean;
-  is_deleted?: boolean;
-  last_modified?: string;
 }
-
-// Helper to format YYYY-MM to 'Mois AAAA' in French
-const formatMonthYear = (ym: string) => {
-  if (!ym || ym.length !== 7) return "-";
-  const [year, month] = ym.split("-");
-  const monthsFr = [
-    "",
-    "Janvier", "Février", "Mars", "Avril", "Mai", "Juin",
-    "Juillet", "Août", "Septembre", "Octobre", "Novembre", "Décembre"
-  ];
-  const m = parseInt(month, 10);
-  if (isNaN(m) || m < 1 || m > 12) return ym;
-  return `${monthsFr[m]} ${year}`;
-};
 
 const Payments = () => {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [isReceiptDialogOpen, setIsReceiptDialogOpen] = useState(false);
-  const [currentPayment, setCurrentPayment] = useState<Partial<Payment>>({});
-  const [paymentToDelete, setPaymentToDelete] = useState<string | null>(null);
+  
+  // Le paiement en cours d'édition/création
+  const [currentPayment, setCurrentPayment] = useState<Partial<Payment> & { student_id?: number }>({});
+  const [paymentToDelete, setPaymentToDelete] = useState<number | null>(null);
+
   const [payments, setPayments] = useState<Payment[]>([]);
   const [students, setStudents] = useState<Student[]>([]);
+  const [registrations, setRegistrations] = useState<Registration[]>([]);
+  
   const [loading, setLoading] = useState(true);
-  const { toast: useToastToast } = useToast();
+  const { toast } = useToast();
   const [searchQuery, setSearchQuery] = useState('');
-  const [availableMonths, setAvailableMonths] = useState<string[]>([]);
-  const [selectedMonth, setSelectedMonth] = useState<string>("");
   const [schoolName, setSchoolName] = useState<string>("");
+  
   const [receiptPayment, setReceiptPayment] = useState<Payment | null>(null);
-  const [receiptStudent, setReceiptStudent] = useState<Student | null>(null);
-  const [showOverduePayments, setShowOverduePayments] = useState<boolean>(false);
-  const [typeFilter, setTypeFilter] = useState<string>('all'); // Filtre de type de paiement : 'all', 'tuition', 'books', 'activities', 'other'
+  
   const receiptRef = useRef<HTMLDivElement>(null);
 
   const { 
     getAllPayments, 
     getAllStudents,
+    getAllRegistrations,
     getSettings,
     createPayment,
     updatePayment,
     deletePayment,
-    incrementPrintCount
   } = useDatabase();
 
   const loadData = async () => {
+    setLoading(true);
     try {
-      const [paymentsData, studentsData] = await Promise.all([
+      const [paymentsData, studentsData, registrationsData, settingsData] = await Promise.all([
         getAllPayments(),
-        getAllStudents()
+        getAllStudents(),
+        getAllRegistrations(),
+        getSettings(),
       ]);
-      setPayments(paymentsData);
-      setStudents(studentsData);
+      setPayments(paymentsData || []);
+      setStudents(studentsData || []);
+      setRegistrations(registrationsData || []);
+      setSchoolName(settingsData?.schoolName || "Nom de l'école");
     } catch (error) {
       console.error('Erreur lors du chargement des données:', error);
-      useToastToast({ variant: "destructive", description: 'Erreur lors du chargement des données' });
+      toast({ variant: "destructive", description: 'Erreur lors du chargement des données' });
     } finally {
       setLoading(false);
     }
@@ -132,328 +121,108 @@ const Payments = () => {
 
   useEffect(() => {
     loadData();
-    // Fetch available months and school name from settings
-    getSettings()
-      .then(settings => {
-        setAvailableMonths(settings?.paymentMonths || [])
-        setSchoolName(settings?.schoolName || "Nom de l'école")
-      })
-      .catch(() => {
-        setAvailableMonths([])
-        setSchoolName("Nom de l'école")
-      });
   }, []);
 
   const handleOpenAddDialog = () => {
-    // Obtenir le mois actuel au format YYYY-MM
-    const currentDate = new Date();
-    const currentYearMonth = `${currentDate.getFullYear()}-${String(currentDate.getMonth() + 1).padStart(2, '0')}`;
-    
-    // Obtenir la date actuelle au format YYYY-MM-DD
-    const todayDate = currentDate.toISOString().split('T')[0];
-    
-    // Déterminer le mois par défaut : utiliser le mois actuel s'il est disponible dans la liste,
-    // sinon utiliser le premier mois disponible, ou une chaîne vide si aucun mois n'est configuré
-    let defaultMonth = "";
-    if (availableMonths.includes(currentYearMonth)) {
-      defaultMonth = currentYearMonth;
-    } else if (availableMonths.length > 0) {
-      defaultMonth = availableMonths[0];
-    }
-    
-    // Initialiser le currentPayment avec les valeurs par défaut
     setCurrentPayment({ 
-      date: todayDate, // Utiliser la date d'aujourd'hui
-      status: "paid", 
-      currency: "FCFA",
-      month: defaultMonth,
-      type: "tuition"
+      date: new Date().toISOString().split('T')[0],
+      method: "espèces",
     });
-    
-    // Synchroniser également la variable selectedMonth
-    setSelectedMonth(defaultMonth);
-    
     setIsDialogOpen(true);
   };
 
   const handleOpenEditDialog = (payment: Payment) => {
-    setCurrentPayment(payment);
+    // Pour l'édition, on retrouve le student_id à partir de la registration
+    const registration = registrations.find(r => r.id === payment.registration_id);
+    setCurrentPayment({ ...payment, student_id: registration?.student_id });
     setIsDialogOpen(true);
   };
 
-  const handleOpenDeleteDialog = (paymentId: string) => {
+  const handleOpenDeleteDialog = (paymentId: number) => {
     setPaymentToDelete(paymentId);
     setIsDeleteDialogOpen(true);
   };
 
-  // Gérer l'ouverture du modal du reçu
   const handleOpenReceiptDialog = (payment: Payment) => {
     setReceiptPayment(payment);
-    setReceiptStudent(students.find(s => s.id === payment.studentId) || null);
     setIsReceiptDialogOpen(true);
   };
 
-  // Imprimer le reçu avec une méthode plus sécurisée pour React
-  const handlePrintReceipt = async () => {
-    if (!receiptPayment || !receiptRef.current) return;
-
-    try {
-      // Incrémenter le compteur d'impression
-      await incrementPrintCount(receiptPayment.id);
-      
-      // Mettre à jour l'état local
-      setReceiptPayment({
-        ...receiptPayment,
-        printCount: (receiptPayment.printCount || 0) + 1
-      });
-      
-      // Mise à jour des données dans la liste principale
-      setPayments(prevPayments => 
-        prevPayments.map(p => 
-          p.id === receiptPayment.id 
-            ? { ...p, printCount: (p.printCount || 0) + 1 } 
-            : p
-        )
-      );
-
-      // Styles pour l'impression
-      const printStyles = `
-        @page { 
-          size: 80mm 200mm; 
-          margin: 5mm;
-        }
-        body { 
-          font-family: Arial, sans-serif;
-          font-size: 12px;
-          line-height: 1.3;
-        }
-        .receipt-container {
-          width: 100%;
-        }
-      `;
-
-      // Créer une nouvelle fenêtre pour l'impression
-      const printWindow = window.open('', '_blank');
-      if (printWindow) {
-        printWindow.document.write(`
-          <html>
-            <head>
-              <title>Reçu de paiement</title>
-              <style>${printStyles}</style>
-            </head>
-            <body>
-              ${receiptRef.current.innerHTML}
-            </body>
-          </html>
-        `);
-        
-        // Attendre que le contenu soit chargé
-        printWindow.document.close();
-        printWindow.focus();
-        
-        // Imprimer après un court délai pour s'assurer que tout est chargé
-        setTimeout(() => {
-          printWindow.print();
-          // Fermer la fenêtre après impression (ou si l'utilisateur annule)
-          setTimeout(() => printWindow.close(), 1000);
-        }, 500);
-      }
-    } catch (error) {
-      console.error('Erreur lors de l\'impression:', error);
-      useToastToast({ 
-        variant: "destructive", 
-        description: 'Erreur lors de l\'impression du reçu'
-      });
+  const handlePrintReceipt = () => {
+    if (!receiptRef.current) return;
+    const printWindow = window.open('', '_blank');
+    if (printWindow) {
+      printWindow.document.write('<html><head><title>Reçu</title></head><body>');
+      printWindow.document.write(receiptRef.current.innerHTML);
+      printWindow.document.write('</body></html>');
+      printWindow.document.close();
+      printWindow.print();
+      printWindow.close();
     }
   };
 
   const handleSavePayment = async () => {
+    const { student_id, ...paymentData } = currentPayment;
+
+    if (!student_id || !paymentData.amount || !paymentData.date || !paymentData.method) {
+      toast({ title: "Erreur", description: "Veuillez remplir tous les champs obligatoires.", variant: "destructive" });
+      return;
+    }
+
+    // Trouver la dernière inscription pour cet étudiant
+    const studentRegistrations = registrations
+      .filter(r => r.student_id === student_id)
+      .sort((a, b) => b.id - a.id); // Trier par ID pour obtenir la plus récente
+
+    if (studentRegistrations.length === 0) {
+      toast({ title: "Erreur", description: "Cet étudiant n'a aucune inscription valide.", variant: "destructive" });
+      return;
+    }
+    
+    const registration_id = studentRegistrations[0].id;
+    const finalPaymentData = { ...paymentData, registration_id };
+
     try {
-      const paymentToSave = {
-        ...currentPayment,
-        month: selectedMonth,
-        // Set date to the first day of the selected month if not set
-        date: currentPayment.date || (selectedMonth + "-01"),
-      };
-      let savedPayment;
-      
-      if (currentPayment.id) {
-        // Passer les données au format {id, data} attendu par le hook useDatabase
-        savedPayment = await updatePayment(currentPayment.id, { data: paymentToSave });
-        useToastToast({
-          title: "Succès",
-          description: "Le paiement a été mis à jour avec succès."
-        });
+      if (finalPaymentData.id) {
+        await updatePayment(finalPaymentData.id, finalPaymentData);
+        toast({ description: "Paiement mis à jour." });
       } else {
-        savedPayment = await createPayment(paymentToSave as Required<Payment>);
-        useToastToast({
-          title: "Succès",
-          description: "Le paiement a été ajouté avec succès."
-        });
-        
-        // Demander à l'utilisateur s'il souhaite imprimer un reçu
-        useToastToast({
-          title: "Reçu disponible",
-          description: "Le paiement a été enregistré. Vous pouvez imprimer un reçu maintenant.",
-          action: <Button onClick={() => handleOpenReceiptDialog(savedPayment)} size="sm">Imprimer reçu</Button>,
-        });
+        const newPayment = await createPayment(finalPaymentData);
+        toast({ description: "Paiement créé." });
+        handleOpenReceiptDialog(newPayment); // Ouvre le reçu pour le nouveau paiement
       }
-      
       setIsDialogOpen(false);
-      await loadData();
+      loadData();
     } catch (error) {
       console.error('Erreur lors de la sauvegarde:', error);
-      useToastToast({
-        title: "Erreur",
-        description: "Une erreur est survenue lors de la sauvegarde.",
-        variant: "destructive",
-      });
+      toast({ title: "Erreur", description: "La sauvegarde a échoué.", variant: "destructive" });
     }
   };
 
   const handleDeletePayment = async () => {
     if (!paymentToDelete) return;
-
     try {
       await deletePayment(paymentToDelete);
-      setPayments(payments.filter(p => p.id !== paymentToDelete));
-      useToastToast({
-        title: "Succès",
-        description: "Le paiement a été supprimé avec succès."
-      });
+      toast({ description: "Paiement supprimé." });
       setIsDeleteDialogOpen(false);
       loadData();
     } catch (error) {
       console.error('Erreur lors de la suppression:', error);
-      useToastToast({
-        title: "Erreur",
-        description: "Une erreur est survenue lors de la suppression.",
-        variant: "destructive"
-      });
+      toast({ title: "Erreur", description: "La suppression a échoué.", variant: "destructive" });
     }
   };
 
-  const getStudentName = (studentId: string): string => {
-    const student = students.find((s) => s.id === studentId);
-    return student ? `${student.firstName} ${student.lastName}` : "Étudiant inconnu";
-  };
-
-  const getStatusBadgeClass = (status: string): string => {
-    switch (status) {
-      case "paid":
-        return "bg-green-100 text-green-800";
-      case "pending":
-        return "bg-amber-100 text-amber-800";
-      case "overdue":
-        return "bg-red-100 text-red-800";
-      default:
-        return "bg-gray-100 text-gray-800";
-    }
-  };
-
-  const getStatusText = (status: string): string => {
-    switch (status) {
-      case "paid":
-        return "Payé";
-      case "pending":
-        return "En attente";
-      case "overdue":
-        return "En retard";
-      default:
-        return status;
-    }
-  };
-
-  const getTypeText = (type: string): string => {
-    switch (type) {
-      case "tuition":
-        return "Frais de scolarité";
-      case "books":
-        return "Livres";
-      case "activities":
-        return "Activités";
-      case "other":
-        return "Autre";
-      default:
-        return type;
-    }
-  };
-
-  // Fonction helper pour déterminer si un étudiant a des paiements manquants pour les mois précédents
-  const hasOverduePayments = (studentId: string): boolean => {
-    if (!availableMonths.length) return false;
-    
-    // Trier les mois disponibles en ordre chronologique
-    const sortedMonths = [...availableMonths].sort();
-    
-    // Obtenir le mois actuel (YYYY-MM format)
-    const currentDate = new Date();
-    const currentYearMonth = `${currentDate.getFullYear()}-${String(currentDate.getMonth() + 1).padStart(2, '0')}`;
-    
-    // Trouver les mois qui sont avant le mois actuel
-    const previousMonths = sortedMonths.filter(month => month < currentYearMonth);
-    
-    // Vérifier chaque mois précédent
-    for (const month of previousMonths) {
-      // Si aucun paiement n'a été effectué pour ce mois et cet étudiant, il est en retard
-      const hasPaymentForMonth = payments.some(payment => 
-        payment.studentId === studentId && 
-        (payment.month === month || (payment.date && payment.date.startsWith(month)))
-      );
-      
-      if (!hasPaymentForMonth) {
-        return true; // Étudiant en retard de paiement
-      }
-    }
-    
-    return false; // Tous les mois précédents sont payés
-  };
-  
-  // Liste des étudiants en retard de paiement (ID uniquement)
-  const studentsWithOverduePayments = useMemo(() => {
-    if (!showOverduePayments) return [];
-    return [...new Set(students.filter(student => hasOverduePayments(student.id)).map(student => student.id))];
-  }, [students, payments, availableMonths, showOverduePayments]);
-
-  const filteredPayments = payments
-    .filter(payment => {
-      const studentName = getStudentName(payment.studentId).toLowerCase();
-      const matchesSearch = studentName.includes(searchQuery.toLowerCase());
-      
-      // Vérifier si le paiement correspond au filtre de type
-      const matchesTypeFilter = typeFilter === 'all' || payment.type === typeFilter;
-      
-      // Si le filtre des paiements en retard est activé, ne montrer que les paiements des étudiants en retard
-      if (showOverduePayments) {
-        return matchesSearch && matchesTypeFilter && studentsWithOverduePayments.includes(payment.studentId);
-      }
-      
-      return matchesSearch && matchesTypeFilter;
-    })
-    // Tri des paiements par date (du plus récent au plus ancien)
-    .sort((a, b) => {
-      // Si les deux paiements ont une date, on compare ces dates
-      if (a.date && b.date) {
-        return new Date(b.date).getTime() - new Date(a.date).getTime();
-      }
-      // Si seul a a une date, a est plus récent
-      else if (a.date) {
-        return -1;
-      }
-      // Si seul b a une date, b est plus récent
-      else if (b.date) {
-        return 1;
-      }
-      // Si aucun n'a de date, on compare les IDs (supposant que les IDs plus grands sont plus récents)
-      return b.id - a.id;
-    });
+  const filteredPayments = payments.filter(payment => {
+    const studentName = `${payment.firstName || ''} ${payment.lastName || ''}`.toLowerCase();
+    return studentName.includes(searchQuery.toLowerCase());
+  });
 
   return (
     <MainLayout>
       <div className="space-y-6">
         <div className="flex justify-between items-center">
           <h2 className="text-3xl font-bold flex items-center text-school-800">
-            <FileMinus className="mr-2 h-6 w-6" />
+            <Receipt className="mr-2 h-8 w-8" />
             Gestion des Paiements
           </h2>
           <Button onClick={handleOpenAddDialog} className="bg-school-600 hover:bg-school-700">
@@ -461,54 +230,15 @@ const Payments = () => {
           </Button>
         </div>
 
-        <div className="flex flex-col md:flex-row md:items-center space-y-4 md:space-y-0 md:space-x-4">
-          <div className="relative w-full md:max-w-md">
-            <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-gray-500" />
-            <Input
-              placeholder="Rechercher un étudiant..."
-              type="search"
-              className="pl-8 bg-white"
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-            />
-          </div>
-          
-          {/* Filtre par type de paiement */}
-          <div className="w-52">
-            <Select
-              value={typeFilter}
-              onValueChange={setTypeFilter}
-            >
-              <SelectTrigger>
-                <SelectValue placeholder="Type de paiement" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">Tous les types</SelectItem>
-                <SelectItem value="tuition">Frais de scolarité</SelectItem>
-                <SelectItem value="books">Livres</SelectItem>
-                <SelectItem value="activities">Activités</SelectItem>
-                <SelectItem value="other">Autre</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-
-          <div className="flex items-center space-x-3">
-            <div className="flex items-center space-x-2">
-              <Switch
-                id="overdue-filter"
-                checked={showOverduePayments}
-                onCheckedChange={setShowOverduePayments}
-              />
-              <Label htmlFor="overdue-filter" className="cursor-pointer text-sm font-medium">
-                Élèves en retard de paiement
-              </Label>
-            </div>
-            {showOverduePayments && studentsWithOverduePayments.length > 0 && (
-              <span className="inline-flex h-5 items-center rounded-full bg-red-100 px-2 text-xs font-medium text-red-800">
-                {studentsWithOverduePayments.length} élève{studentsWithOverduePayments.length > 1 ? 's' : ''}
-              </span>
-            )}
-          </div>
+        <div className="relative w-full md:max-w-md">
+          <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-gray-500" />
+          <Input
+            placeholder="Rechercher par nom d'étudiant..."
+            type="search"
+            className="pl-8 bg-white"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+          />
         </div>
         
         <Card>
@@ -518,90 +248,33 @@ const Payments = () => {
                 <TableHeader>
                   <TableRow>
                     <TableHead>Étudiant</TableHead>
+                    <TableHead>Classe</TableHead>
                     <TableHead>Date</TableHead>
                     <TableHead>Montant</TableHead>
-                    <TableHead>Mois</TableHead>
-                    <TableHead>Statut</TableHead>
-                    <TableHead>Notes</TableHead>
-                    <TableHead>Type</TableHead>
-                    <TableHead>Impressions</TableHead>
+                    <TableHead>Méthode</TableHead>
+                    <TableHead>Référence</TableHead>
                     <TableHead className="text-right">Actions</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
                   {loading ? (
-                    <TableRow>
-                      <TableCell colSpan={9} className="text-center py-10">
-                        Chargement des paiements...
-                      </TableCell>
-                    </TableRow>
+                    <TableRow><TableCell colSpan={7} className="text-center py-10">Chargement...</TableCell></TableRow>
                   ) : filteredPayments.length === 0 ? (
-                    <TableRow>
-                      <TableCell colSpan={9} className="text-center py-10">
-                        {searchQuery
-                          ? "Aucun paiement trouvé pour cette recherche"
-                          : showOverduePayments
-                            ? "Aucun élève en retard de paiement"
-                            : "Aucun paiement enregistré"}
-                      </TableCell>
-                    </TableRow>
+                    <TableRow><TableCell colSpan={7} className="text-center py-10">Aucun paiement trouvé.</TableCell></TableRow>
                   ) : (
                     filteredPayments.map((payment) => (
                       <TableRow key={payment.id}>
-                        <TableCell className="font-medium">
-                          {getStudentName(payment.studentId)}
-                        </TableCell>
-                        <TableCell>
-                          {payment.date ? new Date(payment.date).toLocaleDateString() : "-"}
-                        </TableCell>
-                        <TableCell>
-                          {payment.amount.toLocaleString()} {payment.currency || "FCFA"}
-                        </TableCell>
-                        <TableCell>{payment.month ? formatMonthYear(payment.month) : "-"}</TableCell>
-                        <TableCell>
-                          <span className={`px-2 py-1 rounded-full text-xs ${getStatusBadgeClass(payment.status)}`}>
-                            {getStatusText(payment.status)}
-                          </span>
-                        </TableCell>
-                        <TableCell className="max-w-[200px] truncate">
-                          {payment.notes || "-"}
-                        </TableCell>
-                        <TableCell>{getTypeText(payment.type)}</TableCell>
-                        <TableCell>
-                          {payment.printCount > 0 ? (
-                            <span className={`px-2 py-1 rounded-full text-xs ${payment.printCount > 3 ? 'bg-red-100 text-red-800' : 'bg-amber-100 text-amber-800'}`}>
-                              {payment.printCount}
-                            </span>
-                          ) : (
-                            "0"
-                          )}
-                        </TableCell>
+                        <TableCell className="font-medium">{`${payment.firstName} ${payment.lastName}`}</TableCell>
+                        <TableCell>{payment.className}</TableCell>
+                        <TableCell>{new Date(payment.date).toLocaleDateString()}</TableCell>
+                        <TableCell>{payment.amount.toLocaleString()} FCFA</TableCell>
+                        <TableCell>{payment.method}</TableCell>
+                        <TableCell>{payment.reference || "-"}</TableCell>
                         <TableCell className="text-right">
                           <div className="flex justify-end items-center space-x-1">
-                            <Button
-                              variant="ghost"
-                              size="icon"
-                              onClick={() => handleOpenReceiptDialog(payment)}
-                              title="Imprimer reçu"
-                            >
-                              <Receipt className="h-4 w-4" />
-                            </Button>
-                            <Button
-                              variant="ghost"
-                              size="icon"
-                              onClick={() => handleOpenEditDialog(payment)}
-                              title="Modifier"
-                            >
-                              <Pencil className="h-4 w-4" />
-                            </Button>
-                            <Button
-                              variant="ghost"
-                              size="icon"
-                              onClick={() => handleOpenDeleteDialog(payment.id)}
-                              title="Supprimer"
-                            >
-                              <Trash2 className="h-4 w-4" />
-                            </Button>
+                            <Button variant="ghost" size="icon" onClick={() => handleOpenReceiptDialog(payment)} title="Imprimer reçu"><Printer className="h-4 w-4" /></Button>
+                            <Button variant="ghost" size="icon" onClick={() => handleOpenEditDialog(payment)} title="Modifier"><Pencil className="h-4 w-4" /></Button>
+                            <Button variant="ghost" size="icon" onClick={() => handleOpenDeleteDialog(payment.id)} title="Supprimer"><Trash2 className="h-4 w-4" /></Button>
                           </div>
                         </TableCell>
                       </TableRow>
@@ -617,137 +290,46 @@ const Payments = () => {
         <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
           <DialogContent>
             <DialogHeader>
-              <DialogTitle>
-                {currentPayment.id ? "Modifier le paiement" : "Ajouter un paiement"}
-              </DialogTitle>
+              <DialogTitle>{currentPayment.id ? "Modifier" : "Ajouter"} un paiement</DialogTitle>
             </DialogHeader>
-            <div className="space-y-4">
-              <div className="space-y-4">
+            <div className="space-y-4 py-4">
+              <div className="space-y-2">
+                <Label>Étudiant</Label>
+                <StudentSearchSelect
+                  value={currentPayment.student_id}
+                  onValueChange={(studentId) => setCurrentPayment(prev => ({ ...prev, student_id: studentId }))}
+                  students={students.map(s => ({...s, name: `${s.first_name} ${s.name}`}))}
+                />
+              </div>
+              <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label htmlFor="student">Étudiant</Label>
-                  <StudentSearchSelect
-                    value={currentPayment.studentId}
-                    onValueChange={(studentId) =>
-                      setCurrentPayment({
-                        ...currentPayment,
-                        studentId,
-                      })
-                    }
-                    students={students}
-                  />
-                </div>
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="amount">Montant</Label>
-                    <Input
-                      id="amount"
-                      type="number"
-                      value={currentPayment.amount || ""}
-                      onChange={(e) =>
-                        setCurrentPayment({
-                          ...currentPayment,
-                          amount: parseFloat(e.target.value),
-                        })
-                      }
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="month">Mois</Label>
-                    <Select
-                      value={selectedMonth || currentPayment.month || ""}
-                      onValueChange={(value) => {
-                        setSelectedMonth(value);
-                        // Update the month in the current payment object
-                        setCurrentPayment({
-                          ...currentPayment,
-                          month: value
-                        });
-                      }}
-                    >
-                      <SelectTrigger>
-                        <SelectValue placeholder="Sélectionner un mois" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {availableMonths.length > 0 ? (
-                          availableMonths.map((month) => (
-                            <SelectItem key={month} value={month}>
-                              {formatMonthYear(month)}
-                            </SelectItem>
-                          ))
-                        ) : (
-                          <SelectItem value="" disabled>
-                            Aucun mois configuré
-                          </SelectItem>
-                        )}
-                      </SelectContent>
-                    </Select>
-                  </div>
-                </div>
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="type">Type</Label>
-                    <Select
-                      value={currentPayment.type || "tuition"}
-                      onValueChange={(value) =>
-                        setCurrentPayment({
-                          ...currentPayment,
-                          type: value,
-                        })
-                      }
-                    >
-                      <SelectTrigger>
-                        <SelectValue placeholder="Type de paiement" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="tuition">Frais de scolarité</SelectItem>
-                        <SelectItem value="books">Livres</SelectItem>
-                        <SelectItem value="activities">Activités</SelectItem>
-                        <SelectItem value="other">Autre</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="status">Statut</Label>
-                    <Select
-                      value={currentPayment.status || "paid"}
-                      onValueChange={(value) =>
-                        setCurrentPayment({
-                          ...currentPayment,
-                          status: value,
-                        })
-                      }
-                    >
-                      <SelectTrigger>
-                        <SelectValue placeholder="Statut du paiement" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="paid">Payé</SelectItem>
-                        <SelectItem value="pending">En attente</SelectItem>
-                        <SelectItem value="overdue">En retard</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
+                  <Label htmlFor="amount">Montant</Label>
+                  <Input id="amount" type="number" value={currentPayment.amount || ""} onChange={(e) => setCurrentPayment(prev => ({ ...prev, amount: parseFloat(e.target.value) || 0 }))} />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="notes">Notes (optionnel)</Label>
-                  <Textarea
-                    id="notes"
-                    value={currentPayment.notes || ""}
-                    onChange={(e) =>
-                      setCurrentPayment({
-                        ...currentPayment,
-                        notes: e.target.value,
-                      })
-                    }
-                  />
+                  <Label htmlFor="date">Date</Label>
+                  <Input id="date" type="date" value={currentPayment.date || ""} onChange={(e) => setCurrentPayment(prev => ({ ...prev, date: e.target.value }))} />
                 </div>
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="method">Méthode de paiement</Label>
+                <Select value={currentPayment.method || "espèces"} onValueChange={(value) => setCurrentPayment(prev => ({ ...prev, method: value }))}>
+                  <SelectTrigger><SelectValue /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="espèces">Espèces</SelectItem>
+                    <SelectItem value="mobile money">Mobile Money</SelectItem>
+                    <SelectItem value="chèque">Chèque</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="reference">Référence (optionnel)</Label>
+                <Textarea id="reference" value={currentPayment.reference || ""} onChange={(e) => setCurrentPayment(prev => ({ ...prev, reference: e.target.value }))} />
               </div>
             </div>
             <DialogFooter>
-              <Button variant="outline" onClick={() => setIsDialogOpen(false)}>
-                Annuler
-              </Button>
-              <Button onClick={handleSavePayment} disabled={availableMonths.length === 0}>Enregistrer</Button>
+              <Button variant="outline" onClick={() => setIsDialogOpen(false)}>Annuler</Button>
+              <Button onClick={handleSavePayment}>Enregistrer</Button>
             </DialogFooter>
           </DialogContent>
         </Dialog>
@@ -757,18 +339,11 @@ const Payments = () => {
           <DialogContent>
             <DialogHeader>
               <DialogTitle>Confirmer la suppression</DialogTitle>
-              <DialogDescription>
-                Cette action est irréversible.
-              </DialogDescription>
+              <DialogDescription>Cette action est irréversible.</DialogDescription>
             </DialogHeader>
-            <p>Êtes-vous sûr de vouloir supprimer ce paiement?</p>
             <DialogFooter>
-              <Button variant="outline" onClick={() => setIsDeleteDialogOpen(false)}>
-                Annuler
-              </Button>
-              <Button variant="destructive" onClick={handleDeletePayment}>
-                Supprimer
-              </Button>
+              <Button variant="outline" onClick={() => setIsDeleteDialogOpen(false)}>Annuler</Button>
+              <Button variant="destructive" onClick={handleDeletePayment}>Supprimer</Button>
             </DialogFooter>
           </DialogContent>
         </Dialog>
@@ -778,42 +353,19 @@ const Payments = () => {
           <DialogContent className="min-w-[400px]">
             <DialogHeader>
               <DialogTitle>Reçu de paiement</DialogTitle>
-              <DialogDescription>
-                Prévisualisation du reçu à imprimer
-              </DialogDescription>
             </DialogHeader>
-            {/* Avertissement si le reçu a déjà été imprimé plusieurs fois */}
-            {receiptPayment && (receiptPayment as any).printCount > 0 && (
-              <div className={`mb-4 p-3 rounded-md ${(receiptPayment as any).printCount > 3 ? 'bg-red-100 text-red-800' : 'bg-amber-100 text-amber-800'}`}>
-                <div className="flex items-start">
-                  <FileMinus className="h-5 w-5 mr-2 mt-0.5" />
-                  <div>
-                    <p className="font-medium">Attention: Reçu déjà imprimé {(receiptPayment as any).printCount} fois</p>
-                    <p className="text-sm">
-                      {(receiptPayment as any).printCount > 3 
-                      ? 'Le nombre élevé d\'impressions peut indiquer un problème. Vérifiez si une copie du reçu original a déjà été fournie.' 
-                      : 'Ce reçu a déjà été imprimé. Si nécessaire, mentionnez "DUPLICATA" sur la copie.'}
-                    </p>
-                  </div>
-                </div>
-              </div>
-            )}
             <div ref={receiptRef} className="border p-4 rounded-md">
-              {receiptPayment && receiptStudent && (
+              {receiptPayment && (
                 <PaymentReceipt 
                   payment={receiptPayment} 
-                  student={receiptStudent} 
+                  student={students.find(s => s.id === registrations.find(r => r.id === receiptPayment.registration_id)?.student_id)} 
                   schoolName={schoolName} 
                 />
               )}
             </div>
             <DialogFooter>
-              <Button variant="outline" onClick={() => setIsReceiptDialogOpen(false)}>
-                Fermer
-              </Button>
-              <Button onClick={handlePrintReceipt}>
-                <Printer className="mr-2 h-4 w-4" /> Imprimer
-              </Button>
+              <Button variant="outline" onClick={() => setIsReceiptDialogOpen(false)}>Fermer</Button>
+              <Button onClick={handlePrintReceipt}><Printer className="mr-2 h-4 w-4" /> Imprimer</Button>
             </DialogFooter>
           </DialogContent>
         </Dialog>

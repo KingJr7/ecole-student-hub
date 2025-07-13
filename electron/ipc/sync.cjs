@@ -35,93 +35,59 @@ async function getLocalId(prisma, modelName, supabaseId) {
 }
 
 // --- Table Configurations for Synchronization ---
+// --- Table Configurations for Synchronization ---
 const tableConfigs = {
-    roles: {
-        name: 'roles', model: 'roles',
-        pullSelect: '*'
-    },
-    schools: {
-        name: 'schools', model: 'schools',
-        pullSelect: '*'
-    },
-    users: {
-        name: 'users', model: 'users',
-        pullSelect: '*, roles(*)', pullFilterColumn: 'school_id',
-        supabaseMap: (row, schoolId) => ({ 
-            name: row.name, first_name: row.first_name, phone: row.phone, email: row.email, 
-            password_hash: row.password_hash, role_id: row.role_id, school_id: schoolId, 
-            profil_picture_url: row.profil_picture_url 
-        }),
-        localMap: (row) => ({ 
-            name: row.name, firstName: row.first_name, phone: row.phone, email: row.email, 
-            password_hash: row.password_hash, role_id: row.role_id, school_id: row.school_id, 
-            profil_picture_url: row.profil_picture_url 
-        })
-    },
     classes: {
         name: 'classes', model: 'classes',
-        pullSelect: '*', pullFilterColumn: 'school_id',
-        supabaseMap: (row, schoolId) => ({ name: row.name, level: row.level, school_id: schoolId }),
-        localMap: (row) => ({ name: row.name, level: row.level })
-    },
-    subjects: {
-        name: 'subjects', model: 'subjects',
-        pullSelect: '*', pullFilterColumn: 'school_id',
-        supabaseMap: async (row, schoolId, prisma) => {
-            const classSupabaseId = await getSupabaseId(prisma, 'classes', row.classId);
-            if (!classSupabaseId) return null;
-            return { name: row.name, coefficient: row.coefficient, school_year: row.school_year, class_id: classSupabaseId, school_id: schoolId };
-        },
-        localMap: async (row, prisma) => {
-            const classLocalId = await getLocalId(prisma, 'classes', row.class_id);
-            if (!classLocalId) return null;
-            return { name: row.name, coefficient: row.coefficient, school_year: row.school_year, classId: classLocalId };
-        }
+        pullSelect: '*',
+        pullFilterColumn: 'school_id',
+        supabaseMap: (row, schoolId) => ({ 
+            name: row.name, 
+            level: row.level, 
+            school_id: schoolId 
+        }),
+        localMap: (row) => ({ 
+            name: row.name, 
+            level: row.level,
+            school_id: row.school_id
+        })
     },
     students: {
         name: 'students', model: 'students',
-        pullSelect: '*, registrations!inner(*)', pullFilterColumn: 'registrations.school_id',
-        supabaseMap: (row) => ({ first_name: row.firstName, last_name: row.lastName, birth_date: row.birth_date, genre: row.genre, matricul: row.matricul, picture_url: row.picture_url }),
-        localMap: (row) => ({ firstName: row.first_name, lastName: row.last_name, birth_date: row.birth_date, genre: row.genre, matricul: row.matricul, picture_url: row.picture_url })
-    },
-    teachers: {
-        name: 'teachers', model: 'teachers',
-        pullSelect: '*, users!inner(*)', pullFilterColumn: 'users.school_id',
-        supabaseMap: async (row, schoolId, prisma) => {
-            const userSupabaseId = await getSupabaseId(prisma, 'users', row.userId);
-            if (!userSupabaseId) return null;
-            return { user_id: userSupabaseId, speciality: row.speciality, matricule: row.matricule };
-        },
-        localMap: async (row, prisma) => {
-            const userLocalId = await getLocalId(prisma, 'users', row.user_id);
-            if (!userLocalId) return null;
-            return { userId: userLocalId, speciality: row.speciality, matricule: row.matricule };
-        }
-    },
-    parents: {
-        name: 'parents', model: 'parents',
-        pullSelect: '*, users!inner(*)', pullFilterColumn: 'users.school_id',
-        supabaseMap: async (row, schoolId, prisma) => {
-            const userSupabaseId = await getSupabaseId(prisma, 'users', row.userId);
-            if (!userSupabaseId) return null;
-            return { user_id: userSupabaseId, profession: row.profession, address: row.address, name: row.name, phone: row.phone, email: row.email };
-        },
-        localMap: async (row, prisma) => {
-            const userLocalId = await getLocalId(prisma, 'users', row.user_id);
-            if (!userLocalId) return null;
-            return { userId: userLocalId, profession: row.profession, address: row.address, name: row.name, phone: row.phone, email: row.email };
-        }
+        pullSelect: '*, registrations!inner(*)',
+        pullFilterColumn: 'registrations.school_id',
+        supabaseMap: (row) => ({ 
+            name: row.name,
+            first_name: row.first_name,
+            genre: row.gender,
+            birth_date: row.birth_date,
+            picture_url: row.picture_url
+        }),
+        localMap: (row) => ({ 
+            name: row.name,
+            first_name: row.first_name,
+            gender: row.genre,
+            birth_date: row.birth_date,
+            picture_url: row.picture_url
+        })
     },
     registrations: {
         name: 'registrations', model: 'registrations',
-        pullSelect: '*', pullFilterColumn: 'school_id',
+        pullSelect: '*',
+        pullFilterColumn: 'school_id',
         supabaseMap: async (row, schoolId, prisma) => {
             const [studentSupabaseId, classSupabaseId] = await Promise.all([
                 getSupabaseId(prisma, 'students', row.studentId),
                 getSupabaseId(prisma, 'classes', row.classId)
             ]);
             if (!studentSupabaseId || !classSupabaseId) return null;
-            return { student_id: studentSupabaseId, class_id: classSupabaseId, school_year: row.schoolYear, state: row.state, registration_date: row.registration_date, school_id: schoolId };
+            return { 
+                student_id: studentSupabaseId, 
+                class_id: classSupabaseId, 
+                school_year: row.schoolYear, 
+                state: row.state, 
+                registration_date: row.registration_date 
+            };
         },
         localMap: async (row, prisma) => {
             const [studentLocalId, classLocalId] = await Promise.all([
@@ -129,89 +95,115 @@ const tableConfigs = {
                 getLocalId(prisma, 'classes', row.class_id)
             ]);
             if (!studentLocalId || !classLocalId) return null;
-            return { studentId: studentLocalId, classId: classLocalId, schoolYear: row.school_year, state: row.state, registration_date: row.registration_date };
+            return { 
+                studentId: studentLocalId, 
+                classId: classLocalId, 
+                schoolYear: row.school_year, 
+                state: row.state, 
+                registration_date: row.registration_date 
+            };
         }
     },
-    student_parents: {
-        name: 'student_parents', model: 'studentParents',
-        pullSelect: '*, students!inner(registrations!inner(*))', pullFilterColumn: 'students.registrations.school_id',
+    teachers: {
+        name: 'teachers', model: 'teachers',
+        pullSelect: '*',
+        pullFilterColumn: 'school_id',
+        supabaseMap: (row, schoolId) => ({
+            name: row.name,
+            first_name: row.first_name,
+            phone: row.phone,
+            email: row.email,
+            adress: row.address,
+            gender: row.gender,
+            speciality: row.speciality,
+            matricule: row.matricule
+        }),
+        localMap: (row) => ({
+            name: row.name,
+            first_name: row.first_name,
+            phone: row.phone,
+            email: row.email,
+            address: row.adress,
+            gender: row.gender,
+            speciality: row.speciality,
+            matricule: row.matricule
+        })
+    },
+    subjects: {
+        name: 'subjects', model: 'subjects',
+        pullSelect: '*',
+        pullFilterColumn: 'school_id',
         supabaseMap: async (row, schoolId, prisma) => {
-            const [studentSupabaseId, parentSupabaseId] = await Promise.all([
-                getSupabaseId(prisma, 'students', row.studentId),
-                getSupabaseId(prisma, 'parents', row.parentId)
-            ]);
-            if (!studentSupabaseId || !parentSupabaseId) return null;
-            return { student_id: studentSupabaseId, parent_id: parentSupabaseId, relation: row.relation };
+            const classSupabaseId = await getSupabaseId(prisma, 'classes', row.classId);
+            if (!classSupabaseId) return null;
+            return { 
+                name: row.name, 
+                coefficient: row.coefficient, 
+                school_year: row.school_year, 
+                class_id: classSupabaseId 
+            };
         },
         localMap: async (row, prisma) => {
-            const [studentLocalId, parentLocalId] = await Promise.all([
-                getLocalId(prisma, 'students', row.student_id),
-                getLocalId(prisma, 'parents', row.parent_id)
-            ]);
-            if (!studentLocalId || !parentLocalId) return null;
-            return { studentId: studentLocalId, parentId: parentLocalId, relation: row.relation };
+            const classLocalId = await getLocalId(prisma, 'classes', row.class_id);
+            if (!classLocalId) return null;
+            return { 
+                name: row.name, 
+                coefficient: row.coefficient, 
+                school_year: row.school_year, 
+                classId: classLocalId 
+            };
         }
     },
     lessons: {
         name: 'lessons', model: 'lessons',
-        pullSelect: '*, classes!inner(*)', pullFilterColumn: 'classes.school_id',
+        pullSelect: '*, classes!inner(*)',
+        pullFilterColumn: 'classes.school_id',
         supabaseMap: async (row, schoolId, prisma) => {
-            const [classSupabaseId, subjectSupabaseId, teacherSupabaseId] = await Promise.all([
+            const [teacherSupabaseId, classSupabaseId, subjectSupabaseId] = await Promise.all([
+                getSupabaseId(prisma, 'teachers', row.teacherId),
                 getSupabaseId(prisma, 'classes', row.classId),
-                getSupabaseId(prisma, 'subjects', row.subjectId),
-                getSupabaseId(prisma, 'teachers', row.teacherId)
+                getSupabaseId(prisma, 'subjects', row.subjectId)
             ]);
-            if (!classSupabaseId || !subjectSupabaseId) return null;
-            return { class_id: classSupabaseId, subject_id: subjectSupabaseId, teacher_id: teacherSupabaseId, school_year: row.schoolYear };
+            if (!teacherSupabaseId || !classSupabaseId || !subjectSupabaseId) return null;
+            return { 
+                teacher_id: teacherSupabaseId, 
+                class_id: classSupabaseId, 
+                subject_id: subjectSupabaseId, 
+                school_year: row.schoolYear 
+            };
         },
         localMap: async (row, prisma) => {
-            const [classLocalId, subjectLocalId, teacherLocalId] = await Promise.all([
+            const [teacherLocalId, classLocalId, subjectLocalId] = await Promise.all([
+                getLocalId(prisma, 'teachers', row.teacher_id),
                 getLocalId(prisma, 'classes', row.class_id),
-                getLocalId(prisma, 'subjects', row.subject_id),
-                getLocalId(prisma, 'teachers', row.teacher_id)
+                getLocalId(prisma, 'subjects', row.subject_id)
             ]);
-            if (!classLocalId || !subjectLocalId) return null;
-            return { classId: classLocalId, subjectId: subjectLocalId, teacherId: teacherLocalId, schoolYear: row.school_year };
-        }
-    },
-    schedules: {
-        name: 'schedules', model: 'schedules',
-        pullSelect: '*, lessons!inner(classes!inner(*))', pullFilterColumn: 'lessons.classes.school_id',
-        supabaseMap: async (row, schoolId, prisma) => {
-            const lessonSupabaseId = await getSupabaseId(prisma, 'lessons', row.lessonId);
-            if (!lessonSupabaseId) return null;
-            return { lesson_id: lessonSupabaseId, day_of_week: row.day_of_week, start_time: row.start_time, end_time: row.end_time };
-        },
-        localMap: async (row, prisma) => {
-            const lessonLocalId = await getLocalId(prisma, 'lessons', row.lesson_id);
-            if (!lessonLocalId) return null;
-            return { lessonId: lessonLocalId, day_of_week: row.day_of_week, start_time: row.start_time, end_time: row.end_time };
-        }
-    },
-    payments: {
-        name: 'payments', model: 'payments',
-        pullSelect: '*, registrations!inner(*)', pullFilterColumn: 'registrations.school_id',
-        supabaseMap: async (row, schoolId, prisma) => {
-            const registrationSupabaseId = await getSupabaseId(prisma, 'registrations', row.registrationId);
-            if (!registrationSupabaseId) return null;
-            return { registration_id: registrationSupabaseId, amount: row.amount, date: row.date, method: row.method, reference: row.reference, month: row.month };
-        },
-        localMap: async (row, prisma) => {
-            const registrationLocalId = await getLocalId(prisma, 'registrations', row.registration_id);
-            if (!registrationLocalId) return null;
-            return { registrationId: registrationLocalId, amount: row.amount, date: row.date, method: row.method, reference: row.reference, month: row.month };
+            if (!teacherLocalId || !classLocalId || !subjectLocalId) return null;
+            return { 
+                teacherId: teacherLocalId, 
+                classId: classLocalId, 
+                subjectId: subjectLocalId, 
+                schoolYear: row.school_year 
+            };
         }
     },
     notes: {
         name: 'notes', model: 'notes',
-        pullSelect: '*, lessons!inner(classes!inner(*))', pullFilterColumn: 'lessons.classes.school_id',
+        pullSelect: '*, lessons!inner(classes!inner(*))',
+        pullFilterColumn: 'lessons.classes.school_id',
         supabaseMap: async (row, schoolId, prisma) => {
             const [studentSupabaseId, lessonSupabaseId] = await Promise.all([
                 getSupabaseId(prisma, 'students', row.studentId),
                 getSupabaseId(prisma, 'lessons', row.lessonId)
             ]);
             if (!studentSupabaseId || !lessonSupabaseId) return null;
-            return { student_id: studentSupabaseId, lesson_id: lessonSupabaseId, value: row.value, type: row.type, quarter: row.quarter };
+            return { 
+                student_id: studentSupabaseId, 
+                lesson_id: lessonSupabaseId, 
+                value: row.value, 
+                type: row.type, 
+                quarter: row.quarter 
+            };
         },
         localMap: async (row, prisma) => {
             const [studentLocalId, lessonLocalId] = await Promise.all([
@@ -219,33 +211,196 @@ const tableConfigs = {
                 getLocalId(prisma, 'lessons', row.lesson_id)
             ]);
             if (!studentLocalId || !lessonLocalId) return null;
-            return { studentId: studentLocalId, lessonId: lessonLocalId, value: row.value, type: row.type, quarter: row.quarter };
+            return { 
+                studentId: studentLocalId, 
+                lessonId: lessonLocalId, 
+                value: row.value, 
+                type: row.type, 
+                quarter: row.quarter 
+            };
         }
     },
-    attendances: {
-        name: 'attendances', model: 'attendances',
-        pullSelect: '*, students!inner(registrations!inner(*))', pullFilterColumn: 'students.registrations.school_id',
+    parents: {
+        name: 'parents', model: 'parents',
+        pullSelect: '*',
+        pullFilterColumn: null, // Pas de school_id direct
+        supabaseMap: (row) => ({
+            name: row.name,
+            first_name: row.first_name,
+            phone: row.phone,
+            email: row.email,
+            address: row.address,
+            gender: row.gender,
+            profession: row.profession
+        }),
+        localMap: (row) => ({
+            name: row.name,
+            first_name: row.first_name,
+            phone: row.phone,
+            email: row.email,
+            address: row.address,
+            gender: row.gender,
+            profession: row.profession
+        })
+    },
+    student_parents: {
+        name: 'student_parents', model: 'studentParents',
+        pullSelect: '*, students!inner(registrations!inner(*))',
+        pullFilterColumn: 'students.registrations.school_id',
         supabaseMap: async (row, schoolId, prisma) => {
-            const studentSupabaseId = await getSupabaseId(prisma, 'students', row.studentId);
-            if (!studentSupabaseId) return null;
-            return { student_id: studentSupabaseId, date: row.date, status: row.status, justification: row.justification };
+            const [studentSupabaseId, parentSupabaseId] = await Promise.all([
+                getSupabaseId(prisma, 'students', row.studentId),
+                getSupabaseId(prisma, 'parents', row.parentId)
+            ]);
+            if (!studentSupabaseId || !parentSupabaseId) return null;
+            return { 
+                student_id: studentSupabaseId, 
+                parent_id: parentSupabaseId, 
+                relation: row.relation 
+            };
         },
         localMap: async (row, prisma) => {
-            const studentLocalId = await getLocalId(prisma, 'students', row.student_id);
-            if (!studentLocalId) return null;
-            return { studentId: studentLocalId, date: row.date, status: row.status, justification: row.justification };
+            const [studentLocalId, parentLocalId] = await Promise.all([
+                getLocalId(prisma, 'students', row.student_id),
+                getLocalId(prisma, 'parents', row.parent_id)
+            ]);
+            if (!studentLocalId || !parentLocalId) return null;
+            return { 
+                studentId: studentLocalId, 
+                parentId: parentLocalId, 
+                relation: row.relation 
+            };
+        }
+    },
+    payments: {
+        name: 'payments', model: 'payments',
+        pullSelect: '*, registrations!inner(*)',
+        pullFilterColumn: 'registrations.school_id',
+        supabaseMap: async (row, schoolId, prisma) => {
+            const registrationSupabaseId = await getSupabaseId(prisma, 'registrations', row.registrationId);
+            if (!registrationSupabaseId) return null;
+            return { 
+                registration_id: registrationSupabaseId, 
+                amount: row.amount, 
+                method: row.method, 
+                date: row.date, 
+                reference: row.reference 
+            };
+        },
+        localMap: async (row, prisma) => {
+            const registrationLocalId = await getLocalId(prisma, 'registrations', row.registration_id);
+            if (!registrationLocalId) return null;
+            return { 
+                registrationId: registrationLocalId, 
+                amount: row.amount, 
+                method: row.method, 
+                date: row.date, 
+                reference: row.reference 
+            };
         }
     },
     fees: {
         name: 'fees', model: 'fees',
-        pullSelect: '*', pullFilterColumn: 'school_id',
-        supabaseMap: (row, schoolId) => ({ name: row.name, amount: row.amount, due_date: row.due_date, school_year: row.school_year, school_id: schoolId }),
-        localMap: (row) => ({ name: row.name, amount: row.amount, due_date: row.due_date, school_year: row.school_year })
+        pullSelect: '*',
+        pullFilterColumn: 'school_id',
+        supabaseMap: (row, schoolId) => ({ 
+            name: row.name, 
+            amount: row.amount, 
+            due_date: row.due_date, 
+            school_year: row.school_year 
+        }),
+        localMap: (row) => ({ 
+            name: row.name, 
+            amount: row.amount, 
+            due_date: row.due_date, 
+            school_year: row.school_year 
+        })
+    },
+    attendances: {
+        name: 'attendances', model: 'attendances',
+        pullSelect: '*, students!inner(registrations!inner(*))',
+        pullFilterColumn: 'students.registrations.school_id',
+        supabaseMap: async (row, schoolId, prisma) => {
+            const studentSupabaseId = await getSupabaseId(prisma, 'students', row.studentId);
+            if (!studentSupabaseId) return null;
+            return { 
+                student_id: studentSupabaseId, 
+                date: row.date, 
+                state: row.state, 
+                justification: row.justification 
+            };
+        },
+        localMap: async (row, prisma) => {
+            const studentLocalId = await getLocalId(prisma, 'students', row.student_id);
+            if (!studentLocalId) return null;
+            return { 
+                studentId: studentLocalId, 
+                date: row.date, 
+                state: row.state, 
+                justification: row.justification 
+            };
+        }
+    },
+    employees: {
+        name: 'employees', model: 'employees',
+        pullSelect: '*',
+        pullFilterColumn: 'school_id',
+        supabaseMap: (row, schoolId) => ({
+            name: row.name,
+            first_name: row.first_name,
+            phone: row.phone,
+            email: row.email,
+            adress: row.address,
+            gender: row.gender,
+            job_title: row.job_title,
+            salary: row.salary,
+            matricule: row.matricule,
+            school_id: schoolId
+        }),
+        localMap: (row) => ({
+            name: row.name,
+            first_name: row.first_name,
+            phone: row.phone,
+            email: row.email,
+            address: row.adress,
+            gender: row.gender,
+            job_title: row.job_title,
+            salary: row.salary,
+            matricule: row.matricule,
+            school_id: row.school_id
+        })
+    },
+    schedules: {
+        name: 'schedules', model: 'schedules',
+        pullSelect: '*, lessons!inner(classes!inner(*))',
+        pullFilterColumn: 'lessons.classes.school_id',
+        supabaseMap: async (row, schoolId, prisma) => {
+            const lessonSupabaseId = await getSupabaseId(prisma, 'lessons', row.lessonId);
+            if (!lessonSupabaseId) return null;
+            return { 
+                lesson_id: lessonSupabaseId, 
+                day_of_week: row.day_of_week, 
+                start_time: row.start_time, 
+                end_time: row.end_time 
+            };
+        },
+        localMap: async (row, prisma) => {
+            const lessonLocalId = await getLocalId(prisma, 'lessons', row.lesson_id);
+            if (!lessonLocalId) return null;
+            return { 
+                lessonId: lessonLocalId, 
+                day_of_week: row.day_of_week, 
+                start_time: row.start_time, 
+                end_time: row.end_time 
+            };
+        }
     }
 };
 
 const syncOrder = [
-    'roles', 'schools', 'users', 'classes', 'subjects', 'students', 'teachers', 'parents', 'registrations', 'student_parents', 'lessons', 'schedules', 'payments', 'notes', 'attendances', 'fees'
+    'classes', 'students', 'teachers', 'subjects', 'parents', 'registrations',
+    'lessons', 'student_parents', 'payments', 'fees', 'attendances',
+    'employees', 'schedules', 'notes'
 ];
 
 async function pushChanges(prisma, schoolId, supabase) {
@@ -254,7 +409,8 @@ async function pushChanges(prisma, schoolId, supabase) {
     for (const tableName of syncOrder) {
         const config = tableConfigs[tableName];
         if (!config.model) continue;
-        const rowsToSync = await prisma[config.model].findMany({ where: { needs_sync: true } });
+        const modelName = config.model.charAt(0).toLowerCase() + config.model.slice(1);
+        const rowsToSync = await prisma[modelName].findMany({ where: { needs_sync: true } });
 
         if (rowsToSync.length === 0) {
             continue;
@@ -271,7 +427,7 @@ async function pushChanges(prisma, schoolId, supabase) {
                             .update({ is_deleted: true, last_modified: new Date().toISOString() })
                             .match({ id: row.supabase_id });
                         if (error) throw error;
-                        await prisma[config.model].delete({ where: { id: row.id } });
+                        await prisma[modelName].delete({ where: { id: row.id } });
                         sendSyncLog('success', `     ✅ Suppression locale et distante réussie.`);
                     }
                 } else {
@@ -294,7 +450,7 @@ async function pushChanges(prisma, schoolId, supabase) {
                         sendSyncLog('info', `     📦 Nouvel ID Supabase: ${supabase_id}`);
                     }
 
-                    await prisma[config.model].update({
+                    await prisma[modelName].update({
                         where: { id: row.id },
                         data: { needs_sync: false, supabase_id: supabase_id, last_modified: new Date() },
                     });
@@ -314,7 +470,8 @@ async function pullChanges(prisma, schoolId, supabase) {
     for (const tableName of [...syncOrder].reverse()) {
         const config = tableConfigs[tableName];
         if (!config.model) continue;
-        const lastRecord = await prisma[config.model].findFirst({ orderBy: { last_modified: 'desc' } });
+        const modelName = config.model.charAt(0).toLowerCase() + config.model.slice(1);
+        const lastRecord = await prisma[modelName].findFirst({ orderBy: { last_modified: 'desc' } });
         const lastSyncTime = lastRecord ? lastRecord.last_modified.toISOString() : '1970-01-01T00:00:00Z';
         
         sendSyncLog('info', `[PULL] Table '${config.name}': Recherche des modifications depuis ${lastSyncTime}`);
@@ -344,12 +501,12 @@ async function pullChanges(prisma, schoolId, supabase) {
 
         for (const row of supabaseRows) {
             try {
-                const localRow = await prisma[config.model].findUnique({ where: { supabase_id: row.id } });
+                const localRow = await prisma[modelName].findUnique({ where: { supabase_id: row.id } });
 
                 if (row.is_deleted) {
                     if (localRow) {
                         sendSyncLog('info', `    -> 🗑️  [DELETE] Suppression de ${config.name} #${localRow.id} (depuis supabase_id: ${row.id})`);
-                        await prisma[config.model].delete({ where: { id: localRow.id } });
+                        await prisma[modelName].delete({ where: { id: localRow.id } });
                     }
                     continue;
                 }
@@ -363,7 +520,7 @@ async function pullChanges(prisma, schoolId, supabase) {
                 if (localRow) { // Update
                     if (new Date(row.last_modified) > new Date(localRow.last_modified)) {
                         sendSyncLog('info', `    -> 🔄  [UPDATE] Mise à jour de ${config.name} #${localRow.id} depuis Supabase...`, { data: mappedData });
-                        await prisma[config.model].update({
+                        await prisma[modelName].update({
                             where: { id: localRow.id },
                             data: { ...mappedData, last_modified: new Date(row.last_modified), needs_sync: false },
                         });
@@ -371,7 +528,7 @@ async function pullChanges(prisma, schoolId, supabase) {
                     }
                 } else { // Insert
                     sendSyncLog('info', `    -> ✨  [CREATE] Création de ${config.name} (supabase_id: ${row.id}) localement...`, { data: mappedData });
-                    await prisma[config.model].create({
+                    await prisma[modelName].create({
                         data: {
                             ...mappedData,
                             supabase_id: row.id,

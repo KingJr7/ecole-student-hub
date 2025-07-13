@@ -175,6 +175,36 @@ app.whenReady().then(() => {
   setupAuthIPC(prisma); // Passer l'instance de prisma
   setupSyncIPC(prisma); // Passer l'instance de prisma
 
+  async function logDatabaseContent() {
+    console.log("\n╔════════════════════════════════════════════╗");
+    console.log("║       🔍 CONTENU DE LA BDD LOCALE       ║");
+    console.log("╚════════════════════════════════════════════╝");
+
+    const modelNames = Object.keys(prisma).filter(key => 
+        !key.startsWith('_') && !key.startsWith('$') && prisma[key].findMany
+    );
+
+    for (const modelName of modelNames) {
+        try {
+            const model = prisma[modelName];
+            const data = await model.findMany();
+            console.log('\n--- Table: ' + modelName + ' (' + data.length + ' rows) ---');
+            if (data.length > 0) {
+                console.table(data);
+            } else {
+                console.log('(empty)');
+            }
+        } catch (error) {
+            console.error('Erreur lors de la lecture de la table ' + modelName + ':', error);
+        }
+    }
+    console.log("\n╔════════════════════════════════════════════╗");
+    console.log("║        ✅ FIN DU DUMP DE LA BDD         ║");
+    console.log("╚════════════════════════════════════════════╝\n");
+  }
+
+  logDatabaseContent();
+
   // Configurer les mises à jour automatiques
   if (process.env.NODE_ENV !== 'development') {
     const { autoUpdater } = require('electron-updater');
@@ -195,31 +225,29 @@ app.whenReady().then(() => {
     });
   }
 
-  async function autoSyncIfOnline() {
-    try {
-      const settings = await prisma.settings.findUnique({ where: { id: 1 } });
-      if (!settings || !settings.schoolId || !settings.loggedIn) {
-        console.log('Impossible de lancer la synchro auto : infos manquantes.');
-        return;
-      }
+  // async function autoSyncIfOnline() {
+  //   try {
+  //     const settings = await prisma.settings.findUnique({ where: { id: 1 } });
+  //     if (!settings || !settings.schoolId || !settings.loggedIn) {
+  //       console.log('Impossible de lancer la synchro auto : infos manquantes.');
+  //       return;
+  //     }
 
-      const online = await checkInternetConnection();
-      if (online) {
-        const win = BrowserWindow.getAllWindows()[0];
-        if (win) {
-          win.webContents.send('sync:auto:start');
-          win.webContents.send('sync:run:trigger', { schoolId: settings.schoolId, token: null });
-          console.log('Synchronisation automatique déclenchée au démarrage.');
-        }
-      } else {
-        console.log('Pas de connexion internet, synchro auto non lancée.');
-      }
-    } catch (err) {
-      console.error('Erreur pendant la synchro auto:', err);
-    }
-  }
+  //     const online = await checkInternetConnection();
+  //     if (online) {
+  //       const win = BrowserWindow.getAllWindows()[0];
+  //       if (win) {
+  //         win.webContents.send('sync:auto:start');
+  //         win.webContents.send('sync:run:trigger', { schoolId: settings.schoolId, token: null });
+  //         console.log('Synchronisation automatique déclenchée au démarrage.');
+  //       }
+  //     }
+  //   } catch (err) {
+  //     console.error('Erreur pendant la synchro auto:', err);
+  //   }
+  // }
 
-  setTimeout(() => autoSyncIfOnline(), 2000); // Petit délai pour laisser l'UI se charger
+  // setTimeout(() => autoSyncIfOnline(), 2000); // Petit délai pour laisser l'UI se charger
 
   app.on('activate', () => {
     if (BrowserWindow.getAllWindows().length === 0) {

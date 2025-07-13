@@ -39,13 +39,12 @@ function setupAuthIPC(prisma) {
 
       const roleName = userData.roles.name;
       const schoolId = userData.school_id;
-      const schoolName = userData.school_name; // Assumant que school_name est dans la table users
 
       // Étape 3: Mettre à jour la base de données locale
       await prisma.settings.upsert({
         where: { id: 1 },
         update: {
-          schoolName: schoolName || 'École',
+          schoolName: 'École', // Vous pouvez remplacer ceci par une valeur dynamique si nécessaire
           loggedIn: 1,
           userRole: roleName,
           schoolId: schoolId,
@@ -53,7 +52,7 @@ function setupAuthIPC(prisma) {
         },
         create: {
           id: 1,
-          schoolName: schoolName || 'École',
+          schoolName: 'École',
           loggedIn: 1,
           userRole: roleName,
           schoolId: schoolId,
