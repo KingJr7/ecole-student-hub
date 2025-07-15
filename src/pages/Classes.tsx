@@ -119,71 +119,32 @@ export default function Classes() {
 
   const loadData = async () => {
     try {
-      setIsLoading(true)
-      console.log('Classes: Début chargement des données')
-      
-      // 1. Charger les classes, les étudiants et les professeurs
-      let classesData = []
-      let studentsData = []
-      let teachersData = []
-      
-      try {
-        [classesData, studentsData, teachersData] = await Promise.all([
-          getAllClasses(),
-          getAllStudents(),
-          getTeachers()
-        ])
-        console.log(`Classes: ${classesData.length} classes chargées`)
-        console.log(`Classes: ${studentsData.length} étudiants chargés`)
-        console.log(`Classes: ${teachersData.length} professeurs chargés`)
-        setTeachers(teachersData)
-      } catch (error) {
-        console.error('Classes: Erreur lors du chargement initial:', error)
-        throw error
-      }
-      
-      // 2. Charger les matières pour chaque classe, mais gérer les erreurs individuellement
-      const classesWithSubjects = await Promise.all(
+      setIsLoading(true);
+      const classesData = await getAllClasses();
+      const studentsData = await getAllStudents();
+      const teachersData = await getTeachers();
+
+      const classesWithData = await Promise.all(
         classesData.map(async (cls) => {
-          try {
-            const subjects = await getClassSubjects(cls.id as string)
-            console.log(`Classes: ${subjects.length} matières chargées pour la classe ${cls.name}`)
-            return { ...cls, subjects }
-          } catch (error) {
-            console.error(`Classes: Erreur lors du chargement des matières pour la classe ${cls.name}:`, error)
-            // En cas d'erreur, retourner la classe sans matières plutôt que de faire échouer tout le chargement
-            return { ...cls, subjects: [] }
-          }
+          const classSubjects = await getClassSubjects(cls.id);
+          const subjectsWithTeacherNames = classSubjects.map(subj => {
+            const teacher = teachersData.find(t => t.id === subj.teacher_id);
+            return { ...subj, teacherName: teacher ? `${teacher.first_name} ${teacher.name}` : 'N/A' };
+          });
+          return { ...cls, subjects: subjectsWithTeacherNames };
         })
-      )
-      
-      // 3. Ajouter le nom de la classe à chaque étudiant
-      const studentsWithClassNames = studentsData.map(student => {
-        const studentClass = classesData.find(c => c.id === student.classId)
-        return {
-          ...student,
-          className: studentClass?.name || '',
-          classId: student.classId
-        }
-      })
-      
-      // 4. Mettre à jour l'état
-      setClasses(classesWithSubjects)
-      setStudents(studentsWithClassNames)
-      console.log('Classes: Données chargées avec succès')
-      
+      );
+
+      setClasses(classesWithData);
+      setStudents(studentsData.map(student => ({ ...student, className: classesData.find(c => c.id === student.class_id)?.name || '' })));
+      setTeachers(teachersData);
     } catch (error) {
-      console.error('Classes: Erreur critique lors du chargement des données:', error)
-      toast({
-        title: "Erreur",
-        description: "Impossible de charger les données. Veuillez réessayer plus tard.",
-        variant: "destructive",
-      })
+      console.error('Erreur lors du chargement des données:', error);
+      toast({ title: "Erreur", description: "Impossible de charger les données.", variant: "destructive" });
     } finally {
-      setIsLoading(false)
-      console.log('Classes: Fin du chargement')
+      setIsLoading(false);
     }
-  }
+  };
 
   const handleOpenDialog = (cls?: Class) => {
     setCurrentClass(cls || {})
@@ -281,10 +242,10 @@ export default function Classes() {
     try {
       await createSubject({
         name: currentSubject.name || '',
-        classId: currentClass.id || '',
+        class_id: currentClass.id || '',
         coefficient: currentSubject.coefficient || 1,
-        teacherId: currentSubject.teacherId,
-        ...(currentSubject.hoursPerWeek !== undefined ? { hoursPerWeek: currentSubject.hoursPerWeek } : {})
+        teacher_id: currentSubject.teacherId,
+        school_year: '2024-2025', // Ajout d'une année scolaire par défaut
       });
       
       toast({
@@ -510,7 +471,7 @@ export default function Classes() {
                     <SelectContent>
                       {teachers.map((teacher) => (
                         <SelectItem key={teacher.id} value={teacher.id}>
-                          {teacher.firstName} {teacher.lastName}
+                          {teacher.first_name} {teacher.name}
                         </SelectItem>
                       ))}
                     </SelectContent>

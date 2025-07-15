@@ -74,22 +74,41 @@ model Registrations {
 }
 
 model Teachers {
+  id              Int      @id @default(autoincrement())
+  name            String?
+  first_name      String?
+  phone           String?
+  email           String?  @unique
+  adress          String?
+  gender          String?
+  speciality      String?
+  matricule       String?
+  hourlyRate      Float?   @default(0)
+  supabase_id     String?  @unique
+  last_modified   DateTime @default(now())
+  needs_sync      Boolean  @default(false)
+  is_deleted      Boolean  @default(false)
+  lessons         Lessons[]
+  workHours       TeacherWorkHours[]
+
+  @@map("teachers")
+}
+
+model TeacherWorkHours {
   id           Int      @id @default(autoincrement())
-  name         String?
-  first_name   String?
-  phone        String?
-  email        String?  @unique
-  adress       String?
-  gender       String?
-  speciality   String?
-  matricule    String?
+  teacher_id   Int
+  subject_id   Int?
+  hours        Float
+  date         DateTime
+  notes        String?
   supabase_id  String?  @unique
   last_modified DateTime @default(now())
   needs_sync   Boolean  @default(false)
   is_deleted   Boolean  @default(false)
-  lessons      Lessons[]
+  teacher      Teachers @relation(fields: [teacher_id], references: [id], onDelete: Cascade)
+  subject      Subjects? @relation(fields: [subject_id], references: [id], onDelete: SetNull)
 
-  @@map("teachers")
+  @@map("teacher_work_hours")
 }
 
 model Lessons {
@@ -123,6 +142,7 @@ model Subjects {
   is_deleted   Boolean  @default(false)
   class        Classes  @relation(fields: [class_id], references: [id], onDelete: Cascade)
   lessons      Lessons[]
+  workHours    TeacherWorkHours[]
 
   @@map("subjects")
 }

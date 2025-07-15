@@ -3,6 +3,8 @@ export const PERMISSIONS = {
   CAN_MANAGE_STUDENTS: 'manage_students',
   // Teachers
   CAN_MANAGE_TEACHERS: 'manage_teachers',
+  // Employees
+  CAN_MANAGE_EMPLOYEES: 'manage_employees',
   // Classes
   CAN_MANAGE_CLASSES: 'manage_classes',
   // Payments

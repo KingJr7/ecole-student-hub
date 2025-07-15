@@ -186,18 +186,38 @@ ipcMain.handle('db:students:update', async (event, { id, data }) => {
 
   // Dans la partie Teachers
 ipcMain.handle('db:teachers:create', async (event, teacherData) => {
-  // Corriger 'specialty' en 'speciality' pour correspondre au schéma
-  const { name, first_name, email, phone, matricule, speciality, adress, gender } = teacherData;
+  console.log("Données reçues par le backend:", teacherData);
+  const { name, first_name, email, phone, speciality, adress, gender, hourlyRate } = teacherData;
+
+  // Vérifier si l'email existe déjà
+  const existingTeacher = await prisma.teachers.findUnique({
+    where: { email },
+  });
+
+  if (existingTeacher) {
+    throw new Error('Un professeur avec cette adresse e-mail existe déjà.');
+  }
+
+  // 1. Récupérer le nom de l'école
+  const settings = await prisma.settings.findUnique({ where: { id: 1 } });
+  const schoolName = settings?.schoolName || 'SCHOOL';
+
+  // 2. Générer le matricule
+  const initials = schoolName.substring(0, 3).toUpperCase();
+  const randomDigits = Math.floor(1000 + Math.random() * 9000);
+  const matricule = `${initials}-${randomDigits}`;
+
   return prisma.teachers.create({
     data: {
       name,
       first_name,
       email,
       phone,
-      matricule,
-      speciality, // Correction ici
+      matricule, // Matricule généré
+      speciality,
       adress,
       gender,
+      hourlyRate,
       needs_sync: true,
       last_modified: new Date(),
     },
@@ -206,7 +226,7 @@ ipcMain.handle('db:teachers:create', async (event, teacherData) => {
 
 // De même pour update
 ipcMain.handle('db:teachers:update', async (event, { id, data }) => {
-  const { name, first_name, email, phone, matricule, speciality, adress, gender } = data;
+  const { name, first_name, email, phone, speciality, adress, gender, hourlyRate } = data;
   return prisma.teachers.update({
     where: { id },
     data: {
@@ -214,10 +234,10 @@ ipcMain.handle('db:teachers:update', async (event, { id, data }) => {
       first_name,
       email,
       phone,
-      matricule,
-      speciality, // Correction ici
+      speciality,
       adress,
       gender,
+      hourlyRate,
       needs_sync: true,
       last_modified: new Date(),
     },
@@ -233,6 +253,60 @@ ipcMain.handle('db:teachers:update', async (event, { id, data }) => {
         last_modified: new Date(),
       },
     });
+  });
+
+  // #region TeacherWorkHours
+  ipcMain.handle('db:teacherWorkHours:getByTeacherId', async (event, teacherId) => {
+    return prisma.teacherWorkHours.findMany({
+      where: { teacher_id: teacherId, is_deleted: false },
+      orderBy: { date: 'desc' },
+    });
+  });
+
+  ipcMain.handle('db:teacherWorkHours:create', async (event, workHoursData) => {
+    const { teacher_id, subject_id, hours, date, notes } = workHoursData;
+    return prisma.teacherWorkHours.create({
+      data: {
+        teacher_id,
+        subject_id,
+        hours,
+        date: new Date(date),
+        notes,
+        needs_sync: true,
+        last_modified: new Date(),
+      },
+    });
+  });
+
+  ipcMain.handle('db:teacherWorkHours:getStats', async (event, teacherId) => {
+    const today = new Date();
+    const startOfMonth = new Date(today.getFullYear(), today.getMonth(), 1);
+
+    const workHours = await prisma.teacherWorkHours.findMany({
+      where: {
+        teacher_id: teacherId,
+        is_deleted: false,
+        date: { gte: startOfMonth },
+      },
+      include: { subject: true },
+    });
+
+    const teacher = await prisma.teachers.findUnique({ where: { id: teacherId } });
+    const hourlyRate = teacher?.hourlyRate || 0;
+
+    const totalHoursThisMonth = workHours.reduce((acc, record) => acc + record.hours, 0);
+    const totalEarningsThisMonth = totalHoursThisMonth * hourlyRate;
+
+    const subjectHoursMap = new Map();
+    workHours.forEach(record => {
+      const subjectName = record.subject?.name || 'Non spécifié';
+      const currentHours = subjectHoursMap.get(subjectName) || 0;
+      subjectHoursMap.set(subjectName, currentHours + record.hours);
+    });
+
+    const subjectHours = Array.from(subjectHoursMap.entries()).map(([name, hours]) => ({ name, hours }));
+
+    return { totalHoursThisMonth, totalEarningsThisMonth, subjectHours };
   });
   // #endregion
 
@@ -320,8 +394,12 @@ ipcMain.handle('db:payments:getAvailableMonths', async () => {
   });
 
   ipcMain.handle('db:subjects:create', async (event, subjectData) => {
-    const { name, coefficient, class_id, school_year } = subjectData;
-    return prisma.subjects.create({
+  const { name, coefficient, class_id, school_year, teacher_id } = subjectData;
+
+  // Utiliser une transaction pour garantir que la matière et la leçon sont créées ensemble
+  return prisma.$transaction(async (tx) => {
+    // 1. Créer la matière (Subject)
+    const newSubject = await tx.subjects.create({
       data: {
         name,
         coefficient,
@@ -331,7 +409,22 @@ ipcMain.handle('db:payments:getAvailableMonths', async () => {
         last_modified: new Date(),
       },
     });
+
+    // 2. Créer la leçon (Lesson) pour lier le professeur, la matière et la classe
+    await tx.lessons.create({
+      data: {
+        teacher_id,
+        class_id,
+        subject_id: newSubject.id,
+        school_year,
+        needs_sync: true,
+        last_modified: new Date(),
+      },
+    });
+
+    return newSubject;
   });
+});
 
   ipcMain.handle('db:subjects:update', async (event, { id, data }) => {
     const { name, coefficient, class_id, school_year } = data;
@@ -376,6 +469,20 @@ ipcMain.handle('db:payments:getAvailableMonths', async () => {
       include: {
         subject: true,
         teacher: true,
+      },
+    });
+  });
+
+  ipcMain.handle('db:subjects:getByTeacherId', async (event, teacherId) => {
+    return prisma.subjects.findMany({
+      where: {
+        lessons: {
+          some: { teacher_id: teacherId },
+        },
+        is_deleted: false,
+      },
+      include: {
+        class: true,
       },
     });
   });

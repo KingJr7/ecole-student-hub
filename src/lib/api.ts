@@ -1,11 +1,51 @@
 import prisma from './prisma';
-import { Student, AttendanceRecord, Payment, Grade, DashboardStats, ClassResult, Teacher, Subject, Schedule, ClassWithDetails, TeacherWorkHours, TeacherStats } from "../types";
+import { Student, AttendanceRecord, Payment, Grade, DashboardStats, ClassResult, Teacher, Subject, Schedule, ClassWithDetails, TeacherWorkHours, TeacherStats, Employee } from "../types";
 
 // Import mock implementations for client-side
 import * as mockApi from './mockApi';
 
 // Check if we're in a browser environment
 const isBrowser = typeof window !== 'undefined';
+
+// Employee operations
+export const getEmployees = async (): Promise<Employee[]> => {
+  if (isBrowser) {
+    return Promise.resolve(mockApi.getEmployees());
+  } else {
+    return await prisma.employees.findMany();
+  }
+};
+
+export const addEmployee = async (employee: Omit<Employee, 'id' | 'matricule'>): Promise<Employee> => {
+  if (isBrowser) {
+    return Promise.resolve(mockApi.addEmployee(employee));
+  } else {
+    const newEmployee = await prisma.employees.create({
+      data: employee,
+    });
+    return newEmployee;
+  }
+};
+
+export const updateEmployee = async (id: number, data: Partial<Employee>): Promise<Employee> => {
+  if (isBrowser) {
+    return Promise.resolve(mockApi.updateEmployee(id, data));
+  } else {
+    return await prisma.employees.update({
+      where: { id },
+      data,
+    });
+  }
+};
+
+export const deleteEmployee = async (id: number): Promise<void> => {
+  if (isBrowser) {
+    return Promise.resolve(mockApi.deleteEmployee(id));
+  } else {
+    await prisma.employees.delete({ where: { id } });
+  }
+};
+
 
 // Class operations
 export const getClasses = async () => {
@@ -139,15 +179,7 @@ export const addTeacher = async (teacher: Omit<Teacher, "id">) => {
   if (isBrowser) {
     const { ipcRenderer } = window.require('electron');
     try {
-      const newTeacher = await ipcRenderer.invoke('db:teachers:create', {
-        firstName: teacher.firstName,
-        lastName: teacher.lastName,
-        email: teacher.email,
-        phone: teacher.phone,
-        address: teacher.address || '',
-        hourlyRate: teacher.hourlyRate || 0,
-        speciality: teacher.speciality || ''
-      });
+      const newTeacher = await ipcRenderer.invoke('db:teachers:create', teacher);
       return newTeacher;
     } catch (error) {
       console.error('Erreur lors de la création du professeur:', error);

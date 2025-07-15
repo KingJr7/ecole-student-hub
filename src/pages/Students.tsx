@@ -56,6 +56,7 @@ interface CurrentStudent {
   lastName?: string;
   genre?: string;
   birthDate?: string;
+  registrationDate?: string;
   classId?: number;
   parentInfo?: {
     father?: Parent;
@@ -150,7 +151,7 @@ const Students = () => {
           class_id: currentStudent.classId,
           school_year: "2024-2025",
           state: "inscrit",
-          registration_date: new Date().toISOString().split('T')[0],
+          registration_date: currentStudent.registrationDate || new Date().toISOString().split('T')[0],
         };
         await createRegistration(registrationData);
 
@@ -273,7 +274,10 @@ const Students = () => {
                     <div className="space-y-2"><Label>Prénom</Label><Input value={currentStudent.firstName || ""} onChange={(e) => setCurrentStudent(p => ({ ...p, firstName: e.target.value }))}/></div>
                     <div className="space-y-2"><Label>Nom</Label><Input value={currentStudent.lastName || ""} onChange={(e) => setCurrentStudent(p => ({ ...p, lastName: e.target.value }))}/></div>
                   </div>
-                  <div className="space-y-2"><Label>Classe</Label><Select value={currentStudent.classId?.toString() || ""} onValueChange={(v) => setCurrentStudent(p => ({ ...p, classId: Number(v) }))}><SelectTrigger><SelectValue placeholder="Choisir..." /></SelectTrigger><SelectContent>{classes.map(c => <SelectItem key={c.id} value={c.id.toString()}>{c.name}</SelectItem>)}</SelectContent></Select></div>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="space-y-2"><Label>Classe</Label><Select value={currentStudent.classId?.toString() || ""} onValueChange={(v) => setCurrentStudent(p => ({ ...p, classId: Number(v) }))}><SelectTrigger><SelectValue placeholder="Choisir..." /></SelectTrigger><SelectContent>{classes.map(c => <SelectItem key={c.id} value={c.id.toString()}>{c.name}</SelectItem>)}</SelectContent></Select></div>
+                    <div className="space-y-2"><Label>Date d'inscription (optionnel)</Label><Input type="date" value={currentStudent.registrationDate || ""} onChange={(e) => setCurrentStudent(p => ({ ...p, registrationDate: e.target.value }))}/></div>
+                  </div>
                   <div className="grid grid-cols-2 gap-4">
                     <div className="space-y-2"><Label>Date de naissance</Label><Input type="date" value={currentStudent.birthDate || ""} onChange={(e) => setCurrentStudent(p => ({ ...p, birthDate: e.target.value }))}/></div>
                     <div className="space-y-2"><Label>Genre</Label><Select value={currentStudent.genre || ""} onValueChange={(v) => setCurrentStudent(p => ({ ...p, genre: v }))}><SelectTrigger><SelectValue placeholder="Choisir..." /></SelectTrigger><SelectContent><SelectItem value="Masculin">Masculin</SelectItem><SelectItem value="Féminin">Féminin</SelectItem></SelectContent></Select></div>

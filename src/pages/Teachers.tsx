@@ -77,19 +77,14 @@ const teacherFormSchema = z.object({
 });
 
 type TeacherFormValues = {
-  id?: string;
+  id?: number;
   firstName: string;
   lastName: string;
   email: string;
   phone: string;
   address?: string;
   speciality?: string;
-  hourlyRate: number;
-  supabase_id?: string;
-  sqlite_id?: number;
-  is_synced?: boolean;
-  is_deleted?: boolean;
-  last_modified?: string;
+  hourlyRate?: number;
 };
 
 // Schéma du formulaire d'ajout d'heures travaillées
@@ -157,14 +152,14 @@ const Teachers = () => {
     onError: (error) => {
       toast({
         title: "Erreur",
-        description: `Erreur lors de l'ajout du professeur: ${error}`,
+        description: error.message || "Erreur lors de l'ajout du professeur",
         variant: "destructive",
       });
     },
   });
 
   const updateTeacherMutation = useMutation({
-    mutationFn: ({ id, data }: { id: string; data: Partial<Teacher> }) => 
+    mutationFn: ({ id, data }: { id: number; data: Partial<Teacher> }) => 
       updateTeacher(id, data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["teachers"] });
@@ -250,10 +245,22 @@ const Teachers = () => {
 
   // Gestionnaires d'événements
   const onTeacherFormSubmit: SubmitHandler<TeacherFormValues> = (data) => {
+    console.log("Données du formulaire frontend:", data);
+    const teacherData = {
+      name: data.lastName,
+      first_name: data.firstName,
+      email: data.email,
+      phone: data.phone,
+      adress: data.address,
+      speciality: data.speciality,
+      hourlyRate: data.hourlyRate,
+      gender: 'Non spécifié',
+    };
+
     if (selectedTeacher) {
-      updateTeacherMutation.mutate({ id: selectedTeacher.id, data });
+      updateTeacherMutation.mutate({ id: selectedTeacher.id, data: teacherData });
     } else {
-      addTeacherMutation.mutate(data);
+      addTeacherMutation.mutate(teacherData);
     }
   };
 
@@ -282,11 +289,11 @@ const Teachers = () => {
   const handleEditTeacher = (teacher: Teacher) => {
     setSelectedTeacher(teacher);
     teacherForm.reset({
-      firstName: teacher.firstName,
-      lastName: teacher.lastName,
+      firstName: teacher.first_name,
+      lastName: teacher.name,
       email: teacher.email,
       phone: teacher.phone,
-      address: teacher.address || "",
+      address: teacher.adress || "",
       speciality: teacher.speciality || "",
       hourlyRate: teacher.hourlyRate || 0,
     });
@@ -308,7 +315,7 @@ const Teachers = () => {
       phone: "",
       address: "",
       speciality: "",
-      matricule: "",
+      hourlyRate: 0,
     });
     setOpenTeacherDialog(true);
   };
@@ -391,8 +398,8 @@ const Teachers = () => {
                     onClick={() => handleTeacherSelect(teacher)}
                   >
                     <div>
-                      <h3 className="font-medium">{teacher.firstName} {teacher.lastName}</h3>
-                      <p className="text-sm text-muted-foreground">{teacher.email}</p>
+                      <h3 className="font-medium">{teacher.first_name} {teacher.name}</h3>
+                      <p className="text-sm text-muted-foreground">{teacher.speciality || teacher.email}</p>
                     </div>
                     <div className="flex space-x-1">
                       <Button
@@ -428,14 +435,14 @@ const Teachers = () => {
           <CardHeader>
             <CardTitle>
               {selectedTeacher 
-                ? `${selectedTeacher.firstName} ${selectedTeacher.lastName}` 
+                ? `${selectedTeacher.first_name} ${selectedTeacher.name}` 
                 : "Sélectionnez un professeur"}
             </CardTitle>
             <div className="text-sm text-muted-foreground mt-1">
               {selectedTeacher && (
                 <div className="space-y-1">
                   <p>{selectedTeacher.email} | {selectedTeacher.phone}</p>
-                  {selectedTeacher.address && <p>Adresse: {selectedTeacher.address}</p>}
+                  {selectedTeacher.adress && <p>Adresse: {selectedTeacher.adress}</p>}
                   {selectedTeacher.speciality && <p>Spécialité: {selectedTeacher.speciality}</p>}
                 </div>
               )}
@@ -762,12 +769,12 @@ const Teachers = () => {
               
               <FormField
                 control={teacherForm.control}
-                name="matricule"
+                name="hourlyRate"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Matricule</FormLabel>
+                    <FormLabel>Taux horaire (FCFA)</FormLabel>
                     <FormControl>
-                      <Input placeholder="Matricule du professeur" {...field} />
+                      <Input type="number" placeholder="Taux horaire" {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
