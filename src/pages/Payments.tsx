@@ -34,12 +34,12 @@ import {
   TableRow,
 } from "@/components/ui/table";
 
-// Interfaces alignées sur le schéma Prisma
+// Interfaces alignées sur les données retournées par le backend
 interface Student {
   id: number;
-  name: string;
-  first_name: string;
-  // autres champs si nécessaire
+  name: string | null;
+  first_name: string | null;
+  className: string | null;
 }
 
 interface Registration {
@@ -49,21 +49,37 @@ interface Registration {
   school_year: string;
 }
 
+// L'interface Payment correspond maintenant à la structure aplatie renvoyée par `db:payments:getAll`
 interface Payment {
   id: number;
-  registration_id: number;
+  registration_id: number | null;
   amount: number;
   date: string;
   method: string;
   reference?: string;
-  registration?: {
-    student: Student;
-    class: { name: string };
-  };
-  // Champs ajoutés par le handler IPC
-  firstName?: string;
-  lastName?: string;
-  className?: string;
+  type: 'Étudiant' | 'Salaire' | 'Autre';
+  person_name: string;
+  details: string;
+}
+
+interface Payment {
+  id: number;
+  registration_id: number | null;
+  amount: number;
+  date: string;
+  method: string;
+  reference?: string;
+  type: 'Étudiant' | 'Salaire' | 'Autre';
+  person_name: string;
+  details: string;
+  registration?: Registration & { student: Student };
+}
+
+interface Fee {
+  id: number;
+  name: string;
+  amount: number;
+  level: string;
 }
 
 const Payments = () => {
@@ -71,13 +87,12 @@ const Payments = () => {
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [isReceiptDialogOpen, setIsReceiptDialogOpen] = useState(false);
   
-  // Le paiement en cours d'édition/création
-  const [currentPayment, setCurrentPayment] = useState<Partial<Payment> & { student_id?: number }>({});
+  const [currentPayment, setCurrentPayment] = useState<Partial<Payment> & { student_id?: number; fee_id?: number; }>({});
   const [paymentToDelete, setPaymentToDelete] = useState<number | null>(null);
 
   const [payments, setPayments] = useState<Payment[]>([]);
   const [students, setStudents] = useState<Student[]>([]);
-  const [registrations, setRegistrations] = useState<Registration[]>([]);
+  const [fees, setFees] = useState<Fee[]>([]);
   
   const [loading, setLoading] = useState(true);
   const { toast } = useToast();
@@ -91,25 +106,24 @@ const Payments = () => {
   const { 
     getAllPayments, 
     getAllStudents,
-    getAllRegistrations,
     getSettings,
     createPayment,
     updatePayment,
     deletePayment,
+    getAllFees, // Utiliser getAllFees au lieu de getFeesForLevel
+    getLatestRegistrationForStudent,
   } = useDatabase();
 
   const loadData = async () => {
     setLoading(true);
     try {
-      const [paymentsData, studentsData, registrationsData, settingsData] = await Promise.all([
+      const [paymentsData, studentsData, settingsData] = await Promise.all([
         getAllPayments(),
         getAllStudents(),
-        getAllRegistrations(),
         getSettings(),
       ]);
       setPayments(paymentsData || []);
       setStudents(studentsData || []);
-      setRegistrations(registrationsData || []);
       setSchoolName(settingsData?.schoolName || "Nom de l'école");
     } catch (error) {
       console.error('Erreur lors du chargement des données:', error);
@@ -161,36 +175,58 @@ const Payments = () => {
     }
   };
 
-  const handleSavePayment = async () => {
-    const { student_id, ...paymentData } = currentPayment;
+  const handleStudentChange = async (studentId: number) => {
+    setCurrentPayment(prev => ({ ...prev, student_id: studentId, fee_id: undefined, amount: 0 }));
+    const student = students.find(s => s.id === studentId);
+    if (student && student.className) {
+      const studentLevel = student.className.toLowerCase().includes('primaire') ? 'primaire' : student.className.toLowerCase().includes('collège') ? 'college' : 'lycee';
+      const feesForLevel = await getAllFees({ level: studentLevel });
+      setFees(feesForLevel);
+    } else {
+      // Si l'élève n'a pas de classe, on ne charge que les frais généraux
+      const feesForLevel = await getAllFees({});
+      setFees(feesForLevel.filter(f => f.level === null));
+    }
+  };
 
-    if (!student_id || !paymentData.amount || !paymentData.date || !paymentData.method) {
+  const handleFeeChange = (feeIdStr: string) => {
+    const feeId = parseInt(feeIdStr, 10);
+    const selectedFee = fees.find(f => f.id === feeId);
+    if (selectedFee) {
+      setCurrentPayment(prev => ({
+        ...prev,
+        fee_id: feeId,
+        amount: selectedFee.balance, // Pré-remplir avec le solde restant
+      }));
+    }
+  };
+
+  const handleSavePayment = async () => {
+    const { student_id, fee_id, amount, date, method, reference } = currentPayment;
+
+    if (!student_id || !fee_id || !amount || !date || !method) {
       toast({ title: "Erreur", description: "Veuillez remplir tous les champs obligatoires.", variant: "destructive" });
       return;
     }
 
-    // Trouver la dernière inscription pour cet étudiant
-    const studentRegistrations = registrations
-      .filter(r => r.student_id === student_id)
-      .sort((a, b) => b.id - a.id); // Trier par ID pour obtenir la plus récente
-
-    if (studentRegistrations.length === 0) {
+    const registration = await getLatestRegistrationForStudent({ studentId: student_id });
+    if (!registration) {
       toast({ title: "Erreur", description: "Cet étudiant n'a aucune inscription valide.", variant: "destructive" });
       return;
     }
-    
-    const registration_id = studentRegistrations[0].id;
-    const finalPaymentData = { ...paymentData, registration_id };
+
+    const finalPaymentData = {
+      registration_id: registration.id,
+      fee_id,
+      amount,
+      date,
+      method,
+      reference,
+    };
 
     try {
-      if (finalPaymentData.id) {
-        await updatePayment(finalPaymentData.id, finalPaymentData);
-        toast({ description: "Paiement mis à jour." });
-      } else {
-        const newPayment = await createPayment(finalPaymentData);
-        toast({ description: "Paiement créé." });
-        handleOpenReceiptDialog(newPayment); // Ouvre le reçu pour le nouveau paiement
-      }
+      const newPayment = await createPayment(finalPaymentData);
+      toast({ description: "Paiement créé." });
       setIsDialogOpen(false);
       loadData();
     } catch (error) {
@@ -213,8 +249,8 @@ const Payments = () => {
   };
 
   const filteredPayments = payments.filter(payment => {
-    const studentName = `${payment.firstName || ''} ${payment.lastName || ''}`.toLowerCase();
-    return studentName.includes(searchQuery.toLowerCase());
+    const personName = payment.person_name.toLowerCase();
+    return personName.includes(searchQuery.toLowerCase());
   });
 
   return (
@@ -247,12 +283,13 @@ const Payments = () => {
               <Table>
                 <TableHeader>
                   <TableRow>
-                    <TableHead>Étudiant</TableHead>
-                    <TableHead>Classe</TableHead>
+                    <TableHead>Type</TableHead>
+                    <TableHead>Nom</TableHead>
+                    <TableHead>Frais Payé</TableHead>
+                    <TableHead>Détails</TableHead>
                     <TableHead>Date</TableHead>
                     <TableHead>Montant</TableHead>
                     <TableHead>Méthode</TableHead>
-                    <TableHead>Référence</TableHead>
                     <TableHead className="text-right">Actions</TableHead>
                   </TableRow>
                 </TableHeader>
@@ -263,16 +300,17 @@ const Payments = () => {
                     <TableRow><TableCell colSpan={7} className="text-center py-10">Aucun paiement trouvé.</TableCell></TableRow>
                   ) : (
                     filteredPayments.map((payment) => (
-                      <TableRow key={payment.id}>
-                        <TableCell className="font-medium">{`${payment.firstName} ${payment.lastName}`}</TableCell>
-                        <TableCell>{payment.className}</TableCell>
+                      <TableRow key={`${payment.type}-${payment.id}`}>
+                        <TableCell><span className={`px-2 py-1 rounded-full text-xs ${payment.type === 'Salaire' ? 'bg-green-100 text-green-800' : 'bg-blue-100 text-blue-800'}`}>{payment.type}</span></TableCell>
+                        <TableCell className="font-medium">{payment.person_name}</TableCell>
+                        <TableCell>{payment.type === 'Salaire' ? 'Salaire' : payment.details}</TableCell>
+                        <TableCell>{payment.type === 'Salaire' ? payment.details : payment.registration?.class?.name || 'N/A'}</TableCell>
                         <TableCell>{new Date(payment.date).toLocaleDateString()}</TableCell>
                         <TableCell>{payment.amount.toLocaleString()} FCFA</TableCell>
                         <TableCell>{payment.method}</TableCell>
-                        <TableCell>{payment.reference || "-"}</TableCell>
                         <TableCell className="text-right">
                           <div className="flex justify-end items-center space-x-1">
-                            <Button variant="ghost" size="icon" onClick={() => handleOpenReceiptDialog(payment)} title="Imprimer reçu"><Printer className="h-4 w-4" /></Button>
+                            {payment.type === 'Étudiant' && <Button variant="ghost" size="icon" onClick={() => handleOpenReceiptDialog(payment)} title="Imprimer reçu"><Printer className="h-4 w-4" /></Button>}
                             <Button variant="ghost" size="icon" onClick={() => handleOpenEditDialog(payment)} title="Modifier"><Pencil className="h-4 w-4" /></Button>
                             <Button variant="ghost" size="icon" onClick={() => handleOpenDeleteDialog(payment.id)} title="Supprimer"><Trash2 className="h-4 w-4" /></Button>
                           </div>
@@ -297,13 +335,38 @@ const Payments = () => {
                 <Label>Étudiant</Label>
                 <StudentSearchSelect
                   value={currentPayment.student_id}
-                  onValueChange={(studentId) => setCurrentPayment(prev => ({ ...prev, student_id: studentId }))}
-                  students={students.map(s => ({...s, name: `${s.first_name} ${s.name}`}))}
+                  onValueChange={handleStudentChange}
+                  students={students.map(s => ({
+                    id: s.id,
+                    firstName: s.first_name,
+                    lastName: s.name,
+                    className: s.className,
+                  }))}
                 />
               </div>
+
+              {currentPayment.student_id && (
+                <div className="space-y-2">
+                  <Label>Frais à payer</Label>
+                  <Select
+                    value={currentPayment.fee_id?.toString()}
+                    onValueChange={handleFeeChange}
+                  >
+                    <SelectTrigger><SelectValue placeholder="Sélectionner un frais" /></SelectTrigger>
+                    <SelectContent>
+                      {fees.map(fee => (
+                        <SelectItem key={fee.id} value={fee.id.toString()}>
+                          {fee.name} - {fee.amount.toLocaleString()} FCFA
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+              )}
+
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label htmlFor="amount">Montant</Label>
+                  <Label htmlFor="amount">Montant à payer</Label>
                   <Input id="amount" type="number" value={currentPayment.amount || ""} onChange={(e) => setCurrentPayment(prev => ({ ...prev, amount: parseFloat(e.target.value) || 0 }))} />
                 </div>
                 <div className="space-y-2">

@@ -136,7 +136,7 @@ export default function Classes() {
       );
 
       setClasses(classesWithData);
-      setStudents(studentsData.map(student => ({ ...student, className: classesData.find(c => c.id === student.class_id)?.name || '' })));
+      setStudents(studentsData.map(student => ({ ...student, class_id: student.registrations[0]?.class_id, className: student.registrations[0]?.class.name })));
       setTeachers(teachersData);
     } catch (error) {
       console.error('Erreur lors du chargement des données:', error);
@@ -184,42 +184,32 @@ export default function Classes() {
   };
 
   const handleSaveClass = async () => {
-    if (!currentClass.name) {
+    if (!currentClass.name || !currentClass.level) {
       toast({
         title: "Erreur",
-        description: "Le nom de la classe est requis.",
+        description: "Le nom et le niveau de la classe sont requis.",
         variant: "destructive",
       })
       return
     }
     try {
-      // Création uniquement, pas de modification
-      const created = await createClass({ name: currentClass.name })
-      const classId = created.id;
-      toast({
-        title: "Succès",
-        description: "La classe a été créée avec succès.",
-      })
-      // Si des matières sont spécifiées, les ajouter
-      if (currentClass.subjects && currentClass.subjects.length > 0) {
-        for (const subject of currentClass.subjects) {
-          try {
-            await createSubject({
-              name: subject.name,
-              classId,
-              coefficient: subject.coefficient,
-              teacherId: subject.teacherId,
-              ...(subject.hoursPerWeek !== undefined ? { hoursPerWeek: subject.hoursPerWeek } : {})
-            });
-          } catch (error) {
-            console.error(`Erreur lors de l'ajout de la matière ${subject.name}:`, error);
-          }
-        }
+      if (currentClass.id) {
+        await updateClass(currentClass.id, { name: currentClass.name, level: currentClass.level });
+        toast({
+          title: "Succès",
+          description: "La classe a été mise à jour avec succès.",
+        });
+      } else {
+        await createClass({ name: currentClass.name, level: currentClass.level });
+        toast({
+          title: "Succès",
+          description: "La classe a été créée avec succès.",
+        });
       }
     } catch (error: any) {
       toast({
         title: "Erreur",
-        description: error.message || "Une erreur est survenue lors de la création de la classe.",
+        description: error.message || "Une erreur est survenue.",
         variant: "destructive",
       })
     } finally {
@@ -245,7 +235,10 @@ export default function Classes() {
         class_id: currentClass.id || '',
         coefficient: currentSubject.coefficient || 1,
         teacher_id: currentSubject.teacherId,
-        school_year: '2024-2025', // Ajout d'une année scolaire par défaut
+        school_year: '2024-2025',
+        day_of_week: currentSubject.day_of_week,
+        start_time: currentSubject.start_time,
+        end_time: currentSubject.end_time,
       });
       
       toast({
@@ -265,8 +258,8 @@ export default function Classes() {
     }
   }
 
-  const getStudentCount = (className: string) => {
-    return students.filter(student => student.className === className).length
+  const getStudentCount = (classId: string) => {
+    return students.filter(student => student.class_id === classId).length
   }
 
   const getSubjectCount = (classId: string) => {
@@ -342,7 +335,7 @@ export default function Classes() {
                   <div className="bg-school-50 p-4">
                     <h3 className="font-bold text-lg">{cls.name}</h3>
                     <p className="text-sm text-muted-foreground">
-                      {getStudentCount(cls.name)} élèves
+                      {getStudentCount(cls.id)} élèves
                     </p>
                   </div>
                   <div className="p-4 space-y-2">
@@ -364,15 +357,17 @@ export default function Classes() {
                     </div>
                     {/* Affichage des matières de la classe */}
                     <div>
-                      <h4 className="font-semibold text-base mb-1">Matières de la classe :</h4>
+                      <h4 className="font-semibold text-base mb-2">Matières de la classe :</h4>
                       {(cls.subjects && cls.subjects.length > 0) ? (
-                        <div className="grid grid-cols-1 gap-2">
+                        <div className="space-y-2">
                           {cls.subjects.map((subj, idx) => (
-                            <div key={idx} className="rounded bg-blue-50 border px-3 py-2 flex items-center gap-4">
-                              <span className="font-medium">{subj.name}</span>
-                              <span className="text-xs">Coef: {subj.coefficient}</span>
+                            <div key={idx} className="rounded-md bg-gray-50 border p-3">
+                              <div className="flex justify-between items-center">
+                                <span className="font-semibold text-gray-800">{subj.subject.name}</span>
+                                <span className="text-xs font-mono bg-gray-200 text-gray-700 px-2 py-1 rounded">Coef: {subj.subject.coefficient}</span>
+                              </div>
                               {subj.teacherName && (
-                                <span className="text-xs ml-auto">Prof: {subj.teacherName}</span>
+                                <div className="text-xs text-gray-500 mt-1">Prof: {subj.teacherName}</div>
                               )}
                             </div>
                           ))}
@@ -401,6 +396,22 @@ export default function Classes() {
                   value={currentClass.name || ''}
                   onChange={(e) => setCurrentClass({ ...currentClass, name: e.target.value })}
                 />
+              </div>
+              <div className="grid gap-2">
+                <Label htmlFor="level">Niveau</Label>
+                <Select
+                  value={currentClass.level || ''}
+                  onValueChange={(value) => setCurrentClass({ ...currentClass, level: value })}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Sélectionner un niveau" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="primaire">Primaire</SelectItem>
+                    <SelectItem value="college">Collège</SelectItem>
+                    <SelectItem value="lycee">Lycée</SelectItem>
+                  </SelectContent>
+                </Select>
               </div>
             </div>
             <DialogFooter>
@@ -439,18 +450,6 @@ export default function Classes() {
                   value={currentSubject.coefficient || ''}
                   onChange={(e) => setCurrentSubject({ ...currentSubject, coefficient: Number(e.target.value) })}
                   placeholder="Ex: 3"
-                />
-              </div>
-
-              <div className="grid gap-2">
-                <Label htmlFor="subject-hours">Heures par semaine</Label>
-                <Input
-                  id="subject-hours"
-                  type="number"
-                  min="1"
-                  value={currentSubject.hoursPerWeek || ''}
-                  onChange={(e) => setCurrentSubject({ ...currentSubject, hoursPerWeek: Number(e.target.value) })}
-                  placeholder="Ex: 4"
                 />
               </div>
               

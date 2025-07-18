@@ -95,18 +95,20 @@ model Teachers {
 }
 
 model TeacherWorkHours {
-  id           Int      @id @default(autoincrement())
-  teacher_id   Int
-  subject_id   Int?
-  hours        Float
-  date         DateTime
-  notes        String?
-  supabase_id  String?  @unique
+  id            Int      @id @default(autoincrement())
+  teacher_id    Int
+  subject_id    Int?
+  date          String?
+  start_time    String?
+  end_time      String?
+  hours         Float
+  notes         String?
+  supabase_id   String?  @unique
   last_modified DateTime @default(now())
-  needs_sync   Boolean  @default(false)
-  is_deleted   Boolean  @default(false)
-  teacher      Teachers @relation(fields: [teacher_id], references: [id], onDelete: Cascade)
-  subject      Subjects? @relation(fields: [subject_id], references: [id], onDelete: SetNull)
+  needs_sync    Boolean  @default(false)
+  is_deleted    Boolean  @default(false)
+  teacher       Teachers @relation(fields: [teacher_id], references: [id], onDelete: Cascade)
+  subject       Subjects? @relation(fields: [subject_id], references: [id], onDelete: SetNull)
 
   @@map("teacher_work_hours")
 }
@@ -200,6 +202,7 @@ model StudentParents {
 model Payments {
   id              Int            @id @default(autoincrement())
   registration_id Int?
+  fee_id          Int? // Lien vers le frais payé
   amount          Float?
   method          String?
   date            String?
@@ -210,6 +213,7 @@ model Payments {
   needs_sync      Boolean        @default(false)
   is_deleted      Boolean        @default(false)
   registration    Registrations? @relation(fields: [registration_id], references: [id], onDelete: SetNull)
+  fee             Fees?          @relation(fields: [fee_id], references: [id], onDelete: SetNull)
 
   @@map("payments")
 }
@@ -220,10 +224,12 @@ model Fees {
   amount       Float?
   due_date     String?
   school_year  String?
+  level        String? // primaire, college, lycee
   supabase_id  String?  @unique
   last_modified DateTime @default(now())
   needs_sync   Boolean  @default(false)
   is_deleted   Boolean  @default(false)
+  payments     Payments[]
 
   @@map("fees")
 }
@@ -259,8 +265,24 @@ model Employees {
   last_modified DateTime @default(now())
   needs_sync   Boolean  @default(false)
   is_deleted   Boolean  @default(false)
+  salaryPayments SalaryPayments[]
 
   @@map("employees")
+}
+
+model SalaryPayments {
+  id           Int      @id @default(autoincrement())
+  employee_id  Int
+  amount       Float
+  payment_date String
+  notes        String?
+  supabase_id  String?  @unique
+  last_modified DateTime @default(now())
+  needs_sync   Boolean  @default(false)
+  is_deleted   Boolean  @default(false)
+  employee     Employees @relation(fields: [employee_id], references: [id], onDelete: Cascade)
+
+  @@map("salary_payments")
 }
 
 model Schedules {

@@ -23,8 +23,8 @@ import { FileText, Pencil, Trash2, Search, ListCheck, Printer, Download } from "
 import { useToast } from "@/components/ui/use-toast";
 import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from "@/components/ui/table";
 import { useDatabase } from "@/hooks/useDatabase";
-import jsPDF from "jspdf";
-import "jspdf-autotable";
+import { jsPDF } from "jspdf";
+import autoTable from "jspdf-autotable";
 
 // Interfaces alignées sur Prisma
 interface Student { id: number; name: string; first_name: string; }
@@ -161,11 +161,13 @@ const Grades = () => {
     const doc = new jsPDF();
     const selectedClass = classes.find(c => c.id === selectedClassId);
     doc.text(`Liste d'admission - ${selectedClass?.name} - Trimestre ${selectedQuarter}`, 14, 15);
-    (doc as any).autoTable({
+    
+    autoTable(doc, {
       startY: 20,
       head: [['Rang', 'Nom', 'Moyenne', 'Statut']],
       body: classResults.map(r => [r.rank, r.studentName, r.average.toFixed(2), r.status]),
     });
+    
     doc.save(`resultats_${selectedClass?.name}_T${selectedQuarter}.pdf`);
   };
 
@@ -187,7 +189,7 @@ const Grades = () => {
       doc.text(`Rang: ${result.rank}/${classResults.length}`, 14, 52);
       doc.text(`Décision: ${result.status}`, 14, 58);
 
-      (doc as any).autoTable({
+      autoTable(doc, {
         startY: 65,
         head: [['Matière', 'Coefficient', 'Moyenne']],
         body: Object.entries(result.subjects).map(([name, { coefficient, average }]) => [

@@ -26,7 +26,7 @@ export function useDatabase() {
   // #endregion
 
   // #region Students
-  const getAllStudents = useCallback(() => invoke('db:students:getAll'), []);
+  const getAllStudents = useCallback((args?: any) => invoke('db:students:getAll', args), []);
   const createStudent = useCallback((data: any) => invoke('db:students:create', data), []);
   const updateStudent = useCallback((id: number, data: any) => invoke('db:students:update', { id, data }), []);
   const deleteStudent = useCallback((id: number) => invoke('db:students:delete', id), []);
@@ -56,7 +56,7 @@ export function useDatabase() {
   // #endregion
 
   // #region Attendances
-  const getAllAttendances = useCallback(() => invoke('db:attendances:getAll'), []);
+  const getAllAttendances = useCallback((args?: any) => invoke('db:attendances:getAll', args), []);
   const createAttendance = useCallback((data: any) => invoke('db:attendances:create', data), []);
   const updateAttendance = useCallback((id: number, data: any) => invoke('db:attendances:update', { id, data }), []);
   const deleteAttendance = useCallback((id: number) => invoke('db:attendances:delete', id), []);
@@ -74,6 +74,7 @@ export function useDatabase() {
   const createRegistration = useCallback((data: any) => invoke('db:registrations:create', data), []);
   const updateRegistration = useCallback((id: number, data: any) => invoke('db:registrations:update', { id, data }), []);
   const deleteRegistration = useCallback((id: number) => invoke('db:registrations:delete', id), []);
+  const getLatestRegistrationForStudent = useCallback((args: any) => invoke('db:registrations:getLatestForStudent', args), []);
   // #endregion
 
   // #region Student-Parents
@@ -99,6 +100,7 @@ export function useDatabase() {
   const createSchedule = useCallback((data: any) => invoke('db:schedules:create', data), []);
   const updateSchedule = useCallback((id: number, data: any) => invoke('db:schedules:update', { id, data }), []);
   const deleteSchedule = useCallback((id: number) => invoke('db:schedules:delete', id), []);
+  const getSchedulesForClass = useCallback((classId: number) => invoke('db:schedules:getForClass', classId), []);
   // #endregion
 
   // #region Notes
@@ -116,10 +118,11 @@ export function useDatabase() {
   // #endregion
 
   // #region Fees
-  const getAllFees = useCallback(() => invoke('db:fees:getAll'), []);
+  const getAllFees = useCallback((args?: any) => invoke('db:fees:getAll', args), []);
   const createFee = useCallback((data: any) => invoke('db:fees:create', data), []);
   const updateFee = useCallback((id: number, data: any) => invoke('db:fees:update', { id, data }), []);
   const deleteFee = useCallback((id: number) => invoke('db:fees:delete', id), []);
+  const getStudentFeeStatus = useCallback((args: any) => invoke('db:fees:getStudentFeeStatus', args), []);
   // #endregion
 
   return {
@@ -131,13 +134,13 @@ export function useDatabase() {
     getAllSubjects, createSubject, updateSubject, deleteSubject, getClassSubjects,
     getAllAttendances, createAttendance, updateAttendance, deleteAttendance,
     getAllParents, createParent, updateParent, deleteParent,
-    getAllRegistrations, createRegistration, updateRegistration, deleteRegistration,
+    getAllRegistrations, createRegistration, updateRegistration, deleteRegistration, getLatestRegistrationForStudent,
     getStudentParents, linkStudentToParent, unlinkStudentFromParent,
     getAllLessons, createLesson, updateLesson, deleteLesson,
     getDashboardStats, getClassResults,
-    getAllSchedules, createSchedule, updateSchedule, deleteSchedule,
+    getAllSchedules, createSchedule, updateSchedule, deleteSchedule, getSchedulesForClass,
     getAllNotes, createNote, updateNote, deleteNote,
     getAllEmployees, createEmployee, updateEmployee, deleteEmployee,
-    getAllFees, createFee, updateFee, deleteFee,
+    getAllFees, createFee, updateFee, deleteFee, getStudentFeeStatus,
   };
 }

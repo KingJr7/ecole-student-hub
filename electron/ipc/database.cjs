@@ -94,13 +94,19 @@ function setupDatabaseIPC() {
   // #endregion
 
   // #region Students
-  ipcMain.handle('db:students:getAll', async () => {
-    return prisma.students.findMany({
+  ipcMain.handle('db:students:getAll', async (event, args) => {
+    const schoolYear = args?.schoolYear;
+    const registrationWhere = { is_deleted: false };
+    if (schoolYear) {
+      registrationWhere.school_year = schoolYear;
+    }
+
+    const students = await prisma.students.findMany({
       where: { is_deleted: false },
-      include: {
+      include: { // Revenir à include pour assurer la compatibilité
         registrations: {
-          where: { is_deleted: false },
-          orderBy: { id: 'desc' }, // Assuming higher ID is newer
+          where: registrationWhere,
+          orderBy: { id: 'desc' },
           take: 1,
           include: {
             class: true,
@@ -108,12 +114,12 @@ function setupDatabaseIPC() {
         },
       },
       orderBy: [{ name: 'asc' }, { first_name: 'asc' }],
-    }).then(students => 
-      students.map(s => ({
-        ...s,
-        className: s.registrations[0]?.class.name,
-      }))
-    );
+    });
+
+    return students.map(s => ({
+      ...s,
+      className: s.registrations[0]?.class.name,
+    }));
   });
 
   // Dans students:create et update, ajouter picture_url
@@ -175,7 +181,23 @@ ipcMain.handle('db:students:update', async (event, { id, data }) => {
       where: { is_deleted: false },
       orderBy: { id: 'desc' },
       take: 5,
-    });
+      include: {
+        registrations: {
+          where: { is_deleted: false },
+          orderBy: { id: 'desc' },
+          take: 1,
+          include: {
+            class: true,
+          },
+        },
+      },
+    }).then(students => 
+      students.map(s => ({
+        ...s,
+        className: s.registrations[0]?.class.name,
+        registration_date: s.registrations[0]?.registration_date,
+      }))
+    );
   });
   // #endregion
 
@@ -264,13 +286,26 @@ ipcMain.handle('db:teachers:update', async (event, { id, data }) => {
   });
 
   ipcMain.handle('db:teacherWorkHours:create', async (event, workHoursData) => {
-    const { teacher_id, subject_id, hours, date, notes } = workHoursData;
+    const { teacher_id, subject_id, date, start_time, end_time, notes } = workHoursData;
+
+    // Calculer la durée en heures
+    const start = new Date(`${date}T${start_time}`);
+    const end = new Date(`${date}T${end_time}`);
+    const durationMs = end.getTime() - start.getTime();
+    const hours = durationMs / (1000 * 60 * 60);
+
+    if (hours <= 0) {
+      throw new Error("L'heure de fin doit être après l'heure de début.");
+    }
+
     return prisma.teacherWorkHours.create({
       data: {
         teacher_id,
         subject_id,
+        date,
+        start_time,
+        end_time,
         hours,
-        date: new Date(date),
         notes,
         needs_sync: true,
         last_modified: new Date(),
@@ -281,12 +316,13 @@ ipcMain.handle('db:teachers:update', async (event, { id, data }) => {
   ipcMain.handle('db:teacherWorkHours:getStats', async (event, teacherId) => {
     const today = new Date();
     const startOfMonth = new Date(today.getFullYear(), today.getMonth(), 1);
+    const startOfMonthString = startOfMonth.toISOString().split('T')[0]; // Format YYYY-MM-DD
 
     const workHours = await prisma.teacherWorkHours.findMany({
       where: {
         teacher_id: teacherId,
         is_deleted: false,
-        date: { gte: startOfMonth },
+        date: { gte: startOfMonthString },
       },
       include: { subject: true },
     });
@@ -312,9 +348,11 @@ ipcMain.handle('db:teachers:update', async (event, { id, data }) => {
 
   // #region Payments
   ipcMain.handle('db:payments:getAll', async () => {
-    return prisma.payments.findMany({
-      where: { is_deleted: false },
+    // 1. Récupérer les paiements des étudiants
+    const studentPayments = await prisma.payments.findMany({
+      where: { is_deleted: false, registration: { isNot: null } },
       include: {
+        fee: true, // Inclure les détails du frais payé
         registration: {
           include: {
             student: true,
@@ -322,28 +360,57 @@ ipcMain.handle('db:teachers:update', async (event, { id, data }) => {
           },
         },
       },
-      orderBy: { date: 'desc' },
-    }).then(payments => 
-      payments.map(p => ({
+    });
+
+    // 2. Récupérer les paiements de salaires
+    const salaryPayments = await prisma.salaryPayments.findMany({
+      where: { is_deleted: false },
+      include: {
+        employee: true,
+      },
+    });
+
+    // 3. Mapper les paiements des étudiants dans un format commun
+    const mappedStudentPayments = studentPayments
+      .filter(p => p.registration && p.registration.student) // S'assurer que les relations existent
+      .map(p => ({
         ...p,
-        firstName: p.registration?.student.first_name,
-        lastName: p.registration?.student.name,
-        className: p.registration?.class.name,
-      }))
-    );
+        type: 'Étudiant',
+        person_name: `${p.registration.student.first_name} ${p.registration.student.name}`,
+        details: p.fee?.name || p.registration.class.name, // Prioriser le nom du frais
+      }));
+
+    // 4. Mapper les paiements de salaires dans le même format
+    const mappedSalaryPayments = salaryPayments
+      .filter(p => p.employee) // S'assurer que la relation existe
+      .map(p => ({
+        id: p.id, // Assurer un ID unique pour la clé React
+        type: 'Salaire',
+        person_name: `${p.employee.first_name} ${p.employee.name}`,
+        details: p.employee.job_title,
+        date: p.payment_date,
+        amount: p.amount,
+        method: 'N/A', // La méthode n'est pas définie pour les salaires
+        registration_id: null, // Pas de registration_id pour les salaires
+      }));
+
+    // 5. Combiner et trier les deux listes
+    const allPayments = [...mappedStudentPayments, ...mappedSalaryPayments];
+    allPayments.sort((a, b) => new Date(b.date) - new Date(a.date));
+
+    return allPayments;
   });
 
   // Supprimer le champ month qui n'existe pas dans le schéma
-ipcMain.handle('db:payments:create', async (event, paymentData) => {
-  const { registration_id, amount, date, method, reference } = paymentData;
+ipcMain.handle('db:payments:create', async (event, { registration_id, fee_id, amount, date, method, reference }) => {
   return prisma.payments.create({
     data: {
       registration_id,
+      fee_id,
       amount,
       date,
       method,
       reference,
-      // Supprimer month
       needs_sync: true,
       last_modified: new Date(),
     },
@@ -410,11 +477,19 @@ ipcMain.handle('db:payments:getAvailableMonths', async () => {
       },
     });
 
+    // S'assurer que les IDs sont des nombres entiers
+    const numeric_teacher_id = parseInt(teacher_id, 10);
+    const numeric_class_id = parseInt(class_id, 10);
+
+    if (isNaN(numeric_teacher_id) || isNaN(numeric_class_id)) {
+      throw new Error("L'ID du professeur ou de la classe est invalide.");
+    }
+
     // 2. Créer la leçon (Lesson) pour lier le professeur, la matière et la classe
     await tx.lessons.create({
       data: {
-        teacher_id,
-        class_id,
+        teacher_id: numeric_teacher_id,
+        class_id: numeric_class_id,
         subject_id: newSubject.id,
         school_year,
         needs_sync: true,
@@ -489,12 +564,18 @@ ipcMain.handle('db:payments:getAvailableMonths', async () => {
   // #endregion
 
   // #region Attendances
-  ipcMain.handle('db:attendances:getAll', async () => {
+  ipcMain.handle('db:attendances:getAll', async (event, args) => {
+    const date = args?.date;
+    const whereClause = { is_deleted: false };
+    if (date) {
+      whereClause.date = date;
+    }
+
     return prisma.attendances.findMany({
-      where: { is_deleted: false },
+      where: whereClause,
       include: { student: true },
-      orderBy: { date: 'desc' },
-    }).then(attendances => 
+      orderBy: { id: 'desc' },
+    }).then(attendances =>
       attendances.map(a => ({
         ...a,
         firstName: a.student.first_name,
@@ -674,6 +755,19 @@ ipcMain.handle('db:parents:update', async (event, { id, data }) => {
       },
     });
   });
+
+  ipcMain.handle('db:registrations:getLatestForStudent', async (event, { studentId }) => {
+    if (!studentId) return null;
+    return prisma.registrations.findFirst({
+      where: {
+        student_id: studentId,
+        is_deleted: false,
+      },
+      orderBy: {
+        id: 'desc',
+      },
+    });
+  });
   // #endregion
 
   // #region Student-Parents
@@ -688,11 +782,12 @@ ipcMain.handle('db:parents:update', async (event, { id, data }) => {
     }).then(links => links.map(l => l.parent));
   });
 
-  ipcMain.handle('db:studentParents:link', async (event, { studentId, parentId }) => {
+  ipcMain.handle('db:studentParents:link', async (event, { studentId, parentId, relation }) => {
     return prisma.studentParents.create({
       data: {
         student_id: studentId,
         parent_id: parentId,
+        relation: relation,
         needs_sync: true,
         last_modified: new Date(),
       },
@@ -785,10 +880,49 @@ ipcMain.handle('db:parents:update', async (event, { id, data }) => {
 
   // #region Dashboard & Reports
   ipcMain.handle('db:dashboard:getStats', async () => {
-    const students = await prisma.students.count({ where: { is_deleted: false } });
-    const teachers = await prisma.teachers.count({ where: { is_deleted: false } });
-    const classes = await prisma.classes.count({ where: { is_deleted: false } });
-    return { students, teachers, classes };
+    const totalStudents = await prisma.students.count({ where: { is_deleted: false } });
+    const totalTeachers = await prisma.teachers.count({ where: { is_deleted: false } });
+    const totalClasses = await prisma.classes.count({ where: { is_deleted: false } });
+
+    const today = new Date().toISOString().split('T')[0];
+    const attendanceToday = await prisma.attendances.findMany({
+      where: { date: today, is_deleted: false },
+    });
+
+    const present = attendanceToday.filter(a => a.state === 'present').length;
+    const absent = attendanceToday.filter(a => a.state === 'absent').length;
+    const late = attendanceToday.filter(a => a.state === 'late').length;
+
+    const startOfMonth = new Date();
+    startOfMonth.setDate(1);
+    const startOfMonthString = startOfMonth.toISOString().split('T')[0];
+
+    const paymentsThisMonth = await prisma.payments.aggregate({
+      _sum: { amount: true },
+      where: {
+        date: { gte: startOfMonthString },
+        is_deleted: false,
+      },
+    });
+
+    const thirtyDaysAgo = new Date();
+    thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+
+    const recentGrades = await prisma.notes.count({
+      where: {
+        last_modified: { gte: thirtyDaysAgo },
+        is_deleted: false,
+      },
+    });
+
+    return {
+      totalStudents,
+      totalTeachers,
+      totalClasses,
+      attendanceToday: { present, absent, late },
+      paymentsThisMonth: paymentsThisMonth._sum.amount || 0,
+      recentGrades,
+    };
   });
 
   ipcMain.handle('db:reports:getClassResults', async (event, { classId, quarter }) => {
@@ -908,6 +1042,25 @@ ipcMain.handle('db:schedules:create', async (event, scheduleData) => {
       },
     });
   });
+
+  ipcMain.handle('db:schedules:getForClass', async (event, classId) => {
+    return prisma.schedules.findMany({
+      where: {
+        lesson: {
+          class_id: classId,
+        },
+        is_deleted: false,
+      },
+      include: {
+        lesson: {
+          include: {
+            subject: true,
+            teacher: true,
+          },
+        },
+      },
+    });
+  });
   // #endregion
 
   // #region Notes
@@ -983,7 +1136,14 @@ ipcMain.handle('db:employees:getAll', async () => {
 });
 
 ipcMain.handle('db:employees:create', async (event, employeeData) => {
-  const { name, first_name, phone, email, adress, gender, job_title, salary, matricule } = employeeData;
+  const { name, first_name, phone, email, adress, gender, job_title, salary } = employeeData;
+
+  const settings = await prisma.settings.findUnique({ where: { id: 1 } });
+  const schoolName = settings?.schoolName || 'SCHOOL';
+  const initials = schoolName.substring(0, 3).toUpperCase();
+  const randomDigits = Math.floor(1000 + Math.random() * 9000);
+  const matricule = `EMP-${initials}-${randomDigits}`;
+
   return prisma.employees.create({
     data: {
       name,
@@ -1031,22 +1191,45 @@ ipcMain.handle('db:employees:delete', async (event, id) => {
     },
   });
 });
+
+ipcMain.handle('db:employees:paySalary', async (event, { employee_id, amount, payment_date, notes }) => {
+  return prisma.salaryPayments.create({
+    data: {
+      employee_id,
+      amount,
+      payment_date,
+      notes,
+      needs_sync: true,
+      last_modified: new Date(),
+    },
+  });
+});
   // #endregion
 
   // #region fees
-  // Ajouter la gestion des frais manquante
-ipcMain.handle('db:fees:getAll', async () => {
-  return prisma.fees.findMany({ where: { is_deleted: false } });
-});
+  ipcMain.handle('db:fees:getAll', async (event, args) => {
+    const where = {
+      is_deleted: false,
+      OR: [
+        { level: args?.level },
+        { level: null }, // Inclure les frais sans niveau (généraux)
+      ],
+    };
+    if (!args?.level) {
+      delete where.OR;
+    }
+    return prisma.fees.findMany({ where });
+  });
 
 ipcMain.handle('db:fees:create', async (event, feeData) => {
-  const { name, amount, due_date, school_year } = feeData;
+  const { name, amount, due_date, school_year, level } = feeData;
   return prisma.fees.create({
     data: {
       name,
       amount,
       due_date,
       school_year,
+      level,
       needs_sync: true,
       last_modified: new Date(),
     },
@@ -1054,7 +1237,7 @@ ipcMain.handle('db:fees:create', async (event, feeData) => {
 });
 
 ipcMain.handle('db:fees:update', async (event, { id, data }) => {
-  const { name, amount, due_date, school_year } = data;
+  const { name, amount, due_date, school_year, level } = data;
   return prisma.fees.update({
     where: { id },
     data: {
@@ -1062,6 +1245,7 @@ ipcMain.handle('db:fees:update', async (event, { id, data }) => {
       amount,
       due_date,
       school_year,
+      level,
       needs_sync: true,
       last_modified: new Date(),
     },
@@ -1078,6 +1262,36 @@ ipcMain.handle('db:fees:delete', async (event, id) => {
     },
   });
 });
+
+  ipcMain.handle('db:fees:getStudentFeeStatus', async (event, { registrationId, level }) => {
+    const applicableFees = await prisma.fees.findMany({
+      where: {
+        is_deleted: false,
+        OR: [{ level: level }, { level: null }],
+      },
+    });
+
+    const payments = await prisma.payments.findMany({
+      where: {
+        registration_id: registrationId,
+        is_deleted: false,
+      },
+    });
+
+    return applicableFees.map(fee => {
+      const totalPaidForFee = payments
+        .filter(p => p.fee_id === fee.id)
+        .reduce((sum, p) => sum + (p.amount || 0), 0);
+      
+      const balance = (fee.amount || 0) - totalPaidForFee;
+
+      return {
+        ...fee,
+        total_paid: totalPaidForFee,
+        balance: balance,
+      };
+    });
+  });
 
   // #endregion
 }

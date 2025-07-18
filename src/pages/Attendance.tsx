@@ -15,53 +15,41 @@ import {
   DialogContent,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
+  DialogFooter,
 } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
-import { CalendarCheck, Pencil, Trash2 } from "lucide-react";
+import { CalendarCheck } from "lucide-react";
 import MainLayout from "@/components/Layout/MainLayout";
-import StudentSearchSelect from "@/components/StudentSearchSelect";
 import { useToast } from "@/components/ui/use-toast";
 
+// Interfaces alignées sur le schéma et les données retournées par le backend
 interface Attendance {
-  id: string;
-  studentId: string;
+  id: number;
+  student_id: number;
   date: string;
-  status: string;
-  notes?: string;
-  supabase_id?: string;
-  sqlite_id?: number;
-  is_synced?: boolean;
-  is_deleted?: boolean;
-  last_modified?: string;
+  state: string;
+  justification?: string;
+  // Champs ajoutés par le handler IPC
+  firstName?: string;
+  lastName?: string;
 }
 
 interface Student {
-  id: string;
-  firstName: string;
-  lastName: string;
-  classId: string;
-  supabase_id?: string;
-  sqlite_id?: number;
-  is_synced?: boolean;
-  is_deleted?: boolean;
-  last_modified?: string;
+  id: number;
+  name: string;
+  first_name: string;
+  registrations: { class: { id: number } }[];
 }
 
 interface Class {
-  id: string;
+  id: number;
   name: string;
-  supabase_id?: string;
-  sqlite_id?: number;
-  is_synced?: boolean;
-  is_deleted?: boolean;
-  last_modified?: string;
 }
 
-const Attendance = () => {
-  const { getAllAttendances, getAllStudents, getAllClasses, createAttendance } = useDatabase();
+const AttendancePage = () => {
+  const { getAllAttendances, getAllStudents, getAllClasses, createAttendance, updateAttendance } = useDatabase();
   const [attendances, setAttendances] = useState<Attendance[]>([]);
   const [students, setStudents] = useState<Student[]>([]);
   const [classes, setClasses] = useState<Class[]>([]);
@@ -71,35 +59,43 @@ const Attendance = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedClass, setSelectedClass] = useState("all");
   const [selectedDate, setSelectedDate] = useState(new Date().toISOString().split("T")[0]);
-const [selectedStatusFilter, setSelectedStatusFilter] = useState<string>("all");
-
-  useEffect(() => {
-    loadData();
-  }, []);
+  const [selectedStatusFilter, setSelectedStatusFilter] = useState<string>("all");
+  const { toast } = useToast();
 
   const loadData = async () => {
+    setIsLoading(true);
     try {
+      const date = new Date(selectedDate);
+      const year = date.getFullYear();
+      const month = date.getMonth();
+      const schoolYear = month < 8 ? `${year - 1}-${year}` : `${year}-${year + 1}`;
+
       const [attendancesData, studentsData, classesData] = await Promise.all([
-        getAllAttendances(),
-        getAllStudents(),
-        getAllClasses()
+        getAllAttendances({ date: selectedDate }),
+        getAllStudents({ schoolYear }),
+        getAllClasses(),
       ]);
-      setAttendances(attendancesData);
-      setStudents(studentsData);
-      setClasses(classesData);
+      setAttendances(attendancesData || []);
+      setStudents(studentsData || []);
+      setClasses(classesData || []);
     } catch (error) {
-      // useToast({ variant: "destructive", description: 'Erreur lors du chargement des données' });
-      console.error(error);
+      console.error("Erreur lors du chargement des données:", error);
+      toast({ variant: "destructive", description: 'Erreur lors du chargement des données' });
     } finally {
       setIsLoading(false);
     }
   };
 
+  useEffect(() => {
+    loadData();
+  }, [selectedDate]);
+
   const handleOpenDialog = (student: Student) => {
-    setCurrentAttendance({
-      studentId: student.id,
+    const existingAttendance = getAttendanceForStudent(student.id);
+    setCurrentAttendance(existingAttendance || {
+      student_id: student.id,
       date: selectedDate,
-      status: "present"
+      state: "present",
     });
     setIsDialogOpen(true);
   };
@@ -110,20 +106,30 @@ const [selectedStatusFilter, setSelectedStatusFilter] = useState<string>("all");
   };
 
   const handleSaveAttendance = async () => {
+    if (!currentAttendance.student_id || !currentAttendance.date || !currentAttendance.state) {
+      toast({ title: "Erreur", description: "Champs manquants.", variant: "destructive" });
+      return;
+    }
+
     try {
-      await createAttendance(currentAttendance as Required<Attendance>);
-      // useToastToast({ description: "Présence enregistrée avec succès" });
+      if (currentAttendance.id) {
+        await updateAttendance(currentAttendance.id, currentAttendance);
+        toast({ description: "Présence mise à jour." });
+      } else {
+        await createAttendance(currentAttendance);
+        toast({ description: "Présence enregistrée." });
+      }
       handleCloseDialog();
       loadData();
     } catch (error) {
-      // useToastToast({ variant: "destructive", description: "Erreur lors de l'enregistrement de la présence" });
-      console.error(error);
+      console.error("Erreur lors de la sauvegarde:", error);
+      toast({ title: "Erreur", description: "La sauvegarde a échoué.", variant: "destructive" });
     }
   };
 
-  const getStudentName = (studentId: string) => {
+  const getStudentName = (studentId: number) => {
     const student = students.find(s => s.id === studentId);
-    return student ? `${student.firstName} ${student.lastName}` : "Étudiant inconnu";
+    return student ? `${student.first_name} ${student.name}` : "Étudiant inconnu";
   };
 
   const formatStatus = (status: string) => {
@@ -131,31 +137,29 @@ const [selectedStatusFilter, setSelectedStatusFilter] = useState<string>("all");
       "present": "Présent",
       "absent": "Absent",
       "late": "En retard",
-      "excused": "Excusé"
+      "excused": "Excusé",
     };
     return statusMap[status] || status;
   };
 
+  const getAttendanceForStudent = (studentId: number) => {
+    return attendances.find(a => a.student_id === studentId && a.date === selectedDate);
+  };
+
   const filteredStudents = students.filter(student => {
-    const fullName = `${student.firstName} ${student.lastName}`.toLowerCase();
+    const fullName = `${student.first_name || ''} ${student.name || ''}`.toLowerCase();
     const matchesSearch = fullName.includes(searchQuery.toLowerCase());
-    const matchesClass = selectedClass === "all" || student.classId === selectedClass;
-    const attendance = attendances.find(a => a.studentId === student.id && a.date === selectedDate);
-    let matchesStatus = true;
-    if (selectedStatusFilter === "present") {
-      matchesStatus = attendance?.status === "present";
-    } else if (selectedStatusFilter === "absent") {
-      matchesStatus = attendance?.status === "absent";
-    }
+    
+    const studentClassId = student.registrations?.[0]?.class_id;
+    const matchesClass = selectedClass === "all" || (studentClassId && studentClassId.toString() === selectedClass);
+
+    const attendance = getAttendanceForStudent(student.id);
+    const matchesStatus = selectedStatusFilter === "all" || 
+                        (selectedStatusFilter === 'unregistered' && !attendance) || 
+                        (attendance?.state === selectedStatusFilter);
+
     return matchesSearch && matchesClass && matchesStatus;
   });
-
-  const getAttendanceForStudent = (studentId: string) => {
-    return attendances.find(a => 
-      a.studentId === studentId && 
-      a.date === selectedDate
-    );
-  };
 
   if (isLoading) {
     return <div>Chargement...</div>;
@@ -169,24 +173,19 @@ const [selectedStatusFilter, setSelectedStatusFilter] = useState<string>("all");
             <CalendarCheck className="mr-2 h-6 w-6" />
             Gestion des Présences
           </h2>
-          <div className="flex items-center space-x-4">
-            <div className="flex items-center space-x-2">
-              <Label htmlFor="date">Date:</Label>
-              <Input
-                id="date"
-                type="date"
-                value={selectedDate}
-                onChange={(e) => setSelectedDate(e.target.value)}
-                className="w-40"
-              />
-            </div>
-            <Button onClick={() => setIsDialogOpen(true)} className="bg-school-600 hover:bg-school-700">
-              Ajouter une présence
-            </Button>
+          <div className="flex items-center space-x-2">
+            <Label htmlFor="date">Date:</Label>
+            <Input
+              id="date"
+              type="date"
+              value={selectedDate}
+              onChange={(e) => setSelectedDate(e.target.value)}
+              className="w-auto"
+            />
           </div>
         </div>
 
-        <div className="flex gap-4 mb-4">
+        <div className="flex flex-col md:flex-row gap-4 mb-4">
           <Input
             placeholder="Rechercher un étudiant..."
             value={searchQuery}
@@ -194,26 +193,29 @@ const [selectedStatusFilter, setSelectedStatusFilter] = useState<string>("all");
             className="max-w-sm"
           />
           <Select value={selectedClass} onValueChange={setSelectedClass}>
-            <SelectTrigger className="w-[200px]">
+            <SelectTrigger className="w-full md:w-[200px]">
               <SelectValue placeholder="Filtrer par classe" />
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="all">Toutes les classes</SelectItem>
               {classes.map((cls) => (
-                <SelectItem key={cls.id} value={cls.id}>
+                <SelectItem key={cls.id} value={cls.id.toString()}>
                   {cls.name}
                 </SelectItem>
               ))}
             </SelectContent>
           </Select>
           <Select value={selectedStatusFilter} onValueChange={setSelectedStatusFilter}>
-            <SelectTrigger className="w-[180px]">
-              <SelectValue placeholder="Filtrer par présence" />
+            <SelectTrigger className="w-full md:w-[180px]">
+              <SelectValue placeholder="Filtrer par statut" />
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="all">Tous</SelectItem>
               <SelectItem value="present">Présents</SelectItem>
               <SelectItem value="absent">Absents</SelectItem>
+              <SelectItem value="late">En retard</SelectItem>
+              <SelectItem value="excused">Excusés</SelectItem>
+              <SelectItem value="unregistered">Non enregistré</SelectItem>
             </SelectContent>
           </Select>
         </div>
@@ -223,8 +225,8 @@ const [selectedStatusFilter, setSelectedStatusFilter] = useState<string>("all");
             <TableRow>
               <TableHead>Étudiant</TableHead>
               <TableHead>Statut</TableHead>
-              <TableHead>Notes</TableHead>
-              <TableHead>Actions</TableHead>
+              <TableHead>Justification</TableHead>
+              <TableHead className="text-right">Actions</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -234,12 +236,14 @@ const [selectedStatusFilter, setSelectedStatusFilter] = useState<string>("all");
                 <TableRow key={student.id}>
                   <TableCell>{getStudentName(student.id)}</TableCell>
                   <TableCell>
-                    {attendance ? formatStatus(attendance.status) : "Non enregistré"}
+                    <span className={`px-2 py-1 rounded-full text-xs ${attendance ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800'}`}>
+                      {attendance ? formatStatus(attendance.state) : "Non enregistré"}
+                    </span>
                   </TableCell>
-                  <TableCell>{attendance?.notes || "-"}</TableCell>
-                  <TableCell>
+                  <TableCell>{attendance?.justification || "-"}</TableCell>
+                  <TableCell className="text-right">
                     <Button
-                      variant="ghost"
+                      variant="outline"
                       size="sm"
                       onClick={() => handleOpenDialog(student)}
                     >
@@ -252,18 +256,16 @@ const [selectedStatusFilter, setSelectedStatusFilter] = useState<string>("all");
           </TableBody>
         </Table>
 
-        <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+        <Dialog open={isDialogOpen} onOpenChange={handleCloseDialog}>
           <DialogContent>
             <DialogHeader>
-              <DialogTitle>
-                Enregistrer la présence
-              </DialogTitle>
+              <DialogTitle>Enregistrer la présence</DialogTitle>
             </DialogHeader>
             <div className="grid gap-4 py-4">
               <div className="grid gap-2">
                 <Label>Étudiant</Label>
                 <Input
-                  value={getStudentName(currentAttendance.studentId || "")}
+                  value={getStudentName(currentAttendance.student_id || 0)}
                   disabled
                 />
               </div>
@@ -272,13 +274,13 @@ const [selectedStatusFilter, setSelectedStatusFilter] = useState<string>("all");
                 <Input
                   type="date"
                   value={currentAttendance.date || ""}
-                  onChange={(e) => setCurrentAttendance({ ...currentAttendance, date: e.target.value })}
+                  disabled
                 />
               </div>
               <div className="grid gap-2">
                 <Label>Statut</Label>
                 <Select
-                  value={currentAttendance.state}
+                  value={currentAttendance.state || ""}
                   onValueChange={(value) => setCurrentAttendance({ ...currentAttendance, state: value })}
                 >
                   <SelectTrigger>
@@ -293,21 +295,17 @@ const [selectedStatusFilter, setSelectedStatusFilter] = useState<string>("all");
                 </Select>
               </div>
               <div className="grid gap-2">
-                <Label>Notes</Label>
+                <Label>Justification (si absent)</Label>
                 <Textarea
-                  value={currentAttendance.notes || ""}
-                  onChange={(e) => setCurrentAttendance({ ...currentAttendance, notes: e.target.value })}
+                  value={currentAttendance.justification || ""}
+                  onChange={(e) => setCurrentAttendance({ ...currentAttendance, justification: e.target.value })}
                 />
               </div>
             </div>
-            <div className="flex justify-end gap-2">
-              <Button variant="outline" onClick={handleCloseDialog}>
-                Annuler
-              </Button>
-              <Button onClick={handleSaveAttendance}>
-                Enregistrer
-              </Button>
-            </div>
+            <DialogFooter>
+              <Button variant="outline" onClick={handleCloseDialog}>Annuler</Button>
+              <Button onClick={handleSaveAttendance}>Enregistrer</Button>
+            </DialogFooter>
           </DialogContent>
         </Dialog>
       </div>
@@ -315,4 +313,4 @@ const [selectedStatusFilter, setSelectedStatusFilter] = useState<string>("all");
   );
 };
 
-export default Attendance;
+export default AttendancePage;
