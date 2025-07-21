@@ -15,6 +15,7 @@ import NotFound from "./pages/NotFound";
 import Settings from "./pages/Settings";
 import DefaultClasses from "./pages/DefaultClasses";
 import Login from "./pages/Login";
+import SchedulesPage from "./pages/Schedules";
 import EmployeesPage from "./pages/Employees";
 import { useSyncAuto } from "./syncAuto";
 import { AuthProvider, useAuth } from "./context/AuthContext";
@@ -82,6 +83,7 @@ const App = () => {
               <Route path="/teachers" element={<ProtectedRoute><Teachers /></ProtectedRoute>} />
               <Route path="/employees" element={<ProtectedRoute><EmployeesPage /></ProtectedRoute>} />
               <Route path="/classes" element={<ProtectedRoute><Classes /></ProtectedRoute>} />
+              <Route path="/schedules" element={<ProtectedRoute><SchedulesPage /></ProtectedRoute>} />
               <Route path="/attendance" element={<ProtectedRoute><Attendance /></ProtectedRoute>} />
               <Route path="/payments" element={<ProtectedRoute><Payments /></ProtectedRoute>} />
               <Route path="/grades" element={<ProtectedRoute><Grades /></ProtectedRoute>} />

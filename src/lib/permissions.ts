@@ -13,6 +13,8 @@ export const PERMISSIONS = {
   CAN_MANAGE_GRADES: 'manage_grades',
   // Attendance
   CAN_MANAGE_ATTENDANCE: 'manage_attendance',
+  // Schedules
+  CAN_MANAGE_SCHEDULES: 'manage_schedules',
   // Settings
   CAN_MANAGE_SETTINGS: 'manage_settings',
 };

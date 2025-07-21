@@ -65,6 +65,18 @@ interface CurrentStudent {
 }
 
 const Students = () => {
+  const calculateAge = (birthDate: string) => {
+    if (!birthDate) return null;
+    const today = new Date();
+    const birthDateObj = new Date(birthDate);
+    let age = today.getFullYear() - birthDateObj.getFullYear();
+    const m = today.getMonth() - birthDateObj.getMonth();
+    if (m < 0 || (m === 0 && today.getDate() < birthDateObj.getDate())) {
+      age--;
+    }
+    return age;
+  };
+
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [studentToDelete, setStudentToDelete] = useState<number | null>(null);
@@ -96,7 +108,14 @@ const Students = () => {
         getAllClasses(),
       ]);
       
-      setStudents(studentsData || []);
+      const studentsWithParents = await Promise.all(studentsData.map(async (student) => {
+        const parents = await getStudentParents(student.id);
+        const father = parents.find(p => p.relation === 'père');
+        const mother = parents.find(p => p.relation === 'mère');
+        return { ...student, parentInfo: { father, mother } };
+      }));
+
+      setStudents(studentsWithParents || []);
       setClasses(classesData || []);
     } catch (error) {
       console.error('Erreur lors du chargement des données:', error);
@@ -158,11 +177,11 @@ const Students = () => {
         // Gérer les parents
         if (currentStudent.parentInfo?.father?.first_name) {
           const father = await createParent(currentStudent.parentInfo.father);
-          if(father && father.id) await linkStudentToParent(savedStudent.id, father.id);
+          if(father && father.id) await linkStudentToParent(savedStudent.id, father.id, 'père');
         }
         if (currentStudent.parentInfo?.mother?.first_name) {
           const mother = await createParent(currentStudent.parentInfo.mother);
-          if(mother && mother.id) await linkStudentToParent(savedStudent.id, mother.id);
+          if(mother && mother.id) await linkStudentToParent(savedStudent.id, mother.id, 'mère');
         }
 
         toast({ description: "Étudiant créé et inscrit avec succès." });
@@ -196,9 +215,8 @@ const Students = () => {
 
   const handleOpenEditDialog = async (student: Student) => {
     const parents = await getStudentParents(student.id);
-    // Simple logique pour assigner père/mère, à affiner si nécessaire
-    const father = parents.find(p => p.gender === 'Masculin'); 
-    const mother = parents.find(p => p.gender === 'Féminin');
+    const father = parents.find(p => p.relation === 'père'); 
+    const mother = parents.find(p => p.relation === 'mère');
 
     setCurrentStudent({ 
       id: student.id,
@@ -247,9 +265,25 @@ const Students = () => {
           <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
             {filteredStudents.map((student) => (
               <Card key={student.id} className="overflow-hidden">
-                <CardContent className="p-4 space-y-2">
-                  <h3 className="font-bold text-lg">{student.first_name} {student.name}</h3>
-                  <p className="text-sm text-muted-foreground">Classe: {student.className || 'Non assignée'}</p>
+                <CardContent className="p-4 space-y-3">
+                  <div className="flex justify-between items-start">
+                    <div>
+                      <h3 className="font-bold text-lg text-school-800">{student.first_name} {student.name}</h3>
+                      <p className="text-sm font-medium text-school-600">{student.className || 'Non assignée'}</p>
+                    </div>
+                    <div className="text-xs font-semibold bg-school-100 text-school-700 px-2 py-1 rounded-full">
+                      {student.birth_date ? `${calculateAge(student.birth_date)} ans` : 'Âge inconnu'}
+                    </div>
+                  </div>
+                  <div className="text-sm text-gray-600 space-y-1 border-t pt-2 mt-2">
+                    <p><span className="font-semibold">Genre:</span> {student.genre || 'N/A'}</p>
+                    {student.parentInfo?.father?.first_name && (
+                      <p><span className="font-semibold">Père:</span> {student.parentInfo.father.first_name} {student.parentInfo.father.name} ({student.parentInfo.father.phone})</p>
+                    )}
+                    {student.parentInfo?.mother?.first_name && (
+                      <p><span className="font-semibold">Mère:</span> {student.parentInfo.mother.first_name} {student.parentInfo.mother.name} ({student.parentInfo.mother.phone})</p>
+                    )}
+                  </div>
                   <div className="pt-2 flex justify-end space-x-2">
                     <Button size="sm" variant="outline" onClick={() => handleOpenEditDialog(student)}><Pencil className="h-4 w-4 mr-1" /> Modifier</Button>
                     <Button size="sm" variant="destructive" onClick={() => handleOpenDeleteDialog(student.id)}><Trash2 className="h-4 w-4 mr-1" /> Supprimer</Button>

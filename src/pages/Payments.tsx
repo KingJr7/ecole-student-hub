@@ -60,18 +60,6 @@ interface Payment {
   type: 'Étudiant' | 'Salaire' | 'Autre';
   person_name: string;
   details: string;
-}
-
-interface Payment {
-  id: number;
-  registration_id: number | null;
-  amount: number;
-  date: string;
-  method: string;
-  reference?: string;
-  type: 'Étudiant' | 'Salaire' | 'Autre';
-  person_name: string;
-  details: string;
   registration?: Registration & { student: Student };
 }
 
@@ -83,6 +71,7 @@ interface Fee {
 }
 
 const Payments = () => {
+  const db = useDatabase();
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [isReceiptDialogOpen, setIsReceiptDialogOpen] = useState(false);
@@ -112,7 +101,8 @@ const Payments = () => {
     deletePayment,
     getAllFees, // Utiliser getAllFees au lieu de getFeesForLevel
     getLatestRegistrationForStudent,
-  } = useDatabase();
+    printThermalReceipt,
+  } = db;
 
   const loadData = async () => {
     setLoading(true);
@@ -147,8 +137,8 @@ const Payments = () => {
 
   const handleOpenEditDialog = (payment: Payment) => {
     // Pour l'édition, on retrouve le student_id à partir de la registration
-    const registration = registrations.find(r => r.id === payment.registration_id);
-    setCurrentPayment({ ...payment, student_id: registration?.student_id });
+    const student = students.find(s => s.id === payment.registration?.student.id);
+    setCurrentPayment({ ...payment, student_id: student?.id });
     setIsDialogOpen(true);
   };
 
@@ -162,16 +152,32 @@ const Payments = () => {
     setIsReceiptDialogOpen(true);
   };
 
-  const handlePrintReceipt = () => {
-    if (!receiptRef.current) return;
-    const printWindow = window.open('', '_blank');
-    if (printWindow) {
-      printWindow.document.write('<html><head><title>Reçu</title></head><body>');
-      printWindow.document.write(receiptRef.current.innerHTML);
-      printWindow.document.write('</body></html>');
-      printWindow.document.close();
-      printWindow.print();
-      printWindow.close();
+  const handlePrintReceipt = async () => {
+    if (!receiptPayment) return;
+
+    const student = students.find(s => s.id === receiptPayment.registration?.student.id);
+    if (!student) {
+      toast({ description: "Impossible de trouver l'élève associé à ce paiement." });
+      return;
+    }
+
+    const receiptData = {
+      schoolName: schoolName,
+      payment: receiptPayment,
+      student: student,
+    };
+
+    try {
+      const result = await printThermalReceipt({ receiptData });
+
+      if (result.success) {
+        toast({ description: "Reçu imprimé avec succès." });
+      } else {
+        toast({ description: result.message }); // notification non destructive
+      }
+    } catch (error) {
+      console.error('Erreur lors de l\'impression:', error);
+      toast({ variant: "destructive", description: "Erreur lors de l'impression du reçu." });
     }
   };
 
@@ -196,7 +202,7 @@ const Payments = () => {
       setCurrentPayment(prev => ({
         ...prev,
         fee_id: feeId,
-        amount: selectedFee.balance, // Pré-remplir avec le solde restant
+        amount: selectedFee.amount, // Utiliser selectedFee.amount au lieu de selectedFee.balance
       }));
     }
   };
@@ -295,9 +301,9 @@ const Payments = () => {
                 </TableHeader>
                 <TableBody>
                   {loading ? (
-                    <TableRow><TableCell colSpan={7} className="text-center py-10">Chargement...</TableCell></TableRow>
+                    <TableRow><TableCell colSpan={8} className="text-center py-10">Chargement...</TableCell></TableRow>
                   ) : filteredPayments.length === 0 ? (
-                    <TableRow><TableCell colSpan={7} className="text-center py-10">Aucun paiement trouvé.</TableCell></TableRow>
+                    <TableRow><TableCell colSpan={8} className="text-center py-10">Aucun paiement trouvé.</TableCell></TableRow>
                   ) : (
                     filteredPayments.map((payment) => (
                       <TableRow key={`${payment.type}-${payment.id}`}>
@@ -306,7 +312,7 @@ const Payments = () => {
                         <TableCell>{payment.type === 'Salaire' ? 'Salaire' : payment.details}</TableCell>
                         <TableCell>{payment.type === 'Salaire' ? payment.details : payment.registration?.class?.name || 'N/A'}</TableCell>
                         <TableCell>{new Date(payment.date).toLocaleDateString()}</TableCell>
-                        <TableCell>{payment.amount.toLocaleString()} FCFA</TableCell>
+                        <TableCell>{(payment.amount || 0).toLocaleString()} FCFA</TableCell>
                         <TableCell>{payment.method}</TableCell>
                         <TableCell className="text-right">
                           <div className="flex justify-end items-center space-x-1">
@@ -421,7 +427,7 @@ const Payments = () => {
               {receiptPayment && (
                 <PaymentReceipt 
                   payment={receiptPayment} 
-                  student={students.find(s => s.id === registrations.find(r => r.id === receiptPayment.registration_id)?.student_id)} 
+                  student={students.find(s => s.id === receiptPayment?.registration?.student.id)} 
                   schoolName={schoolName} 
                 />
               )}

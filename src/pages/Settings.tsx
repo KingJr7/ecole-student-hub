@@ -25,7 +25,7 @@ const Settings: React.FC = () => {
   const { getSettings, updateSettings } = useDatabase();
 
   const [schoolName, setSchoolName] = useState("");
-  const [paymentMonths, setPaymentMonths] = useState<string[]>([]);
+  const [schoolAddress, setSchoolAddress] = useState("");
   const [selectedYear, setSelectedYear] = useState<string>(new Date().getFullYear().toString());
   const [loading, setLoading] = useState(true);
   const [resetLoading, setResetLoading] = useState(false);
@@ -36,25 +36,25 @@ const Settings: React.FC = () => {
       .then((settings) => {
         if (settings) {
           setSchoolName(settings.schoolName || "");
-          setPaymentMonths(settings.paymentMonths || []);
+          setSchoolAddress(settings.schoolAddress || "");
         } else {
           setSchoolName("");
-          setPaymentMonths([]);
+          setSchoolAddress("");
         }
       })
       .catch(() => {
         setSchoolName("");
-        setPaymentMonths([]);
+        setSchoolAddress("");
       })
       .finally(() => setLoading(false));
   }, [getSettings]);
 
   const handleSave = async () => {
     try {
-      await updateSettings({ schoolName, paymentMonths });
+      await updateSettings({ schoolName, schoolAddress });
       const settings = await getSettings();
       setSchoolName(settings?.schoolName || "");
-      setPaymentMonths(settings?.paymentMonths || []);
+      setSchoolAddress(settings?.schoolAddress || "");
       toast({ title: "Succès", description: "Paramètres enregistrés." });
     } catch (error) {
       toast({ title: "Erreur", description: "Erreur lors de la sauvegarde.", variant: "destructive" });
@@ -103,70 +103,12 @@ const Settings: React.FC = () => {
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label>Mois de paiements</Label>
-                  <div className="flex space-x-2 mb-2">
-                    <select
-                      value={selectedYear}
-                      onChange={(e) => setSelectedYear(e.target.value)}
-                      className="border rounded px-2 py-1"
-                    >
-                      {Array.from({ length: 6 }, (_, i) => (2024 + i)).map((year) => (
-                        <option key={year} value={year.toString()}>
-                          {year}
-                        </option>
-                      ))}
-                    </select>
-                  </div>
-                  <div className="flex flex-wrap gap-2 mb-2">
-                    {[
-                      { label: "Janvier", value: "01" },
-                      { label: "Février", value: "02" },
-                      { label: "Mars", value: "03" },
-                      { label: "Avril", value: "04" },
-                      { label: "Mai", value: "05" },
-                      { label: "Juin", value: "06" },
-                      { label: "Juillet", value: "07" },
-                      { label: "Août", value: "08" },
-                      { label: "Septembre", value: "09" },
-                      { label: "Octobre", value: "10" },
-                      { label: "Novembre", value: "11" },
-                      { label: "Décembre", value: "12" },
-                    ].map(({ label, value }) => {
-                      const ym = `${selectedYear}-${value}`;
-                      const checked = paymentMonths.includes(ym);
-                      return (
-                        <label key={ym} className={`inline-flex items-center px-3 py-1 rounded-full text-sm cursor-pointer ${checked ? "bg-blue-200" : "bg-gray-100"}`}>
-                          <input
-                            type="checkbox"
-                            checked={checked}
-                            onChange={() => {
-                              setPaymentMonths(
-                                checked
-                                  ? paymentMonths.filter((m) => m !== ym)
-                                  : [...paymentMonths, ym]
-                              );
-                            }}
-                            className="mr-2"
-                          />
-                          {label}
-                        </label>
-                      );
-                    })}
-                  </div>
-                  <div className="flex flex-wrap gap-2">
-                    {paymentMonths.sort().map((month) => (
-                      <span key={month} className="inline-flex items-center px-3 py-1 bg-blue-100 rounded-full text-sm">
-                        {month}
-                        <button
-                          type="button"
-                          className="ml-2 text-red-600 hover:text-red-900"
-                          onClick={() => setPaymentMonths(paymentMonths.filter((m) => m !== month))}
-                        >
-                          &times;
-                        </button>
-                      </span>
-                    ))}
-                  </div>
+                  <Label htmlFor="schoolAddress">Adresse de l'école</Label>
+                  <Input
+                    id="schoolAddress"
+                    value={schoolAddress}
+                    onChange={(e) => setSchoolAddress(e.target.value)}
+                  />
                 </div>
                 <Button onClick={handleSave} className="bg-school-600 hover:bg-school-700">
                   Enregistrer
@@ -218,12 +160,12 @@ const Settings: React.FC = () => {
             </DialogDescription>
           </DialogHeader>
           <div className="flex flex-col space-y-4">
-            <a href="tel:+2250707070707" className="flex items-center p-3 rounded-lg hover:bg-gray-100">
+            <a href="tel:+242065026800" className="flex items-center p-3 rounded-lg hover:bg-gray-100">
               <Phone className="mr-3 h-5 w-5 text-blue-500" />
-              <span>+225 0707070707</span>
+              <span>+242 065026800</span>
             </a>
             <a
-              href="https://wa.me/2250707070707"
+              href="https://wa.me/242065026800"
               target="_blank"
               rel="noopener noreferrer"
               className="flex items-center p-3 rounded-lg hover:bg-gray-100"

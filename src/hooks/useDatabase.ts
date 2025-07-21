@@ -123,6 +123,7 @@ export function useDatabase() {
   const updateFee = useCallback((id: number, data: any) => invoke('db:fees:update', { id, data }), []);
   const deleteFee = useCallback((id: number) => invoke('db:fees:delete', id), []);
   const getStudentFeeStatus = useCallback((args: any) => invoke('db:fees:getStudentFeeStatus', args), []);
+  const printThermalReceipt = useCallback((data: any) => invoke('print:thermal-receipt', data), []);
   // #endregion
 
   return {
@@ -141,6 +142,6 @@ export function useDatabase() {
     getAllSchedules, createSchedule, updateSchedule, deleteSchedule, getSchedulesForClass,
     getAllNotes, createNote, updateNote, deleteNote,
     getAllEmployees, createEmployee, updateEmployee, deleteEmployee,
-    getAllFees, createFee, updateFee, deleteFee, getStudentFeeStatus,
+    getAllFees, createFee, updateFee, deleteFee, getStudentFeeStatus, printThermalReceipt,
   };
 }

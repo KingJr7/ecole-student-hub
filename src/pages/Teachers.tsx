@@ -89,12 +89,9 @@ type TeacherFormValues = {
 
 // Schéma du formulaire d'ajout d'heures travaillées
 const workHoursFormSchema = z.object({
-  teacherId: z.string(),
-  hours: z.preprocess(
-    (val) => (val === "" ? 0 : Number(val)),
-    z.number().min(0.5, "Le nombre d'heures doit être d'au moins 0.5")
-  ),
-  // La date et l'heure sont automatiquement celles du moment de l'enregistrement
+  date: z.string().min(1, "La date est requise."),
+  start_time: z.string().min(1, "L'heure de début est requise."),
+  end_time: z.string().min(1, "L'heure de fin est requise."),
   subjectId: z.string().optional(),
   notes: z.string().optional(),
 });
@@ -266,19 +263,15 @@ const Teachers = () => {
 
   const onWorkHoursFormSubmit: SubmitHandler<WorkHoursFormValues> = (data) => {
     if (selectedTeacher) {
-      // Utiliser la date et l'heure actuelles au moment de l'enregistrement
-      const now = new Date();
-      const isoDateTime = now.toISOString();
-      const formattedDate = format(now, "yyyy-MM-dd");
-      const formattedTime = format(now, "HH:mm:ss");
-      
-      addWorkHoursMutation.mutate({
-        ...data,
-        teacherId: selectedTeacher.id,
-        date: isoDateTime, // Utiliser la date et l'heure exactes au moment de l'enregistrement
-      });
-      
-      console.log(`Pointage enregistré pour ${selectedTeacher.firstName} ${selectedTeacher.lastName}: ${data.hours}h le ${formattedDate} à ${formattedTime}`);
+      const workHoursData = {
+        teacher_id: selectedTeacher.id,
+        subject_id: data.subjectId ? parseInt(data.subjectId, 10) : undefined,
+        date: data.date,
+        start_time: data.start_time,
+        end_time: data.end_time,
+        notes: data.notes,
+      };
+      addWorkHoursMutation.mutate(workHoursData);
     }
   };
 
@@ -348,23 +341,15 @@ const Teachers = () => {
   // Obtenir les classes uniques où le professeur enseigne
   const getTeacherClasses = () => {
     const subjects = getTeacherSubjects();
-    // Créer un ensemble pour éviter les doublons
-    const uniqueClasses = new Set();
-    
-    // Stocker chaque classe unique avec son ID et son nom
-    const classes = [];
+    const uniqueClasses = new Map();
     
     subjects.forEach(subject => {
-      if (subject.className && !uniqueClasses.has(subject.className)) {
-        uniqueClasses.add(subject.className);
-        classes.push({
-          id: subject.classId,
-          name: subject.className
-        });
+      if (subject.class && !uniqueClasses.has(subject.class.id)) {
+        uniqueClasses.set(subject.class.id, subject.class);
       }
     });
     
-    return classes;
+    return Array.from(uniqueClasses.values());
   };
 
   return (
@@ -470,7 +455,7 @@ const Teachers = () => {
                       </CardHeader>
                       <CardContent className="p-4 pt-0">
                         <p className="text-2xl font-bold">
-                          {isLoadingStats ? "..." : teacherStats?.totalHoursThisMonth || 0}h
+                          {isLoadingStats ? "..." : (teacherStats?.totalHoursThisMonth || 0).toFixed(1)}h
                         </p>
                       </CardContent>
                     </Card>
@@ -486,7 +471,7 @@ const Teachers = () => {
                         <p className="text-2xl font-bold">
                           {isLoadingStats 
                             ? "..." 
-                            : `${(teacherStats?.totalEarningsThisMonth || 0).toLocaleString()} FCFA`}
+                            : `${Math.round(teacherStats?.totalEarningsThisMonth || 0).toLocaleString()} FCFA`}
                         </p>
                       </CardContent>
                     </Card>
@@ -571,9 +556,9 @@ const Teachers = () => {
                           {teacherStats?.subjectHours.map((item, index) => (
                             <TableRow key={index}>
                               <TableCell>{item.name}</TableCell>
-                              <TableCell className="text-right">{item.hours}h</TableCell>
+                              <TableCell className="text-right">{item.hours.toFixed(1)}h</TableCell>
                               <TableCell className="text-right">
-                                {((selectedTeacher.hourlyRate || 0) * item.hours).toLocaleString()} FCFA
+                                {Math.round((selectedTeacher.hourlyRate || 0) * item.hours).toLocaleString()} FCFA
                               </TableCell>
                             </TableRow>
                           ))}
@@ -596,16 +581,14 @@ const Teachers = () => {
                           <TableHead>Matière</TableHead>
                           <TableHead>Classe</TableHead>
                           <TableHead>Coefficient</TableHead>
-                          <TableHead>Heures/semaine</TableHead>
                         </TableRow>
                       </TableHeader>
                       <TableBody>
                         {getTeacherSubjects().map((subject) => (
                           <TableRow key={subject.id}>
                             <TableCell>{subject.name}</TableCell>
-                            <TableCell>{subject.className || 'Non spécifiée'}</TableCell>
+                            <TableCell>{subject.class?.name || 'Non spécifiée'}</TableCell>
                             <TableCell>{subject.coefficient}</TableCell>
-                            <TableCell>{subject.hoursPerWeek ? `${subject.hoursPerWeek}h` : 'Non spécifiée'}</TableCell>
                           </TableRow>
                         ))}
                       </TableBody>
@@ -639,11 +622,10 @@ const Teachers = () => {
                       <TableBody>
                         {workHours.map((record) => (
                           <TableRow key={record.id}>
-                            <TableCell>
-                              {format(new Date(record.date), "dd MMMM yyyy à HH:mm", { locale: fr })}
-                            </TableCell>
-                            <TableCell>{getSubjectName(record.subjectId)}</TableCell>
-                            <TableCell className="text-right">{record.hours}h</TableCell>
+                            <TableCell>{format(new Date(record.date), "dd/MM/yyyy")}</TableCell>
+                            <TableCell>{record.start_time} - {record.end_time}</TableCell>
+                            <TableCell>{getSubjectName(record.subject_id)}</TableCell>
+                            <TableCell className="text-right">{record.hours.toFixed(2)}h</TableCell>
                             <TableCell>{record.notes || "-"}</TableCell>
                           </TableRow>
                         ))}
@@ -812,35 +794,52 @@ const Teachers = () => {
             <form onSubmit={workHoursForm.handleSubmit(onWorkHoursFormSubmit)} className="space-y-4">
               <FormField
                 control={workHoursForm.control}
-                name="hours"
+                name="date"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Nombre d'heures</FormLabel>
+                    <FormLabel>Date</FormLabel>
                     <FormControl>
-                      <Input type="number" min="0.5" step="0.5" {...field} />
+                      <Input type="date" {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
                 )}
               />
-              
-              <div className="py-2 px-4 mb-4 rounded-md bg-muted">
-                <p className="text-sm flex items-center">
-                  <Clock className="mr-2 h-4 w-4" />
-                  Le pointage sera enregistré avec la date et l'heure actuelles : {format(new Date(), "dd/MM/yyyy à HH:mm")}
-                </p>
+              <div className="grid grid-cols-2 gap-4">
+                <FormField
+                  control={workHoursForm.control}
+                  name="start_time"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Heure de début</FormLabel>
+                      <FormControl>
+                        <Input type="time" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={workHoursForm.control}
+                  name="end_time"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Heure de fin</FormLabel>
+                      <FormControl>
+                        <Input type="time" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
               </div>
-              
               <FormField
                 control={workHoursForm.control}
                 name="subjectId"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Matière</FormLabel>
-                    <Select 
-                      onValueChange={(value) => field.onChange(value)}
-                      defaultValue={field.value}
-                    >
+                    <FormLabel>Matière (Optionnel)</FormLabel>
+                    <Select onValueChange={field.onChange} defaultValue={field.value}>
                       <FormControl>
                         <SelectTrigger>
                           <SelectValue placeholder="Sélectionner une matière" />
@@ -848,20 +847,16 @@ const Teachers = () => {
                       </FormControl>
                       <SelectContent>
                         {getTeacherSubjects().map((subject) => (
-                          <SelectItem key={subject.id} value={subject.id}>
-                            {subject.name} {subject.className && ` - ${subject.className}`}
+                          <SelectItem key={subject.id} value={subject.id.toString()}>
+                            {subject.name} {subject.class && `- ${subject.class.name}`}
                           </SelectItem>
                         ))}
                       </SelectContent>
                     </Select>
-                    <FormDescription>
-                      Sélectionnez la matière concernée par ces heures de travail
-                    </FormDescription>
                     <FormMessage />
                   </FormItem>
                 )}
               />
-              
               <FormField
                 control={workHoursForm.control}
                 name="notes"
@@ -875,19 +870,11 @@ const Teachers = () => {
                   </FormItem>
                 )}
               />
-              
               <DialogFooter>
-                <Button 
-                  type="button" 
-                  variant="outline" 
-                  onClick={() => setOpenWorkHoursDialog(false)}
-                >
+                <Button type="button" variant="outline" onClick={() => setOpenWorkHoursDialog(false)}>
                   Annuler
                 </Button>
-                <Button type="submit">
-                  <Save className="h-4 w-4 mr-2" />
-                  Enregistrer
-                </Button>
+                <Button type="submit">Enregistrer</Button>
               </DialogFooter>
             </form>
           </Form>

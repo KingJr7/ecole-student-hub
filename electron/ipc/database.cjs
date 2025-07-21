@@ -1,6 +1,7 @@
 const { ipcMain } = require('electron');
 const { PrismaClient } = require('@prisma/client');
 const path = require('path');
+const { ThermalPrinter, PrinterTypes, CharacterSet, BreakLine } = require('node-thermal-printer');
 
 let isDatabaseIpcSetup = false;
 const prisma = new PrismaClient({
@@ -20,23 +21,16 @@ function setupDatabaseIPC() {
   // Handler pour récupérer les settings
   ipcMain.handle('db:settings:get', async () => {
     let settings = await prisma.settings.findUnique({ where: { id: 1 } });
-    if (settings && settings.paymentMonths) {
-      try {
-        settings.paymentMonths = JSON.parse(settings.paymentMonths);
-      } catch {
-        settings.paymentMonths = [];
-      }
-    }
     return settings;
   });
 
   // Handler pour mettre à jour les settings
   ipcMain.handle('db:settings:update', async (event, data) => {
-    const { schoolName, paymentMonths } = data;
+    const { schoolName, schoolAddress } = data;
     return prisma.settings.upsert({
       where: { id: 1 },
-      update: { schoolName, paymentMonths: JSON.stringify(paymentMonths) },
-      create: { id: 1, schoolName, paymentMonths: JSON.stringify(paymentMonths) },
+      update: { schoolName, schoolAddress },
+      create: { id: 1, schoolName, schoolAddress },
     });
   });
 
@@ -389,7 +383,7 @@ ipcMain.handle('db:teachers:update', async (event, { id, data }) => {
         person_name: `${p.employee.first_name} ${p.employee.name}`,
         details: p.employee.job_title,
         date: p.payment_date,
-        amount: p.amount,
+        amount: p.total_amount,
         method: 'N/A', // La méthode n'est pas définie pour les salaires
         registration_id: null, // Pas de registration_id pour les salaires
       }));
@@ -893,35 +887,61 @@ ipcMain.handle('db:parents:update', async (event, { id, data }) => {
     const absent = attendanceToday.filter(a => a.state === 'absent').length;
     const late = attendanceToday.filter(a => a.state === 'late').length;
 
-    const startOfMonth = new Date();
-    startOfMonth.setDate(1);
-    const startOfMonthString = startOfMonth.toISOString().split('T')[0];
-
-    const paymentsThisMonth = await prisma.payments.aggregate({
-      _sum: { amount: true },
-      where: {
-        date: { gte: startOfMonthString },
-        is_deleted: false,
+    // Répartition par genre
+    const genderData = await prisma.students.groupBy({
+      by: ['genre'],
+      _count: {
+        id: true,
       },
+      where: { is_deleted: false },
     });
+    const genderDistribution = genderData.map(g => ({ 
+      gender: g.genre || 'Non défini',
+      count: g._count.id 
+    }));
 
-    const thirtyDaysAgo = new Date();
-    thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+    // Paiements des 6 derniers mois
+    const monthlyPayments = [];
+    for (let i = 5; i >= 0; i--) {
+      const d = new Date();
+      d.setMonth(d.getMonth() - i);
+      const month = d.toLocaleString('fr-FR', { month: 'short' });
+      const year = d.getFullYear();
+      const firstDay = new Date(d.getFullYear(), d.getMonth(), 1).toISOString().split('T')[0];
+      const lastDay = new Date(d.getFullYear(), d.getMonth() + 1, 0).toISOString().split('T')[0];
 
-    const recentGrades = await prisma.notes.count({
-      where: {
-        last_modified: { gte: thirtyDaysAgo },
-        is_deleted: false,
-      },
+      const payments = await prisma.payments.aggregate({
+        _sum: { amount: true },
+        where: {
+          date: { gte: firstDay, lte: lastDay },
+          is_deleted: false,
+        },
+      });
+      monthlyPayments.push({ name: month, total: payments._sum.amount || 0 });
+    }
+
+    // Répartition des élèves par classe
+    const classRegistrations = await prisma.registrations.groupBy({
+        by: ['class_id'],
+        _count: {
+            student_id: true
+        },
+        where: { is_deleted: false }
     });
+    const classes = await prisma.classes.findMany({ where: { id: { in: classRegistrations.map(c => c.class_id) } } });
+    const studentsPerClass = classRegistrations.map(reg => ({
+        name: classes.find(c => c.id === reg.class_id)?.name || 'N/A',
+        students: reg._count.student_id
+    }));
 
     return {
       totalStudents,
       totalTeachers,
       totalClasses,
       attendanceToday: { present, absent, late },
-      paymentsThisMonth: paymentsThisMonth._sum.amount || 0,
-      recentGrades,
+      genderDistribution,
+      monthlyPayments,
+      studentsPerClass
     };
   });
 
@@ -1192,11 +1212,14 @@ ipcMain.handle('db:employees:delete', async (event, id) => {
   });
 });
 
-ipcMain.handle('db:employees:paySalary', async (event, { employee_id, amount, payment_date, notes }) => {
+ipcMain.handle('db:employees:paySalary', async (event, { employee_id, base_salary, bonus_amount, payment_date, notes }) => {
+  const total_amount = base_salary + bonus_amount;
   return prisma.salaryPayments.create({
     data: {
       employee_id,
-      amount,
+      base_salary,
+      bonus_amount,
+      total_amount,
       payment_date,
       notes,
       needs_sync: true,
@@ -1294,6 +1317,80 @@ ipcMain.handle('db:fees:delete', async (event, id) => {
   });
 
   // #endregion
+
+  ipcMain.handle('print:thermal-receipt', async (event, { receiptData }) => {
+    try {
+      // Configurer l'imprimante avec des paramètres par défaut pour le test
+      const printer = new ThermalPrinter({
+        type: PrinterTypes.EPSON,
+        interface: process.platform === 'win32' ? 'LPT1' : '/dev/usb/lp0', // Chemin par défaut selon le système
+        driver: require('printer'),
+        width: 48, // Largeur standard pour les imprimantes thermiques
+        characterSet: CharacterSet.PC852_LATIN2, // Support des caractères accentués
+        removeSpecialCharacters: false,
+        options: {
+          timeout: 5000
+        }
+      });
+
+      // Vérifier la connexion de l'imprimante
+      const isConnected = await printer.isPrinterConnected();
+      if (!isConnected) {
+        console.error("L'imprimante n'est pas connectée.");
+        return { success: false, message: "Imprimante non connectée. Vérifiez le branchement et les paramètres." };
+      }
+
+      // Définir la mise en page
+      printer.setCharacterSet(CharacterSet.PC852_LATIN2);
+      printer.alignCenter();
+      printer.bold(true);
+      printer.setTextSize(1, 1);
+      printer.println(receiptData.schoolName);
+      printer.bold(false);
+      printer.drawLine();
+
+      // En-tête du reçu
+      printer.alignLeft();
+      printer.println(`Reçu N°: ${receiptData.payment.id}`);
+      printer.println(`Date: ${new Date(receiptData.payment.date).toLocaleDateString()}`);
+      printer.println(`Élève: ${receiptData.student.first_name} ${receiptData.student.name}`);
+      printer.drawLine();
+
+      // Détails du paiement
+      printer.tableCustom([
+        { text: "Description", align: "LEFT", width: 0.6 },
+        { text: "Montant", align: "RIGHT", width: 0.4 }
+      ]);
+      printer.tableCustom([
+        { text: receiptData.payment.details, align: "LEFT", width: 0.6 },
+        { text: `${receiptData.payment.amount.toLocaleString()} FCFA`, align: "RIGHT", width: 0.4 }
+      ]);
+      printer.drawLine();
+
+      // Total
+      printer.alignRight();
+      printer.bold(true);
+      printer.println(`Total: ${receiptData.payment.amount.toLocaleString()} FCFA`);
+      printer.bold(false);
+
+      // Pied de page
+      printer.alignCenter();
+      printer.println("\nMerci de votre confiance !");
+      printer.feed(3);
+      printer.cut();
+
+      // Exécuter l'impression
+      await printer.execute();
+      return { success: true };
+
+    } catch (error) {
+      console.error("Erreur détaillée lors de l'impression:", error);
+      return { 
+        success: false, 
+        message: `Erreur d'impression: ${error.message || "Erreur inconnue"}. Vérifiez que l'imprimante est correctement installée et configurée.`
+      };
+    }
+  });
 }
 
 module.exports = { setupDatabaseIPC, prisma }; // Exporter prisma pour la synchro

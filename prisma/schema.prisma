@@ -10,7 +10,7 @@ datasource db {
 model Settings {
   id            Int     @id @default(1)
   schoolName    String?
-  paymentMonths String?
+  schoolAddress String?
   loggedIn      Int?    @default(0)
   userRole      String?
   schoolId      String?
@@ -271,16 +271,18 @@ model Employees {
 }
 
 model SalaryPayments {
-  id           Int      @id @default(autoincrement())
-  employee_id  Int
-  amount       Float
-  payment_date String
-  notes        String?
-  supabase_id  String?  @unique
+  id            Int      @id @default(autoincrement())
+  employee_id   Int
+  base_salary   Float    @default(0)
+  bonus_amount  Float    @default(0)
+  total_amount  Float
+  payment_date  String
+  notes         String?
+  supabase_id   String?  @unique
   last_modified DateTime @default(now())
-  needs_sync   Boolean  @default(false)
-  is_deleted   Boolean  @default(false)
-  employee     Employees @relation(fields: [employee_id], references: [id], onDelete: Cascade)
+  needs_sync    Boolean  @default(false)
+  is_deleted    Boolean  @default(false)
+  employee      Employees @relation(fields: [employee_id], references: [id], onDelete: Cascade)
 
   @@map("salary_payments")
 }

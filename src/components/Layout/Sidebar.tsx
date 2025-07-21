@@ -26,6 +26,7 @@ export default function Sidebar() {
     { name: "Professeurs", href: "/teachers", icon: GraduationCap, permission: PERMISSIONS.CAN_MANAGE_TEACHERS },
     { name: "Personnel", href: "/employees", icon: Users, permission: PERMISSIONS.CAN_MANAGE_EMPLOYEES },
     { name: "Classes", href: "/classes", icon: Database, permission: PERMISSIONS.CAN_MANAGE_CLASSES },
+    { name: "Emploi du temps", href: "/schedules", icon: CalendarCheck, permission: PERMISSIONS.CAN_MANAGE_SCHEDULES },
     { name: "Présences", href: "/attendance", icon: CalendarCheck, permission: PERMISSIONS.CAN_MANAGE_ATTENDANCE },
     { name: "Paiements", href: "/payments", icon: FileMinus, permission: PERMISSIONS.CAN_MANAGE_PAYMENTS },
     { name: "Notes", href: "/grades", icon: FileText, permission: PERMISSIONS.CAN_MANAGE_GRADES },

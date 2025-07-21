@@ -1,5 +1,5 @@
 import prisma from './prisma';
-import { Student, AttendanceRecord, Payment, Grade, DashboardStats, ClassResult, Teacher, Subject, Schedule, ClassWithDetails, TeacherWorkHours, TeacherStats, Employee } from "../types";
+import { Student, AttendanceRecord, Payment, Grade, DashboardStats, ClassResult, Teacher, Subject, Schedule, ClassWithDetails, TeacherWorkHours, TeacherStats, Employee, Settings } from "../types";
 
 // Import mock implementations for client-side
 import * as mockApi from './mockApi';
@@ -7,42 +7,59 @@ import * as mockApi from './mockApi';
 // Check if we're in a browser environment
 const isBrowser = typeof window !== 'undefined';
 
+// Settings operations
+export const getSettings = async (): Promise<Settings | null> => {
+  if (isBrowser) {
+    const { ipcRenderer } = window.require('electron');
+    return ipcRenderer.invoke('db:settings:get');
+  } else {
+    return Promise.resolve(mockApi.getSettings());
+  }
+};
+
 // Employee operations
 export const getEmployees = async (): Promise<Employee[]> => {
   if (isBrowser) {
-    return Promise.resolve(mockApi.getEmployees());
+    const { ipcRenderer } = window.require('electron');
+    return ipcRenderer.invoke('db:employees:getAll');
   } else {
-    return await prisma.employees.findMany();
+    return Promise.resolve(mockApi.getEmployees());
   }
 };
 
 export const addEmployee = async (employee: Omit<Employee, 'id' | 'matricule'>): Promise<Employee> => {
   if (isBrowser) {
-    return Promise.resolve(mockApi.addEmployee(employee));
+    const { ipcRenderer } = window.require('electron');
+    return ipcRenderer.invoke('db:employees:create', employee);
   } else {
-    const newEmployee = await prisma.employees.create({
-      data: employee,
-    });
-    return newEmployee;
+    return Promise.resolve(mockApi.addEmployee(employee));
   }
 };
 
 export const updateEmployee = async (id: number, data: Partial<Employee>): Promise<Employee> => {
   if (isBrowser) {
-    return Promise.resolve(mockApi.updateEmployee(id, data));
+    const { ipcRenderer } = window.require('electron');
+    return ipcRenderer.invoke('db:employees:update', { id, data });
   } else {
-    return await prisma.employees.update({
-      where: { id },
-      data,
-    });
+    return Promise.resolve(mockApi.updateEmployee(id, data));
   }
 };
 
 export const deleteEmployee = async (id: number): Promise<void> => {
   if (isBrowser) {
-    return Promise.resolve(mockApi.deleteEmployee(id));
+    const { ipcRenderer } = window.require('electron');
+    return ipcRenderer.invoke('db:employees:delete', id);
   } else {
-    await prisma.employees.delete({ where: { id } });
+    return Promise.resolve(mockApi.deleteEmployee(id));
+  }
+};
+
+export const paySalary = async (data: { employee_id: number; base_salary: number; bonus_amount: number; payment_date: string; notes?: string }): Promise<void> => {
+  if (isBrowser) {
+    const { ipcRenderer } = window.require('electron');
+    return ipcRenderer.invoke('db:employees:paySalary', data);
+  } else {
+    return Promise.resolve();
   }
 };
 
@@ -565,7 +582,7 @@ export const updateStudent = isBrowser ? mockApi.updateStudent : async (id: numb
       where: { name: studentData.className }
     });
     
-    if (!classObj) throw new Error(`Class "${studentData.className}" not found`);
+    if (!classObj) throw new Error(`Class "${student.className}" not found`);
     classId = classObj.id;
   }
   
