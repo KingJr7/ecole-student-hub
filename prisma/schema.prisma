@@ -8,10 +8,10 @@ datasource db {
 }
 
 model Settings {
-  id            Int     @id @default(1)
+  id            Int       @id @default(autoincrement())
   schoolName    String?
   schoolAddress String?
-  loggedIn      Int?    @default(0)
+  loggedIn      Int?      @default(0)
   userRole      String?
   schoolId      String?
   userToken     String?
@@ -21,81 +21,85 @@ model Settings {
 }
 
 model Classes {
-  id              Int      @id @default(autoincrement())
-  name            String
-  level           String?
-  school_id       String?
-  supabase_id     String?  @unique
-  last_modified   DateTime @default(now())
-  needs_sync      Boolean  @default(false)
-  is_deleted      Boolean  @default(false)
-  registrations   Registrations[]
-  lessons         Lessons[]
-  subjects        Subjects[]
+  id            Int             @id @default(autoincrement())
+  name          String
+  level         String?
+  school_id     String?
+  supabase_id   String?         @unique
+  last_modified DateTime        @default(now())
+  needs_sync    Boolean         @default(false)
+  is_deleted    Boolean         @default(false)
+  lessons       Lessons[]
+  registrations Registrations[]
+  subjects      Subjects[]
 
   @@map("classes")
 }
 
 model Students {
-  id              Int      @id @default(autoincrement())
+  id              Int              @id @default(autoincrement())
   name            String?
   first_name      String?
   genre           String?
   birth_date      String?
   picture_url     String?
-  supabase_id     String?  @unique
-  last_modified   DateTime @default(now())
-  needs_sync      Boolean  @default(false)
-  is_deleted      Boolean  @default(false)
-  registrations   Registrations[]
-  notes           Notes[]
+  supabase_id     String?          @unique
+  last_modified   DateTime         @default(now())
+  needs_sync      Boolean          @default(false)
+  is_deleted      Boolean          @default(false)
   attendances     Attendances[]
+  notes           Notes[]
+  registrations   Registrations[]
   student_parents StudentParents[]
-
+  matricul        String?          @unique // Ajout du champ matricul pour l'alignement avec Supabase
+  
   @@map("students")
 }
 
 model Registrations {
-  id                Int      @id @default(autoincrement())
+  id                Int        @id @default(autoincrement())
   student_id        Int
   class_id          Int
   school_year       String?
   state             String?
   registration_date String?
-  supabase_id       String?  @unique
-  last_modified     DateTime @default(now())
-  needs_sync        Boolean  @default(false)
-  is_deleted        Boolean  @default(false)
-  student           Students @relation(fields: [student_id], references: [id], onDelete: Cascade)
-  class             Classes  @relation(fields: [class_id], references: [id], onDelete: Cascade)
+  supabase_id       String?    @unique
+  last_modified     DateTime   @default(now())
+  needs_sync        Boolean    @default(false)
+  is_deleted        Boolean    @default(false)
   payments          Payments[]
+  class             Classes    @relation(fields: [class_id], references: [id], onDelete: Cascade)
+  student           Students   @relation(fields: [student_id], references: [id], onDelete: Cascade)
 
   @@map("registrations")
 }
 
 model Teachers {
-  id              Int      @id @default(autoincrement())
-  name            String?
-  first_name      String?
-  phone           String?
-  email           String?  @unique
-  adress          String?
-  gender          String?
-  speciality      String?
-  matricule       String?
-  hourlyRate      Float?   @default(0)
-  supabase_id     String?  @unique
-  last_modified   DateTime @default(now())
-  needs_sync      Boolean  @default(false)
-  is_deleted      Boolean  @default(false)
-  lessons         Lessons[]
-  workHours       TeacherWorkHours[]
+  id            Int                @id @default(autoincrement())
+  name          String?
+  first_name    String?
+  phone         String?
+  email         String?            @unique
+  adress        String?
+  password_hash String?          @default("admin123")// Ajout du champ password_hash pour l'alignement
+  role_id      String?            @default("6bd5dc10-9df7-43f4-8539-6c0386b3cc33")// Ajout du champ role_id pour l
+  speciality    String?
+  matricule     String?
+  supabase_id   String?            @unique
+  user_supabase_id String? // Stocke l'id du user Supabase lié au teacher
+  last_modified DateTime           @default(now())
+  needs_sync    Boolean            @default(false)
+  is_deleted    Boolean            @default(false)
+  hourlyRate    Float?             @default(0)
+  lessons       Lessons[]
+  workHours     TeacherWorkHours[]
+  school_id     String?            // Ajout du champ school_id pour l'alignement avec Supabase
 
   @@map("teachers")
 }
 
 model TeacherWorkHours {
-  id            Int      @id @default(autoincrement())
+  id            Int       @id @default(autoincrement())
   teacher_id    Int
   subject_id    Int?
   date          String?
@@ -103,98 +107,99 @@ model TeacherWorkHours {
   end_time      String?
   hours         Float
   notes         String?
-  supabase_id   String?  @unique
-  last_modified DateTime @default(now())
-  needs_sync    Boolean  @default(false)
-  is_deleted    Boolean  @default(false)
-  teacher       Teachers @relation(fields: [teacher_id], references: [id], onDelete: Cascade)
-  subject       Subjects? @relation(fields: [subject_id], references: [id], onDelete: SetNull)
+  supabase_id   String?   @unique
+  last_modified DateTime  @default(now())
+  needs_sync    Boolean   @default(false)
+  is_deleted    Boolean   @default(false)
+  subject       Subjects? @relation(fields: [subject_id], references: [id])
+  teacher       Teachers  @relation(fields: [teacher_id], references: [id], onDelete: Cascade)
 
   @@map("teacher_work_hours")
 }
 
 model Lessons {
-  id           Int       @id @default(autoincrement())
-  teacher_id   Int?
-  class_id     Int
-  subject_id   Int
-  school_year  String?
-  supabase_id  String?   @unique
-  last_modified DateTime  @default(now())
-  needs_sync   Boolean   @default(false)
-  is_deleted   Boolean   @default(false)
-  teacher      Teachers? @relation(fields: [teacher_id], references: [id], onDelete: SetNull)
-  class        Classes   @relation(fields: [class_id], references: [id], onDelete: Cascade)
-  subject      Subjects  @relation(fields: [subject_id], references: [id], onDelete: Cascade)
-  notes        Notes[]
-  schedules    Schedules[]
+  id            Int         @id @default(autoincrement())
+  teacher_id    Int?
+  class_id      Int
+  subject_id    Int
+  school_year   String?
+  supabase_id   String?     @unique
+  last_modified DateTime    @default(now())
+  needs_sync    Boolean     @default(false)
+  is_deleted    Boolean     @default(false)
+  subject       Subjects    @relation(fields: [subject_id], references: [id], onDelete: Cascade)
+  class         Classes     @relation(fields: [class_id], references: [id], onDelete: Cascade)
+  teacher       Teachers?   @relation(fields: [teacher_id], references: [id])
+  notes         Notes[]
+  schedules     Schedules[]
 
   @@map("lessons")
 }
 
 model Subjects {
-  id           Int      @id @default(autoincrement())
-  name         String
-  class_id     Int
-  school_year  String?
-  coefficient  Int?
-  supabase_id  String?  @unique
-  last_modified DateTime @default(now())
-  needs_sync   Boolean  @default(false)
-  is_deleted   Boolean  @default(false)
-  class        Classes  @relation(fields: [class_id], references: [id], onDelete: Cascade)
-  lessons      Lessons[]
-  workHours    TeacherWorkHours[]
+  id            Int                @id @default(autoincrement())
+  name          String
+  class_id      Int
+  school_year   String?
+  coefficient   Int?
+  supabase_id   String?            @unique
+  last_modified DateTime           @default(now())
+  needs_sync    Boolean            @default(false)
+  is_deleted    Boolean            @default(false)
+  lessons       Lessons[]
+  class         Classes            @relation(fields: [class_id], references: [id], onDelete: Cascade)
+  workHours     TeacherWorkHours[]
 
   @@map("subjects")
 }
 
 model Notes {
-  id           Int      @id @default(autoincrement())
-  student_id   Int
-  lesson_id    Int
-  value        Float?
-  type         String?
-  quarter      Int?
-  supabase_id  String?  @unique
+  id            Int      @id @default(autoincrement())
+  student_id    Int
+  lesson_id     Int
+  value         Float?
+  type          String?
+  quarter       Int?
+  supabase_id   String?  @unique
   last_modified DateTime @default(now())
-  needs_sync   Boolean  @default(false)
-  is_deleted   Boolean  @default(false)
-  student      Students @relation(fields: [student_id], references: [id], onDelete: Cascade)
-  lesson       Lessons  @relation(fields: [lesson_id], references: [id], onDelete: Cascade)
+  needs_sync    Boolean  @default(false)
+  is_deleted    Boolean  @default(false)
+  lesson        Lessons  @relation(fields: [lesson_id], references: [id], onDelete: Cascade)
+  student       Students @relation(fields: [student_id], references: [id], onDelete: Cascade)
 
   @@map("notes")
 }
 
 model Parents {
-  id           Int      @id @default(autoincrement())
-  name         String?
-  first_name   String?
-  phone        String?
-  email        String?
-  adress       String?
-  gender       String?
-  profession   String?
-  supabase_id  String?  @unique
-  last_modified DateTime @default(now())
-  needs_sync   Boolean  @default(false)
-  is_deleted   Boolean  @default(false)
+  id              Int              @id @default(autoincrement())
+  name            String?
+  first_name      String?
+  phone           String?
+  email           String?
+  adress          String?
+  gender          String?
+  profession      String?
+  supabase_id     String?          @unique
+  last_modified   DateTime         @default(now())
+  needs_sync      Boolean          @default(false)
+  is_deleted      Boolean          @default(false)
   student_parents StudentParents[]
+  school_id       String?          // Ajout du champ school_id pour l'alignement avec Supabase
 
   @@map("parents")
 }
 
 model StudentParents {
-  id           Int      @id @default(autoincrement())
-  student_id   Int
-  parent_id    Int
-  relation     String?
-  supabase_id  String?  @unique
+  id            Int      @id @default(autoincrement())
+  student_id    Int
+  parent_id     Int
+  relation      String?
+  supabase_id   String?  @unique
   last_modified DateTime @default(now())
-  needs_sync   Boolean  @default(false)
-  is_deleted   Boolean  @default(false)
-  student      Students @relation(fields: [student_id], references: [id], onDelete: Cascade)
-  parent       Parents  @relation(fields: [parent_id], references: [id], onDelete: Cascade)
+  needs_sync    Boolean  @default(false)
+  is_deleted    Boolean  @default(false)
+  parent        Parents  @relation(fields: [parent_id], references: [id], onDelete: Cascade)
+  student       Students @relation(fields: [student_id], references: [id], onDelete: Cascade)
 
   @@map("student_parents")
 }
@@ -202,7 +207,7 @@ model StudentParents {
 model Payments {
   id              Int            @id @default(autoincrement())
   registration_id Int?
-  fee_id          Int? // Lien vers le frais payé
+  fee_id          Int?
   amount          Float?
   method          String?
   date            String?
@@ -212,24 +217,24 @@ model Payments {
   last_modified   DateTime       @default(now())
   needs_sync      Boolean        @default(false)
   is_deleted      Boolean        @default(false)
-  registration    Registrations? @relation(fields: [registration_id], references: [id], onDelete: SetNull)
-  fee             Fees?          @relation(fields: [fee_id], references: [id], onDelete: SetNull)
+  fee             Fees?          @relation(fields: [fee_id], references: [id])
+  registration    Registrations? @relation(fields: [registration_id], references: [id])
 
   @@map("payments")
 }
 
 model Fees {
-  id           Int      @id @default(autoincrement())
-  name         String?
-  amount       Float?
-  due_date     String?
-  school_year  String?
-  level        String? // primaire, college, lycee
-  supabase_id  String?  @unique
-  last_modified DateTime @default(now())
-  needs_sync   Boolean  @default(false)
-  is_deleted   Boolean  @default(false)
-  payments     Payments[]
+  id            Int        @id @default(autoincrement())
+  name          String?
+  amount        Float?
+  due_date      String?
+  school_year   String?
+  level         String?
+  supabase_id   String?    @unique
+  last_modified DateTime   @default(now())
+  needs_sync    Boolean    @default(false)
+  is_deleted    Boolean    @default(false)
+  payments      Payments[]
 
   @@map("fees")
 }
@@ -250,54 +255,54 @@ model Attendances {
 }
 
 model Employees {
-  id           Int      @id @default(autoincrement())
-  name         String?
-  first_name   String?
-  phone        String?
-  email        String?
-  adress       String?
-  gender       String?
-  job_title    String?
-  salary       Float?
-  matricule    String?
-  school_id    String?
-  supabase_id  String?  @unique
-  last_modified DateTime @default(now())
-  needs_sync   Boolean  @default(false)
-  is_deleted   Boolean  @default(false)
-  salaryPayments SalaryPayments[]
+  id              Int               @id @default(autoincrement())
+  name            String?
+  first_name      String?
+  phone           String?
+  email           String?
+  adress          String?
+  gender          String?
+  job_title       String?
+  salary          Float?
+  matricule       String?
+  school_id       String?
+  supabase_id     String?           @unique
+  last_modified   DateTime          @default(now())
+  needs_sync      Boolean           @default(false)
+  is_deleted      Boolean           @default(false)
+  salary_payments salary_payments[]
 
   @@map("employees")
 }
 
-model SalaryPayments {
-  id            Int      @id @default(autoincrement())
+model salary_payments {
+  id            Int       @id @default(autoincrement())
   employee_id   Int
-  base_salary   Float    @default(0)
-  bonus_amount  Float    @default(0)
+  base_salary   Float
+  bonus_amount  Float     @default(0)
   total_amount  Float
   payment_date  String
   notes         String?
-  supabase_id   String?  @unique
-  last_modified DateTime @default(now())
-  needs_sync    Boolean  @default(false)
-  is_deleted    Boolean  @default(false)
+  supabase_id   String?   @unique
+  last_modified DateTime  @default(now())
+  needs_sync    Boolean   @default(false)
+  is_deleted    Boolean   @default(false)
   employee      Employees @relation(fields: [employee_id], references: [id], onDelete: Cascade)
 
   @@map("salary_payments")
 }
 
 model Schedules {
-  id           Int      @id @default(autoincrement())
-  lesson_id    Int
-  day_of_week  String?
-  start_time   String?
-  end_time     String?
-  supabase_id  String?  @unique
+  id            Int      @id @default(autoincrement())
+  lesson_id     Int
+  day_of_week   String?
+  start_time    String?
+  end_time      String?
+  supabase_id   String?  @unique
   last_modified DateTime @default(now())
-  needs_sync   Boolean  @default(false)
-  is_deleted   Boolean  @default(false)
-  lesson       Lessons  @relation(fields: [lesson_id], references: [id], onDelete: Cascade)
+  needs_sync    Boolean  @default(false)
+  is_deleted    Boolean  @default(false)
+  lesson        Lessons  @relation(fields: [lesson_id], references: [id], onDelete: Cascade)
 
   @@map("schedules")
 }

@@ -59,16 +59,18 @@ const tableConfigs = {
         supabaseMap: (row) => ({ 
             name: row.name,
             first_name: row.first_name,
-            genre: row.gender,
+            genre: row.genre,
             birth_date: row.birth_date,
-            picture_url: row.picture_url
+            picture_url: row.picture_url,
+            matricul: row.matricul // Ajouté pour la synchro
         }),
         localMap: (row) => ({ 
             name: row.name,
             first_name: row.first_name,
-            gender: row.genre,
+            genre: row.genre,
             birth_date: row.birth_date,
-            picture_url: row.picture_url
+            picture_url: row.picture_url,
+            matricul: row.matricul // Ajouté pour la synchro
         })
     },
     registrations: {
@@ -106,28 +108,44 @@ const tableConfigs = {
     },
     teachers: {
         name: 'teachers', model: 'teachers',
-        pullSelect: '*',
-        pullFilterColumn: 'school_id',
-        supabaseMap: (row, schoolId) => ({
-            name: row.name,
-            first_name: row.first_name,
-            phone: row.phone,
-            email: row.email,
-            adress: row.address,
-            gender: row.gender,
-            speciality: row.speciality,
-            matricule: row.matricule
-        }),
-        localMap: (row) => ({
-            name: row.name,
-            first_name: row.first_name,
-            phone: row.phone,
-            email: row.email,
-            address: row.adress,
-            gender: row.gender,
-            speciality: row.speciality,
-            matricule: row.matricule
-        })
+        pullSelect: '*, users(*)', // On récupère le teacher et le user associé
+        pullFilterColumn: 'users.school_id', // On filtre sur le school_id du user associé
+        supabaseMap: async (row, schoolId, prisma) => {
+            // Création du user d'abord
+            const userData = {
+                name: row.name,
+                first_name: row.first_name,
+                phone: row.phone,
+                email: row.email,
+                password_hash: row.password_hash || 'admin123', // Toujours envoyer le password_hash
+                school_id: schoolId,
+                role_id: row.role_id || '6bd5dc10-9df7-43f4-8539-6c0386b3cc33',
+            };
+            // Crée le user dans Supabase
+            const { data: userCreated, error: userError } = await supabase.from('users').insert(userData).select('id');
+            if (userError || !userCreated || !userCreated[0]?.id) return null;
+            // Crée le teacher avec user_id
+            return {
+                user_id: userCreated[0].id,
+                speciality: row.speciality,
+                matricule: row.matricule,
+            };
+        },
+        localMap: (row) => {
+            // Les données du user sont dans l'objet imbriqué 'users'
+            if (!row.users) return null; 
+            return {
+                name: row.users.name,
+                first_name: row.users.first_name,
+                phone: row.users.phone,
+                email: row.users.email,
+                adress: row.users.address,
+                // gender: row.users.gender, // Assurez-vous que ce champ existe dans la table users de Supabase
+                speciality: row.speciality,
+                matricule: row.matricule,
+                user_supabase_id: row.user_id, // L'ID du user Supabase
+            }
+        }
     },
     subjects: {
         name: 'subjects', model: 'subjects',
@@ -229,7 +247,7 @@ const tableConfigs = {
             first_name: row.first_name,
             phone: row.phone,
             email: row.email,
-            address: row.address,
+            address: row.adress, // Correction du mapping pour le PUSH
             gender: row.gender,
             profession: row.profession
         }),
@@ -238,7 +256,7 @@ const tableConfigs = {
             first_name: row.first_name,
             phone: row.phone,
             email: row.email,
-            address: row.address,
+            adress: row.address, // Correction du mapping pour le PULL
             gender: row.gender,
             profession: row.profession
         })
@@ -350,7 +368,7 @@ const tableConfigs = {
             first_name: row.first_name,
             phone: row.phone,
             email: row.email,
-            adress: row.address,
+            address: row.adress, // Correction
             gender: row.gender,
             job_title: row.job_title,
             salary: row.salary,
@@ -362,7 +380,7 @@ const tableConfigs = {
             first_name: row.first_name,
             phone: row.phone,
             email: row.email,
-            address: row.adress,
+            adress: row.address, // Correction
             gender: row.gender,
             job_title: row.job_title,
             salary: row.salary,
@@ -394,13 +412,65 @@ const tableConfigs = {
                 end_time: row.end_time 
             };
         }
+    },
+    salary_payments: {
+        name: 'salary_payments', model: 'salary_payments',
+        pullSelect: '*,fk_employee(*)', // Utilise la relation fk_employee pour la jointure
+        pullFilterColumn: 'fk_employee.school_id', // Filtre sur le school_id de l'employé via la relation fk_employee
+        supabaseMap: async (row, schoolId, prisma) => {
+            const employeeSupabaseId = await getSupabaseId(prisma, 'employees', row.employee_id);
+            if (!employeeSupabaseId) return null;
+            return {
+                employee_id: employeeSupabaseId,
+                base_salary: row.base_salary,
+                bonus_amount: row.bonus_amount,
+                total_amount: row.total_amount,
+                payment_date: row.payment_date,
+                notes: row.notes,
+                last_modified: new Date().toISOString(),
+                is_deleted: row.is_deleted
+            };
+        },
+        localMap: async (row, prisma) => {
+            const employeeLocalId = await getLocalId(prisma, 'employees', row.employee_id);
+            if (!employeeLocalId) return null;
+            return {
+                employee_id: employeeLocalId,
+                base_salary: row.base_salary,
+                bonus_amount: row.bonus_amount,
+                total_amount: row.total_amount,
+                payment_date: row.payment_date,
+                notes: row.notes,
+                last_modified: row.last_modified,
+                is_deleted: row.is_deleted
+            };
+        }
     }
 };
 
 const syncOrder = [
-    'classes', 'students', 'teachers', 'subjects', 'parents', 'registrations',
-    'lessons', 'student_parents', 'payments', 'fees', 'attendances',
-    'employees', 'schedules', 'notes'
+    // Entités de base sans dépendances externes majeures
+    'classes', 
+    'students', 
+    'parents', 
+    'teachers', 
+    'employees', 
+    'fees',
+    
+    // Entités dépendant des entités de base
+    'subjects',        // Dépend de 'classes'
+    'registrations',   // Dépend de 'students' et 'classes'
+    'student_parents', // Dépend de 'students' et 'parents'
+    'attendances',     // Dépend de 'students'
+    'salary_payments', // Dépend de 'employees'
+    
+    // Entités dépendant du niveau précédent
+    'lessons',         // Dépend de 'teachers', 'classes', 'subjects'
+    
+    // Entités dépendant du niveau 2
+    'notes',           // Dépend de 'students' et 'lessons'
+    'schedules',       // Dépend de 'lessons'
+    'payments'         // Dépend de 'registrations' et 'fees'
 ];
 
 async function pushChanges(prisma, schoolId, supabase) {
@@ -467,7 +537,8 @@ async function pushChanges(prisma, schoolId, supabase) {
 async function pullChanges(prisma, schoolId, supabase) {
     sendSyncLog('info', '📥 Démarrage du PULL depuis Supabase...');
 
-    for (const tableName of [...syncOrder].reverse()) {
+    // On ne fait PLUS .reverse() pour respecter l'ordre des dépendances
+    for (const tableName of syncOrder) {
         const config = tableConfigs[tableName];
         if (!config.model) continue;
         const modelName = config.model.charAt(0).toLowerCase() + config.model.slice(1);
