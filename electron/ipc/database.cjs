@@ -203,7 +203,7 @@ ipcMain.handle('db:students:update', async (event, { id, data }) => {
   // Dans la partie Teachers
 ipcMain.handle('db:teachers:create', async (event, teacherData) => {
   console.log("Données reçues par le backend:", teacherData);
-  const { name, first_name, email, phone, speciality, adress, gender, hourlyRate } = teacherData;
+  const { name, first_name, email, phone, speciality, adress, hourlyRate } = teacherData;
 
   // Vérifier si l'email existe déjà
   const existingTeacher = await prisma.teachers.findUnique({
@@ -232,7 +232,6 @@ ipcMain.handle('db:teachers:create', async (event, teacherData) => {
       matricule, // Matricule généré
       speciality,
       adress,
-      gender,
       hourlyRate,
       needs_sync: true,
       last_modified: new Date(),
@@ -242,7 +241,7 @@ ipcMain.handle('db:teachers:create', async (event, teacherData) => {
 
 // De même pour update
 ipcMain.handle('db:teachers:update', async (event, { id, data }) => {
-  const { name, first_name, email, phone, speciality, adress, gender, hourlyRate } = data;
+  const { name, first_name, email, phone, speciality, adress, hourlyRate } = data;
   return prisma.teachers.update({
     where: { id },
     data: {
@@ -252,7 +251,6 @@ ipcMain.handle('db:teachers:update', async (event, { id, data }) => {
       phone,
       speciality,
       adress,
-      gender,
       hourlyRate,
       needs_sync: true,
       last_modified: new Date(),

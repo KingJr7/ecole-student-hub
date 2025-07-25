@@ -1,0 +1,254 @@
+// ---
+// Schéma de la base de données pour l'application scolaire
+// Généré pour dbdiagram.io
+// ---
+
+Table classes {
+  id integer [pk, increment]
+  name varchar [not null]
+  level varchar
+  school_id varchar
+  supabase_id varchar [unique]
+  last_modified datetime [default: `now()`]
+  needs_sync boolean [default: false]
+  is_deleted boolean [default: false]
+}
+
+Table students {
+  id integer [pk, increment]
+  name varchar
+  first_name varchar
+  genre varchar
+  birth_date varchar
+  picture_url varchar
+  matricul varchar [unique]
+  supabase_id varchar [unique]
+  last_modified datetime [default: `now()`]
+  needs_sync boolean [default: false]
+  is_deleted boolean [default: false]
+}
+
+Table registrations {
+  id integer [pk, increment]
+  student_id integer [not null]
+  class_id integer [not null]
+  school_year varchar
+  state varchar
+  registration_date varchar
+  supabase_id varchar [unique]
+  last_modified datetime [default: `now()`]
+  needs_sync boolean [default: false]
+  is_deleted boolean [default: false]
+}
+
+Table teachers {
+  id integer [pk, increment]
+  name varchar
+  first_name varchar
+  phone varchar
+  email varchar [unique]
+  adress varchar
+  password_hash varchar [default: 'admin123']
+  role_id varchar
+  speciality varchar
+  matricule varchar
+  hourlyRate float [default: 0]
+  school_id varchar
+  supabase_id varchar [unique]
+  user_supabase_id varchar
+  last_modified datetime [default: `now()`]
+  needs_sync boolean [default: false]
+  is_deleted boolean [default: false]
+}
+
+Table teacher_work_hours {
+  id integer [pk, increment]
+  teacher_id integer [not null]
+  subject_id integer
+  date varchar
+  start_time varchar
+  end_time varchar
+  hours float [not null]
+  notes varchar
+  supabase_id varchar [unique]
+  last_modified datetime [default: `now()`]
+  needs_sync boolean [default: false]
+  is_deleted boolean [default: false]
+}
+
+Table lessons {
+  id integer [pk, increment]
+  teacher_id integer
+  class_id integer [not null]
+  subject_id integer [not null]
+  school_year varchar
+  supabase_id varchar [unique]
+  last_modified datetime [default: `now()`]
+  needs_sync boolean [default: false]
+  is_deleted boolean [default: false]
+}
+
+Table subjects {
+  id integer [pk, increment]
+  name varchar [not null]
+  class_id integer [not null]
+  school_year varchar
+  coefficient integer
+  supabase_id varchar [unique]
+  last_modified datetime [default: `now()`]
+  needs_sync boolean [default: false]
+  is_deleted boolean [default: false]
+}
+
+Table notes {
+  id integer [pk, increment]
+  student_id integer [not null]
+  lesson_id integer [not null]
+  value float
+  type varchar
+  quarter integer
+  supabase_id varchar [unique]
+  last_modified datetime [default: `now()`]
+  needs_sync boolean [default: false]
+  is_deleted boolean [default: false]
+}
+
+Table parents {
+  id integer [pk, increment]
+  name varchar
+  first_name varchar
+  phone varchar
+  email varchar
+  adress varchar
+  gender varchar
+  profession varchar
+  school_id varchar
+  supabase_id varchar [unique]
+  last_modified datetime [default: `now()`]
+  needs_sync boolean [default: false]
+  is_deleted boolean [default: false]
+}
+
+Table student_parents {
+  id integer [pk, increment]
+  student_id integer [not null]
+  parent_id integer [not null]
+  relation varchar
+  supabase_id varchar [unique]
+  last_modified datetime [default: `now()`]
+  needs_sync boolean [default: false]
+  is_deleted boolean [default: false]
+}
+
+Table payments {
+  id integer [pk, increment]
+  registration_id integer
+  fee_id integer
+  amount float
+  method varchar
+  date varchar
+  reference varchar
+  emitter_id varchar
+  supabase_id varchar [unique]
+  last_modified datetime [default: `now()`]
+  needs_sync boolean [default: false]
+  is_deleted boolean [default: false]
+}
+
+Table fees {
+  id integer [pk, increment]
+  name varchar
+  amount float
+  due_date varchar
+  school_year varchar
+  level varchar
+  supabase_id varchar [unique]
+  last_modified datetime [default: `now()`]
+  needs_sync boolean [default: false]
+  is_deleted boolean [default: false]
+}
+
+Table attendances {
+  id integer [pk, increment]
+  student_id integer [not null]
+  date varchar
+  state varchar
+  justification varchar
+  supabase_id varchar [unique]
+  last_modified datetime [default: `now()`]
+  needs_sync boolean [default: false]
+  is_deleted boolean [default: false]
+}
+
+Table employees {
+  id integer [pk, increment]
+  name varchar
+  first_name varchar
+  phone varchar
+  email varchar
+  adress varchar
+  gender varchar
+  job_title varchar
+  salary float
+  matricule varchar
+  school_id varchar
+  supabase_id varchar [unique]
+  last_modified datetime [default: `now()`]
+  needs_sync boolean [default: false]
+  is_deleted boolean [default: false]
+}
+
+Table salary_payments {
+  id integer [pk, increment]
+  employee_id integer [not null]
+  base_salary float [not null]
+  bonus_amount float [default: 0]
+  total_amount float [not null]
+  payment_date varchar [not null]
+  notes varchar
+  supabase_id varchar [unique]
+  last_modified datetime [default: `now()`]
+  needs_sync boolean [default: false]
+  is_deleted boolean [default: false]
+}
+
+Table schedules {
+  id integer [pk, increment]
+  lesson_id integer [not null]
+  day_of_week varchar
+  start_time varchar
+  end_time varchar
+  supabase_id varchar [unique]
+  last_modified datetime [default: `now()`]
+  needs_sync boolean [default: false]
+  is_deleted boolean [default: false]
+}
+
+// --- Définition des relations ---
+
+Ref: registrations.student_id > students.id
+Ref: registrations.class_id > classes.id
+
+Ref: teacher_work_hours.teacher_id > teachers.id
+Ref: teacher_work_hours.subject_id > subjects.id
+
+Ref: lessons.teacher_id > teachers.id
+Ref: lessons.class_id > classes.id
+Ref: lessons.subject_id > subjects.id
+
+Ref: subjects.class_id > classes.id
+
+Ref: notes.student_id > students.id
+Ref: notes.lesson_id > lessons.id
+
+Ref: student_parents.student_id > students.id
+Ref: student_parents.parent_id > parents.id
+
+Ref: payments.registration_id > registrations.id
+Ref: payments.fee_id > fees.id
+
+Ref: attendances.student_id > students.id
+
+Ref: salary_payments.employee_id > employees.id
+
+Ref: schedules.lesson_id > lessons.id

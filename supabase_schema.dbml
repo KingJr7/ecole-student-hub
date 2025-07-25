@@ -1,0 +1,338 @@
+//// ------------------------------------------------------
+//// Auto-generated DBML schema from Supabase structure
+//// ------------------------------------------------------
+
+Table schools {
+  id uuid [pk, default: `gen_random_uuid()`]
+  name text [not null]
+  address text
+  phone text
+  email text
+  registration_code text
+  created_at date [default: `CURRENT_DATE`]
+  last_modified timestamptz [default: `now()`]
+  is_deleted boolean [default: false]
+  // Sync-related columns
+  local_id integer
+  is_synced boolean [default: false]
+  sync_timestamp timestamptz
+}
+
+Table roles {
+  id uuid [pk, default: `gen_random_uuid()`]
+  name text [not null]
+  last_modified timestamptz [default: `now()`]
+  is_deleted boolean [default: false]
+  // Sync-related columns
+  local_id integer
+  is_synced boolean [default: false]
+  sync_timestamp timestamptz
+}
+
+Table users {
+  id uuid [pk, default: `gen_random_uuid()`]
+  name text [not null]
+  first_name text [not null]
+  phone text
+  email text
+  password_hash text [not null]
+  role_id uuid
+  school_id uuid
+  profile_picture_url text
+  last_modified timestamptz [default: `now()`]
+  is_deleted boolean [default: false]
+  // Sync-related columns
+  local_id integer
+  is_synced boolean [default: false]
+  sync_timestamp timestamptz
+}
+
+Table classes {
+  id uuid [pk, default: `gen_random_uuid()`]
+  name text [not null]
+  level text
+  school_id uuid
+  last_modified timestamptz [default: `now()`]
+  is_deleted boolean [default: false]
+  // Sync-related columns
+  local_id integer
+  is_synced boolean [default: false]
+  sync_timestamp timestamptz
+}
+
+Table students {
+  id uuid [pk, default: `gen_random_uuid()`]
+  name text [not null]
+  first_name text [not null]
+  genre text
+  birth_date date
+  matricul text
+  last_modified timestamptz [default: `now()`]
+  is_deleted boolean [default: false]
+  // Sync-related columns
+  local_id integer
+  is_synced boolean [default: false]
+  sync_timestamp timestamptz
+}
+
+Table registrations {
+  id uuid [pk, default: `gen_random_uuid()`]
+  student_id uuid
+  class_id uuid
+  school_id uuid
+  school_year text
+  state text
+  registration_date date [default: `CURRENT_DATE`]
+  last_modified timestamptz [default: `now()`]
+  is_deleted boolean [default: false]
+  // Sync-related columns
+  local_id integer
+  is_synced boolean [default: false]
+  sync_timestamp timestamptz
+}
+
+Table teachers {
+  id uuid [pk, default: `gen_random_uuid()`]
+  user_id uuid
+  speciality text
+  matricule text
+  last_modified timestamptz [default: `now()`]
+  is_deleted boolean [default: false]
+  // Sync-related columns
+  local_id integer
+  is_synced boolean [default: false]
+  sync_timestamp timestamptz
+}
+
+Table subjects {
+  id uuid [pk, default: `gen_random_uuid()`]
+  name text [not null]
+  school_id uuid
+  class_id uuid
+  school_year text
+  coefficient integer
+  last_modified timestamptz [default: `now()`]
+  is_deleted boolean [default: false]
+  // Sync-related columns
+  local_id integer
+  is_synced boolean [default: false]
+  sync_timestamp timestamptz
+}
+
+Table lessons {
+  id uuid [pk, default: `gen_random_uuid()`]
+  teacher_id uuid
+  class_id uuid
+  subject_id uuid
+  school_year text
+  last_modified timestamptz [default: `now()`]
+  is_deleted boolean [default: false]
+  // Sync-related columns
+  local_id integer
+  is_synced boolean [default: false]
+  sync_timestamp timestamptz
+}
+
+Table notes {
+  id uuid [pk, default: `gen_random_uuid()`]
+  student_id uuid
+  lesson_id uuid
+  value double
+  type text
+  quarter integer
+  last_modified timestamptz [default: `now()`]
+  is_deleted boolean [default: false]
+  // Sync-related columns
+  local_id integer
+  is_synced boolean [default: false]
+  sync_timestamp timestamptz
+}
+
+Table parents {
+  id uuid [pk, default: `gen_random_uuid()`]
+  name text
+  first_name text
+  phone text
+  email text
+  profession text
+  address text
+  school_id uuid
+  last_modified timestamptz [default: `now()`]
+  is_deleted boolean [default: false]
+  // Sync-related columns
+  local_id integer
+  is_synced boolean [default: false]
+  sync_timestamp timestamptz
+}
+
+Table student_parents {
+  id uuid [pk, default: `gen_random_uuid()`]
+  student_id uuid
+  parent_id uuid
+  relation text
+  last_modified timestamptz [default: `now()`]
+  is_deleted boolean [default: false]
+  // Sync-related columns
+  local_id integer
+  is_synced boolean [default: false]
+  sync_timestamp timestamptz
+}
+
+Table payments {
+  id uuid [pk, default: `gen_random_uuid()`]
+  registration_id uuid
+  amount double
+  method text
+  date date [default: `CURRENT_DATE`]
+  reference text
+  emitter_id uuid
+  last_modified timestamptz [default: `now()`]
+  is_deleted boolean [default: false]
+  // Sync-related columns
+  local_id integer
+  is_synced boolean [default: false]
+  sync_timestamp timestamptz
+}
+
+Table fees {
+  id uuid [pk, default: `gen_random_uuid()`]
+  school_id uuid
+  name text
+  amount double
+  due_date date
+  school_year text
+  last_modified timestamptz [default: `now()`]
+  is_deleted boolean [default: false]
+  // Sync-related columns
+  local_id integer
+  is_synced boolean [default: false]
+  sync_timestamp timestamptz
+}
+
+Table attendances {
+  id uuid [pk, default: `gen_random_uuid()`]
+  student_id uuid
+  date date
+  state text
+  justification text
+  last_modified timestamptz [default: `now()`]
+  is_deleted boolean [default: false]
+  // Sync-related columns
+  local_id integer
+  is_synced boolean [default: false]
+  sync_timestamp timestamptz
+}
+
+Table employees {
+  id uuid [pk, default: `gen_random_uuid()`]
+  user_id uuid
+  job_title text
+  salary double
+  matricule text
+  school_id uuid
+  last_modified timestamptz [default: `now()`]
+  is_deleted boolean [default: false]
+  // Sync-related columns
+  local_id integer
+  is_synced boolean [default: false]
+  sync_timestamp timestamptz
+}
+
+Table schedules {
+  id uuid [pk, default: `gen_random_uuid()`]
+  lesson_id uuid
+  day_of_week text
+  start_time time
+  end_time time
+  is_deleted boolean [default: false]
+  last_modified timestamptz [default: `now()`]
+  is_synced boolean [default: false]
+}
+
+Table activity_logs {
+  id uuid [pk, default: `gen_random_uuid()`]
+  user_id uuid
+  action text
+  target_table text
+  target_id uuid
+  timestamp timestamp [default: `CURRENT_TIMESTAMP`]
+  last_modified timestamptz [default: `now()`]
+  is_deleted boolean [default: false]
+  // Sync-related columns
+  local_id integer
+  is_synced boolean [default: false]
+  sync_timestamp timestamptz
+}
+
+Table salary_payments {
+  id uuid [pk]
+  employee_id uuid [not null]
+  base_salary real [default: 0]
+  bonus_amount real [default: 0]
+  total_amount real [not null]
+  payment_date text [not null]
+  notes text
+  last_modified timestamptz [default: `now()`]
+  is_deleted boolean [default: false]
+}
+
+Table teacher_work_hours {
+  id uuid [pk]
+  teacher_id uuid [not null]
+  subject_id uuid
+  date text
+  start_time text
+  end_time text
+  hours real [not null]
+  notes text
+  last_modified timestamptz [default: `now()`]
+  is_deleted boolean [default: false]
+}
+
+//// ------------------------------------------------------
+//// Relationship Definitions
+//// ------------------------------------------------------
+
+Ref: users.role_id > roles.id [delete: Set NULL]
+Ref: users.school_id > schools.id [delete: Set NULL]
+
+Ref: classes.school_id > schools.id [delete: Cascade]
+
+Ref: registrations.student_id > students.id [delete: Cascade]
+Ref: registrations.class_id > classes.id [delete: Cascade]
+Ref: registrations.school_id > schools.id [delete: Cascade]
+
+Ref: teachers.user_id > users.id [delete: Cascade]
+
+Ref: subjects.class_id > classes.id [delete: Cascade]
+Ref: subjects.school_id > schools.id [delete: Cascade]
+
+Ref: lessons.teacher_id > teachers.id [delete: Cascade]
+Ref: lessons.class_id > classes.id [delete: Cascade]
+Ref: lessons.subject_id > subjects.id [delete: Cascade]
+
+Ref: notes.student_id > students.id [delete: Cascade]
+Ref: notes.lesson_id > lessons.id [delete: Cascade]
+
+Ref: student_parents.student_id > students.id [delete: Cascade]
+Ref: student_parents.parent_id > parents.id [delete: Cascade]
+Ref: parents.school_id > schools.id
+
+Ref: payments.registration_id > registrations.id [delete: Cascade]
+Ref: payments.emitter_id > users.id [delete: Set NULL]
+
+Ref: fees.school_id > schools.id [delete: Cascade]
+
+Ref: attendances.student_id > students.id [delete: Cascade]
+
+Ref: employees.user_id > users.id [delete: Cascade]
+Ref: employees.school_id > schools.id [delete: Cascade]
+
+Ref: schedules.lesson_id > lessons.id [delete: Cascade]
+
+Ref: activity_logs.user_id > users.id [delete: Set NULL]
+
+Ref: salary_payments.employee_id > employees.id [delete: Cascade]
+
+Ref: teacher_work_hours.teacher_id > teachers.id [delete: Cascade]
+Ref: teacher_work_hours.subject_id > subjects.id [delete: Set NULL]

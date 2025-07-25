@@ -225,29 +225,30 @@ app.whenReady().then(() => {
     });
   }
 
-  // async function autoSyncIfOnline() {
-  //   try {
-  //     const settings = await prisma.settings.findUnique({ where: { id: 1 } });
-  //     if (!settings || !settings.schoolId || !settings.loggedIn) {
-  //       console.log('Impossible de lancer la synchro auto : infos manquantes.');
-  //       return;
-  //     }
+  async function autoSyncIfOnline() {
+    try {
+      const settings = await prisma.settings.findUnique({ where: { id: 1 } });
+      if (!settings || !settings.schoolId || !settings.loggedIn) {
+        console.log('Impossible de lancer la synchro auto : infos manquantes.');
+        return;
+      }
+      const online = await checkInternetConnection();
+      if (online) {
+        const win = BrowserWindow.getAllWindows()[0];
+        if (win) {
+          win.webContents.send('sync:auto:start');
+          win.webContents.send('sync:run:trigger', { schoolId: settings.schoolId, token: null });
+          console.log('Synchronisation automatique déclenchée au démarrage.');
+        }
+      } else {
+        console.log('Pas de connexion internet, synchro auto non lancée.');
+      }
+    } catch (err) {
+      console.error('Erreur pendant la synchro auto:', err);
+    }
+  }
 
-  //     const online = await checkInternetConnection();
-  //     if (online) {
-  //       const win = BrowserWindow.getAllWindows()[0];
-  //       if (win) {
-  //         win.webContents.send('sync:auto:start');
-  //         win.webContents.send('sync:run:trigger', { schoolId: settings.schoolId, token: null });
-  //         console.log('Synchronisation automatique déclenchée au démarrage.');
-  //       }
-  //     }
-  //   } catch (err) {
-  //     console.error('Erreur pendant la synchro auto:', err);
-  //   }
-  // }
-
-  // setTimeout(() => autoSyncIfOnline(), 2000); // Petit délai pour laisser l'UI se charger
+  setTimeout(() => autoSyncIfOnline(), 2000); // Petit délai pour laisser l'UI se charger
 
   app.on('activate', () => {
     if (BrowserWindow.getAllWindows().length === 0) {

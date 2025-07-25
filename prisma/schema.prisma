@@ -270,12 +270,12 @@ model Employees {
   last_modified   DateTime          @default(now())
   needs_sync      Boolean           @default(false)
   is_deleted      Boolean           @default(false)
-  salary_payments salary_payments[]
+  salary_payments SalaryPayments[]
 
   @@map("employees")
 }
 
-model salary_payments {
+model SalaryPayments {
   id            Int       @id @default(autoincrement())
   employee_id   Int
   base_salary   Float

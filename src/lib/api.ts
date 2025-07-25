@@ -211,8 +211,7 @@ export const updateTeacher = async (id: number, data: Partial<Teacher>) => {
   if (isBrowser) {
     const { ipcRenderer } = window.require('electron');
     try {
-      // Envoyer les paramètres dans un seul objet comme attendu par le gestionnaire IPC
-      return await ipcRenderer.invoke('db:teachers:update', { id, ...data });
+      return await ipcRenderer.invoke('db:teachers:update', { id, data });
     } catch (error) {
       console.error(`Erreur lors de la mise à jour du professeur id=${id}:`, error);
       throw error;
