@@ -104,24 +104,50 @@ const tableConfigs = {
         pullSelect: '*, users(*)', // On récupère le teacher et le user associé
         pullFilterColumn: 'users.school_id', // On filtre sur le school_id du user associé
         supabaseMap: async (row, schoolId, prisma, supabase) => {
-            // Création du user d'abord
             const userData = {
                 name: row.name,
                 first_name: row.first_name,
                 phone: row.phone,
                 email: row.email,
-                password_hash: row.password_hash || 'admin123', // Toujours envoyer le password_hash
                 school_id: schoolId,
                 role_id: row.role_id || '6bd5dc10-9df7-43f4-8539-6c0386b3cc33',
             };
-            // Crée le user dans Supabase
-            const { data: userCreated, error: userError } = await supabase.from('users').insert(userData).select('id');
-            if (userError || !userCreated || !userCreated[0]?.id) return null;
-            // Crée le teacher avec user_id
+
+            let userIdToLink;
+
+            // Si le prof a déjà un user_supabase_id, on met à jour le user existant
+            if (row.user_supabase_id) {
+                const { error: updateUserError } = await supabase
+                    .from('users')
+                    .update(userData)
+                    .eq('id', row.user_supabase_id);
+
+                if (updateUserError) {
+                    sendSyncLog('error', `  -> ❌ Erreur lors de la mise à jour du user Supabase pour le prof #${row.id}` , { error: updateUserError.message });
+                    return null; // Échec, on ignore
+                }
+                userIdToLink = row.user_supabase_id;
+            } else {
+                // Sinon, on crée un nouvel utilisateur
+                // On ajoute le mot de passe seulement à la création
+                const { data: userCreated, error: createUserError } = await supabase
+                    .from('users')
+                    .insert({ ...userData, password_hash: row.password_hash || 'admin123' })
+                    .select('id');
+
+                if (createUserError || !userCreated || !userCreated[0]?.id) {
+                    sendSyncLog('error', `  -> ❌ Erreur lors de la création du user Supabase pour le prof #${row.id}`, { error: createUserError?.message });
+                    return null; // Échec, on ignore
+                }
+                userIdToLink = userCreated[0].id;
+            }
+
+            // On retourne les données du teacher à créer/mettre à jour
             return {
-                user_id: userCreated[0].id,
+                user_id: userIdToLink,
                 speciality: row.speciality,
                 matricule: row.matricule,
+                hourlyRate: row.hourlyRate, // Ajout du taux horaire
             };
         },
         localMap: (row) => {
@@ -139,6 +165,7 @@ const tableConfigs = {
                 adress: row.users.address,
                 speciality: row.speciality,
                 matricule: row.matricule,
+                hourlyRate: row.hourlyRate, // Ajout du taux horaire
                 user_supabase_id: row.user_id, // L'ID du user Supabase
             }
         }
@@ -358,32 +385,63 @@ const tableConfigs = {
     },
     employees: {
         name: 'employees', model: 'employees',
-        pullSelect: '*',
-        pullFilterColumn: 'school_id',
-        supabaseMap: (row, schoolId) => ({
-            name: row.name,
-            first_name: row.first_name,
-            phone: row.phone,
-            email: row.email,
-            address: row.adress, // Correction
-            gender: row.gender,
-            job_title: row.job_title,
-            salary: row.salary,
-            matricule: row.matricule,
-            school_id: schoolId
-        }),
-        localMap: (row) => ({
-            name: row.name,
-            first_name: row.first_name,
-            phone: row.phone,
-            email: row.email,
-            adress: row.address, // Correction
-            gender: row.gender,
-            job_title: row.job_title,
-            salary: row.salary,
-            matricule: row.matricule,
-            school_id: row.school_id
-        })
+        pullSelect: '*, users(*)', // Jointure pour récupérer les infos du user
+        pullFilterColumn: 'school_id', // Le school_id est directement sur la table employees
+        supabaseMap: async (row, schoolId, prisma, supabase) => {
+            const userData = {
+                name: row.name,
+                first_name: row.first_name,
+                phone: row.phone,
+                email: row.email,
+                school_id: schoolId,
+                role_id: '47e589fe-c978-4493-ba2f-5cd849dbe622', // ID du rôle "Employé"
+            };
+
+            let userIdToLink;
+            const existingUser = await prisma.employees.findUnique({ where: { id: row.id }, select: { user_supabase_id: true } });
+
+            if (existingUser && existingUser.user_supabase_id) {
+                const { error: updateUserError } = await supabase.from('users').update(userData).eq('id', existingUser.user_supabase_id);
+                if (updateUserError) {
+                    sendSyncLog('error', `  -> ❌ Erreur MàJ user pour employé #${row.id}`, { error: updateUserError.message });
+                    return null;
+                }
+                userIdToLink = existingUser.user_supabase_id;
+            } else {
+                const { data: userCreated, error: createUserError } = await supabase.from('users').insert({ ...userData, password_hash: 'admin123' }).select('id');
+                if (createUserError || !userCreated || !userCreated[0]?.id) {
+                    sendSyncLog('error', `  -> ❌ Erreur création user pour employé #${row.id}`, { error: createUserError?.message });
+                    return null;
+                }
+                userIdToLink = userCreated[0].id;
+                // Mettre à jour le user_supabase_id localement pour les futures MàJ
+                await prisma.employees.update({ where: { id: row.id }, data: { user_supabase_id: userIdToLink } });
+            }
+
+            return {
+                user_id: userIdToLink,
+                job_title: row.job_title,
+                salary: row.salary,
+                matricule: row.matricule,
+                school_id: schoolId
+            };
+        },
+        localMap: (row) => {
+            if (!row.users) {
+                return { _ignore: true, reason: `User associé introuvable pour l'employé.` };
+            }
+            return {
+                name: row.users.name,
+                first_name: row.users.first_name,
+                phone: row.users.phone,
+                email: row.users.email,
+                job_title: row.job_title,
+                salary: row.salary,
+                matricule: row.matricule,
+                user_supabase_id: row.user_id, // Stocker l'ID du user Supabase
+                school_id: row.school_id
+            };
+        }
     },
     schedules: {
         name: 'schedules', model: 'schedules',
@@ -412,8 +470,8 @@ const tableConfigs = {
     },
     salary_payments: {
         name: 'salary_payments', model: 'salaryPayments',
-        pullSelect: '*,fk_employee(*)', // Utilise la relation fk_employee pour la jointure
-        pullFilterColumn: 'fk_employee.school_id', // Filtre sur le school_id de l'employé via la relation fk_employee
+        pullSelect: '*, employees(*)', // Utilise le nom de la table liée pour la jointure
+        pullFilterColumn: 'employees.school_id', // Filtre sur le school_id de l'employé via la relation
         supabaseMap: async (row, schoolId, prisma, supabase) => {
             const employeeSupabaseId = await getSupabaseId(prisma, 'employees', row.employee_id, schoolId, supabase);
             if (!employeeSupabaseId) return null;
@@ -440,6 +498,39 @@ const tableConfigs = {
                 notes: row.notes,
                 last_modified: row.last_modified,
                 is_deleted: row.is_deleted
+            };
+        }
+    },
+    teacher_work_hours: {
+        name: 'teacher_work_hours', model: 'teacherWorkHours',
+        pullSelect: '*, teachers!inner(users!inner(*))', // Jointure pour filtrer par école
+        pullFilterColumn: 'teachers.users.school_id',
+        supabaseMap: async (row, schoolId, prisma, supabase) => {
+            const teacherSupabaseId = await getSupabaseId(prisma, 'teachers', row.teacher_id, schoolId, supabase);
+            const subjectSupabaseId = row.subject_id ? await getSupabaseId(prisma, 'subjects', row.subject_id, schoolId, supabase) : null;
+            if (!teacherSupabaseId) return null; // Le prof est obligatoire
+            return {
+                teacher_id: teacherSupabaseId,
+                subject_id: subjectSupabaseId,
+                date: row.date,
+                start_time: row.start_time,
+                end_time: row.end_time,
+                hours: row.hours,
+                notes: row.notes
+            };
+        },
+        localMap: async (row, prisma) => {
+            const teacherLocalId = await getLocalId(prisma, 'teachers', row.teacher_id);
+            const subjectLocalId = row.subject_id ? await getLocalId(prisma, 'subjects', row.subject_id) : null;
+            if (!teacherLocalId || (row.subject_id && !subjectLocalId)) return null;
+            return {
+                teacherId: teacherLocalId,
+                subjectId: subjectLocalId,
+                date: row.date,
+                start_time: row.start_time,
+                end_time: row.end_time,
+                hours: row.hours,
+                notes: row.notes
             };
         }
     }
@@ -506,6 +597,7 @@ const syncOrder = [
     'student_parents', // Dépend de 'students' et 'parents'
     'attendances',     // Dépend de 'students'
     'salary_payments', // Dépend de 'employees'
+    'teacher_work_hours', // Dépend de 'teachers' et 'subjects'
     
     // Entités dépendant du niveau précédent
     'lessons',         // Dépend de 'teachers', 'classes', 'subjects'
@@ -596,6 +688,7 @@ async function pullChanges(prisma, schoolId, supabase) {
             attendances: { studentId: 'student' },
             schedules: { lessonId: 'lesson' },
             salary_payments: { employee_id: 'employee' },
+            teacherWorkHours: { teacherId: 'teacher', subjectId: 'subject' },
             teacherWorkHours: { teacher_id: 'teacher', subject_id: 'subject' },
         };
 

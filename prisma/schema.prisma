@@ -267,6 +267,7 @@ model Employees {
   matricule       String?
   school_id       String?
   supabase_id     String?           @unique
+  user_supabase_id String? // Stocke l'id du user Supabase lié à l'employé
   last_modified   DateTime          @default(now())
   needs_sync      Boolean           @default(false)
   is_deleted      Boolean           @default(false)

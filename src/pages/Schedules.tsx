@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 
 const daysOfWeek = ["Lundi", "Mardi", "Mercredi", "Jeudi", "Vendredi", "Samedi"];
-const timeSlots = Array.from({ length: 10 }, (_, i) => `${8 + i}:00`); // 8:00 to 17:00
+const timeSlots = Array.from({ length: 10 }, (_, i) => `${(8 + i).toString().padStart(2, '0')}:00`); // 08:00 to 17:00
 
 const SchedulesPage = () => {
   const { getAllClasses, getClassSubjects, createSchedule, getSchedulesForClass } = useDatabase();
@@ -27,7 +27,7 @@ const SchedulesPage = () => {
     const classSchedules = await getSchedulesForClass(classId);
     const schedulesMap = {};
     classSchedules.forEach(schedule => {
-      const key = `${schedule.day_of_week}-${schedule.start_time}`;
+      const key = `${schedule.day_of_week}-${schedule.start_time.substring(0, 5)}`;
       if (!schedulesMap[key]) {
         schedulesMap[key] = [];
       }

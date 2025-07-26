@@ -1062,21 +1062,21 @@ ipcMain.handle('db:schedules:create', async (event, scheduleData) => {
   });
 
   ipcMain.handle('db:schedules:getForClass', async (event, classId) => {
+    const whereClause = classId ? { lesson: { class_id: classId } } : {};
     return prisma.schedules.findMany({
-      where: {
-        lesson: {
-          class_id: classId,
-        },
-        is_deleted: false,
-      },
+      where: whereClause,
       include: {
         lesson: {
           include: {
             subject: true,
+            class: true,
             teacher: true,
           },
         },
       },
+      orderBy: {
+        start_time: 'asc'
+      }
     });
   });
   // #endregion

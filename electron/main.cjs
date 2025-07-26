@@ -2,7 +2,7 @@ const { app, BrowserWindow, ipcMain } = require('electron')
 const path = require('path')
 const { setupDatabaseIPC, prisma } = require('./ipc/database.cjs')
 const { setupAuthIPC } = require('./ipc/auth.cjs')
-const { setupSyncIPC } = require('./ipc/sync.cjs')
+const { setupSyncIPC, runSync } = require('./ipc/sync.cjs')
 
 // Définir l'environnement par défaut si non spécifié
 if (!process.env.NODE_ENV) {
@@ -236,15 +236,22 @@ app.whenReady().then(() => {
       if (online) {
         const win = BrowserWindow.getAllWindows()[0];
         if (win) {
-          win.webContents.send('sync:auto:start');
-          win.webContents.send('sync:run:trigger', { schoolId: settings.schoolId, token: null });
+          win.webContents.send('sync:auto:start'); // Informe l'UI que la synchro démarre
           console.log('Synchronisation automatique déclenchée au démarrage.');
+          // Appelle directement runSync, comme après un login réussi
+          await runSync(prisma, settings.schoolId, settings.userToken);
+          console.log('Synchronisation automatique terminée.');
+          win.webContents.send('sync:log', { level: 'success', message: 'Synchronisation automatique terminée avec succès.' });
         }
       } else {
         console.log('Pas de connexion internet, synchro auto non lancée.');
       }
     } catch (err) {
       console.error('Erreur pendant la synchro auto:', err);
+      const win = BrowserWindow.getAllWindows()[0];
+      if (win) {
+        win.webContents.send('sync:log', { level: 'error', message: `Échec de la synchro auto: ${err.message}` });
+      }
     }
   }
 
