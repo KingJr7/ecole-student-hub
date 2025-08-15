@@ -1,0 +1,65 @@
+
+# Plan d'Évolution : Gestion du Cycle Annuel Scolaire
+
+Ce document résume les modifications nécessaires pour intégrer un système complet de gestion des années scolaires, de la clôture d'une année à la préparation de la suivante.
+
+## 1. Objectif Principal
+
+Doter l'application de la capacité à gérer plusieurs années scolaires de manière isolée. Cela inclut l'automatisation du processus de passage des élèves, la gestion des réinscriptions et l'archivage consultable des données des années précédentes.
+
+## 2. Modifications de la Base de Données (Schéma Prisma)
+
+### Table `Registrations`
+- **Modifier le champ `state` :** Le champ doit pouvoir prendre des valeurs plus précises pour suivre le cycle de vie de l'inscription.
+  - Exemples : "En attente de réinscription", "Inscrit", "Annulé", "Parti".
+- **Ajouter le champ `registration_type` (String) :** Pour contextualiser l'origine de l'inscription.
+  - Exemples : "Promotion", "Redoublement", "Nouveau", "Saut de classe".
+
+### Table `Settings` (ou une nouvelle table `SchoolConfig`)
+- **Ajouter le champ `moyenne_de_passage` (Float) :** Seuil de moyenne générale pour la promotion automatique.
+- **Ajouter le champ `active_school_year` (String) :** Pour stocker l'année scolaire actuellement active et affichée dans toute l'application (ex: "2025-2026").
+
+## 3. Modifications du Backend (Processus Principal Electron)
+
+### Logique de l'Assistant de Transition Annuelle
+- Créer un nouvel ensemble de gestionnaires IPC (ex: `ipc/annualTransition.cjs`) pour piloter l'assistant.
+- **Le processus de l'assistant doit :**
+  1.  Calculer la moyenne générale annuelle de chaque élève de l'année à clôturer (en utilisant les notes et les coefficients des matières).
+  2.  Proposer une décision ("Promu" ou "Redouble") en comparant la moyenne au `moyenne_de_passage`.
+  3.  Recevoir de l'interface la liste des décisions finales validées par l'administrateur.
+  4.  Créer en masse les nouvelles fiches `Registrations` pour la nouvelle année avec le `state` = "En attente de réinscription" et le `registration_type` correspondant.
+
+### Filtrage Global des Données
+- **Modification critique :** Mettre à jour TOUTES les fonctions d'accès à la base de données (`ipc/database.cjs`) pour qu'elles acceptent un paramètre `school_year`.
+- Toutes les requêtes (pour les élèves, classes, paiements, notes, etc.) devront être filtrées pour ne retourner que les données de l'année scolaire active fournie par le client.
+
+## 4. Modifications de l'Interface Utilisateur (Frontend React)
+
+### Gestion de l'État Global
+- **Ajouter un sélecteur d'année scolaire :** Placer un composant (ex: Dropdown) dans le layout principal (`Sidebar` ou `Header`) qui permet à l'utilisateur de choisir l'`active_school_year`.
+- L'année sélectionnée doit être stockée dans un état global (ex: `AuthContext` ou un nouveau `SchoolYearContext`) et passée à toutes les requêtes API.
+
+### Nouvelle Page : "Inscriptions"
+- Créer une nouvelle page de premier niveau dans le menu principal.
+- **Cette page contiendra plusieurs onglets :**
+  - **"Réinscriptions en attente" :** Liste des élèves générés par l'assistant. Permet de finaliser leur inscription (changer le statut à "Inscrit", enregistrer la date).
+  - **"Nouvelles Inscriptions" :** Formulaire pour inscrire les élèves venant de l'extérieur.
+  - **"Inscriptions Confirmées" :** Liste des élèves officiellement inscrits pour la nouvelle année.
+  - **"Statistiques" :** Tableau de bord pour suivre le taux de remplissage des classes, etc.
+
+### Nouvelle Interface : Assistant de Transition Annuelle
+- Intégrer l'interface de l'assistant dans `Paramètres > Gestion Annuelle`.
+- **L'interface doit :**
+  1.  Permettre de lancer l'assistant.
+  2.  Afficher le tableau de validation : `Élève | Moyenne | Décision Proposée | Décision Finale (modifiable)`.
+  3.  Permettre l'assignation en masse des élèves à leurs nouvelles classes.
+  4.  Afficher un résumé avant de lancer la création des pré-inscriptions.
+
+## 5. Workflow Utilisateur de Bout en Bout
+
+1.  **Configuration :** L'admin définit la `moyenne_de_passage` dans les `Paramètres`.
+2.  **Clôture :** En fin d'année, l'admin lance l'"Assistant de Transition" depuis les `Paramètres`.
+3.  **Décision :** L'admin vérifie, ajuste si nécessaire, et valide les décisions de passage pour tous les élèves.
+4.  **Pré-inscription :** Le système génère automatiquement les fiches de réinscription pour la nouvelle année.
+5.  **Gestion :** Le secrétariat utilise la nouvelle page `Inscriptions` pour gérer le flux des réinscriptions et des nouvelles inscriptions.
+6.  **Consultation :** À tout moment, un utilisateur peut utiliser le sélecteur global pour basculer vers une année précédente et consulter les données archivées (bulletins, paiements, etc.).
