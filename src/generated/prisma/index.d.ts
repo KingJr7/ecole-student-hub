@@ -19479,6 +19479,7 @@ export namespace Prisma {
     salary: number | null
     matricule: string | null
     school_id: string | null
+    password_hash: string | null
     supabase_id: string | null
     user_supabase_id: string | null
     last_modified: Date | null
@@ -19498,6 +19499,7 @@ export namespace Prisma {
     salary: number | null
     matricule: string | null
     school_id: string | null
+    password_hash: string | null
     supabase_id: string | null
     user_supabase_id: string | null
     last_modified: Date | null
@@ -19517,6 +19519,7 @@ export namespace Prisma {
     salary: number
     matricule: number
     school_id: number
+    password_hash: number
     supabase_id: number
     user_supabase_id: number
     last_modified: number
@@ -19548,6 +19551,7 @@ export namespace Prisma {
     salary?: true
     matricule?: true
     school_id?: true
+    password_hash?: true
     supabase_id?: true
     user_supabase_id?: true
     last_modified?: true
@@ -19567,6 +19571,7 @@ export namespace Prisma {
     salary?: true
     matricule?: true
     school_id?: true
+    password_hash?: true
     supabase_id?: true
     user_supabase_id?: true
     last_modified?: true
@@ -19586,6 +19591,7 @@ export namespace Prisma {
     salary?: true
     matricule?: true
     school_id?: true
+    password_hash?: true
     supabase_id?: true
     user_supabase_id?: true
     last_modified?: true
@@ -19692,6 +19698,7 @@ export namespace Prisma {
     salary: number | null
     matricule: string | null
     school_id: string | null
+    password_hash: string | null
     supabase_id: string | null
     user_supabase_id: string | null
     last_modified: Date
@@ -19730,6 +19737,7 @@ export namespace Prisma {
     salary?: boolean
     matricule?: boolean
     school_id?: boolean
+    password_hash?: boolean
     supabase_id?: boolean
     user_supabase_id?: boolean
     last_modified?: boolean
@@ -19751,6 +19759,7 @@ export namespace Prisma {
     salary?: boolean
     matricule?: boolean
     school_id?: boolean
+    password_hash?: boolean
     supabase_id?: boolean
     user_supabase_id?: boolean
     last_modified?: boolean
@@ -19770,6 +19779,7 @@ export namespace Prisma {
     salary?: boolean
     matricule?: boolean
     school_id?: boolean
+    password_hash?: boolean
     supabase_id?: boolean
     user_supabase_id?: boolean
     last_modified?: boolean
@@ -19789,6 +19799,7 @@ export namespace Prisma {
     salary?: boolean
     matricule?: boolean
     school_id?: boolean
+    password_hash?: boolean
     supabase_id?: boolean
     user_supabase_id?: boolean
     last_modified?: boolean
@@ -19796,7 +19807,7 @@ export namespace Prisma {
     is_deleted?: boolean
   }
 
-  export type EmployeesOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "name" | "first_name" | "phone" | "email" | "adress" | "gender" | "job_title" | "salary" | "matricule" | "school_id" | "supabase_id" | "user_supabase_id" | "last_modified" | "needs_sync" | "is_deleted", ExtArgs["result"]["employees"]>
+  export type EmployeesOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "name" | "first_name" | "phone" | "email" | "adress" | "gender" | "job_title" | "salary" | "matricule" | "school_id" | "password_hash" | "supabase_id" | "user_supabase_id" | "last_modified" | "needs_sync" | "is_deleted", ExtArgs["result"]["employees"]>
   export type EmployeesInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     salary_payments?: boolean | Employees$salary_paymentsArgs<ExtArgs>
     _count?: boolean | EmployeesCountOutputTypeDefaultArgs<ExtArgs>
@@ -19821,6 +19832,7 @@ export namespace Prisma {
       salary: number | null
       matricule: string | null
       school_id: string | null
+      password_hash: string | null
       supabase_id: string | null
       user_supabase_id: string | null
       last_modified: Date
@@ -20261,6 +20273,7 @@ export namespace Prisma {
     readonly salary: FieldRef<"Employees", 'Float'>
     readonly matricule: FieldRef<"Employees", 'String'>
     readonly school_id: FieldRef<"Employees", 'String'>
+    readonly password_hash: FieldRef<"Employees", 'String'>
     readonly supabase_id: FieldRef<"Employees", 'String'>
     readonly user_supabase_id: FieldRef<"Employees", 'String'>
     readonly last_modified: FieldRef<"Employees", 'DateTime'>
@@ -23277,6 +23290,7 @@ export namespace Prisma {
     salary: 'salary',
     matricule: 'matricule',
     school_id: 'school_id',
+    password_hash: 'password_hash',
     supabase_id: 'supabase_id',
     user_supabase_id: 'user_supabase_id',
     last_modified: 'last_modified',
@@ -24622,6 +24636,7 @@ export namespace Prisma {
     salary?: FloatNullableFilter<"Employees"> | number | null
     matricule?: StringNullableFilter<"Employees"> | string | null
     school_id?: StringNullableFilter<"Employees"> | string | null
+    password_hash?: StringNullableFilter<"Employees"> | string | null
     supabase_id?: StringNullableFilter<"Employees"> | string | null
     user_supabase_id?: StringNullableFilter<"Employees"> | string | null
     last_modified?: DateTimeFilter<"Employees"> | Date | string
@@ -24642,6 +24657,7 @@ export namespace Prisma {
     salary?: SortOrderInput | SortOrder
     matricule?: SortOrderInput | SortOrder
     school_id?: SortOrderInput | SortOrder
+    password_hash?: SortOrderInput | SortOrder
     supabase_id?: SortOrderInput | SortOrder
     user_supabase_id?: SortOrderInput | SortOrder
     last_modified?: SortOrder
@@ -24666,6 +24682,7 @@ export namespace Prisma {
     salary?: FloatNullableFilter<"Employees"> | number | null
     matricule?: StringNullableFilter<"Employees"> | string | null
     school_id?: StringNullableFilter<"Employees"> | string | null
+    password_hash?: StringNullableFilter<"Employees"> | string | null
     user_supabase_id?: StringNullableFilter<"Employees"> | string | null
     last_modified?: DateTimeFilter<"Employees"> | Date | string
     needs_sync?: BoolFilter<"Employees"> | boolean
@@ -24685,6 +24702,7 @@ export namespace Prisma {
     salary?: SortOrderInput | SortOrder
     matricule?: SortOrderInput | SortOrder
     school_id?: SortOrderInput | SortOrder
+    password_hash?: SortOrderInput | SortOrder
     supabase_id?: SortOrderInput | SortOrder
     user_supabase_id?: SortOrderInput | SortOrder
     last_modified?: SortOrder
@@ -24712,6 +24730,7 @@ export namespace Prisma {
     salary?: FloatNullableWithAggregatesFilter<"Employees"> | number | null
     matricule?: StringNullableWithAggregatesFilter<"Employees"> | string | null
     school_id?: StringNullableWithAggregatesFilter<"Employees"> | string | null
+    password_hash?: StringNullableWithAggregatesFilter<"Employees"> | string | null
     supabase_id?: StringNullableWithAggregatesFilter<"Employees"> | string | null
     user_supabase_id?: StringNullableWithAggregatesFilter<"Employees"> | string | null
     last_modified?: DateTimeWithAggregatesFilter<"Employees"> | Date | string
@@ -26217,6 +26236,7 @@ export namespace Prisma {
     salary?: number | null
     matricule?: string | null
     school_id?: string | null
+    password_hash?: string | null
     supabase_id?: string | null
     user_supabase_id?: string | null
     last_modified?: Date | string
@@ -26237,6 +26257,7 @@ export namespace Prisma {
     salary?: number | null
     matricule?: string | null
     school_id?: string | null
+    password_hash?: string | null
     supabase_id?: string | null
     user_supabase_id?: string | null
     last_modified?: Date | string
@@ -26256,6 +26277,7 @@ export namespace Prisma {
     salary?: NullableFloatFieldUpdateOperationsInput | number | null
     matricule?: NullableStringFieldUpdateOperationsInput | string | null
     school_id?: NullableStringFieldUpdateOperationsInput | string | null
+    password_hash?: NullableStringFieldUpdateOperationsInput | string | null
     supabase_id?: NullableStringFieldUpdateOperationsInput | string | null
     user_supabase_id?: NullableStringFieldUpdateOperationsInput | string | null
     last_modified?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -26276,6 +26298,7 @@ export namespace Prisma {
     salary?: NullableFloatFieldUpdateOperationsInput | number | null
     matricule?: NullableStringFieldUpdateOperationsInput | string | null
     school_id?: NullableStringFieldUpdateOperationsInput | string | null
+    password_hash?: NullableStringFieldUpdateOperationsInput | string | null
     supabase_id?: NullableStringFieldUpdateOperationsInput | string | null
     user_supabase_id?: NullableStringFieldUpdateOperationsInput | string | null
     last_modified?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -26296,6 +26319,7 @@ export namespace Prisma {
     salary?: number | null
     matricule?: string | null
     school_id?: string | null
+    password_hash?: string | null
     supabase_id?: string | null
     user_supabase_id?: string | null
     last_modified?: Date | string
@@ -26314,6 +26338,7 @@ export namespace Prisma {
     salary?: NullableFloatFieldUpdateOperationsInput | number | null
     matricule?: NullableStringFieldUpdateOperationsInput | string | null
     school_id?: NullableStringFieldUpdateOperationsInput | string | null
+    password_hash?: NullableStringFieldUpdateOperationsInput | string | null
     supabase_id?: NullableStringFieldUpdateOperationsInput | string | null
     user_supabase_id?: NullableStringFieldUpdateOperationsInput | string | null
     last_modified?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -26333,6 +26358,7 @@ export namespace Prisma {
     salary?: NullableFloatFieldUpdateOperationsInput | number | null
     matricule?: NullableStringFieldUpdateOperationsInput | string | null
     school_id?: NullableStringFieldUpdateOperationsInput | string | null
+    password_hash?: NullableStringFieldUpdateOperationsInput | string | null
     supabase_id?: NullableStringFieldUpdateOperationsInput | string | null
     user_supabase_id?: NullableStringFieldUpdateOperationsInput | string | null
     last_modified?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -27636,6 +27662,7 @@ export namespace Prisma {
     salary?: SortOrder
     matricule?: SortOrder
     school_id?: SortOrder
+    password_hash?: SortOrder
     supabase_id?: SortOrder
     user_supabase_id?: SortOrder
     last_modified?: SortOrder
@@ -27660,6 +27687,7 @@ export namespace Prisma {
     salary?: SortOrder
     matricule?: SortOrder
     school_id?: SortOrder
+    password_hash?: SortOrder
     supabase_id?: SortOrder
     user_supabase_id?: SortOrder
     last_modified?: SortOrder
@@ -27679,6 +27707,7 @@ export namespace Prisma {
     salary?: SortOrder
     matricule?: SortOrder
     school_id?: SortOrder
+    password_hash?: SortOrder
     supabase_id?: SortOrder
     user_supabase_id?: SortOrder
     last_modified?: SortOrder
@@ -31179,6 +31208,7 @@ export namespace Prisma {
     salary?: number | null
     matricule?: string | null
     school_id?: string | null
+    password_hash?: string | null
     supabase_id?: string | null
     user_supabase_id?: string | null
     last_modified?: Date | string
@@ -31198,6 +31228,7 @@ export namespace Prisma {
     salary?: number | null
     matricule?: string | null
     school_id?: string | null
+    password_hash?: string | null
     supabase_id?: string | null
     user_supabase_id?: string | null
     last_modified?: Date | string
@@ -31232,6 +31263,7 @@ export namespace Prisma {
     salary?: NullableFloatFieldUpdateOperationsInput | number | null
     matricule?: NullableStringFieldUpdateOperationsInput | string | null
     school_id?: NullableStringFieldUpdateOperationsInput | string | null
+    password_hash?: NullableStringFieldUpdateOperationsInput | string | null
     supabase_id?: NullableStringFieldUpdateOperationsInput | string | null
     user_supabase_id?: NullableStringFieldUpdateOperationsInput | string | null
     last_modified?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -31251,6 +31283,7 @@ export namespace Prisma {
     salary?: NullableFloatFieldUpdateOperationsInput | number | null
     matricule?: NullableStringFieldUpdateOperationsInput | string | null
     school_id?: NullableStringFieldUpdateOperationsInput | string | null
+    password_hash?: NullableStringFieldUpdateOperationsInput | string | null
     supabase_id?: NullableStringFieldUpdateOperationsInput | string | null
     user_supabase_id?: NullableStringFieldUpdateOperationsInput | string | null
     last_modified?: DateTimeFieldUpdateOperationsInput | Date | string

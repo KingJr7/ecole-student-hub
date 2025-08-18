@@ -23,23 +23,10 @@ import { Users, Pencil, Trash2, Search } from "lucide-react";
 import { useToast } from "@/components/ui/use-toast";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useDatabase } from "@/hooks/useDatabase";
+import { Link } from "react-router-dom";
+import { Skeleton } from "@/components/ui/skeleton";
 
-// Interfaces alignées sur le schéma et les données retournées par le backend
-interface Student {
-  id: number;
-  name: string;
-  first_name: string;
-  genre?: string;
-  birth_date?: string;
-  className?: string; // Ajouté par `loadData`
-  classId?: number;   // Ajouté par `loadData`
-}
-
-interface Class {
-  id: number;
-  name: string;
-}
-
+// Interfaces
 interface Parent {
   id?: number;
   name?: string;
@@ -48,6 +35,25 @@ interface Parent {
   email?: string;
   profession?: string;
   address?: string;
+}
+
+interface Student {
+  id: number;
+  name: string;
+  first_name: string;
+  genre?: string;
+  birth_date?: string;
+  className?: string;
+  classId?: number;
+  parentInfo?: {
+    father?: Parent;
+    mother?: Parent;
+  }
+}
+
+interface Class {
+  id: number;
+  name: string;
 }
 
 interface CurrentStudent {
@@ -97,7 +103,6 @@ const Students = () => {
     createRegistration,
     createParent,
     linkStudentToParent,
-    getStudentParents,
   } = useDatabase();
 
   const loadData = async () => {
@@ -108,14 +113,7 @@ const Students = () => {
         getAllClasses(),
       ]);
       
-      const studentsWithParents = await Promise.all(studentsData.map(async (student) => {
-        const parents = await getStudentParents(student.id);
-        const father = parents.find(p => p.relation === 'père');
-        const mother = parents.find(p => p.relation === 'mère');
-        return { ...student, parentInfo: { father, mother } };
-      }));
-
-      setStudents(studentsWithParents || []);
+      setStudents(studentsData || []);
       setClasses(classesData || []);
     } catch (error) {
       console.error('Erreur lors du chargement des données:', error);
@@ -163,7 +161,7 @@ const Students = () => {
       } else {
         savedStudent = await createStudent(studentData);
         
-        if (!savedStudent || !savedStudent.id) throw new Error("La création de l'étudiant a échoué.");
+        if (!savedStudent || !savedStudent.id) throw new Error("La création de l´étudiant a échoué.");
 
         const registrationData = {
           student_id: savedStudent.id,
@@ -213,19 +211,15 @@ const Students = () => {
     setIsDialogOpen(true);
   };
 
-  const handleOpenEditDialog = async (student: Student) => {
-    const parents = await getStudentParents(student.id);
-    const father = parents.find(p => p.relation === 'père'); 
-    const mother = parents.find(p => p.relation === 'mère');
-
-    setCurrentStudent({ 
+  const handleOpenEditDialog = (student: Student) => {
+    setCurrentStudent({
       id: student.id,
       firstName: student.first_name,
       lastName: student.name,
       genre: student.genre,
       birthDate: student.birth_date,
       classId: student.classId,
-      parentInfo: { father, mother }
+      parentInfo: student.parentInfo
     });
     setIsDialogOpen(true);
   };
@@ -237,13 +231,13 @@ const Students = () => {
 
   return (
     <MainLayout>
-      <div className="space-y-6">
+      <div className="space-y-8 p-4 pt-6 md:p-8">
         <div className="flex justify-between items-center">
-          <h2 className="text-3xl font-bold flex items-center text-school-800"><Users className="mr-2 h-6 w-6" />Gestion des Élèves</h2>
-          <Button onClick={handleOpenAddDialog} className="bg-school-600 hover:bg-school-700">Ajouter un élève</Button>
+          <h2 className="text-4xl font-extrabold tracking-tight">Gestion des Élèves</h2>
+          <Button onClick={handleOpenAddDialog} className="bg-accent-hot hover:bg-accent-hot/90 text-accent-hot-foreground">Ajouter un élève</Button>
         </div>
 
-        <div className="flex flex-col sm:flex-row gap-4 mb-6">
+        <div className="flex flex-col sm:flex-row gap-4">
           <div className="relative flex-1">
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
             <Input placeholder="Rechercher par nom..." className="pl-10" value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} />
@@ -260,22 +254,46 @@ const Students = () => {
         </div>
 
         {loading ? (
-          <div className="flex justify-center p-8"><div className="animate-spin rounded-full h-10 w-10 border-t-2 border-primary"></div></div>
-        ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
-            {filteredStudents.map((student) => (
-              <Card key={student.id} className="overflow-hidden">
+          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6 animate-pulse">
+            {[...Array(6)].map((_, i) => (
+              <Card key={i}>
                 <CardContent className="p-4 space-y-3">
                   <div className="flex justify-between items-start">
                     <div>
-                      <h3 className="font-bold text-lg text-school-800">{student.first_name} {student.name}</h3>
-                      <p className="text-sm font-medium text-school-600">{student.className || 'Non assignée'}</p>
+                      <Skeleton className="h-5 w-40 rounded-md" />
+                      <Skeleton className="h-4 w-24 mt-2 rounded-md" />
                     </div>
-                    <div className="text-xs font-semibold bg-school-100 text-school-700 px-2 py-1 rounded-full">
+                    <Skeleton className="h-6 w-16 rounded-full" />
+                  </div>
+                  <div className="space-y-1 border-t pt-3 mt-2">
+                    <Skeleton className="h-4 w-32 rounded-md" />
+                    <Skeleton className="h-4 w-full rounded-md" />
+                    <Skeleton className="h-4 w-4/5 rounded-md" />
+                  </div>
+                </CardContent>
+                <div className="p-4 pt-2 flex justify-end space-x-2 bg-gray-50 border-t">
+                  <Skeleton className="h-9 w-24 rounded-md" />
+                  <Skeleton className="h-9 w-28 rounded-md" />
+                </div>
+              </Card>
+            ))}
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+            {filteredStudents.map((student) => (
+              <Link to={`/students/${student.id}`} key={student.id} className="block rounded-lg overflow-hidden transition-shadow duration-300 bg-white">
+              <Card className="h-full flex flex-col hover:border-primary">
+                <CardContent className="p-6 space-y-3 flex-grow">
+                  <div className="flex justify-between items-start">
+                    <div>
+                      <h3 className="font-bold text-lg text-foreground">{student.first_name} {student.name}</h3>
+                      <p className="text-sm font-medium text-muted-foreground">{student.className || 'Non assignée'}</p>
+                    </div>
+                    <div className="text-xs font-semibold bg-secondary text-secondary-foreground px-2 py-1 rounded-full">
                       {student.birth_date ? `${calculateAge(student.birth_date)} ans` : 'Âge inconnu'}
                     </div>
                   </div>
-                  <div className="text-sm text-gray-600 space-y-1 border-t pt-2 mt-2">
+                  <div className="text-sm text-muted-foreground space-y-1 border-t pt-3 mt-3">
                     <p><span className="font-semibold">Genre:</span> {student.genre || 'N/A'}</p>
                     {student.parentInfo?.father?.first_name && (
                       <p><span className="font-semibold">Père:</span> {student.parentInfo.father.first_name} {student.parentInfo.father.name} ({student.parentInfo.father.phone})</p>
@@ -284,12 +302,13 @@ const Students = () => {
                       <p><span className="font-semibold">Mère:</span> {student.parentInfo.mother.first_name} {student.parentInfo.mother.name} ({student.parentInfo.mother.phone})</p>
                     )}
                   </div>
-                  <div className="pt-2 flex justify-end space-x-2">
-                    <Button size="sm" variant="outline" onClick={() => handleOpenEditDialog(student)}><Pencil className="h-4 w-4 mr-1" /> Modifier</Button>
-                    <Button size="sm" variant="destructive" onClick={() => handleOpenDeleteDialog(student.id)}><Trash2 className="h-4 w-4 mr-1" /> Supprimer</Button>
+                  </CardContent>
+                  <div className="p-4 pt-2 flex justify-end space-x-2 bg-secondary/50 border-t">
+                    <Button size="sm" variant="outline" onClick={(e) => { e.preventDefault(); handleOpenEditDialog(student); }}><Pencil className="h-4 w-4 mr-1" /> Modifier</Button>
+                    <Button size="sm" variant="destructive" onClick={(e) => { e.preventDefault(); handleOpenDeleteDialog(student.id); }}><Trash2 className="h-4 w-4 mr-1" /> Supprimer</Button>
                   </div>
-                </CardContent>
               </Card>
+              </Link>
             ))}
           </div>
         )}

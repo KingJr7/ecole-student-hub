@@ -1,7 +1,7 @@
 {
   "name": "ntik",
   "private": true,
-  "version": "0.0.0",
+  "version": "0.1.0",
   "description": "Système de gestion scolaire Ntik pour l'administration des élèves, des notes et des paiements",
   "author": {
     "name": "Ntik",
@@ -22,16 +22,22 @@
     "dist": "vite build && electron-builder",
     "build:all": "vite build && cross-env NODE_ENV=production electron-builder --linux AppImage --linux deb --win nsis -p always",
     "build:linux": "vite build && cross-env NODE_ENV=production electron-builder --linux AppImage --linux deb -p always",
-    "build:windows": "vite build && cross-env NODE_ENV=production electron-builder --win nsis -p always",
+    "build:windows": "vite build && cross-env NODE_ENV=production electron-builder --win nsis --publish always",
+    "build:windows:local": "vite build && cross-env NODE_ENV=production electron-builder --win nsis",
     "release": "vite build && electron-builder build --publish always",
     "postinstall": "electron-builder install-app-deps",
     "rebuild": "electron-rebuild -f",
     "clear-db": "node scripts/clear-db.cjs"
   },
   "prisma": {
-    "seed": "node prisma/seed.js"
+    "seed": "node prisma/seed.cjs"
   },
   "build": {
+    "publish": {
+      "provider": "github",
+      "owner": "Kingjr7",
+      "repo": "ecole-student-hub"
+    },
     "asar": true,
     "appId": "com.ntik.school",
     "productName": "Ntik",
@@ -52,7 +58,7 @@
     ],
     "extraResources": [
       ".env",
-      "database.sqlite"
+      "ntik.sqlite"
     ],
     "win": {
       "target": "nsis",
@@ -104,6 +110,7 @@
     "@radix-ui/react-tooltip": "^1.1.4",
     "@supabase/supabase-js": "^2.50.2",
     "@tanstack/react-query": "^5.56.2",
+    "@tanstack/react-virtual": "^3.13.12",
     "bcryptjs": "^3.0.2",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",

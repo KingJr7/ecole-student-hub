@@ -6,7 +6,7 @@ generator client {
 
 datasource db {
   provider = "sqlite"
-  url      = "file:../../database.sqlite"
+  url      = env("DATABASE_URL")
 }
 
 model Settings {
@@ -53,8 +53,9 @@ model Students {
   notes           Notes[]
   registrations   Registrations[]
   student_parents StudentParents[]
-  matricul        String?          @unique // Ajout du champ matricul pour l'alignement avec Supabase
+  matricul        String?          @unique
 
+  @@index([is_deleted])
   @@map("students")
 }
 
@@ -73,6 +74,7 @@ model Registrations {
   class             Classes    @relation(fields: [class_id], references: [id], onDelete: Cascade)
   student           Students   @relation(fields: [student_id], references: [id], onDelete: Cascade)
 
+  @@index([student_id, class_id])
   @@map("registrations")
 }
 
@@ -83,20 +85,21 @@ model Teachers {
   phone            String?
   email            String?            @unique
   adress           String?
-  password_hash    String?            @default("admin123") // Ajout du champ password_hash pour l'alignement
-  role_id          String?            @default("6bd5dc10-9df7-43f4-8539-6c0386b3cc33") // Ajout du champ role_id pour l
+  password_hash    String?            @default("admin123")
+  role_id          String?            @default("6bd5dc10-9df7-43f4-8539-6c0386b3cc33")
   speciality       String?
   matricule        String?
   supabase_id      String?            @unique
-  user_supabase_id String? // Stocke l'id du user Supabase lié au teacher
+  user_supabase_id String?
   last_modified    DateTime           @default(now())
   needs_sync       Boolean            @default(false)
   is_deleted       Boolean            @default(false)
   hourlyRate       Float?             @default(0)
   lessons          Lessons[]
   workHours        TeacherWorkHours[]
-  school_id        String? // Ajout du champ school_id pour l'alignement avec Supabase
+  school_id        String?
 
+  @@index([is_deleted, email])
   @@map("teachers")
 }
 
@@ -116,6 +119,7 @@ model TeacherWorkHours {
   subject       Subjects? @relation(fields: [subject_id], references: [id])
   teacher       Teachers  @relation(fields: [teacher_id], references: [id], onDelete: Cascade)
 
+  @@index([teacher_id, date])
   @@map("teacher_work_hours")
 }
 
@@ -135,6 +139,7 @@ model Lessons {
   notes         Notes[]
   schedules     Schedules[]
 
+  @@index([class_id, subject_id, teacher_id])
   @@map("lessons")
 }
 
@@ -152,6 +157,7 @@ model Subjects {
   class         Classes            @relation(fields: [class_id], references: [id], onDelete: Cascade)
   workHours     TeacherWorkHours[]
 
+  @@index([class_id])
   @@map("subjects")
 }
 
@@ -169,6 +175,7 @@ model Notes {
   lesson        Lessons  @relation(fields: [lesson_id], references: [id], onDelete: Cascade)
   student       Students @relation(fields: [student_id], references: [id], onDelete: Cascade)
 
+  @@index([student_id, lesson_id, quarter])
   @@map("notes")
 }
 
@@ -186,7 +193,7 @@ model Parents {
   needs_sync      Boolean          @default(false)
   is_deleted      Boolean          @default(false)
   student_parents StudentParents[]
-  school_id       String? // Ajout du champ school_id pour l'alignement avec Supabase
+  school_id       String?
 
   @@map("parents")
 }
@@ -203,6 +210,7 @@ model StudentParents {
   parent        Parents  @relation(fields: [parent_id], references: [id], onDelete: Cascade)
   student       Students @relation(fields: [student_id], references: [id], onDelete: Cascade)
 
+  @@index([student_id, parent_id])
   @@map("student_parents")
 }
 
@@ -222,6 +230,7 @@ model Payments {
   fee             Fees?          @relation(fields: [fee_id], references: [id])
   registration    Registrations? @relation(fields: [registration_id], references: [id])
 
+  @@index([registration_id, fee_id])
   @@map("payments")
 }
 
@@ -253,6 +262,7 @@ model Attendances {
   is_deleted    Boolean  @default(false)
   student       Students @relation(fields: [student_id], references: [id], onDelete: Cascade)
 
+  @@index([student_id, date])
   @@map("attendances")
 }
 
@@ -268,13 +278,15 @@ model Employees {
   salary           Float?
   matricule        String?
   school_id        String?
+  password_hash    String?
   supabase_id      String?          @unique
-  user_supabase_id String? // Stocke l'id du user Supabase lié à l'employé
+  user_supabase_id String?
   last_modified    DateTime         @default(now())
   needs_sync       Boolean          @default(false)
   is_deleted       Boolean          @default(false)
   salary_payments  SalaryPayments[]
 
+  @@index([is_deleted, email])
   @@map("employees")
 }
 
@@ -292,6 +304,7 @@ model SalaryPayments {
   is_deleted    Boolean   @default(false)
   employee      Employees @relation(fields: [employee_id], references: [id], onDelete: Cascade)
 
+  @@index([employee_id])
   @@map("salary_payments")
 }
 
@@ -307,5 +320,6 @@ model Schedules {
   is_deleted    Boolean  @default(false)
   lesson        Lessons  @relation(fields: [lesson_id], references: [id], onDelete: Cascade)
 
+  @@index([lesson_id])
   @@map("schedules")
 }

@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect } from "react";
 import MainLayout from "@/components/Layout/MainLayout";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -19,15 +19,16 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { FileText, Pencil, Trash2, Search, ListCheck, Printer, Download } from "lucide-react";
+import { FileText, Pencil, Trash2, Search, ListCheck, Download } from "lucide-react";
 import { useToast } from "@/components/ui/use-toast";
 import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from "@/components/ui/table";
 import { useDatabase } from "@/hooks/useDatabase";
 import { jsPDF } from "jspdf";
 import autoTable from "jspdf-autotable";
+import { Skeleton } from "@/components/ui/skeleton";
 
-// Interfaces alignées sur Prisma
-interface Student { id: number; name: string; first_name: string; }
+// Interfaces
+interface Student { id: number; name: string; first_name: string; registrations: { class_id: number }[] }
 interface Class { id: number; name: string; level: string; }
 interface Subject { id: number; name: string; coefficient: number; }
 interface Lesson { id: number; class_id: number; subject_id: number; subject: Subject; }
@@ -47,7 +48,7 @@ interface ClassResult {
   average: number;
   rank: number;
   status: string;
-  subjects: { [subjectName: string]: { average: number; coefficient: number; } };
+  subjects: { [subjectName: string]: { average: number | null; coefficient: number; } };
 }
 
 const Grades = () => {
@@ -59,10 +60,10 @@ const Grades = () => {
 
   const [selectedClassId, setSelectedClassId] = useState<number | null>(null);
   const [selectedQuarter, setSelectedQuarter] = useState<number>(1);
+  const [selectedType, setSelectedType] = useState('all'); // State for the new filter
   
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [isResultsOpen, setIsResultsOpen] = useState(false);
-  const [isBulletinsOpen, setIsBulletinsOpen] = useState(false);
   const [isDeleteOpen, setIsDeleteOpen] = useState(false);
   
   const [currentNote, setCurrentNote] = useState<Partial<Note>>({});
@@ -90,7 +91,7 @@ const Grades = () => {
         setClasses(classesData || []);
         setLessons(lessonsData || []);
         setSchoolName(settingsData?.schoolName || "Mon École");
-        if (classesData && classesData.length > 0) {
+        if (classesData && classesData.length > 0 && !selectedClassId) {
           setSelectedClassId(classesData[0].id);
         }
       } catch (error) {
@@ -120,8 +121,8 @@ const Grades = () => {
       }
       setIsFormOpen(false);
       setCurrentNote({});
-      // Recharger uniquement les notes pour la performance
-      db.getAllNotes().then(setNotes);
+      const notesData = await db.getAllNotes();
+      setNotes(notesData || []);
     } catch (error) {
       console.error("Erreur de sauvegarde:", error);
       toast({ variant: "destructive", description: "La sauvegarde a échoué." });
@@ -135,7 +136,8 @@ const Grades = () => {
       toast({ description: "Note supprimée." });
       setIsDeleteOpen(false);
       setNoteToDelete(null);
-      db.getAllNotes().then(setNotes);
+      const notesData = await db.getAllNotes();
+      setNotes(notesData || []);
     } catch (error) {
       console.error("Erreur de suppression:", error);
       toast({ variant: "destructive", description: "La suppression a échoué." });
@@ -192,11 +194,11 @@ const Grades = () => {
       autoTable(doc, {
         startY: 65,
         head: [['Matière', 'Coefficient', 'Moyenne']],
-        body: Object.entries(result.subjects).map(([name, { coefficient, average }]) => [
+        body: result.subjects ? Object.entries(result.subjects).map(([name, { coefficient, average }]) => [
           name,
           coefficient,
-          average.toFixed(2)
-        ]),
+          average !== null ? average.toFixed(2) : 'N/A'
+        ]) : [],
       });
     });
 
@@ -209,21 +211,41 @@ const Grades = () => {
     return (
       studentName.includes(searchQuery.toLowerCase()) &&
       (selectedClassId ? lesson?.class_id === selectedClassId : true) &&
-      note.quarter === selectedQuarter
+      note.quarter === selectedQuarter &&
+      (selectedType === 'all' || note.type === selectedType) // New filter condition
     );
   });
 
+  const TableSkeleton = () => (
+    <>
+      {[...Array(10)].map((_, i) => (
+        <TableRow key={i}>
+          <TableCell><Skeleton className="h-5 w-48 rounded-md" /></TableCell>
+          <TableCell><Skeleton className="h-5 w-32 rounded-md" /></TableCell>
+          <TableCell><Skeleton className="h-5 w-16 rounded-md" /></TableCell>
+          <TableCell><Skeleton className="h-5 w-24 rounded-md" /></TableCell>
+          <TableCell className="text-right">
+            <div className="flex justify-end items-center space-x-1">
+              <Skeleton className="h-8 w-8 rounded-md" />
+              <Skeleton className="h-8 w-8 rounded-md" />
+            </div>
+          </TableCell>
+        </TableRow>
+      ))}
+    </>
+  );
+
   return (
     <MainLayout>
-      <div className="space-y-6">
+      <div className="space-y-8 p-4 pt-6 md:p-8">
         <div className="flex justify-between items-center">
-          <h2 className="text-3xl font-bold flex items-center text-school-800"><FileText className="mr-2" />Gestion des Notes</h2>
-          <Button onClick={() => { setCurrentNote({ quarter: selectedQuarter }); setIsFormOpen(true); }}>Ajouter une note</Button>
+          <h2 className="text-4xl font-extrabold tracking-tight">Gestion des Notes</h2>
+          <Button onClick={() => { setCurrentNote({ quarter: selectedQuarter }); setIsFormOpen(true); }} className="bg-accent-hot hover:bg-accent-hot/90 text-accent-hot-foreground">Ajouter une note</Button>
         </div>
 
         <div className="flex flex-wrap gap-4">
           <Input placeholder="Rechercher par nom..." value={searchQuery} onChange={e => setSearchQuery(e.target.value)} className="max-w-sm" />
-          <Select onValueChange={(val) => setSelectedClassId(Number(val))} value={String(selectedClassId)}>
+          <Select onValueChange={(val) => setSelectedClassId(Number(val))} value={String(selectedClassId || '')}>
             <SelectTrigger className="w-[200px]"><SelectValue placeholder="Classe" /></SelectTrigger>
             <SelectContent>
               {classes.map(c => <SelectItem key={c.id} value={String(c.id)}>{c.name}</SelectItem>)}
@@ -237,6 +259,15 @@ const Grades = () => {
               <SelectItem value="3">Trimestre 3</SelectItem>
             </SelectContent>
           </Select>
+          {/* New Filter Select */}
+          <Select onValueChange={setSelectedType} value={selectedType}>
+            <SelectTrigger className="w-[200px]"><SelectValue placeholder="Type de note" /></SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">Tous les types</SelectItem>
+              <SelectItem value="devoir">Devoir</SelectItem>
+              <SelectItem value="composition">Composition</SelectItem>
+            </SelectContent>
+          </Select>
           <Button onClick={handleGenerateResults} variant="secondary"><ListCheck className="mr-2 h-4 w-4" />Générer Résultats</Button>
         </div>
 
@@ -245,7 +276,9 @@ const Grades = () => {
             <Table>
               <TableHeader><TableRow><TableHead>Étudiant</TableHead><TableHead>Matière</TableHead><TableHead>Note</TableHead><TableHead>Type</TableHead><TableHead className="text-right">Actions</TableHead></TableRow></TableHeader>
               <TableBody>
-                {loading ? <TableRow><TableCell colSpan={5} className="text-center">Chargement...</TableCell></TableRow> : 
+                {loading ? <TableSkeleton /> : 
+                filteredNotes.length === 0 ? 
+                <TableRow><TableCell colSpan={5} className="text-center py-8">Aucune note trouvée pour cette sélection.</TableCell></TableRow> : 
                 filteredNotes.map(note => (
                   <TableRow key={note.id}>
                     <TableCell>{`${note.student.first_name} ${note.student.name}`}</TableCell>
@@ -270,7 +303,7 @@ const Grades = () => {
             <div className="grid gap-4 py-4">
               <Select onValueChange={(val) => setCurrentNote(p => ({ ...p, student_id: Number(val) }))} value={String(currentNote.student_id || '')}>
                 <SelectTrigger><SelectValue placeholder="Étudiant" /></SelectTrigger>
-                <SelectContent>{students.map(s => <SelectItem key={s.id} value={String(s.id)}>{`${s.first_name} ${s.name}`}</SelectItem>)}</SelectContent>
+                <SelectContent>{students.filter(s => s.registrations[0]?.class_id === selectedClassId).map(s => <SelectItem key={s.id} value={String(s.id)}>{`${s.first_name} ${s.name}`}</SelectItem>)}</SelectContent>
               </Select>
               <Select onValueChange={(val) => setCurrentNote(p => ({ ...p, lesson_id: Number(val) }))} value={String(currentNote.lesson_id || '')}>
                 <SelectTrigger><SelectValue placeholder="Leçon (Matière)" /></SelectTrigger>

@@ -3,11 +3,12 @@ const { PrismaClient } = require('../../src/generated/prisma');
 const path = require('path');
 const os = require('os');
 const fs = require('fs');
+const bcrypt = require('bcryptjs');
 
 const isProd = app.isPackaged;
 
 // Définir le chemin de la base de données de production dans AppData
-const prodDbPath = path.join(app.getPath('userData'), 'database.sqlite');
+const prodDbPath = path.join(app.getPath('userData'), 'ntik.sqlite');
 
 if (isProd) {
   // Chemin de la base de données modèle dans le package de l'application
@@ -31,24 +32,33 @@ if (isProd) {
 }
 
 // Le chemin final utilisé par Prisma
-const dbPath = isProd ? prodDbPath : path.join(__dirname, '../../database.sqlite');
+const dbPath = isProd ? prodDbPath : path.join(__dirname, '../../ntik.sqlite');
 
 console.log(`Chemin de la base de données utilisé: ${dbPath}`);
 
+let prisma;
 let isDatabaseIpcSetup = false;
-const prisma = new PrismaClient({
-  datasources: {
-    db: {
-      url: `file:${dbPath}`,
-    },
-  },
-});
 
-function setupDatabaseIPC() {
+function initializePrisma() {
+  if (!prisma) {
+    prisma = new PrismaClient({
+      datasources: {
+        db: {
+          url: `file:${dbPath}`,
+        },
+      },
+    });
+  }
+  return prisma;
+}
+
+function setupDatabaseIPC(prismaClient) {
   if (isDatabaseIpcSetup) {
     return;
   }
   isDatabaseIpcSetup = true;
+
+  const prisma = prismaClient;
 
   // Handler pour récupérer les settings
   ipcMain.handle('db:settings:get', async () => {
@@ -129,7 +139,7 @@ function setupDatabaseIPC() {
 
     const students = await prisma.students.findMany({
       where: { is_deleted: false },
-      include: { // Revenir à include pour assurer la compatibilité
+      include: {
         registrations: {
           where: registrationWhere,
           orderBy: { id: 'desc' },
@@ -138,14 +148,26 @@ function setupDatabaseIPC() {
             class: true,
           },
         },
+        student_parents: {
+          where: { is_deleted: false },
+          include: {
+            parent: true,
+          },
+        },
       },
       orderBy: [{ name: 'asc' }, { first_name: 'asc' }],
     });
 
-    return students.map(s => ({
-      ...s,
-      className: s.registrations[0]?.class.name,
-    }));
+    return students.map(s => {
+      const father = s.student_parents.find(sp => sp.relation === 'père')?.parent;
+      const mother = s.student_parents.find(sp => sp.relation === 'mère')?.parent;
+      
+      return {
+        ...s,
+        className: s.registrations[0]?.class.name,
+        parentInfo: { father, mother },
+      };
+    });
   });
 
   // Dans students:create et update, ajouter picture_url
@@ -235,7 +257,7 @@ ipcMain.handle('db:students:update', async (event, { id, data }) => {
   // Dans la partie Teachers
 ipcMain.handle('db:teachers:create', async (event, teacherData) => {
   console.log("Données reçues par le backend:", teacherData);
-  const { name, first_name, email, phone, speciality, adress, hourlyRate } = teacherData;
+  const { name, first_name, email, phone, speciality, adress, hourlyRate, password } = teacherData;
 
   // Vérifier si l'email existe déjà
   const existingTeacher = await prisma.teachers.findUnique({
@@ -245,6 +267,9 @@ ipcMain.handle('db:teachers:create', async (event, teacherData) => {
   if (existingTeacher) {
     throw new Error('Un professeur avec cette adresse e-mail existe déjà.');
   }
+
+  // Hacher le mot de passe
+  const password_hash = bcrypt.hashSync(password, 10);
 
   // 1. Récupérer le nom de l'école
   const settings = await prisma.settings.findUnique({ where: { id: 1 } });
@@ -261,6 +286,7 @@ ipcMain.handle('db:teachers:create', async (event, teacherData) => {
       first_name,
       email,
       phone,
+      password_hash, // Utiliser le mot de passe haché
       matricule, // Matricule généré
       speciality,
       adress,
@@ -686,6 +712,14 @@ ipcMain.handle('db:payments:getAvailableMonths', async () => {
       },
     });
   });
+
+  ipcMain.handle('db:attendances:getByStudentId', async (event, studentId) => {
+    return prisma.attendances.findMany({
+      where: { student_id: studentId, is_deleted: false },
+      orderBy: { date: 'desc' },
+      take: 5, // On limite aux 5 plus récents pour ne pas surcharger
+    });
+  });
   // #endregion
 
   // #region Parents
@@ -746,6 +780,11 @@ ipcMain.handle('db:parents:update', async (event, { id, data }) => {
         last_modified: new Date(),
       },
     });
+  });
+
+  ipcMain.handle('db:parents:findByPhone', async (event, phone) => {
+    if (!phone) return null;
+    return prisma.parents.findFirst({ where: { phone, is_deleted: false } });
   });
   // #endregion
 
@@ -1015,71 +1054,87 @@ ipcMain.handle('db:parents:update', async (event, { id, data }) => {
   });
 
   ipcMain.handle('db:reports:getClassResults', async (event, { classId, quarter }) => {
-    const students = await prisma.students.findMany({
+    const studentsInClass = await prisma.registrations.findMany({
       where: {
-        registrations: { some: { class_id: classId, is_deleted: false } },
+        class_id: classId,
         is_deleted: false,
+      },
+      include: {
+        student: true,
       },
     });
 
+    if (studentsInClass.length === 0) return [];
+
+    const studentIds = studentsInClass.map(reg => reg.student_id);
+
+    const lessonsInClass = await prisma.lessons.findMany({
+      where: {
+        class_id: classId,
+        is_deleted: false,
+      },
+      include: {
+        subject: true,
+      },
+    });
+
+    const subjectIds = lessonsInClass.map(l => l.subject_id);
     const subjects = await prisma.subjects.findMany({
-      where: {
-        lessons: { some: { class_id: classId, is_deleted: false } },
-        is_deleted: false,
-      },
+      where: { id: { in: subjectIds } },
     });
 
-    if (students.length === 0) return [];
-
-    const studentIds = students.map(s => s.id);
     const notes = await prisma.notes.findMany({
       where: {
         student_id: { in: studentIds },
         quarter: quarter,
         is_deleted: false,
-        lesson: { class_id: classId },
+        lesson: {
+          class_id: classId,
+        },
       },
-      include: { lesson: true },
+      include: {
+        lesson: {
+          include: {
+            subject: true,
+          },
+        },
+      },
     });
 
-    const results = students.map(student => {
-      const studentNotes = notes.filter(n => n.student_id === student.id);
+    const results = studentsInClass.map(({ student }) => {
       let totalPoints = 0;
       let totalCoef = 0;
       const subjectResults = {};
 
       subjects.forEach(subject => {
-        const subjectNotes = studentNotes.filter(n => n.lesson.subject_id === subject.id);
+        const subjectNotes = notes.filter(
+          n => n.student_id === student.id && n.lesson.subject_id === subject.id
+        );
+
+        let avg = null;
         if (subjectNotes.length > 0) {
-          const sum = subjectNotes.reduce((acc, note) => acc + note.value, 0);
-          const avg = sum / subjectNotes.length;
-          subjectResults[subject.name] = { average: avg, coefficient: subject.coefficient };
-          totalPoints += avg * subject.coefficient;
-          totalCoef += subject.coefficient;
-        } else {
-          subjectResults[subject.name] = { average: null, coefficient: subject.coefficient };
+          const sum = subjectNotes.reduce((acc, note) => acc + (note.value || 0), 0);
+          avg = sum / subjectNotes.length;
+          totalPoints += avg * (subject.coefficient || 1);
+          totalCoef += subject.coefficient || 1;
         }
+        subjectResults[subject.name] = { average: avg, coefficient: subject.coefficient || 1 };
       });
 
       const generalAverage = totalCoef > 0 ? totalPoints / totalCoef : 0;
-      return { 
-        studentId: student.id, 
+      return {
+        studentId: student.id,
         studentName: `${student.first_name} ${student.name}`,
-        average: generalAverage, 
-        rank: 0, 
-        subjects: subjectResults, 
-        status: generalAverage >= 10 ? 'Admis' : 'Non admis' 
+        average: generalAverage,
+        rank: 0,
+        subjects: subjectResults,
+        status: generalAverage >= 10 ? 'Admis' : 'Non admis',
       };
     });
 
     results.sort((a, b) => b.average - a.average);
-    let currentRank = 0, prevAverage = -1;
     results.forEach((result, index) => {
-      if (result.average !== prevAverage) {
-        currentRank = index + 1;
-        prevAverage = result.average;
-      }
-      result.rank = currentRank;
+      result.rank = index + 1;
     });
 
     return results;
@@ -1225,13 +1280,18 @@ ipcMain.handle('db:employees:getAll', async () => {
 });
 
 ipcMain.handle('db:employees:create', async (event, employeeData) => {
-  const { name, first_name, phone, email, adress, gender, job_title, salary } = employeeData;
+  const { name, first_name, phone, email, adress, gender, job_title, salary, password } = employeeData;
 
   const settings = await prisma.settings.findUnique({ where: { id: 1 } });
   const schoolName = settings?.schoolName || 'SCHOOL';
   const initials = schoolName.substring(0, 3).toUpperCase();
   const randomDigits = Math.floor(1000 + Math.random() * 9000);
   const matricule = `EMP-${initials}-${randomDigits}`;
+
+  let password_hash = null;
+  if (password) {
+    password_hash = bcrypt.hashSync(password, 10);
+  }
 
   return prisma.employees.create({
     data: {
@@ -1244,6 +1304,7 @@ ipcMain.handle('db:employees:create', async (event, employeeData) => {
       job_title,
       salary,
       matricule,
+      password_hash, // Ajout du mot de passe haché (peut être null)
       needs_sync: true,
       last_modified: new Date(),
     },
@@ -1295,6 +1356,26 @@ ipcMain.handle('db:employees:paySalary', async (event, { employee_id, base_salar
       last_modified: new Date(),
     },
   });
+});
+
+ipcMain.handle('db:employees:getSalaryHistory', async (event, employeeId) => {
+  if (!employeeId) return [];
+  return prisma.salaryPayments.findMany({
+    where: { employee_id: employeeId, is_deleted: false },
+    orderBy: { payment_date: 'desc' },
+  });
+});
+
+ipcMain.handle('db:employees:getStats', async () => {
+  const totalEmployees = await prisma.employees.count({ where: { is_deleted: false } });
+  const payrollData = await prisma.employees.aggregate({
+    where: { is_deleted: false },
+    _sum: { salary: true },
+  });
+  return {
+    totalEmployees,
+    monthlyPayroll: payrollData._sum.salary || 0,
+  };
 });
   // #endregion
 
@@ -1377,10 +1458,31 @@ ipcMain.handle('db:fees:delete', async (event, id) => {
       
       const balance = (fee.amount || 0) - totalPaidForFee;
 
+      let status = 'À venir';
+      if (balance <= 0) {
+        status = 'Payé';
+      } else if (fee.due_date) {
+        const today = new Date();
+        today.setHours(0, 0, 0, 0); // Ignorer l'heure pour la comparaison
+
+        // Analyser la date d'échéance stockée en tant que chaîne (ex: "2024-02-15")
+        const dueDateParts = fee.due_date.split('-').map(part => parseInt(part, 10));
+        if (dueDateParts.length === 3) {
+            // Créer la date d'échéance pour l'année EN COURS
+            const dueDateThisYear = new Date(today.getFullYear(), dueDateParts[1] - 1, dueDateParts[2]);
+            dueDateThisYear.setHours(0, 0, 0, 0);
+
+            if (today > dueDateThisYear) {
+                status = 'En retard';
+            }
+        }
+      }
+
       return {
         ...fee,
         total_paid: totalPaidForFee,
         balance: balance,
+        status: status, // Ajout du statut
       };
     });
   });
@@ -1419,4 +1521,4 @@ ipcMain.handle('db:fees:delete', async (event, id) => {
   // #endregion
 }
 
-module.exports = { setupDatabaseIPC, prisma }; // Exporter prisma pour la synchro
+module.exports = { initializePrisma, setupDatabaseIPC }; // Exporter la fonction d'initialisation

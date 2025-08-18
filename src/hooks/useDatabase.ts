@@ -1,4 +1,4 @@
-import { useCallback } from 'react';
+import { useCallback, useMemo } from 'react';
 
 const { ipcRenderer } = window.require('electron');
 
@@ -60,6 +60,7 @@ export function useDatabase() {
   const createAttendance = useCallback((data: any) => invoke('db:attendances:create', data), []);
   const updateAttendance = useCallback((id: number, data: any) => invoke('db:attendances:update', { id, data }), []);
   const deleteAttendance = useCallback((id: number) => invoke('db:attendances:delete', id), []);
+  const getAttendancesByStudentId = useCallback((studentId: number) => invoke('db:attendances:getByStudentId', studentId), []);
   // #endregion
 
   // #region Parents
@@ -67,6 +68,7 @@ export function useDatabase() {
   const createParent = useCallback((data: any) => invoke('db:parents:create', data), []);
   const updateParent = useCallback((id: number, data: any) => invoke('db:parents:update', { id, data }), []);
   const deleteParent = useCallback((id: number) => invoke('db:parents:delete', id), []);
+  const findParentByPhone = useCallback((phone: string) => invoke('db:parents:findByPhone', phone), []);
   // #endregion
 
   // #region Registrations
@@ -79,7 +81,7 @@ export function useDatabase() {
 
   // #region Student-Parents
   const getStudentParents = useCallback((studentId: number) => invoke('db:studentParents:getByStudent', studentId), []);
-  const linkStudentToParent = useCallback((studentId: number, parentId: number) => invoke('db:studentParents:link', { studentId, parentId }), []);
+  const linkStudentToParent = useCallback((studentId: number, parentId: number, relation: string) => invoke('db:studentParents:link', { studentId, parentId, relation }), []);
   const unlinkStudentFromParent = useCallback((studentId: number, parentId: number) => invoke('db:studentParents:unlink', { studentId, parentId }), []);
   // #endregion
 
@@ -130,15 +132,15 @@ export function useDatabase() {
   const printReceipt = useCallback((data: any) => invoke('printers:print-receipt', data), []);
   // #endregion
 
-  return {
+  return useMemo(() => ({
     getSettings, updateSettings,
     getAllClasses, createClass, updateClass, deleteClass,
     getAllStudents, createStudent, updateStudent, deleteStudent, getRecentStudents,
     getAllTeachers, createTeacher, updateTeacher, deleteTeacher,
     getAllPayments, createPayment, updatePayment, deletePayment,
     getAllSubjects, createSubject, updateSubject, deleteSubject, getClassSubjects,
-    getAllAttendances, createAttendance, updateAttendance, deleteAttendance,
-    getAllParents, createParent, updateParent, deleteParent,
+    getAllAttendances, createAttendance, updateAttendance, deleteAttendance, getAttendancesByStudentId,
+    getAllParents, createParent, updateParent, deleteParent, findParentByPhone,
     getAllRegistrations, createRegistration, updateRegistration, deleteRegistration, getLatestRegistrationForStudent,
     getStudentParents, linkStudentToParent, unlinkStudentFromParent,
     getAllLessons, createLesson, updateLesson, deleteLesson,
@@ -148,5 +150,5 @@ export function useDatabase() {
     getAllEmployees, createEmployee, updateEmployee, deleteEmployee,
     getAllFees, createFee, updateFee, deleteFee, getStudentFeeStatus, 
     getPrinters, printReceipt,
-  };
+  }), []);
 }

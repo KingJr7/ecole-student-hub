@@ -1,14 +1,7 @@
 import { useState, useEffect } from 'react'
+import { Link } from 'react-router-dom';
 import { useDatabase } from '../hooks/useDatabase'
 import { getTeachers } from '../lib/api'
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import {
@@ -16,7 +9,6 @@ import {
   DialogContent,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
   DialogDescription,
   DialogFooter,
 } from "@/components/ui/dialog"
@@ -36,21 +28,16 @@ import {
 } from "@/components/ui/card"
 import {
   BookOpen,
-  Pencil,
   Trash2,
-  GraduationCap
 } from "lucide-react"
+import { Skeleton } from "@/components/ui/skeleton";
 
 interface Class {
   id: string
   name: string
+  level: string
   students?: Student[]
   subjects?: Subject[]
-  supabase_id?: string
-  sqlite_id?: number
-  is_synced?: boolean
-  is_deleted?: boolean
-  last_modified?: string
 }
 
 interface Student {
@@ -58,12 +45,7 @@ interface Student {
   firstName: string
   lastName: string
   className: string
-  classId?: string
-  supabase_id?: string
-  sqlite_id?: number
-  is_synced?: boolean
-  is_deleted?: boolean
-  last_modified?: string
+  class_id?: string
 }
 
 interface Subject {
@@ -73,36 +55,18 @@ interface Subject {
   teacherName?: string
   coefficient: number
   classId: string
-  hoursPerWeek?: number
-  subjectName?: string
-  supabase_id?: string
-  sqlite_id?: number
-  is_synced?: boolean
-  is_deleted?: boolean
-  last_modified?: string
 }
 
 interface Teacher {
   id: string
-  firstName: string
-  lastName: string
-  email: string
-  phone: string
-  address?: string
-  hourlyRate?: number
-  speciality?: string
-  supabase_id?: string
-  sqlite_id?: number
-  is_synced?: boolean
-  is_deleted?: boolean
-  last_modified?: string
+  first_name: string
+  name: string
 }
 
 export default function Classes() {
-  const { getAllClasses, getAllStudents, getClassSubjects, addClassSubject, createClass, updateClass, deleteClass, createSubject, deleteClassSubject } = useDatabase()
+  const { getAllClasses, getAllStudents, getClassSubjects, createClass, updateClass, deleteClass, createSubject } = useDatabase()
   const [classes, setClasses] = useState<Class[]>([])
   const [students, setStudents] = useState<Student[]>([])
-  const [subjects, setSubjects] = useState<Subject[]>([])
   const [teachers, setTeachers] = useState<Teacher[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const [isDialogOpen, setIsDialogOpen] = useState(false)
@@ -110,7 +74,6 @@ export default function Classes() {
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false)
   const [currentClass, setCurrentClass] = useState<Partial<Class>>({})
   const [currentSubject, setCurrentSubject] = useState<Partial<Subject>>({})
-  const [searchQuery, setSearchQuery] = useState('')
   const { toast } = useToast()
 
   useEffect(() => {
@@ -120,9 +83,11 @@ export default function Classes() {
   const loadData = async () => {
     try {
       setIsLoading(true);
-      const classesData = await getAllClasses();
-      const studentsData = await getAllStudents();
-      const teachersData = await getTeachers();
+      const [classesData, studentsData, teachersData] = await Promise.all([
+        getAllClasses(),
+        getAllStudents(),
+        getTeachers(),
+      ]);
 
       const classesWithData = await Promise.all(
         classesData.map(async (cls) => {
@@ -151,7 +116,8 @@ export default function Classes() {
     setIsDialogOpen(true)
   }
 
-  const handleOpenSubjectDialog = (cls: Class) => {
+  const handleOpenSubjectDialog = (e, cls: Class) => {
+    e.preventDefault();
     setCurrentClass(cls)
     setCurrentSubject({ classId: cls.id })
     setIsSubjectDialogOpen(true)
@@ -167,51 +133,21 @@ export default function Classes() {
     setIsSubjectDialogOpen(false)
   }
 
-  // Fonction pour supprimer toutes les matières d'une classe
-  const deleteAllSubjectsForClass = async (classId: string) => {
-    try {
-      // Récupérer les matières existantes
-      const subjects = await getClassSubjects(classId as string);
-      // Supprimer chaque matière
-      for (const subject of subjects) {
-        await deleteClassSubject(subject.id as string);
-      }
-      return true;
-    } catch (error) {
-      console.error('Erreur lors de la suppression des matières de la classe:', error);
-      return false;
-    }
-  };
-
   const handleSaveClass = async () => {
     if (!currentClass.name || !currentClass.level) {
-      toast({
-        title: "Erreur",
-        description: "Le nom et le niveau de la classe sont requis.",
-        variant: "destructive",
-      })
+      toast({ title: "Erreur", description: "Le nom et le niveau de la classe sont requis.", variant: "destructive" })
       return
     }
     try {
       if (currentClass.id) {
         await updateClass(currentClass.id, { name: currentClass.name, level: currentClass.level });
-        toast({
-          title: "Succès",
-          description: "La classe a été mise à jour avec succès.",
-        });
+        toast({ title: "Succès", description: "La classe a été mise à jour." });
       } else {
         await createClass({ name: currentClass.name, level: currentClass.level });
-        toast({
-          title: "Succès",
-          description: "La classe a été créée avec succès.",
-        });
+        toast({ title: "Succès", description: "La classe a été créée." });
       }
     } catch (error: any) {
-      toast({
-        title: "Erreur",
-        description: error.message || "Une erreur est survenue.",
-        variant: "destructive",
-      })
+      toast({ title: "Erreur", description: error.message, variant: "destructive" })
     } finally {
       handleCloseDialog()
       loadData()
@@ -219,13 +155,8 @@ export default function Classes() {
   }
 
   const handleSaveSubject = async () => {
-    // Vérifier que tous les champs requis sont présents
     if (!currentSubject.name || !currentSubject.coefficient || !currentSubject.teacherId) {
-      toast({
-        title: "Erreur",
-        description: "Tous les champs sont obligatoires, y compris la sélection d'un professeur.",
-        variant: "destructive",
-      });
+      toast({ title: "Erreur", description: "Tous les champs sont obligatoires.", variant: "destructive" });
       return;
     }
     
@@ -236,25 +167,12 @@ export default function Classes() {
         coefficient: currentSubject.coefficient || 1,
         teacher_id: currentSubject.teacherId,
         school_year: '2024-2025',
-        day_of_week: currentSubject.day_of_week,
-        start_time: currentSubject.start_time,
-        end_time: currentSubject.end_time,
       });
-      
-      toast({
-        title: "Succès",
-        description: "La matière a été ajoutée avec succès.",
-      });
-      
+      toast({ title: "Succès", description: "La matière a été ajoutée." });
       handleCloseSubjectDialog();
       loadData();
     } catch (error) {
-      console.error(error);
-      toast({
-        title: "Erreur",
-        description: `Erreur lors de l'ajout de la matière: ${error}`,
-        variant: "destructive",
-      });
+      toast({ title: "Erreur", description: `Erreur: ${error}`, variant: "destructive" });
     }
   }
 
@@ -262,43 +180,23 @@ export default function Classes() {
     return students.filter(student => student.class_id === classId).length
   }
 
-  const getSubjectCount = (classId: string) => {
-    return subjects.filter(subject => subject.classId === classId).length
-  }
-
-  const filteredClasses = classes.filter(cls => 
-    cls.name.toLowerCase().includes(searchQuery.toLowerCase())
-  )
-
-  const handleOpenDeleteDialog = (cls: Class) => {
+  const handleOpenDeleteDialog = (e, cls: Class) => {
+    e.preventDefault();
     setCurrentClass(cls)
     setIsDeleteDialogOpen(true)
   }
 
   const handleDeleteClass = async () => {
     try {
-      // Vérifier si la classe a des étudiants
-      const studentCount = getStudentCount(currentClass.name || '')
+      const studentCount = getStudentCount(currentClass.id || '')
       if (studentCount > 0) {
-        toast({
-          title: "Erreur",
-          description: "Impossible de supprimer une classe qui contient des étudiants.",
-          variant: "destructive",
-        })
+        toast({ title: "Erreur", description: "Impossible de supprimer une classe avec des étudiants.", variant: "destructive" })
         return
       }
-
       await deleteClass(currentClass.id)
-      toast({
-        title: "Succès",
-        description: "La classe a été supprimée avec succès.",
-      })
+      toast({ title: "Succès", description: "La classe a été supprimée." })
     } catch (error: any) {
-      toast({
-        title: "Erreur",
-        description: error.message || "Une erreur est survenue lors de la suppression.",
-        variant: "destructive",
-      })
+      toast({ title: "Erreur", description: error.message, variant: "destructive" })
     } finally {
       setIsDeleteDialogOpen(false)
       setCurrentClass({})
@@ -306,209 +204,108 @@ export default function Classes() {
     }
   }
 
-  if (isLoading) {
-    return <div>Chargement...</div>
-  }
-
   return (
     <MainLayout>
-      <div className="space-y-6">
+      <div className="space-y-8 p-4 pt-6 md:p-8">
         <div className="flex justify-between items-center">
-          <h2 className="text-3xl font-bold flex items-center text-school-800">
-            <BookOpen className="mr-2 h-6 w-6" />
-            Gestion des Classes
-          </h2>
-          <Button onClick={() => handleOpenDialog()} className="bg-school-600 hover:bg-school-700">
+          <h2 className="text-4xl font-extrabold tracking-tight">Gestion des Classes</h2>
+          <Button onClick={() => handleOpenDialog()} className="bg-accent-hot hover:bg-accent-hot/90 text-accent-hot-foreground">
             Ajouter une classe
           </Button>
         </div>
 
         {isLoading ? (
-          <div className="flex justify-center p-8">
-            <div className="animate-spin rounded-full h-10 w-10 border-t-2 border-primary"></div>
-          </div>
-        ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
-            {filteredClasses.map((cls) => (
-              <Card key={cls.id} className="overflow-hidden">
+          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6 animate-pulse">
+            {[...Array(3)].map((_, i) => (
+              <Card key={i} className="overflow-hidden">
                 <CardContent className="p-0">
-                  <div className="bg-school-50 p-4">
-                    <h3 className="font-bold text-lg">{cls.name}</h3>
-                    <p className="text-sm text-muted-foreground">
-                      {getStudentCount(cls.id)} élèves
-                    </p>
+                  <div className="bg-gray-100 p-6">
+                    <Skeleton className="h-6 w-3/4 rounded-md" />
+                    <Skeleton className="h-4 w-1/2 mt-2 rounded-md" />
                   </div>
-                  <div className="p-4 space-y-2">
-                    <div className="grid grid-cols-2 gap-2 mb-2">
-                      <Button
-                        size="sm"
-                        variant="outline"
-                        onClick={() => handleOpenSubjectDialog(cls)}
-                      >
-                        <BookOpen className="h-4 w-4 mr-1" /> Ajouter matière
-                      </Button>
-                      <Button
-                        size="sm"
-                        variant="destructive"
-                        onClick={() => handleOpenDeleteDialog(cls)}
-                      >
-                        <Trash2 className="h-4 w-4 mr-1" /> Supprimer
-                      </Button>
+                  <div className="p-6 space-y-4">
+                    <div className="grid grid-cols-2 gap-2">
+                      <Skeleton className="h-9 w-full rounded-md" />
+                      <Skeleton className="h-9 w-full rounded-md" />
                     </div>
-                    {/* Affichage des matières de la classe */}
-                    <div>
-                      <h4 className="font-semibold text-base mb-2">Matières de la classe :</h4>
-                      {(cls.subjects && cls.subjects.length > 0) ? (
-                        <div className="space-y-2">
-                          {cls.subjects.map((subj, idx) => (
-                            <div key={idx} className="rounded-md bg-gray-50 border p-3">
-                              <div className="flex justify-between items-center">
-                                <span className="font-semibold text-gray-800">{subj.subject.name}</span>
-                                <span className="text-xs font-mono bg-gray-200 text-gray-700 px-2 py-1 rounded">Coef: {subj.subject.coefficient}</span>
-                              </div>
-                              {subj.teacherName && (
-                                <div className="text-xs text-gray-500 mt-1">Prof: {subj.teacherName}</div>
-                              )}
-                            </div>
-                          ))}
-                        </div>
-                      ) : (
-                        <div className="text-muted-foreground text-sm">Aucune matière</div>
-                      )}
+                    <div className="space-y-3 border-t pt-4">
+                      <Skeleton className="h-5 w-1/3 rounded-md" />
+                      <Skeleton className="h-12 w-full rounded-md" />
+                      <Skeleton className="h-12 w-full rounded-md" />
                     </div>
                   </div>
                 </CardContent>
               </Card>
             ))}
           </div>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+            {classes.map((cls) => (
+              <Link to={`/classes/${cls.id}`} key={cls.id} className="block hover:shadow-lg transition-shadow duration-200 rounded-lg">
+                <Card className="overflow-hidden h-full hover:border-primary">
+                  <CardContent className="p-0">
+                    <div className="bg-secondary p-6">
+                      <h3 className="font-bold text-lg">{cls.name}</h3>
+                      <p className="text-sm text-muted-foreground">{getStudentCount(cls.id)} élèves</p>
+                    </div>
+                    <div className="p-6 space-y-4">
+                      <div className="grid grid-cols-2 gap-2">
+                        <Button size="sm" variant="outline" onClick={(e) => handleOpenSubjectDialog(e, cls)}><BookOpen className="h-4 w-4 mr-1" /> Ajouter matière</Button>
+                        <Button size="sm" variant="destructive" onClick={(e) => handleOpenDeleteDialog(e, cls)}><Trash2 className="h-4 w-4 mr-1" /> Supprimer</Button>
+                      </div>
+                      <div className="border-t pt-4">
+                        <h4 className="font-semibold text-base mb-3">Matières de la classe :</h4>
+                        {(cls.subjects && cls.subjects.length > 0) ? (
+                          <div className="space-y-2">
+                            {cls.subjects.map((subj, idx) => (
+                              <div key={idx} className="rounded-md bg-secondary border p-3">
+                                <div className="flex justify-between items-center">
+                                  <span className="font-semibold text-foreground">{subj.subject.name}</span>
+                                  <span className="text-xs font-mono bg-muted text-muted-foreground px-2 py-1 rounded">Coef: {subj.subject.coefficient}</span>
+                                </div>
+                                {subj.teacherName && <div className="text-xs text-muted-foreground mt-1">Prof: {subj.teacherName}</div>}
+                              </div>
+                            ))}
+                          </div>
+                        ) : (
+                          <div className="text-muted-foreground text-sm">Aucune matière</div>
+                        )}
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              </Link>
+            ))}
+          </div>
         )}
 
         <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
           <DialogContent>
-            <DialogHeader>
-              <DialogTitle>Nouvelle Classe</DialogTitle>
-            </DialogHeader>
+            <DialogHeader><DialogTitle>Nouvelle Classe</DialogTitle></DialogHeader>
             <div className="grid gap-4 py-4">
-              <div className="grid gap-2">
-                <Label htmlFor="name">Nom de la classe</Label>
-                <Input
-                  id="name"
-                  value={currentClass.name || ''}
-                  onChange={(e) => setCurrentClass({ ...currentClass, name: e.target.value })}
-                />
-              </div>
-              <div className="grid gap-2">
-                <Label htmlFor="level">Niveau</Label>
-                <Select
-                  value={currentClass.level || ''}
-                  onValueChange={(value) => setCurrentClass({ ...currentClass, level: value })}
-                >
-                  <SelectTrigger>
-                    <SelectValue placeholder="Sélectionner un niveau" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="primaire">Primaire</SelectItem>
-                    <SelectItem value="college">Collège</SelectItem>
-                    <SelectItem value="lycee">Lycée</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
+              <div className="grid gap-2"><Label htmlFor="name">Nom de la classe</Label><Input id="name" value={currentClass.name || ''} onChange={(e) => setCurrentClass({ ...currentClass, name: e.target.value })}/></div>
+              <div className="grid gap-2"><Label htmlFor="level">Niveau</Label><Select value={currentClass.level || ''} onValueChange={(value) => setCurrentClass({ ...currentClass, level: value })}><SelectTrigger><SelectValue placeholder="Sélectionner un niveau" /></SelectTrigger><SelectContent><SelectItem value="primaire">Primaire</SelectItem><SelectItem value="college">Collège</SelectItem><SelectItem value="lycee">Lycée</SelectItem></SelectContent></Select></div>
             </div>
-            <DialogFooter>
-              <Button onClick={handleSaveClass}>Créer la classe</Button>
-              <Button variant="outline" onClick={handleCloseDialog}>Annuler</Button>
-            </DialogFooter>
+            <DialogFooter><Button onClick={handleSaveClass}>Créer la classe</Button><Button variant="outline" onClick={handleCloseDialog}>Annuler</Button></DialogFooter>
           </DialogContent>
         </Dialog>
 
-        {/* Dialogue d'ajout de matière pour une classe existante */}
         <Dialog open={isSubjectDialogOpen} onOpenChange={setIsSubjectDialogOpen}>
           <DialogContent>
-            <DialogHeader>
-              <DialogTitle>Ajouter une matière à {currentClass.name}</DialogTitle>
-              <DialogDescription>
-                Ajoutez une nouvelle matière à cette classe et sélectionnez le professeur qui l'enseignera.
-              </DialogDescription>
-            </DialogHeader>
+            <DialogHeader><DialogTitle>Ajouter une matière à {currentClass.name}</DialogTitle><DialogDescription>Ajoutez une nouvelle matière à cette classe et sélectionnez le professeur qui l'enseignera.</DialogDescription></DialogHeader>
             <div className="grid gap-4 py-4">
-              <div className="grid gap-2">
-                <Label htmlFor="subject-name">Nom de la matière</Label>
-                <Input
-                  id="subject-name"
-                  value={currentSubject.name || ''}
-                  onChange={(e) => setCurrentSubject({ ...currentSubject, name: e.target.value })}
-                  placeholder="Mathématiques"
-                />
-              </div>
-              
-              <div className="grid gap-2">
-                <Label htmlFor="subject-coefficient">Coefficient</Label>
-                <Input
-                  id="subject-coefficient"
-                  type="number"
-                  min="1"
-                  value={currentSubject.coefficient || ''}
-                  onChange={(e) => setCurrentSubject({ ...currentSubject, coefficient: Number(e.target.value) })}
-                  placeholder="Ex: 3"
-                />
-              </div>
-              
-              <div className="grid gap-2">
-                <Label htmlFor="subject-teacher">Professeur</Label>
-                {teachers.length === 0 ? (
-                  <div className="text-sm text-red-500">
-                    Aucun professeur disponible. Veuillez d'abord créer des professeurs avant d'ajouter des matières.
-                  </div>
-                ) : (
-                  <Select
-                    onValueChange={(value) => setCurrentSubject({ ...currentSubject, teacherId: value })}
-                    value={currentSubject.teacherId || ''}
-                  >
-                    <SelectTrigger>
-                      <SelectValue placeholder="Sélectionnez un professeur" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {teachers.map((teacher) => (
-                        <SelectItem key={teacher.id} value={teacher.id}>
-                          {teacher.first_name} {teacher.name}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                )}
-              </div>
+              <div className="grid gap-2"><Label htmlFor="subject-name">Nom de la matière</Label><Input id="subject-name" value={currentSubject.name || ''} onChange={(e) => setCurrentSubject({ ...currentSubject, name: e.target.value })} placeholder="Mathématiques"/></div>
+              <div className="grid gap-2"><Label htmlFor="subject-coefficient">Coefficient</Label><Input id="subject-coefficient" type="number" min="1" value={currentSubject.coefficient || ''} onChange={(e) => setCurrentSubject({ ...currentSubject, coefficient: Number(e.target.value) })} placeholder="Ex: 3"/></div>
+              <div className="grid gap-2"><Label htmlFor="subject-teacher">Professeur</Label>{teachers.length === 0 ? <div className="text-sm text-red-500">Aucun professeur disponible.</div> : <Select onValueChange={(value) => setCurrentSubject({ ...currentSubject, teacherId: value })} value={currentSubject.teacherId || ''}><SelectTrigger><SelectValue placeholder="Sélectionnez un professeur" /></SelectTrigger><SelectContent>{teachers.map((teacher) => (<SelectItem key={teacher.id} value={teacher.id}>{teacher.first_name} {teacher.name}</SelectItem>))}</SelectContent></Select>}</div>
             </div>
-            <DialogFooter>
-              <Button variant="outline" onClick={handleCloseSubjectDialog}>
-                Annuler
-              </Button>
-              <Button 
-                onClick={handleSaveSubject}
-                disabled={!currentSubject.name || !currentSubject.coefficient || !currentSubject.teacherId || teachers.length === 0}
-              >
-                Ajouter la matière
-              </Button>
-            </DialogFooter>
+            <DialogFooter><Button variant="outline" onClick={handleCloseSubjectDialog}>Annuler</Button><Button onClick={handleSaveSubject} disabled={!currentSubject.name || !currentSubject.coefficient || !currentSubject.teacherId || teachers.length === 0}>Ajouter la matière</Button></DialogFooter>
           </DialogContent>
         </Dialog>
 
         <Dialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
           <DialogContent>
-            <DialogHeader>
-              <DialogTitle>Confirmer la suppression</DialogTitle>
-              <DialogDescription>
-                Êtes-vous sûr de vouloir supprimer la classe "{currentClass.name}" ?
-                Cette action est irréversible.
-              </DialogDescription>
-            </DialogHeader>
-            <DialogFooter>
-              <Button variant="outline" onClick={() => setIsDeleteDialogOpen(false)}>
-                Annuler
-              </Button>
-              <Button variant="destructive" onClick={handleDeleteClass}>
-                Supprimer
-              </Button>
-            </DialogFooter>
+            <DialogHeader><DialogTitle>Confirmer la suppression</DialogTitle><DialogDescription>Êtes-vous sûr de vouloir supprimer la classe "{currentClass.name}" ? Cette action est irréversible.</DialogDescription></DialogHeader>
+            <DialogFooter><Button variant="outline" onClick={() => setIsDeleteDialogOpen(false)}>Annuler</Button><Button variant="destructive" onClick={handleDeleteClass}>Supprimer</Button></DialogFooter>
           </DialogContent>
         </Dialog>
       </div>

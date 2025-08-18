@@ -63,6 +63,24 @@ export const paySalary = async (data: { employee_id: number; base_salary: number
   }
 };
 
+export const getSalaryHistory = async (employeeId: number): Promise<any[]> => {
+  if (isBrowser) {
+    const { ipcRenderer } = window.require('electron');
+    return ipcRenderer.invoke('db:employees:getSalaryHistory', employeeId);
+  } else {
+    return Promise.resolve([]);
+  }
+};
+
+export const getEmployeeStats = async (): Promise<{ totalEmployees: number; monthlyPayroll: number; }> => {
+  if (isBrowser) {
+    const { ipcRenderer } = window.require('electron');
+    return ipcRenderer.invoke('db:employees:getStats');
+  } else {
+    return Promise.resolve({ totalEmployees: 0, monthlyPayroll: 0 });
+  }
+};
+
 
 // Class operations
 export const getClasses = async () => {

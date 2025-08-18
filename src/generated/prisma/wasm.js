@@ -317,6 +317,7 @@ exports.Prisma.EmployeesScalarFieldEnum = {
   salary: 'salary',
   matricule: 'matricule',
   school_id: 'school_id',
+  password_hash: 'password_hash',
   supabase_id: 'supabase_id',
   user_supabase_id: 'user_supabase_id',
   last_modified: 'last_modified',

@@ -1,52 +1,19 @@
 import { useState, useEffect } from "react";
 import { useDatabase } from "../hooks/useDatabase";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogFooter,
-} from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Textarea } from "@/components/ui/textarea";
-import { CalendarCheck } from "lucide-react";
+import { Card, CardContent } from "@/components/ui/card";
+import { CalendarCheck, UserCheck, UserX, Clock, HelpCircle } from "lucide-react";
 import MainLayout from "@/components/Layout/MainLayout";
 import { useToast } from "@/components/ui/use-toast";
+import { Skeleton } from "@/components/ui/skeleton";
 
-// Interfaces alignées sur le schéma et les données retournées par le backend
-interface Attendance {
-  id: number;
-  student_id: number;
-  date: string;
-  state: string;
-  justification?: string;
-  // Champs ajoutés par le handler IPC
-  firstName?: string;
-  lastName?: string;
-}
-
-interface Student {
-  id: number;
-  name: string;
-  first_name: string;
-  registrations: { class: { id: number } }[];
-}
-
-interface Class {
-  id: number;
-  name: string;
-}
+// Interfaces
+interface Attendance { id: number; student_id: number; date: string; state: string; }
+interface Student { id: number; name: string; first_name: string; registrations: { class_id: number }[]; }
+interface Class { id: number; name: string; }
 
 const AttendancePage = () => {
   const { getAllAttendances, getAllStudents, getAllClasses, createAttendance, updateAttendance } = useDatabase();
@@ -54,260 +21,146 @@ const AttendancePage = () => {
   const [students, setStudents] = useState<Student[]>([]);
   const [classes, setClasses] = useState<Class[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [isDialogOpen, setIsDialogOpen] = useState(false);
-  const [currentAttendance, setCurrentAttendance] = useState<Partial<Attendance>>({});
-  const [searchQuery, setSearchQuery] = useState("");
-  const [selectedClass, setSelectedClass] = useState("all");
+  const [isLoadingStudents, setIsLoadingStudents] = useState(false);
+  const [selectedClassId, setSelectedClassId] = useState<string | null>(null);
   const [selectedDate, setSelectedDate] = useState(new Date().toISOString().split("T")[0]);
-  const [selectedStatusFilter, setSelectedStatusFilter] = useState<string>("all");
   const { toast } = useToast();
 
-  const loadData = async () => {
-    setIsLoading(true);
-    try {
-      const date = new Date(selectedDate);
-      const year = date.getFullYear();
-      const month = date.getMonth();
-      const schoolYear = month < 8 ? `${year - 1}-${year}` : `${year}-${year + 1}`;
-
-      const [attendancesData, studentsData, classesData] = await Promise.all([
-        getAllAttendances({ date: selectedDate }),
-        getAllStudents({ schoolYear }),
-        getAllClasses(),
-      ]);
-      setAttendances(attendancesData || []);
-      setStudents(studentsData || []);
-      setClasses(classesData || []);
-    } catch (error) {
-      console.error("Erreur lors du chargement des données:", error);
-      toast({ variant: "destructive", description: 'Erreur lors du chargement des données' });
-    } finally {
-      setIsLoading(false);
-    }
-  };
+  useEffect(() => {
+    const loadInitialData = async () => {
+      setIsLoading(true);
+      try {
+        const classesData = await getAllClasses();
+        setClasses(classesData || []);
+      } catch (error) {
+        toast({ variant: "destructive", description: 'Erreur lors du chargement des classes.' });
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    loadInitialData();
+  }, []);
 
   useEffect(() => {
-    loadData();
-  }, [selectedDate]);
+    const loadClassData = async () => {
+      if (!selectedClassId) {
+        setStudents([]);
+        setAttendances([]);
+        return;
+      }
+      setIsLoadingStudents(true);
+      try {
+        const [studentsData, attendancesData] = await Promise.all([
+          getAllStudents(),
+          getAllAttendances({ date: selectedDate }),
+        ]);
+        const studentsInClass = studentsData.filter(s => s.registrations[0]?.class_id.toString() === selectedClassId);
+        setStudents(studentsInClass);
+        setAttendances(attendancesData || []);
+      } catch (error) {
+        toast({ variant: "destructive", description: 'Erreur lors du chargement des données de la classe.' });
+      } finally {
+        setIsLoadingStudents(false);
+      }
+    };
+    loadClassData();
+  }, [selectedClassId, selectedDate]);
 
-  const handleOpenDialog = (student: Student) => {
-    const existingAttendance = getAttendanceForStudent(student.id);
-    setCurrentAttendance(existingAttendance || {
-      student_id: student.id,
-      date: selectedDate,
-      state: "present",
-    });
-    setIsDialogOpen(true);
-  };
-
-  const handleCloseDialog = () => {
-    setCurrentAttendance({});
-    setIsDialogOpen(false);
-  };
-
-  const handleSaveAttendance = async () => {
-    if (!currentAttendance.student_id || !currentAttendance.date || !currentAttendance.state) {
-      toast({ title: "Erreur", description: "Champs manquants.", variant: "destructive" });
-      return;
-    }
+  const handleSetAttendance = async (studentId: number, newState: string) => {
+    const existingAttendance = attendances.find(a => a.student_id === studentId);
+    const attendanceData = { student_id: studentId, date: selectedDate, state: newState };
 
     try {
-      if (currentAttendance.id) {
-        await updateAttendance(currentAttendance.id, currentAttendance);
-        toast({ description: "Présence mise à jour." });
+      if (existingAttendance) {
+        await updateAttendance(existingAttendance.id, attendanceData);
       } else {
-        await createAttendance(currentAttendance);
-        toast({ description: "Présence enregistrée." });
+        await createAttendance(attendanceData);
       }
-      handleCloseDialog();
-      loadData();
+      const attendancesData = await getAllAttendances({ date: selectedDate });
+      setAttendances(attendancesData || []);
     } catch (error) {
-      console.error("Erreur lors de la sauvegarde:", error);
-      toast({ title: "Erreur", description: "La sauvegarde a échoué.", variant: "destructive" });
+      toast({ title: "Erreur", description: "La mise à jour a échoué.", variant: "destructive" });
     }
   };
 
-  const getStudentName = (studentId: number) => {
-    const student = students.find(s => s.id === studentId);
-    return student ? `${student.first_name} ${student.name}` : "Étudiant inconnu";
+  const getStatusProps = (studentId: number) => {
+    const attendance = attendances.find(a => a.student_id === studentId);
+    if (!attendance) return { text: "Non Pointé", icon: <HelpCircle className="h-5 w-5 text-gray-500" />, color: "border-gray-200", variant: "outline" };
+    switch (attendance.state) {
+      case 'present': return { text: "Présent", icon: <UserCheck className="h-5 w-5 text-green-600" />, color: "border-green-500 bg-green-50", variant: "default" };
+      case 'absent': return { text: "Absent", icon: <UserX className="h-5 w-5 text-red-600" />, color: "border-red-500 bg-red-50", variant: "destructive" };
+      case 'late': return { text: "En Retard", icon: <Clock className="h-5 w-5 text-yellow-600" />, color: "border-yellow-500 bg-yellow-50", variant: "secondary" };
+      default: return { text: "Non Pointé", icon: <HelpCircle className="h-5 w-5 text-gray-500" />, color: "border-gray-200", variant: "outline" };
+    }
   };
 
-  const formatStatus = (status: string) => {
-    const statusMap: { [key: string]: string } = {
-      "present": "Présent",
-      "absent": "Absent",
-      "late": "En retard",
-      "excused": "Excusé",
-    };
-    return statusMap[status] || status;
-  };
-
-  const getAttendanceForStudent = (studentId: number) => {
-    return attendances.find(a => a.student_id === studentId && a.date === selectedDate);
-  };
-
-  const filteredStudents = students.filter(student => {
-    const fullName = `${student.first_name || ''} ${student.name || ''}`.toLowerCase();
-    const matchesSearch = fullName.includes(searchQuery.toLowerCase());
-    
-    const studentClassId = student.registrations?.[0]?.class_id;
-    const matchesClass = selectedClass === "all" || (studentClassId && studentClassId.toString() === selectedClass);
-
-    const attendance = getAttendanceForStudent(student.id);
-    const matchesStatus = selectedStatusFilter === "all" || 
-                        (selectedStatusFilter === 'unregistered' && !attendance) || 
-                        (attendance?.state === selectedStatusFilter);
-
-    return matchesSearch && matchesClass && matchesStatus;
-  });
-
-  if (isLoading) {
-    return <div>Chargement...</div>;
-  }
+  const RowSkeleton = () => (
+    <div className="flex items-center justify-between p-3 rounded-lg border animate-pulse">
+        <div className="flex items-center gap-3">
+            <Skeleton className="h-6 w-6 rounded-full" />
+            <Skeleton className="h-5 w-48" />
+        </div>
+        <div className="flex items-center gap-2">
+            <Skeleton className="h-9 w-24 rounded-md" />
+            <Skeleton className="h-9 w-24 rounded-md" />
+            <Skeleton className="h-9 w-24 rounded-md" />
+        </div>
+    </div>
+  );
 
   return (
     <MainLayout>
-      <div className="space-y-6">
-        <div className="flex justify-between items-center">
-          <h2 className="text-3xl font-bold flex items-center text-school-800">
-            <CalendarCheck className="mr-2 h-6 w-6" />
-            Gestion des Présences
+      <div className="space-y-8 p-4 pt-6 md:p-8">
+        <div className="flex flex-wrap gap-4 justify-between items-center">
+          <h2 className="text-4xl font-extrabold tracking-tight">
+            Feuille de Présence
           </h2>
-          <div className="flex items-center space-x-2">
-            <Label htmlFor="date">Date:</Label>
-            <Input
-              id="date"
-              type="date"
-              value={selectedDate}
-              onChange={(e) => setSelectedDate(e.target.value)}
-              className="w-auto"
-            />
+          <div className="flex flex-wrap items-center gap-4">
+            <div className="flex items-center gap-2">
+              <Label htmlFor="date">Date:</Label>
+              <Input id="date" type="date" value={selectedDate} onChange={(e) => setSelectedDate(e.target.value)} className="w-auto" />
+            </div>
+            <Select onValueChange={setSelectedClassId} value={selectedClassId || ''}>
+              <SelectTrigger className="w-full md:w-[220px]">
+                <SelectValue placeholder={isLoading ? "Chargement..." : "Sélectionner une classe"} />
+              </SelectTrigger>
+              <SelectContent>
+                {classes.map((cls) => <SelectItem key={cls.id} value={cls.id.toString()}>{cls.name}</SelectItem>)}
+              </SelectContent>
+            </Select>
           </div>
         </div>
 
-        <div className="flex flex-col md:flex-row gap-4 mb-4">
-          <Input
-            placeholder="Rechercher un étudiant..."
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            className="max-w-sm"
-          />
-          <Select value={selectedClass} onValueChange={setSelectedClass}>
-            <SelectTrigger className="w-full md:w-[200px]">
-              <SelectValue placeholder="Filtrer par classe" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">Toutes les classes</SelectItem>
-              {classes.map((cls) => (
-                <SelectItem key={cls.id} value={cls.id.toString()}>
-                  {cls.name}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-          <Select value={selectedStatusFilter} onValueChange={setSelectedStatusFilter}>
-            <SelectTrigger className="w-full md:w-[180px]">
-              <SelectValue placeholder="Filtrer par statut" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">Tous</SelectItem>
-              <SelectItem value="present">Présents</SelectItem>
-              <SelectItem value="absent">Absents</SelectItem>
-              <SelectItem value="late">En retard</SelectItem>
-              <SelectItem value="excused">Excusés</SelectItem>
-              <SelectItem value="unregistered">Non enregistré</SelectItem>
-            </SelectContent>
-          </Select>
-        </div>
-
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead>Étudiant</TableHead>
-              <TableHead>Statut</TableHead>
-              <TableHead>Justification</TableHead>
-              <TableHead className="text-right">Actions</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {filteredStudents.map((student) => {
-              const attendance = getAttendanceForStudent(student.id);
-              return (
-                <TableRow key={student.id}>
-                  <TableCell>{getStudentName(student.id)}</TableCell>
-                  <TableCell>
-                    <span className={`px-2 py-1 rounded-full text-xs ${attendance ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800'}`}>
-                      {attendance ? formatStatus(attendance.state) : "Non enregistré"}
-                    </span>
-                  </TableCell>
-                  <TableCell>{attendance?.justification || "-"}</TableCell>
-                  <TableCell className="text-right">
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => handleOpenDialog(student)}
-                    >
-                      {attendance ? "Modifier" : "Enregistrer"}
-                    </Button>
-                  </TableCell>
-                </TableRow>
-              );
-            })}
-          </TableBody>
-        </Table>
-
-        <Dialog open={isDialogOpen} onOpenChange={handleCloseDialog}>
-          <DialogContent>
-            <DialogHeader>
-              <DialogTitle>Enregistrer la présence</DialogTitle>
-            </DialogHeader>
-            <div className="grid gap-4 py-4">
-              <div className="grid gap-2">
-                <Label>Étudiant</Label>
-                <Input
-                  value={getStudentName(currentAttendance.student_id || 0)}
-                  disabled
-                />
-              </div>
-              <div className="grid gap-2">
-                <Label>Date</Label>
-                <Input
-                  type="date"
-                  value={currentAttendance.date || ""}
-                  disabled
-                />
-              </div>
-              <div className="grid gap-2">
-                <Label>Statut</Label>
-                <Select
-                  value={currentAttendance.state || ""}
-                  onValueChange={(value) => setCurrentAttendance({ ...currentAttendance, state: value })}
-                >
-                  <SelectTrigger>
-                    <SelectValue placeholder="Sélectionner un statut" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="present">Présent</SelectItem>
-                    <SelectItem value="absent">Absent</SelectItem>
-                    <SelectItem value="late">En retard</SelectItem>
-                    <SelectItem value="excused">Excusé</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-              <div className="grid gap-2">
-                <Label>Justification (si absent)</Label>
-                <Textarea
-                  value={currentAttendance.justification || ""}
-                  onChange={(e) => setCurrentAttendance({ ...currentAttendance, justification: e.target.value })}
-                />
-              </div>
+        {selectedClassId ? (
+          <Card>
+            <CardContent className="p-4 space-y-2">
+              {isLoadingStudents ? (
+                [...Array(10)].map((_, i) => <RowSkeleton key={i} />)
+              ) : (
+                students.map((student) => {
+                  const status = getStatusProps(student.id);
+                  return (
+                    <div key={student.id} className={`flex items-center justify-between p-2 rounded-lg border transition-all ${status.color}`}>
+                      <div className="flex items-center gap-3">
+                        {status.icon}
+                        <span className="font-medium">{student.first_name} {student.name}</span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <Button size="sm" variant={status.text === 'Présent' ? 'default' : 'outline'} onClick={() => handleSetAttendance(student.id, 'present')}>Présent</Button>
+                        <Button size="sm" variant={status.text === 'Absent' ? 'destructive' : 'outline'} onClick={() => handleSetAttendance(student.id, 'absent')}>Absent</Button>
+                        <Button size="sm" variant={status.text === 'En Retard' ? 'secondary' : 'outline'} onClick={() => handleSetAttendance(student.id, 'late')}>Retard</Button>
+                      </div>
+                    </div>
+                  );
+                })
+              )}
+            </CardContent>
+          </Card>
+        ) : (
+            <div className="text-center py-16 text-gray-500 border-2 border-dashed rounded-lg">
+                <p className="font-medium">Veuillez sélectionner une classe pour commencer le pointage.</p>
             </div>
-            <DialogFooter>
-              <Button variant="outline" onClick={handleCloseDialog}>Annuler</Button>
-              <Button onClick={handleSaveAttendance}>Enregistrer</Button>
-            </DialogFooter>
-          </DialogContent>
-        </Dialog>
+        )}
       </div>
     </MainLayout>
   );

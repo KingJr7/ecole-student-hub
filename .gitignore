@@ -111,7 +111,7 @@ prisma/dev.db-journal
 prisma/schema.prisma.bak
 
 # Database
-database.sqlite
+ntik.sqlite
 *.db
 *.sqlite
 *.sqlite3

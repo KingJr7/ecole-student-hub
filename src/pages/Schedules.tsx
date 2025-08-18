@@ -4,119 +4,151 @@ import MainLayout from '@/components/Layout/MainLayout';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-
-const daysOfWeek = ["Lundi", "Mardi", "Mercredi", "Jeudi", "Vendredi", "Samedi"];
-const timeSlots = Array.from({ length: 10 }, (_, i) => `${(8 + i).toString().padStart(2, '0')}:00`); // 08:00 to 17:00
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
+import { useToast } from "@/components/ui/use-toast";
+import { Schedule } from '@/components/Schedule'; // Importer le composant réutilisable
 
 const SchedulesPage = () => {
-  const { getAllClasses, getClassSubjects, createSchedule, getSchedulesForClass } = useDatabase();
+  const { getAllClasses, getClassSubjects, createSchedule, getSchedulesForClass, deleteSchedule } = useDatabase();
+  const { toast } = useToast();
   const [classes, setClasses] = useState([]);
   const [selectedClass, setSelectedClass] = useState(null);
   const [subjects, setSubjects] = useState([]);
   const [schedules, setSchedules] = useState({});
+  const [isLoadingClasses, setIsLoadingClasses] = useState(true);
+  const [isLoadingSchedule, setIsLoadingSchedule] = useState(false);
+  const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
+  const [newScheduleSlot, setNewScheduleSlot] = useState(null);
+  const [selectedLessonId, setSelectedLessonId] = useState('');
 
   useEffect(() => {
     const fetchClasses = async () => {
+      setIsLoadingClasses(true);
       const allClasses = await getAllClasses();
       setClasses(allClasses);
+      setIsLoadingClasses(false);
     };
     fetchClasses();
   }, []);
 
   const fetchSchedules = async (classId) => {
-    const classSchedules = await getSchedulesForClass(classId);
-    const schedulesMap = {};
-    classSchedules.forEach(schedule => {
-      const key = `${schedule.day_of_week}-${schedule.start_time.substring(0, 5)}`;
-      if (!schedulesMap[key]) {
-        schedulesMap[key] = [];
-      }
-      schedulesMap[key].push(schedule);
-    });
-    setSchedules(schedulesMap);
+    setIsLoadingSchedule(true);
+    try {
+      const classSubjects = await getClassSubjects(classId);
+      setSubjects(classSubjects);
+      const classSchedules = await getSchedulesForClass(classId);
+      const schedulesMap = {};
+      classSchedules.forEach(schedule => {
+        const key = `${schedule.day_of_week}-${schedule.start_time.substring(0, 5)}`;
+        if (!schedulesMap[key]) schedulesMap[key] = [];
+        schedulesMap[key].push(schedule);
+      });
+      setSchedules(schedulesMap);
+    } catch (e) {
+      toast({ title: "Erreur", description: "Impossible de charger l'emploi du temps.", variant: "destructive" });
+    } finally {
+      setIsLoadingSchedule(false);
+    }
   };
 
   useEffect(() => {
     if (selectedClass) {
-      const fetchInitialData = async () => {
-        const classSubjects = await getClassSubjects(selectedClass.id);
-        setSubjects(classSubjects);
-        await fetchSchedules(selectedClass.id);
-      };
-      fetchInitialData();
+      fetchSchedules(selectedClass.id);
     }
   }, [selectedClass]);
 
-  const handleScheduleChange = async (lesson_id_str: string, day_of_week: string, start_time: string) => {
-    if (!lesson_id_str) return;
-    const lesson_id = parseInt(lesson_id_str, 10);
-    if (isNaN(lesson_id)) return;
+  const handleOpenAddDialog = (day, time) => {
+    setNewScheduleSlot({ day, time });
+    setSelectedLessonId('');
+    setIsAddDialogOpen(true);
+  };
 
-    const end_time = `${parseInt(start_time.split(':')[0]) + 1}:00`;
-    await createSchedule({ lesson_id, day_of_week, start_time, end_time });
-    await fetchSchedules(selectedClass.id);
+  const handleSaveSchedule = async () => {
+    if (!selectedLessonId || !newScheduleSlot) return;
+    const lesson_id = parseInt(selectedLessonId, 10);
+    const { day, time } = newScheduleSlot;
+    const end_time = `${parseInt(time.split(':')[0]) + 1}:00`;
+
+    try {
+      await createSchedule({ lesson_id, day_of_week: day, start_time: time, end_time });
+      toast({ description: "Cours ajouté à l'emploi du temps.", variant: "success" });
+      fetchSchedules(selectedClass.id);
+      setIsAddDialogOpen(false);
+    } catch (e) {
+      toast({ title: "Erreur", description: "Impossible d'ajouter le cours.", variant: "destructive" });
+    }
+  };
+
+  const handleDeleteSchedule = async (scheduleId) => {
+    try {
+      await deleteSchedule(scheduleId);
+      toast({ description: "Cours supprimé.", variant: "success" });
+      fetchSchedules(selectedClass.id);
+    } catch (e) {
+      toast({ title: "Erreur", description: "Impossible de supprimer le cours.", variant: "destructive" });
+    }
   };
 
   return (
     <MainLayout>
-      <div className="space-y-6">
-        <h2 className="text-3xl font-bold">Gestion de l'Emploi du Temps</h2>
-        <Select onValueChange={value => setSelectedClass(classes.find(c => c.id.toString() === value))}>
-          <SelectTrigger className="w-[280px]">
-            <SelectValue placeholder="Sélectionnez une classe" />
-          </SelectTrigger>
-          <SelectContent>
-            {classes.map(cls => (
-              <SelectItem key={cls.id} value={cls.id.toString()}>{cls.name}</SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
+      <div className="space-y-8 p-4 pt-6 md:p-8">
+        <div className="flex flex-wrap gap-4 justify-between items-center">
+            <h2 className="text-4xl font-extrabold tracking-tight">Gestion de l'Emploi du Temps</h2>
+            <Select onValueChange={value => setSelectedClass(classes.find(c => c.id.toString() === value))}>
+                <SelectTrigger className="w-[280px]">
+                    <SelectValue placeholder={isLoadingClasses ? "Chargement..." : "Sélectionnez une classe"} />
+                </SelectTrigger>
+                <SelectContent>
+                    {classes.map(cls => <SelectItem key={cls.id} value={cls.id.toString()}>{cls.name}</SelectItem>)}
+                </SelectContent>
+            </Select>
+        </div>
 
-        {selectedClass && (
+        {selectedClass ? (
           <Card>
-            <CardHeader>
-              <CardTitle>Emploi du temps pour {selectedClass.name}</CardTitle>
-            </CardHeader>
+            <CardHeader><CardTitle>Emploi du temps pour {selectedClass.name}</CardTitle></CardHeader>
             <CardContent className="overflow-x-auto">
-              <div className="grid grid-cols-7 gap-1 text-center font-bold min-w-[800px]">
-                <div className="p-2">Heure</div>
-                {daysOfWeek.map(day => <div key={day} className="p-2 border-b-2">{day}</div>)}
-              </div>
-              {timeSlots.map(time => (
-                <div key={time} className="grid grid-cols-7 gap-1 mt-1 items-start min-w-[800px]">
-                  <div className="p-2 text-center font-semibold">{time}</div>
-                  {daysOfWeek.map(day => {
-                    const key = `${day}-${time}`;
-                    const scheduledItems = schedules[key] || [];
-                    return (
-                      <div key={day} className="p-1 border rounded-md min-h-[100px] bg-gray-50 flex flex-col space-y-1">
-                        {scheduledItems.map(schedule => (
-                          <div key={schedule.id} className="bg-blue-100 p-2 rounded-md text-xs">
-                            <p className="font-bold">{schedule.lesson.subject.name}</p>
-                            <p className="text-gray-600">{schedule.lesson.teacher.first_name}</p>
-                          </div>
-                        ))}
-                        <Select onValueChange={lesson_id => handleScheduleChange(lesson_id, day, time)}>
-                          <SelectTrigger className="mt-auto w-full h-8 text-xs">
-                            <SelectValue placeholder="+" />
-                          </SelectTrigger>
-                          <SelectContent>
-                            {subjects.map(lesson => (
-                              <SelectItem key={lesson.id} value={lesson.id.toString()}>
-                                {lesson.subject.name} ({lesson.teacher.first_name})
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
-                      </div>
-                    );
-                  })}
-                </div>
-              ))}
+                <Schedule 
+                    isLoading={isLoadingSchedule}
+                    schedules={schedules}
+                    handleOpenAddDialog={handleOpenAddDialog}
+                    handleDeleteSchedule={handleDeleteSchedule}
+                />
             </CardContent>
           </Card>
+        ) : (
+            <div className="text-center py-16 text-gray-500 border-2 border-dashed rounded-lg">
+                <p className="font-medium">Veuillez sélectionner une classe pour afficher son emploi du temps.</p>
+            </div>
         )}
       </div>
+
+      <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Ajouter un cours</DialogTitle>
+          </DialogHeader>
+          <div className="py-4 space-y-4">
+            <p>Créneau : <span className="font-semibold">{newScheduleSlot?.day} à {newScheduleSlot?.time}</span></p>
+            <Select onValueChange={setSelectedLessonId} value={selectedLessonId}>
+              <SelectTrigger>
+                <SelectValue placeholder="Sélectionner une matière" />
+              </SelectTrigger>
+              <SelectContent>
+                {subjects.map(lesson => (
+                  <SelectItem key={lesson.id} value={lesson.id.toString()}>
+                    {lesson.subject.name} (Prof: {lesson.teacher.first_name} {lesson.teacher.name})
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setIsAddDialogOpen(false)}>Annuler</Button>
+            <Button onClick={handleSaveSchedule}>Ajouter</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </MainLayout>
   );
 };

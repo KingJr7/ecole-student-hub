@@ -1,6 +1,7 @@
 const { ipcMain, BrowserWindow } = require('electron');
 const { createClient } = require('@supabase/supabase-js');
 const path = require('path');
+const bcrypt = require('bcryptjs');
 require('dotenv').config({ path: path.resolve(__dirname, '../../.env') });
 
 let isSyncIpcSetup = false;
@@ -15,7 +16,13 @@ if (!supabaseUrl || !supabaseAnonKey) {
 // --- Helper function to send logs to renderer ---
 function sendSyncLog(level, message, details) {
     const win = BrowserWindow.getAllWindows()[0];
-    if (win) {
+    const allowedMessages = [
+        'Démarrage du processus de synchronisation complet.',
+        'Synchronisation terminée avec succès.',
+        'Le processus de synchronisation a échoué.'
+    ];
+
+    if (win && allowedMessages.includes(message)) {
         win.webContents.send('sync:log', { level, message, details });
     }
     console.log(`[SYNC:${level.toUpperCase()}] ${message}`, details || '');
@@ -132,7 +139,7 @@ const tableConfigs = {
                 // On ajoute le mot de passe seulement à la création
                 const { data: userCreated, error: createUserError } = await supabase
                     .from('users')
-                    .insert({ ...userData, password_hash: row.password_hash || 'admin123' })
+                    .insert({ ...userData, password_hash: row.password_hash })
                     .select('id');
 
                 if (createUserError || !userCreated || !userCreated[0]?.id) {
@@ -265,15 +272,15 @@ const tableConfigs = {
     parents: {
         name: 'parents', model: 'parents',
         pullSelect: '*',
-        pullFilterColumn: null, // Pas de school_id direct
-        supabaseMap: (row) => ({
+        pullFilterColumn: 'school_id', // CORRIGÉ: Filtrer par school_id
+        supabaseMap: (row, schoolId) => ({ 
             name: row.name,
             first_name: row.first_name,
             phone: row.phone,
             email: row.email,
             address: row.adress,
-            // gender: row.gender, // Colonne non existante sur Supabase
-            profession: row.profession
+            profession: row.profession,
+            school_id: schoolId // CORRIGÉ: Ajouter le school_id
         }),
         localMap: (row) => ({
             name: row.name,
@@ -349,13 +356,15 @@ const tableConfigs = {
             name: row.name, 
             amount: row.amount, 
             due_date: row.due_date, 
-            school_year: row.school_year 
+            school_year: row.school_year, 
+            level: row.level 
         }),
         localMap: (row) => ({ 
             name: row.name, 
             amount: row.amount, 
             due_date: row.due_date, 
-            school_year: row.school_year 
+            school_year: row.school_year, 
+            level: row.level 
         })
     },
     attendances: {
@@ -408,7 +417,7 @@ const tableConfigs = {
                 }
                 userIdToLink = existingUser.user_supabase_id;
             } else {
-                const { data: userCreated, error: createUserError } = await supabase.from('users').insert({ ...userData, password_hash: 'admin123' }).select('id');
+                const { data: userCreated, error: createUserError } = await supabase.from('users').insert({ ...userData, password_hash: row.password_hash || bcrypt.hashSync('admin123', 10) }).select('id');
                 if (createUserError || !userCreated || !userCreated[0]?.id) {
                     sendSyncLog('error', `  -> ❌ Erreur création user pour employé #${row.id}`, { error: createUserError?.message });
                     return null;

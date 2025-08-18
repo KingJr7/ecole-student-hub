@@ -10,6 +10,8 @@ import Classes from "./pages/Classes";
 import Attendance from "./pages/Attendance";
 import Payments from "./pages/Payments";
 import Grades from "./pages/Grades";
+import StudentDetails from "./pages/StudentDetails";
+import ClassDetails from "./pages/ClassDetails"; // Ajout de l'import
 import Teachers from "./pages/Teachers";
 import NotFound from "./pages/NotFound";
 import Settings from "./pages/Settings";
@@ -80,9 +82,11 @@ const App = () => {
               {/* Routes protégées */}
               <Route path="/" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
               <Route path="/students" element={<ProtectedRoute><Students /></ProtectedRoute>} />
+              <Route path="/students/:studentId" element={<ProtectedRoute><StudentDetails /></ProtectedRoute>} />
               <Route path="/teachers" element={<ProtectedRoute><Teachers /></ProtectedRoute>} />
               <Route path="/employees" element={<ProtectedRoute><EmployeesPage /></ProtectedRoute>} />
               <Route path="/classes" element={<ProtectedRoute><Classes /></ProtectedRoute>} />
+              <Route path="/classes/:classId" element={<ProtectedRoute><ClassDetails /></ProtectedRoute>} />
               <Route path="/schedules" element={<ProtectedRoute><SchedulesPage /></ProtectedRoute>} />
               <Route path="/attendance" element={<ProtectedRoute><Attendance /></ProtectedRoute>} />
               <Route path="/payments" element={<ProtectedRoute><Payments /></ProtectedRoute>} />

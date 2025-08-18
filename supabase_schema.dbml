@@ -202,6 +202,7 @@ Table fees {
   amount double
   due_date date
   school_year text
+  level text
   last_modified timestamptz [default: `now()`]
   is_deleted boolean [default: false]
   // Sync-related columns
