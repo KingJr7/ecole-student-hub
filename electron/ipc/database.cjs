@@ -228,6 +228,15 @@ function setupDatabaseIPC(prismaClient) {
 
 ipcMain.handle('db:students:create', async (event, { studentData, parentsData }) => {
   return prisma.$transaction(async (tx) => {
+    // Générer le matricule si non fourni
+    if (!studentData.matricul) {
+      const settings = await tx.settings.findUnique({ where: { id: 1 } });
+      const schoolName = settings?.schoolName || 'SCHOOL';
+      const initials = schoolName.substring(0, 3).toUpperCase();
+      const randomDigits = Math.floor(1000 + Math.random() * 9000);
+      studentData.matricul = `${initials}-${randomDigits}`;
+    }
+
     const newStudent = await tx.students.create({
       data: {
         ...studentData,
