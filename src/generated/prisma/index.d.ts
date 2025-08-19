@@ -24324,6 +24324,7 @@ export namespace Prisma {
   export type StudentParentsWhereUniqueInput = Prisma.AtLeast<{
     id?: number
     supabase_id?: string
+    student_id_parent_id_unique?: StudentParentsStudent_id_parent_id_uniqueCompoundUniqueInput
     AND?: StudentParentsWhereInput | StudentParentsWhereInput[]
     OR?: StudentParentsWhereInput[]
     NOT?: StudentParentsWhereInput | StudentParentsWhereInput[]
@@ -24335,7 +24336,7 @@ export namespace Prisma {
     is_deleted?: BoolFilter<"StudentParents"> | boolean
     parent?: XOR<ParentsScalarRelationFilter, ParentsWhereInput>
     student?: XOR<StudentsScalarRelationFilter, StudentsWhereInput>
-  }, "id" | "supabase_id">
+  }, "id" | "supabase_id" | "student_id_parent_id_unique">
 
   export type StudentParentsOrderByWithAggregationInput = {
     id?: SortOrder
@@ -27429,6 +27430,11 @@ export namespace Prisma {
   export type ParentsScalarRelationFilter = {
     is?: ParentsWhereInput
     isNot?: ParentsWhereInput
+  }
+
+  export type StudentParentsStudent_id_parent_id_uniqueCompoundUniqueInput = {
+    student_id: number
+    parent_id: number
   }
 
   export type StudentParentsCountOrderByAggregateInput = {

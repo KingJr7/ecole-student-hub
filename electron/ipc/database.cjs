@@ -170,35 +170,129 @@ function setupDatabaseIPC(prismaClient) {
     });
   });
 
-  // Dans students:create et update, ajouter picture_url
-ipcMain.handle('db:students:create', async (event, studentData) => {
-  const { name, first_name, birth_date, genre, picture_url } = studentData;
-  return prisma.students.create({
+  const findOrCreateParent = async (tx, parentData) => {
+  if (!parentData || (!parentData.first_name && !parentData.id)) return null;
+
+  if (parentData.id) {
+    return tx.parents.update({
+      where: { id: parentData.id },
+      data: {
+        name: parentData.name,
+        first_name: parentData.first_name,
+        phone: parentData.phone,
+        email: parentData.email,
+        adress: parentData.adress,
+        gender: parentData.gender,
+        profession: parentData.profession,
+        needs_sync: true,
+        last_modified: new Date(),
+      },
+    });
+  }
+
+  if (parentData.phone) {
+    const existingParent = await tx.parents.findFirst({
+      where: { phone: parentData.phone, is_deleted: false },
+    });
+    if (existingParent) {
+      return tx.parents.update({
+        where: { id: existingParent.id },
+        data: {
+          name: parentData.name,
+          first_name: parentData.first_name,
+          email: parentData.email,
+          adress: parentData.adress,
+          gender: parentData.gender,
+          profession: parentData.profession,
+          needs_sync: true,
+          last_modified: new Date(),
+        },
+      });
+    }
+  }
+
+  return tx.parents.create({
     data: {
-      name,
-      first_name,
-      birth_date,
-      genre,
-      picture_url, // Ajouté
+      name: parentData.name,
+      first_name: parentData.first_name,
+      phone: parentData.phone,
+      email: parentData.email,
+      adress: parentData.adress,
+      gender: parentData.gender,
+      profession: parentData.profession,
       needs_sync: true,
       last_modified: new Date(),
     },
   });
+};
+
+ipcMain.handle('db:students:create', async (event, { studentData, parentsData }) => {
+  return prisma.$transaction(async (tx) => {
+    const newStudent = await tx.students.create({
+      data: {
+        ...studentData,
+        needs_sync: true,
+        last_modified: new Date(),
+      },
+    });
+
+    if (parentsData) {
+      const { father, mother } = parentsData;
+      const fatherRecord = await findOrCreateParent(tx, father);
+      const motherRecord = await findOrCreateParent(tx, mother);
+
+      if (fatherRecord) {
+        await tx.studentParents.create({
+          data: { student_id: newStudent.id, parent_id: fatherRecord.id, relation: 'père', needs_sync: true, last_modified: new Date() },
+        });
+      }
+      if (motherRecord) {
+        await tx.studentParents.create({
+          data: { student_id: newStudent.id, parent_id: motherRecord.id, relation: 'mère', needs_sync: true, last_modified: new Date() },
+        });
+      }
+    }
+    return newStudent;
+  });
 });
 
-ipcMain.handle('db:students:update', async (event, { id, data }) => {
-  const { name, first_name, birth_date, genre, picture_url } = data;
-  return prisma.students.update({
-    where: { id },
-    data: {
-      name,
-      first_name,
-      birth_date,
-      genre,
-      picture_url, // Ajouté
-      needs_sync: true,
-      last_modified: new Date(),
-    },
+ipcMain.handle('db:students:update', async (event, { id, studentData, parentsData }) => {
+  return prisma.$transaction(async (tx) => {
+    await tx.students.update({
+      where: { id },
+      data: {
+        ...studentData,
+        needs_sync: true,
+        last_modified: new Date(),
+      },
+    });
+
+    if (parentsData) {
+      const { father, mother } = parentsData;
+      const fatherRecord = await findOrCreateParent(tx, father);
+      const motherRecord = await findOrCreateParent(tx, mother);
+
+      await tx.studentParents.updateMany({
+        where: { student_id: id },
+        data: { is_deleted: true, needs_sync: true, last_modified: new Date() },
+      });
+
+      if (fatherRecord) {
+        await tx.studentParents.upsert({
+          where: { student_id_parent_id_unique: { student_id: id, parent_id: fatherRecord.id } },
+          update: { is_deleted: false, relation: 'père', needs_sync: true, last_modified: new Date() },
+          create: { student_id: id, parent_id: fatherRecord.id, relation: 'père', needs_sync: true, last_modified: new Date() },
+        });
+      }
+      if (motherRecord) {
+        await tx.studentParents.upsert({
+          where: { student_id_parent_id_unique: { student_id: id, parent_id: motherRecord.id } },
+          update: { is_deleted: false, relation: 'mère', needs_sync: true, last_modified: new Date() },
+          create: { student_id: id, parent_id: motherRecord.id, relation: 'mère', needs_sync: true, last_modified: new Date() },
+        });
+      }
+    }
+    return { id };
   });
 });
 

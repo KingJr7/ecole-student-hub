@@ -1,6 +1,8 @@
-const { app, BrowserWindow, ipcMain } = require('electron');
+const { app, BrowserWindow, ipcMain, protocol, dialog } = require('electron');
 const { autoUpdater } = require('electron-updater');
 const path = require('path');
+const fs = require('fs');
+const sharp = require('sharp');
 const dotenv = require('dotenv');
 const { spawn } = require('child_process');
 
@@ -106,6 +108,44 @@ app.whenReady().then(async () => {
   setupDatabaseIPC(prisma);
   setupAuthIPC(prisma);
   setupSyncIPC(prisma);
+
+  // --- Gestion des images ---
+  const imagesDir = path.join(app.getPath('userData'), 'images', 'students');
+  if (!fs.existsSync(imagesDir)) {
+    fs.mkdirSync(imagesDir, { recursive: true });
+  }
+
+  protocol.registerFileProtocol('ntik-fs', (request, callback) => {
+    const url = request.url.replace('ntik-fs://', '');
+    const imagePath = path.join(imagesDir, url);
+    callback({ path: imagePath });
+  });
+
+  ipcMain.handle('images:process-student-photo', async () => {
+    const { canceled, filePaths } = await dialog.showOpenDialog({
+      properties: ['openFile'],
+      filters: [{ name: 'Images', extensions: ['jpg', 'jpeg', 'png', 'webp'] }],
+    });
+
+    if (canceled || filePaths.length === 0) {
+      return null;
+    }
+
+    const sourcePath = filePaths[0];
+    const newFileName = `${Date.now()}.webp`;
+    const savePath = path.join(imagesDir, newFileName);
+
+    try {
+      await sharp(sourcePath)
+        .resize(512, 512, { fit: 'inside', withoutEnlargement: true })
+        .webp({ quality: 90 })
+        .toFile(savePath);
+      return newFileName;
+    } catch (error) {
+      console.error("Erreur lors du traitement de l'image:", error);
+      return null;
+    }
+  });
   
   createWindow();
 
@@ -124,49 +164,20 @@ app.whenReady().then(async () => {
 
   // --- Configuration et logique de mise à jour automatique ---
   if (!isDev) {
-    // Désactiver HTTP/2 si nécessaire pour éviter certains bugs réseau
     app.commandLine.appendSwitch('disable-http2');
-
     let retries = 0;
     const MAX_RETRIES = 3;
-
-    autoUpdater.on('checking-for-update', () => {
-      console.log('[AUTO-UPDATE] Recherche de mise à jour...');
-    });
-
-    autoUpdater.on('update-available', (info) => {
-      console.log('[AUTO-UPDATE] Mise à jour disponible.', info);
-      retries = 0; // Réinitialiser les tentatives en cas de succès
-    });
-
-    autoUpdater.on('download-progress', (progressObj) => {
-      let log_message = `Vitesse: ${(progressObj.bytesPerSecond / 1024).toFixed(2)} KB/s`;
-      log_message += ` - Téléchargé ${progressObj.percent.toFixed(2)}%`;
-      log_message += ` (${(progressObj.transferred / 1048576).toFixed(2)}/${(progressObj.total / 1048576).toFixed(2)} MB)`;
-      console.log(`[AUTO-UPDATE] ${log_message}`);
-    });
-
-    autoUpdater.on('update-downloaded', (info) => {
-      console.log('[AUTO-UPDATE] Mise à jour téléchargée. L\'application va redémarrer pour installer.');
-      autoUpdater.quitAndInstall();
-    });
-
+    autoUpdater.on('checking-for-update', () => console.log('[AUTO-UPDATE] Recherche de mise à jour...'));
+    autoUpdater.on('update-available', (info) => { console.log('[AUTO-UPDATE] Mise à jour disponible.', info); retries = 0; });
+    autoUpdater.on('download-progress', (p) => console.log(`[AUTO-UPDATE] Téléchargement: ${p.percent.toFixed(2)}%`));
+    autoUpdater.on('update-downloaded', () => { console.log('[AUTO-UPDATE] Mise à jour téléchargée. Installation au redémarrage.'); autoUpdater.quitAndInstall(); });
     autoUpdater.on('error', (err) => {
       console.error('[AUTO-UPDATE] Erreur: ', err.message);
-      const isNetworkError = err.message.includes('net::') || err.message.includes('Network Error');
-      if (isNetworkError && retries < MAX_RETRIES) {
+      if (err.message.includes('net::') && retries < MAX_RETRIES) {
         retries++;
-        const delay = retries * 5000; // Délai progressif (5s, 10s, 15s)
-        console.log(`[AUTO-UPDATE] Erreur réseau. Nouvelle tentative dans ${delay / 1000} secondes... (Tentative ${retries}/${MAX_RETRIES})`);
-        setTimeout(() => {
-          autoUpdater.checkForUpdates();
-        }, delay);
-      } else {
-        console.error('[AUTO-UPDATE] Échec final de la mise à jour après plusieurs tentatives.');
+        setTimeout(() => autoUpdater.checkForUpdates(), retries * 5000);
       }
     });
-
-    // Lancer la vérification au démarrage
     autoUpdater.checkForUpdates();
   }
 });

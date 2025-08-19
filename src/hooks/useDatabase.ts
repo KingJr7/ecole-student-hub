@@ -150,5 +150,6 @@ export function useDatabase() {
     getAllEmployees, createEmployee, updateEmployee, deleteEmployee,
     getAllFees, createFee, updateFee, deleteFee, getStudentFeeStatus, 
     getPrinters, printReceipt,
+    processStudentPhoto: () => invoke('images:process-student-photo'),
   }), []);
 }

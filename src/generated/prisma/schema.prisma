@@ -210,6 +210,7 @@ model StudentParents {
   parent        Parents  @relation(fields: [parent_id], references: [id], onDelete: Cascade)
   student       Students @relation(fields: [student_id], references: [id], onDelete: Cascade)
 
+  @@unique([student_id, parent_id], name: "student_id_parent_id_unique")
   @@index([student_id, parent_id])
   @@map("student_parents")
 }
