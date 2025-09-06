@@ -118,3 +118,6 @@ ntik.sqlite
 
 # Temp files
 vite.config.ts.timestamp-*
+
+# Supabase
+supabase/
