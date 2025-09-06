@@ -10,8 +10,8 @@ const isBrowser = typeof window !== 'undefined';
 // Settings operations
 export const getSettings = async (): Promise<Settings | null> => {
   if (isBrowser) {
-    const { ipcRenderer } = window.require('electron');
-    return ipcRenderer.invoke('db:settings:get');
+    
+    return window.api.invoke('db:settings:get');
   } else {
     return Promise.resolve(mockApi.getSettings());
   }
@@ -20,8 +20,8 @@ export const getSettings = async (): Promise<Settings | null> => {
 // Employee operations
 export const getEmployees = async (): Promise<Employee[]> => {
   if (isBrowser) {
-    const { ipcRenderer } = window.require('electron');
-    return ipcRenderer.invoke('db:employees:getAll');
+    
+    return window.api.invoke('db:employees:getAll');
   } else {
     return Promise.resolve(mockApi.getEmployees());
   }
@@ -29,8 +29,8 @@ export const getEmployees = async (): Promise<Employee[]> => {
 
 export const addEmployee = async (employee: Omit<Employee, 'id' | 'matricule'>): Promise<Employee> => {
   if (isBrowser) {
-    const { ipcRenderer } = window.require('electron');
-    return ipcRenderer.invoke('db:employees:create', employee);
+    
+    return window.api.invoke('db:employees:create', employee);
   } else {
     return Promise.resolve(mockApi.addEmployee(employee));
   }
@@ -38,8 +38,8 @@ export const addEmployee = async (employee: Omit<Employee, 'id' | 'matricule'>):
 
 export const updateEmployee = async (id: number, data: Partial<Employee>): Promise<Employee> => {
   if (isBrowser) {
-    const { ipcRenderer } = window.require('electron');
-    return ipcRenderer.invoke('db:employees:update', { id, data });
+    
+    return window.api.invoke('db:employees:update', { id, data });
   } else {
     return Promise.resolve(mockApi.updateEmployee(id, data));
   }
@@ -47,8 +47,8 @@ export const updateEmployee = async (id: number, data: Partial<Employee>): Promi
 
 export const deleteEmployee = async (id: number): Promise<void> => {
   if (isBrowser) {
-    const { ipcRenderer } = window.require('electron');
-    return ipcRenderer.invoke('db:employees:delete', id);
+    
+    return window.api.invoke('db:employees:delete', id);
   } else {
     return Promise.resolve(mockApi.deleteEmployee(id));
   }
@@ -56,8 +56,8 @@ export const deleteEmployee = async (id: number): Promise<void> => {
 
 export const paySalary = async (data: { employee_id: number; base_salary: number; bonus_amount: number; payment_date: string; notes?: string }): Promise<void> => {
   if (isBrowser) {
-    const { ipcRenderer } = window.require('electron');
-    return ipcRenderer.invoke('db:employees:paySalary', data);
+    
+    return window.api.invoke('db:employees:paySalary', data);
   } else {
     return Promise.resolve();
   }
@@ -65,8 +65,8 @@ export const paySalary = async (data: { employee_id: number; base_salary: number
 
 export const getSalaryHistory = async (employeeId: number): Promise<any[]> => {
   if (isBrowser) {
-    const { ipcRenderer } = window.require('electron');
-    return ipcRenderer.invoke('db:employees:getSalaryHistory', employeeId);
+    
+    return window.api.invoke('db:employees:getSalaryHistory', employeeId);
   } else {
     return Promise.resolve([]);
   }
@@ -74,8 +74,8 @@ export const getSalaryHistory = async (employeeId: number): Promise<any[]> => {
 
 export const getEmployeeStats = async (): Promise<{ totalEmployees: number; monthlyPayroll: number; }> => {
   if (isBrowser) {
-    const { ipcRenderer } = window.require('electron');
-    return ipcRenderer.invoke('db:employees:getStats');
+    
+    return window.api.invoke('db:employees:getStats');
   } else {
     return Promise.resolve({ totalEmployees: 0, monthlyPayroll: 0 });
   }
@@ -183,9 +183,9 @@ export const deleteClass = async (id: number) => {
 export const getTeachers = async () => {
   if (isBrowser) {
     // Utiliser l'API Electron via IPC
-    const { ipcRenderer } = window.require('electron');
+    
     try {
-      const teachers = await ipcRenderer.invoke('db:teachers:getAll');
+      const teachers = await window.api.invoke('db:teachers:getAll');
       return teachers;
     } catch (error) {
       console.error('Erreur lors de la récupération des professeurs:', error);
@@ -198,9 +198,9 @@ export const getTeachers = async () => {
 
 export const getTeacher = async (id: number) => {
   if (isBrowser) {
-    const { ipcRenderer } = window.require('electron');
+    
     try {
-      return await ipcRenderer.invoke('db:teachers:getById', id);
+      return await window.api.invoke('db:teachers:getById', id);
     } catch (error) {
       console.error(`Erreur lors de la récupération du professeur id=${id}:`, error);
       return null;
@@ -212,9 +212,9 @@ export const getTeacher = async (id: number) => {
 
 export const addTeacher = async (teacher: Omit<Teacher, "id">) => {
   if (isBrowser) {
-    const { ipcRenderer } = window.require('electron');
+    
     try {
-      const newTeacher = await ipcRenderer.invoke('db:teachers:create', teacher);
+      const newTeacher = await window.api.invoke('db:teachers:create', teacher);
       return newTeacher;
     } catch (error) {
       console.error('Erreur lors de la création du professeur:', error);
@@ -227,9 +227,9 @@ export const addTeacher = async (teacher: Omit<Teacher, "id">) => {
 
 export const updateTeacher = async (id: number, data: Partial<Teacher>) => {
   if (isBrowser) {
-    const { ipcRenderer } = window.require('electron');
+    
     try {
-      return await ipcRenderer.invoke('db:teachers:update', { id, data });
+      return await window.api.invoke('db:teachers:update', { id, data });
     } catch (error) {
       console.error(`Erreur lors de la mise à jour du professeur id=${id}:`, error);
       throw error;
@@ -241,9 +241,9 @@ export const updateTeacher = async (id: number, data: Partial<Teacher>) => {
 
 export const deleteTeacher = async (id: number) => {
   if (isBrowser) {
-    const { ipcRenderer } = window.require('electron');
+    
     try {
-      await ipcRenderer.invoke('db:teachers:delete', id);
+      await window.api.invoke('db:teachers:delete', id);
       return true;
     } catch (error) {
       console.error(`Erreur lors de la suppression du professeur id=${id}:`, error);
@@ -256,9 +256,9 @@ export const deleteTeacher = async (id: number) => {
 
 export const getTeacherSubjects = async (teacherId: number) => {
   if (isBrowser) {
-    const { ipcRenderer } = window.require('electron');
+    
     try {
-      return await ipcRenderer.invoke('db:teachers:getSubjects', teacherId);
+      return await window.api.invoke('db:teachers:getSubjects', teacherId);
     } catch (error) {
       console.error(`Erreur lors de la récupération des matières du professeur id=${teacherId}:`, error);
       return [];
@@ -270,9 +270,9 @@ export const getTeacherSubjects = async (teacherId: number) => {
 
 export const calculateTeacherSalary = async (teacherId: number, month: string, year: string) => {
   if (isBrowser) {
-    const { ipcRenderer } = window.require('electron');
+    
     try {
-      return await ipcRenderer.invoke('db:teachers:calculateSalary', teacherId, month, year);
+      return await window.api.invoke('db:teachers:calculateSalary', teacherId, month, year);
     } catch (error) {
       console.error(`Erreur lors du calcul du salaire du professeur id=${teacherId}:`, error);
       return {
@@ -295,9 +295,9 @@ export const calculateTeacherSalary = async (teacherId: number, month: string, y
 // Teacher Work Hours operations
 export const getTeacherWorkHours = async (teacherId: number) => {
   if (isBrowser) {
-    const { ipcRenderer } = window.require('electron');
+    
     try {
-      return await ipcRenderer.invoke('db:teacherWorkHours:getByTeacherId', teacherId);
+      return await window.api.invoke('db:teacherWorkHours:getByTeacherId', teacherId);
     } catch (error) {
       console.error(`Erreur lors de la récupération des heures de travail du professeur id=${teacherId}:`, error);
       return [];
@@ -309,9 +309,9 @@ export const getTeacherWorkHours = async (teacherId: number) => {
 
 export const addTeacherWorkHours = async (workHours: Omit<TeacherWorkHours, "id">) => {
   if (isBrowser) {
-    const { ipcRenderer } = window.require('electron');
+    
     try {
-      return await ipcRenderer.invoke('db:teacherWorkHours:create', workHours);
+      return await window.api.invoke('db:teacherWorkHours:create', workHours);
     } catch (error) {
       console.error('Erreur lors de l\'ajout des heures de travail:', error);
       throw error;
@@ -323,9 +323,9 @@ export const addTeacherWorkHours = async (workHours: Omit<TeacherWorkHours, "id"
 
 export const updateTeacherWorkHours = async (id: number, data: Partial<TeacherWorkHours>) => {
   if (isBrowser) {
-    const { ipcRenderer } = window.require('electron');
+    
     try {
-      return await ipcRenderer.invoke('db:teacherWorkHours:update', id, data);
+      return await window.api.invoke('db:teacherWorkHours:update', id, data);
     } catch (error) {
       console.error(`Erreur lors de la mise à jour des heures de travail id=${id}:`, error);
       throw error;
@@ -337,9 +337,9 @@ export const updateTeacherWorkHours = async (id: number, data: Partial<TeacherWo
 
 export const deleteTeacherWorkHours = async (id: number) => {
   if (isBrowser) {
-    const { ipcRenderer } = window.require('electron');
+    
     try {
-      await ipcRenderer.invoke('db:teacherWorkHours:delete', id);
+      await window.api.invoke('db:teacherWorkHours:delete', id);
       return true;
     } catch (error) {
       console.error(`Erreur lors de la suppression des heures de travail id=${id}:`, error);
@@ -352,9 +352,9 @@ export const deleteTeacherWorkHours = async (id: number) => {
 
 export const getTeacherStats = async (teacherId: number, month: string, year: string): Promise<TeacherStats> => {
   if (isBrowser) {
-    const { ipcRenderer } = window.require('electron');
+    
     try {
-      const stats = await ipcRenderer.invoke('db:teacherWorkHours:getStats', teacherId, month, year);
+      const stats = await window.api.invoke('db:teacherWorkHours:getStats', teacherId, month, year);
       return stats;
     } catch (error) {
       console.error(`Erreur lors de la récupération des statistiques du professeur id=${teacherId}:`, error);
@@ -378,15 +378,15 @@ export const getTeacherStats = async (teacherId: number, month: string, year: st
 // Subject operations
 export const getSubjects = async (teacherId?: number) => {
   if (isBrowser) {
-    const { ipcRenderer } = window.require('electron');
+    
     try {
       // Si un teacherId est fourni, récupérer seulement les matières de ce professeur
       if (teacherId) {
-        const subjects = await ipcRenderer.invoke('db:subjects:getByTeacherId', teacherId);
+        const subjects = await window.api.invoke('db:subjects:getByTeacherId', teacherId);
         return subjects;
       } else {
         // Sinon récupérer toutes les matières avec informations détaillées
-        const subjects = await ipcRenderer.invoke('db:subjects:getAllDetailed');
+        const subjects = await window.api.invoke('db:subjects:getAllDetailed');
         return subjects || [];
       }
     } catch (error) {
@@ -411,11 +411,11 @@ export const getSubjects = async (teacherId?: number) => {
 export const getClassSubjects = async (classId: number) => {
   if (isBrowser) {
     // Utiliser l'API Electron via IPC
-    const { ipcRenderer } = window.require('electron');
+    
     try {
       // Appeler le gestionnaire IPC pour obtenir les matières d'une classe
       // Utiliser l'ancien gestionnaire qui renvoie les données de class_subjects
-      const subjects = await ipcRenderer.invoke('db:classSubjects:getAll', classId);
+      const subjects = await window.api.invoke('db:classSubjects:getAll', classId);
       return subjects;
     } catch (error) {
       console.error(`Erreur lors de la récupération des matières pour la classe ${classId}:`, error);
@@ -514,14 +514,14 @@ export const deleteSchedule = isBrowser ? mockApi.deleteSchedule : async (id: nu
 // Student operations
 export const getStudents = async (limit?: number): Promise<Student[]> => {
   if (isBrowser) {
-    const { ipcRenderer } = window.require('electron');
+    
     try {
       if (limit) {
         // Utiliser getRecent si on spécifie une limite
-        return await ipcRenderer.invoke('db:students:getRecent', limit);
+        return await window.api.invoke('db:students:getRecent', limit);
       } else {
         // Sinon utiliser la fonction getAllStudents existante
-        return await ipcRenderer.invoke('db:students:getAll');
+        return await window.api.invoke('db:students:getAll');
       }
     } catch (error) {
       console.error('Erreur lors de la récupération des étudiants:', error);
@@ -880,9 +880,9 @@ export const deleteGrade = isBrowser ? mockApi.deleteGrade : async (id: number) 
 export const getDashboardStats = async (): Promise<DashboardStats> => {
   if (isBrowser) {
     // Dans un environnement navigateur, on utilise l'API Electron via IPC
-    const { ipcRenderer } = window.require('electron');
+    
     try {
-      const stats = await ipcRenderer.invoke('db:dashboard:getStats');
+      const stats = await window.api.invoke('db:dashboard:getStats');
       return stats;
     } catch (error) {
       console.error('Erreur lors de la récupération des statistiques du dashboard:', error);

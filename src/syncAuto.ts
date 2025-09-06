@@ -9,18 +9,15 @@ export function useSyncAuto() {
   const { toast } = useToast();
 
   useEffect(() => {
-    // Vérifie que l'environnement Electron est accessible
-    let ipcRenderer: any = null;
-    try {
-      ipcRenderer = window.require && window.require("electron").ipcRenderer;
-    } catch (e) {}
-    if (!ipcRenderer) return;
+    // @ts-ignore
+    if (!window.api) return;
 
     // Handler pour lancer la synchro
-    const handleSyncRun = async (_event: any, { schoolId, token }: { schoolId: string, token: string }) => {
+    const handleSyncRun = async ({ schoolId, token }: { schoolId: string, token: string }) => {
       toast({ title: "Synchronisation", description: "Synchronisation en cours...", variant: "default" });
       try {
-        const result = await ipcRenderer.invoke("sync:run", { schoolId, token });
+        // @ts-ignore
+        const result = await window.api.invoke("sync:run", { schoolId, token });
         if (result && result.success) {
           toast({ title: "Synchronisation", description: "Synchronisation terminée avec succès !", variant: "success" });
         } else {
@@ -34,17 +31,16 @@ export function useSyncAuto() {
     // Handler pour feedback de démarrage auto (optionnel)
     const handleSyncAutoStart = () => {
       toast({ title: "Synchronisation automatique", description: "Synchronisation automatique lancée au démarrage.", variant: "default" });
-      // On ne reçoit pas le token ici, il faut le récupérer depuis le stockage local
-      // ou attendre que l'utilisateur soit connecté.
-      // Pour l'instant, on ne fait rien de plus ici.
     };
 
-    ipcRenderer.on("sync:run:trigger", handleSyncRun);
-    ipcRenderer.on("sync:auto:start", handleSyncAutoStart);
+    // @ts-ignore
+    const unsubSyncRun = window.api.on("sync:run:trigger", handleSyncRun);
+    // @ts-ignore
+    const unsubSyncAutoStart = window.api.on("sync:auto:start", handleSyncAutoStart);
 
     return () => {
-      ipcRenderer.removeListener("sync:run:trigger", handleSyncRun);
-      ipcRenderer.removeListener("sync:auto:start", handleSyncAutoStart);
+      if (unsubSyncRun) unsubSyncRun();
+      if (unsubSyncAutoStart) unsubSyncAutoStart();
     };
   }, [toast]);
 }

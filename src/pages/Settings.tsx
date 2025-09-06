@@ -19,6 +19,7 @@ import {
 } from "@/components/ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Phone, MessageSquare, Printer } from "lucide-react";
+import { ThemeToggle } from "@/components/ui/ThemeToggle";
 
 interface PrinterInfo {
   name: string;
@@ -151,6 +152,16 @@ const Settings: React.FC = () => {
                       </SelectContent>
                     </Select>
                     <p className="text-xs text-gray-500">Sélectionnez l'imprimante à utiliser pour l'impression des reçus.</p>
+                  </div>
+                </div>
+
+                <Separator className="my-4" />
+
+                <div>
+                  <h3 className="text-lg font-medium text-school-700 mb-2">Thème</h3>
+                  <div className="flex items-center space-x-2">
+                    <ThemeToggle />
+                    <Label>Changer le thème de l'application</Label>
                   </div>
                 </div>
 

@@ -16,6 +16,7 @@ if (process.env.NODE_ENV !== 'development') {
   dotenv.config({ path: path.join(process.resourcesPath, '.env') });
 } else {
   dotenv.config();
+  console.log(`[main.cjs] DATABASE_URL: ${process.env.DATABASE_URL}`);
 }
 
 // Définir l'environnement de manière fiable
@@ -27,9 +28,17 @@ const runMigration = () => {
     console.log('Vérification et application des migrations de la base de données...');
     
     const projectRoot = path.join(__dirname, '..');
-    const migrateProcess = spawn('npx', ['prisma', 'migrate', 'deploy'], { 
+    const dbPath = path.join(projectRoot, 'prisma', 'ntik.sqlite');
+
+    const command = fs.existsSync(dbPath) ? 'deploy' : 'reset';
+    const args = ['prisma', 'migrate', command];
+    if (command === 'reset') {
+      args.push('--force');
+    }
+
+    const migrateProcess = spawn('npx', args, { 
         cwd: projectRoot,
-        shell: true
+        shell: false
     });
 
     migrateProcess.stdout.on('data', (data) => {
@@ -55,9 +64,10 @@ function createWindow() {
     width: 1200,
     height: 800,
     webPreferences: {
-      nodeIntegration: true,
-      contextIsolation: false,
+      nodeIntegration: false,
+      contextIsolation: true,
       devTools: isDev,
+      preload: path.join(__dirname, 'preload.cjs')
     },
     autoHideMenuBar: true,
     show: false,
@@ -77,6 +87,7 @@ function createWindow() {
       console.log('Serveur Vite non prêt, chargement depuis les fichiers locaux...');
       tryLoadFromDist(win);
     });
+    win.webContents.openDevTools();
   } else {
     tryLoadFromDist(win);
   }
@@ -91,29 +102,26 @@ function tryLoadFromDist(win) {
 }
 
 app.whenReady().then(async () => {
-  // Déplacer les imports et l'initialisation de Prisma ici
   const { initializePrisma, setupDatabaseIPC } = require('./ipc/database.cjs');
   const { setupAuthIPC } = require('./ipc/auth.cjs');
   const { setupSyncIPC, runSync } = require('./ipc/sync.cjs');
 
-  // Étape 1: S'assurer que la base de données est migrée AVANT TOUT
   if (isDev) {
       await runMigration();
   }
 
-  // Étape 2: Initialiser le client Prisma seulement APRÈS la migration
   const prisma = initializePrisma();
 
-  // Étape 3: Lancer les modules de l'application avec le client initialisé
-  setupDatabaseIPC(prisma);
-  setupAuthIPC(prisma);
-  setupSyncIPC(prisma);
+  await prisma.$connect();
 
-  // --- Gestion des images ---
   const imagesDir = path.join(app.getPath('userData'), 'images', 'students');
   if (!fs.existsSync(imagesDir)) {
     fs.mkdirSync(imagesDir, { recursive: true });
   }
+
+  setupDatabaseIPC(prisma);
+  setupAuthIPC(prisma);
+  setupSyncIPC(prisma, imagesDir);
 
   protocol.registerFileProtocol('ntik-fs', (request, callback) => {
     const url = request.url.replace('ntik-fs://', '');
@@ -149,7 +157,6 @@ app.whenReady().then(async () => {
   
   createWindow();
 
-  // Étape 4: Lancer la synchronisation au démarrage si nécessaire
   try {
     const settings = await prisma.settings.findUnique({ where: { id: 1 } });
     if (settings && settings.loggedIn === 1 && settings.schoolId) {
@@ -162,7 +169,6 @@ app.whenReady().then(async () => {
       console.error("Impossible de vérifier les settings pour la synchro auto, la table n'existe probablement pas encore.", error.message);
   }
 
-  // --- Configuration et logique de mise à jour automatique ---
   if (!isDev) {
     app.commandLine.appendSwitch('disable-http2');
     let retries = 0;

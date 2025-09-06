@@ -1,8 +1,9 @@
 import { useEffect, useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import type { DashboardStats, Student } from "@/types";
+import type { DashboardStats, Student, FrequentLatePayer } from "@/types";
 import { getDashboardStats, getStudents } from "@/lib/api";
 import MainLayout from "@/components/Layout/MainLayout";
+import { useDatabase } from "@/hooks/useDatabase";
 import { Users, Book, CalendarCheck, DollarSign } from "lucide-react";
 import { useToast } from "@/components/ui/use-toast";
 import { useQuery } from "@tanstack/react-query";
@@ -27,7 +28,7 @@ const Dashboard = () => {
     }
   });
 
-  const { data: recentStudents = [] } = useQuery<Student[]>({
+  const { data: recentStudents = [] } = useQuery<Student[]>({ // Corrected line
     queryKey: ['recentStudents'],
     queryFn: async () => {
       try {
@@ -37,9 +38,27 @@ const Dashboard = () => {
         toast({
           variant: "destructive",
           title: "Erreur",
-          description: "Impossible de charger les étudiants récents"
+          description: "Impossible de charger les étudiants récents",
         });
         return [] as Student[];
+      }
+    }
+  });
+
+  const db = useDatabase(); // Initialize useDatabase hook
+
+  const { data: frequentLatePayers = [], isLoading: isLoadingLatePayers } = useQuery<FrequentLatePayer[]>({ // Corrected line
+    queryKey: ['frequentLatePayers'],
+    queryFn: async () => {
+      try {
+        return await db.getFrequentLatePayers();
+      } catch (error) {
+        toast({
+          variant: "destructive",
+          title: "Erreur",
+          description: "Impossible de charger la liste des payeurs en retard",
+        });
+        return [] as FrequentLatePayer[];
       }
     }
   });
@@ -203,6 +222,35 @@ const Dashboard = () => {
               ) : (
                 <div className="text-center py-4 text-muted-foreground">
                   Aucun élève récemment inscrit
+                </div>
+              )}
+            </CardContent>
+          </Card>
+
+          <Card className="col-span-1">
+            <CardHeader>
+              <CardTitle>Élèves avec retards de paiement fréquents</CardTitle>
+            </CardHeader>
+            <CardContent>
+              {isLoadingLatePayers ? (
+                <div>Chargement...</div>
+              ) : frequentLatePayers.length > 0 ? (
+                <div className="space-y-2">
+                  {frequentLatePayers.map((student) => (
+                    <div key={student.id} className="flex justify-between items-center border-b pb-2">
+                      <div>
+                        <div className="font-medium">{student.name}</div>
+                        <div className="text-sm text-muted-foreground">{student.className || 'Aucune classe'}</div>
+                      </div>
+                      <div className="text-sm text-muted-foreground">
+                        {student.latePaymentCount} retard(s)
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <div className="text-center py-4 text-muted-foreground">
+                  Aucun élève avec des retards de paiement fréquents détecté.
                 </div>
               )}
             </CardContent>

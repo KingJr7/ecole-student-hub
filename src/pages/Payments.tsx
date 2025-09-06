@@ -27,6 +27,8 @@ import { useDatabase } from "@/hooks/useDatabase";
 import PaymentReceipt from "@/components/PaymentReceipt";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useVirtualizer } from "@tanstack/react-virtual";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Link } from "react-router-dom";
 
 // Interfaces
 interface Student {
@@ -34,6 +36,7 @@ interface Student {
   name: string | null;
   first_name: string | null;
   className: string | null;
+  classLevel?: string; // Added this line
 }
 
 interface Registration {
@@ -64,6 +67,16 @@ interface Fee {
   level: string;
 }
 
+interface LatePayment {
+  studentId: number;
+  studentName: string;
+  className: string;
+  feeName: string;
+  feeAmount: number;
+  dueDate: string;
+  balance: number;
+}
+
 const Payments = () => {
   const db = useDatabase();
   const [isDialogOpen, setIsDialogOpen] = useState(false);
@@ -77,6 +90,7 @@ const Payments = () => {
   const [paymentToDelete, setPaymentToDelete] = useState<number | null>(null);
 
   const [payments, setPayments] = useState<Payment[]>([]);
+  const [latePayments, setLatePayments] = useState<LatePayment[]>([]);
   const [students, setStudents] = useState<Student[]>([]);
   const [fees, setFees] = useState<Fee[]>([]);
   
@@ -89,6 +103,7 @@ const Payments = () => {
   
   const { 
     getAllPayments, 
+    getLatePayments,
     getAllStudents,
     getSettings,
     createPayment,
@@ -101,14 +116,16 @@ const Payments = () => {
   const loadData = async () => {
     setLoading(true);
     try {
-      const [paymentsData, studentsData, settingsData] = await Promise.all([
+      const [paymentsData, studentsData, settingsData, latePaymentsData] = await Promise.all([
         getAllPayments(),
         getAllStudents(),
         getSettings(),
+        getLatePayments(),
       ]);
       setPayments(paymentsData || []);
       setStudents(studentsData || []);
-      setSchoolName(settingsData?.schoolName || "Nom de l'école");
+      setSchoolName(settingsData?.schoolName || "Nom de l\'cole");
+      setLatePayments(latePaymentsData || []);
     } catch (error) {
       console.error('Erreur lors du chargement des données:', error);
       toast({ variant: "destructive", description: 'Erreur lors du chargement des données' });
@@ -144,14 +161,14 @@ const Payments = () => {
 
     const student = students.find(s => s.id === receiptPayment.registration?.student_id);
     if (!student) {
-      toast({ description: "Impossible de trouver l\'élève associé à ce paiement.", variant: "destructive" });
+      toast({ description: "Impossible de trouver l\'lève associé à ce paiement.", variant: "destructive" });
       return;
     }
 
     try {
       const settings = await getSettings();
       if (!settings?.printerName) {
-        toast({ variant: "destructive", description: "Aucune imprimante n\'a été configurée. Veuillez en choisir une dans les paramètres." });
+        toast({ variant: "destructive", description: "Aucune imprimante n\'a été configurée. Veuillez en choisir une dans les paramètres." });
         return;
       }
 
@@ -216,13 +233,15 @@ const Payments = () => {
   const handleStudentChange = async (studentId: number) => {
     setCurrentPayment(prev => ({ ...prev, student_id: studentId, fee_id: undefined, amount: 0 }));
     const student = students.find(s => s.id === studentId);
-    if (student && student.className) {
-      const studentLevel = student.className.toLowerCase().includes('primaire') ? 'primaire' : student.className.toLowerCase().includes('collège') ? 'college' : 'lycee';
-      const feesForLevel = await getAllFees({ level: studentLevel });
+    if (student && student.classLevel) { // Use student.classLevel directly
+      const feesForLevel = await getAllFees({ level: student.classLevel });
       setFees(feesForLevel);
+      console.log('Fees loaded for student level:', student.classLevel, feesForLevel); // Added log
     } else {
-      const feesForLevel = await getAllFees({});
-      setFees(feesForLevel.filter(f => f.level === null));
+      // If no student or no classLevel, fetch general fees (null or 'all')
+      const feesForLevel = await getAllFees({ level: null }); // Pass null to get general fees
+      setFees(feesForLevel);
+      console.log('Fees loaded for general:', feesForLevel); // Added log
     }
   };
 
@@ -244,7 +263,7 @@ const Payments = () => {
 
     const registration = await getLatestRegistrationForStudent({ studentId: student_id });
     if (!registration) {
-      toast({ title: "Erreur", description: "Cet étudiant n\'a aucune inscription valide.", variant: "destructive" });
+      toast({ title: "Erreur", description: "Cet étudiant n\'a aucune inscription valide.", variant: "destructive" });
       return;
     }
 
@@ -286,6 +305,7 @@ const Payments = () => {
   });
 
   const gridClass = "grid grid-cols-[8%_20%_22%_10%_15%_10%_15%] items-center";
+  const lateGridClass = "grid grid-cols-[20%_15%_20%_15%_15%_15%] items-center";
 
   return (
     <MainLayout>
@@ -295,76 +315,121 @@ const Payments = () => {
           <Button onClick={handleOpenAddDialog} className="bg-accent-hot hover:bg-accent-hot/90 text-accent-hot-foreground">Ajouter un paiement</Button>
         </div>
 
-        <div className="relative w-full md:max-w-md">
-          <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-gray-500" />
-          <Input
-            placeholder="Rechercher par nom..."
-            type="search"
-            className="pl-8 bg-card"
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-          />
-        </div>
-        
-        <Card>
-          <CardContent className="p-4">
-            {/* En-tête du tableau en divs */}
-            <div className={`${gridClass} p-4 border-b font-semibold text-sm text-muted-foreground`}>
-              <div className="px-2">Type</div>
-              <div className="px-2">Nom</div>
-              <div className="px-2">Détails</div>
-              <div className="px-2">Date</div>
-              <div className="px-2">Montant</div>
-              <div className="px-2">Méthode</div>
-              <div className="text-right px-2">Actions</div>
+        <Tabs defaultValue="all_payments">
+          <TabsList className="grid w-full grid-cols-2">
+            <TabsTrigger value="all_payments">Tous les paiements</TabsTrigger>
+            <TabsTrigger value="late_payments">
+              Paiements en retard
+              {latePayments.length > 0 && <span className="ml-2 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">{latePayments.length}</span>}
+            </TabsTrigger>
+          </TabsList>
+          <TabsContent value="all_payments">
+            <div className="relative w-full md:max-w-md mt-4">
+              <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-gray-500" />
+              <Input
+                placeholder="Rechercher par nom..."
+                type="search"
+                className="pl-8 bg-card"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+              />
             </div>
+            
+            <Card className="mt-4">
+              <CardContent className="p-4">
+                <div className={`${gridClass} p-4 border-b font-semibold text-sm text-muted-foreground`}>
+                  <div className="px-2">Type</div>
+                  <div className="px-2">Nom</div>
+                  <div className="px-2">Détails</div>
+                  <div className="px-2">Date</div>
+                  <div className="px-2">Montant</div>
+                  <div className="px-2">Méthode</div>
+                  <div className="text-right px-2">Actions</div>
+                </div>
 
-            {/* Conteneur de la liste virtualisée */}
-            <div ref={parentRef} className="h-[600px] overflow-y-auto relative">
-              {loading ? (
-                <div className="p-4">
-                  {[...Array(10)].map((_, i) => (
-                    <div key={i} className={`${gridClass} py-2`}>
-                      <Skeleton className="h-5 w-full"/>
-                      <Skeleton className="h-5 w-full"/>
-                      <Skeleton className="h-5 w-full"/>
-                      <Skeleton className="h-5 w-full"/>
-                      <Skeleton className="h-5 w-full"/>
-                      <Skeleton className="h-5 w-full"/>
-                      <div className="flex justify-end"><Skeleton className="h-8 w-20"/></div>
-                    </div>
-                  ))}
-                </div>
-              ) : (
-                <div style={{ height: `${rowVirtualizer.getTotalSize()}px`, width: '100%', position: 'relative' }}>
-                  {rowVirtualizer.getVirtualItems().map((virtualRow) => {
-                    const payment = filteredPayments[virtualRow.index];
-                    return (
-                      <div key={virtualRow.key} style={{ position: 'absolute', top: 0, left: 0, width: '100%', transform: `translateY(${virtualRow.start}px)` }} className={`${gridClass} p-4 border-b text-sm`}>
-                        <div className="px-2"><span className={`px-2 py-1 rounded-full text-xs ${payment.type === 'Salaire' ? 'bg-green-100 text-green-800' : 'bg-blue-100 text-blue-800'}`}>{payment.type}</span></div>
-                        <div className="font-medium truncate px-2">{payment.person_name}</div>
-                        <div className="text-muted-foreground truncate px-2">{payment.details}</div>
-                        <div className="text-muted-foreground px-2">{new Date(payment.date).toLocaleDateString()}</div>
-                        <div className="font-semibold px-2">{(payment.amount || 0).toLocaleString()} FCFA</div>
-                        <div className="text-muted-foreground px-2">{payment.method}</div>
-                        <div className="text-right px-2">
-                          <div className="flex justify-end items-center">
-                            {payment.type === 'Étudiant' && <Button variant="ghost" size="icon" onClick={() => handleOpenReceiptDialog(payment)} title="Imprimer reçu"><Printer className="h-4 w-4" /></Button>}
-                            <Button variant="ghost" size="icon" disabled title="Modifier"><Pencil className="h-4 w-4" /></Button>
-                            <Button variant="ghost" size="icon" onClick={() => handleOpenDeleteDialog(payment.id)} title="Supprimer"><Trash2 className="h-4 w-4" /></Button>
-                          </div>
+                <div ref={parentRef} className="h-[600px] overflow-y-auto relative">
+                  {loading ? (
+                    <div className="p-4">
+                      {[...Array(10)].map((_, i) => (
+                        <div key={i} className={`${gridClass} py-2`}>
+                          <Skeleton className="h-5 w-full"/>
+                          <Skeleton className="h-5 w-full"/>
+                          <Skeleton className="h-5 w-full"/>
+                          <Skeleton className="h-5 w-full"/>
+                          <Skeleton className="h-5 w-full"/>
+                          <Skeleton className="h-5 w-full"/>
+                          <div className="flex justify-end"><Skeleton className="h-8 w-20"/></div>
                         </div>
-                      </div>
-                    );
-                  })}
+                      ))}
+                    </div>
+                  ) : (
+                    <div style={{ height: `${rowVirtualizer.getTotalSize()}px`, width: '100%', position: 'relative' }}>
+                      {rowVirtualizer.getVirtualItems().map((virtualRow) => {
+                        const payment = filteredPayments[virtualRow.index];
+                        return (
+                          <div key={virtualRow.key} style={{ position: 'absolute', top: 0, left: 0, width: '100%', transform: `translateY(${virtualRow.start}px)` }} className={`${gridClass} p-4 border-b text-sm`}>
+                            <div className="px-2"><span className={`px-2 py-1 rounded-full text-xs ${payment.type === 'Salaire' ? 'bg-green-100 text-green-800' : 'bg-blue-100 text-blue-800'}`}>{payment.type}</span></div>
+                            <div className="font-medium truncate px-2">{payment.person_name}</div>
+                            <div className="text-muted-foreground truncate px-2">{payment.details}</div>
+                            <div className="text-muted-foreground px-2">{new Date(payment.date).toLocaleDateString()}</div>
+                            <div className="font-semibold px-2">{(payment.amount || 0).toLocaleString()} FCFA</div>
+                            <div className="text-muted-foreground px-2">{payment.method}</div>
+                            <div className="text-right px-2">
+                              <div className="flex justify-end items-center">
+                                {payment.type === 'Étudiant' && <Button variant="ghost" size="icon" onClick={() => handleOpenReceiptDialog(payment)} title="Imprimer reçu"><Printer className="h-4 w-4" /></Button>}
+                                <Button variant="ghost" size="icon" disabled title="Modifier"><Pencil className="h-4 w-4" /></Button>
+                                <Button variant="ghost" size="icon" onClick={() => handleOpenDeleteDialog(payment.id)} title="Supprimer"><Trash2 className="h-4 w-4" /></Button>
+                              </div>
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  )}
                 </div>
-              )}
-            </div>
-          </CardContent>
-        </Card>
+              </CardContent>
+            </Card>
+          </TabsContent>
+          <TabsContent value="late_payments">
+            <Card className="mt-4">
+              <CardContent className="p-4">
+                <div className={`${lateGridClass} p-4 border-b font-semibold text-sm text-muted-foreground`}>
+                  <div className="px-2">Élève</div>
+                  <div className="px-2">Classe</div>
+                  <div className="px-2">Frais concerné</div>
+                  <div className="px-2">Date d'échéance</div>
+                  <div className="px-2">Montant total</div>
+                  <div className="px-2 text-red-600">Solde restant</div>
+                </div>
+                <div className="h-[600px] overflow-y-auto relative">
+                  {loading ? (
+                     [...Array(5)].map((_, i) => <Skeleton key={i} className="h-12 w-full mt-2 rounded-md"/>)
+                  ) : latePayments.length > 0 ? (
+                    latePayments.map((payment) => (
+                      <div key={`${payment.studentId}-${payment.feeName}`} className={`${lateGridClass} p-4 border-b text-sm`}>
+                        <Link to={`/students/${payment.studentId}`} className="font-medium truncate px-2 text-primary hover:underline">{payment.studentName}</Link>
+                        <div className="text-muted-foreground truncate px-2">{payment.className}</div>
+                        <div className="text-muted-foreground truncate px-2">{payment.feeName}</div>
+                        <div className="text-muted-foreground px-2">{new Date(payment.dueDate).toLocaleDateString()}</div>
+                        <div className="font-semibold px-2">{(payment.feeAmount || 0).toLocaleString()} FCFA</div>
+                        <div className="font-semibold text-red-600 px-2">{(payment.balance || 0).toLocaleString()} FCFA</div>
+                      </div>
+                    ))
+                  ) : (
+                    <div className="text-center py-16 text-muted-foreground">
+                      <Receipt className="mx-auto h-12 w-12" />
+                      <h3 className="mt-4 text-lg font-semibold">Aucun paiement en retard</h3>
+                      <p className="mt-2 text-sm">Tous les élèves sont à jour dans leurs paiements.</p>
+                    </div>
+                  )}
+                </div>
+              </CardContent>
+            </Card>
+          </TabsContent>
+        </Tabs>
 
         {/* Dialogs... */}
-        <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}><DialogContent><DialogHeader><DialogTitle>Ajouter un paiement</DialogTitle></DialogHeader><div className="space-y-4 py-4"><div className="space-y-2"><Label>Étudiant</Label><StudentSearchSelect value={currentPayment.student_id} onValueChange={handleStudentChange} students={students.map(s => ({ id: s.id, firstName: s.first_name, lastName: s.name, className: s.className }))}/></div>{currentPayment.student_id && (<div className="space-y-2"><Label>Frais à payer</Label><Select value={currentPayment.fee_id?.toString()} onValueChange={handleFeeChange}><SelectTrigger><SelectValue placeholder="Sélectionner un frais" /></SelectTrigger><SelectContent>{fees.map(fee => (<SelectItem key={fee.id} value={fee.id.toString()}>{fee.name} - {fee.amount.toLocaleString()} FCFA</SelectItem>))}</SelectContent></Select></div>)}<div className="grid grid-cols-2 gap-4"><div className="space-y-2"><Label htmlFor="amount">Montant à payer</Label><Input id="amount" type="number" value={currentPayment.amount || ""} onChange={(e) => setCurrentPayment(prev => ({ ...prev, amount: parseFloat(e.target.value) || 0 }))} /></div><div className="space-y-2"><Label htmlFor="date">Date</Label><Input id="date" type="date" value={currentPayment.date || ""} onChange={(e) => setCurrentPayment(prev => ({ ...prev, date: e.target.value }))} /></div></div><div className="space-y-2"><Label htmlFor="method">Méthode de paiement</Label><Select value={currentPayment.method || "espèces"} onValueChange={(value) => setCurrentPayment(prev => ({ ...prev, method: value }))}><SelectTrigger><SelectValue /></SelectTrigger><SelectContent><SelectItem value="espèces">Espèces</SelectItem><SelectItem value="mobile money">Mobile Money</SelectItem><SelectItem value="chèque">Chèque</SelectItem></SelectContent></Select></div><div className="space-y-2"><Label htmlFor="reference">Référence (optionnel)</Label><Textarea id="reference" value={currentPayment.reference || ""} onChange={(e) => setCurrentPayment(prev => ({ ...prev, reference: e.target.value }))} /></div></div><DialogFooter><Button variant="outline" onClick={() => setIsDialogOpen(false)}>Annuler</Button><Button onClick={handleSavePayment}>Enregistrer</Button></DialogFooter></DialogContent></Dialog>
+        <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}><DialogContent><DialogHeader><DialogTitle>Ajouter un paiement</DialogTitle></DialogHeader><div className="space-y-4 py-4"><div className="space-y-2"><Label>Étudiant</Label><StudentSearchSelect value={currentPayment.student_id} onValueChange={handleStudentChange} students={students.map(s => ({ id: s.id, firstName: s.first_name, lastName: s.name, className: s.className }))}/></div>{currentPayment.student_id && (<div className="space-y-2"><Label>Frais à payer</Label><Select value={currentPayment.fee_id?.toString()} onValueChange={handleFeeChange}><SelectTrigger><SelectValue placeholder="Sélectionner un frais" /></SelectTrigger><SelectContent>{console.log('Rendering fees:', fees.length, fees)}{fees.map(fee => (<SelectItem key={fee.id} value={fee.id.toString()}>{fee.name} - {fee.amount.toLocaleString()} FCFA</SelectItem>))}</SelectContent></Select></div>)}<div className="grid grid-cols-2 gap-4"><div className="space-y-2"><Label htmlFor="amount">Montant à payer</Label><Input id="amount" type="number" value={currentPayment.amount || ""} onChange={(e) => setCurrentPayment(prev => ({ ...prev, amount: parseFloat(e.target.value) || 0 }))} /></div><div className="space-y-2"><Label htmlFor="date">Date</Label><Input id="date" type="date" value={currentPayment.date || ""} onChange={(e) => setCurrentPayment(prev => ({ ...prev, date: e.target.value }))} /></div></div><div className="space-y-2"><Label htmlFor="method">Méthode de paiement</Label><Select value={currentPayment.method || "espèces"} onValueChange={(value) => setCurrentPayment(prev => ({ ...prev, method: value }))}><SelectTrigger><SelectValue /></SelectTrigger><SelectContent><SelectItem value="espèces">Espèces</SelectItem><SelectItem value="mobile money">Mobile Money</SelectItem><SelectItem value="chèque">Chèque</SelectItem></SelectContent></Select></div><div className="space-y-2"><Label htmlFor="reference">Référence (optionnel)</Label><Textarea id="reference" value={currentPayment.reference || ""} onChange={(e) => setCurrentPayment(prev => ({ ...prev, reference: e.target.value }))} /></div></div><DialogFooter><Button variant="outline" onClick={() => setIsDialogOpen(false)}>Annuler</Button><Button onClick={handleSavePayment}>Enregistrer</Button></DialogFooter></DialogContent></Dialog>
         <Dialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}><DialogContent><DialogHeader><DialogTitle>Confirmer la suppression</DialogTitle><DialogDescription>Cette action est irréversible.</DialogDescription></DialogHeader><DialogFooter><Button variant="outline" onClick={() => setIsDeleteDialogOpen(false)}>Annuler</Button><Button variant="destructive" onClick={handleDeletePayment}>Supprimer</Button></DialogFooter></DialogContent></Dialog>
         <Dialog open={isReceiptDialogOpen} onOpenChange={setIsReceiptDialogOpen}><DialogContent className="min-w-[400px]"><DialogHeader><DialogTitle>Reçu de paiement</DialogTitle></DialogHeader><div className="border p-4 rounded-md">{receiptPayment && receiptPayment.registration && (<PaymentReceipt payment={receiptPayment} student={students.find(s => s.id === receiptPayment.registration?.student_id)} schoolName={schoolName} />)}</div><DialogFooter><Button variant="outline" onClick={() => setIsReceiptDialogOpen(false)}>Fermer</Button><Button onClick={handlePrintReceipt}><Printer className="mr-2 h-4 w-4" /> Imprimer</Button></DialogFooter></DialogContent></Dialog>
       </div>

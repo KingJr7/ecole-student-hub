@@ -242,6 +242,7 @@ model Fees {
   due_date      String?
   school_year   String?
   level         String?
+  school_id     String?
   supabase_id   String?    @unique
   last_modified DateTime   @default(now())
   needs_sync    Boolean    @default(false)
@@ -323,4 +324,37 @@ model Schedules {
 
   @@index([lesson_id])
   @@map("schedules")
+}
+
+model FinancialCategory {
+  id            Int                    @id @default(autoincrement())
+  name          String
+  type          String // 'income' or 'expense'
+  school_id     String?
+  supabase_id   String?                @unique
+  last_modified DateTime               @default(now())
+  needs_sync    Boolean                @default(false)
+  is_deleted    Boolean                @default(false)
+  transactions  FinancialTransaction[]
+
+  @@map("financial_categories")
+}
+
+model FinancialTransaction {
+  id            Int               @id @default(autoincrement())
+  date          DateTime
+  description   String
+  amount        Float
+  type          String // 'income' or 'expense'
+  category_id   Int
+  school_id     String?
+  category      FinancialCategory @relation(fields: [category_id], references: [id])
+  supabase_id   String?           @unique
+  last_modified DateTime          @default(now())
+  needs_sync    Boolean           @default(false)
+  is_deleted    Boolean           @default(false)
+
+  @@index([category_id])
+  @@index([school_id])
+  @@map("financial_transactions")
 }

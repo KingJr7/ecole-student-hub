@@ -18,6 +18,7 @@ interface Student {
   birth_date?: string;
   className?: string;
   classId?: number;
+  classLevel?: string;
 }
 
 interface Parent {
@@ -97,7 +98,7 @@ const StudentDetails = () => {
           setAttendances(studentAttendances);
 
           if (registration) {
-            const studentLevel = currentStudent.className?.toLowerCase().includes('primaire') ? 'primaire' : currentStudent.className?.toLowerCase().includes('college') ? 'college' : 'lycee';
+            const studentLevel = currentStudent.classLevel; // Utiliser le niveau directement
             const status = await db.getStudentFeeStatus({ registrationId: registration.id, level: studentLevel });
             setFeeStatus(status);
           }
@@ -206,7 +207,7 @@ const StudentDetails = () => {
                     <TableCell>{(fee.amount || 0).toLocaleString()} FCFA</TableCell>
                     <TableCell>{(fee.total_paid || 0).toLocaleString()} FCFA</TableCell>
                     <TableCell className="font-bold">{(fee.balance || 0).toLocaleString()} FCFA</TableCell>
-                    <TableCell>{fee.due_date ? new Date(fee.due_date).toLocaleDateString() : 'N/A'}</TableCell>
+                    <TableCell>{fee.due_date ? new Date(fee.due_date).toLocaleDateString('fr-FR', { day: 'numeric', month: 'long' }) : 'N/A'}</TableCell>
                     <TableCell><span className={getStatusClass(fee.status)}>{fee.status}</span></TableCell>
                   </TableRow>
                 )) : (

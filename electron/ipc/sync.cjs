@@ -3,8 +3,10 @@ const { createClient } = require('@supabase/supabase-js');
 const path = require('path');
 const bcrypt = require('bcryptjs');
 require('dotenv').config({ path: path.resolve(__dirname, '../../.env') });
+const fs = require('fs').promises;
 
 let isSyncIpcSetup = false;
+let localImagesDir;
 
 const supabaseUrl = process.env.SUPABASE_URL;
 const supabaseAnonKey = process.env.SUPABASE_ANON_KEY;
@@ -34,6 +36,40 @@ async function getLocalId(prisma, modelName, supabaseId) {
     return record ? record.id : null;
 }
 
+// --- Photo Upload Helper ---
+async function uploadStudentPhoto(supabase, pictureUrl) {
+    if (!pictureUrl || pictureUrl.startsWith('http')) {
+        return pictureUrl; // Already a URL or no picture
+    }
+
+    const imagePath = path.join(localImagesDir, pictureUrl);
+    try {
+        const imageBody = await fs.readFile(imagePath);
+        const { data, error } = await supabase.storage
+            .from('student_pictures')
+            .upload(pictureUrl, imageBody, {
+                cacheControl: '3600',
+                upsert: true, // Overwrite if it exists
+            });
+
+        if (error) {
+            sendSyncLog('error', `  -> ❌ Erreur d'upload de la photo ${pictureUrl}`, { error: error.message });
+            return null;
+        }
+
+        const { data: { publicUrl } } = supabase.storage
+            .from('student_pictures')
+            .getPublicUrl(pictureUrl);
+        
+        sendSyncLog('info', `  -> 🖼️ Photo ${pictureUrl} uploadée avec succès. URL: ${publicUrl}`);
+        return publicUrl;
+
+    } catch (fileError) {
+        sendSyncLog('error', `  -> ❌ Impossible de lire le fichier image local ${imagePath}`, { error: fileError.message });
+        return null;
+    }
+}
+
 // --- Table Configurations for Synchronization ---
 const tableConfigs = {
     classes: {
@@ -55,14 +91,29 @@ const tableConfigs = {
         name: 'students', model: 'students',
         pullSelect: '*, registrations!inner(*)',
         pullFilterColumn: 'registrations.school_id',
-        supabaseMap: (row) => ({ 
-            name: row.name,
-            first_name: row.first_name,
-            genre: row.genre,
-            birth_date: row.birth_date,
-            // picture_url: row.picture_url, // Colonne non existante sur Supabase
-            matricul: row.matricul
-        }),
+        supabaseMap: async (row, schoolId, prisma, supabase) => {
+            let newPictureUrl = row.picture_url;
+            // Check if we have a local, non-synced picture
+            if (row.picture_url && !row.picture_url.startsWith('http')) {
+                newPictureUrl = await uploadStudentPhoto(supabase, row.picture_url);
+                if (newPictureUrl) {
+                    // Update local record with the new Supabase URL to prevent re-uploads
+                    await prisma.students.update({
+                        where: { id: row.id },
+                        data: { picture_url: newPictureUrl }
+                    });
+                }
+            }
+            
+            return { 
+                name: row.name,
+                first_name: row.first_name,
+                genre: row.genre,
+                birth_date: row.birth_date,
+                picture_url: newPictureUrl, // Use the potentially new URL
+                matricul: row.matricul
+            };
+        },
         localMap: (row) => ({ 
             name: row.name,
             first_name: row.first_name,
@@ -367,6 +418,52 @@ const tableConfigs = {
             level: row.level 
         })
     },
+    financial_categories: {
+        name: 'financial_categories',
+        model: 'FinancialCategory',
+        pullSelect: '*',
+        pullFilterColumn: 'school_id',
+        supabaseMap: (row, schoolId) => ({
+            name: row.name,
+            type: row.type,
+            school_id: schoolId
+        }),
+        localMap: (row) => ({
+            name: row.name,
+            type: row.type,
+            school_id: row.school_id
+        })
+    },
+    financial_transactions: {
+        name: 'financial_transactions',
+        model: 'FinancialTransaction',
+        pullSelect: '*',
+        pullFilterColumn: 'school_id',
+        supabaseMap: async (row, schoolId, prisma) => {
+            const categorySupabaseId = await getSupabaseId(prisma, 'FinancialCategory', row.category_id, schoolId);
+            if (!categorySupabaseId) return null;
+            return {
+                date: row.date,
+                description: row.description,
+                amount: row.amount,
+                type: row.type,
+                category_id: categorySupabaseId,
+                school_id: schoolId
+            };
+        },
+        localMap: async (row, prisma) => {
+            const categoryLocalId = await getLocalId(prisma, 'FinancialCategory', row.category_id);
+            if (!categoryLocalId) return null;
+            return {
+                date: row.date,
+                description: row.description,
+                amount: row.amount,
+                type: row.type,
+                categoryId: categoryLocalId,
+                school_id: row.school_id
+            };
+        }
+    },
     attendances: {
         name: 'attendances', model: 'attendances',
         pullSelect: '*, students!inner(registrations!inner(*))',
@@ -599,6 +696,7 @@ const syncOrder = [
     'teachers', 
     'employees', 
     'fees',
+    'financial_categories',
     
     // Entités dépendant des entités de base
     'subjects',        // Dépend de 'classes'
@@ -607,6 +705,7 @@ const syncOrder = [
     'attendances',     // Dépend de 'students'
     'salary_payments', // Dépend de 'employees'
     'teacher_work_hours', // Dépend de 'teachers' et 'subjects'
+    'financial_transactions',
     
     // Entités dépendant du niveau précédent
     'lessons',         // Dépend de 'teachers', 'classes', 'subjects'
@@ -633,6 +732,7 @@ async function pushChanges(prisma, schoolId, supabase) {
 
         for (const row of rowsToSync) {
             try {
+                sendSyncLog('info', `[DEBUG] Définition de supabaseMap pour ${config.name} #${row.id}:`, { function: config.supabaseMap.toString() });
                 if (row.is_deleted) {
                     if (row.supabase_id) {
                         sendSyncLog('info', `  -> 🗑️  [DELETE] Suppression de ${config.name} #${row.id} sur Supabase...`);
@@ -698,6 +798,7 @@ async function pullChanges(prisma, schoolId, supabase) {
             schedules: { lessonId: 'lesson' },
             salary_payments: { employee_id: 'employee' },
             teacherWorkHours: { teacherId: 'teacher', subjectId: 'subject' },
+            financial_transactions: { categoryId: 'category' }
         };
 
         const modelRelations = relationsMap[modelName];
@@ -789,16 +890,42 @@ async function pullChanges(prisma, schoolId, supabase) {
                         sendSyncLog('success', `       ✅ Mise à jour locale réussie.`);
                     }
                 } else { // Insert
-                    sendSyncLog('info', `    -> ✨  [CREATE] Création de ${config.name} (supabase_id: ${row.id}) localement...`, { data: prismaData });
-                    await prisma[modelName].create({
-                        data: {
-                            ...prismaData,
-                            supabase_id: row.id,
-                            last_modified: new Date(row.last_modified),
-                            needs_sync: false,
-                        },
-                    });
-                    sendSyncLog('success', `       ✅ Création locale réussie.`);
+                    if (modelName === 'studentParents') {
+                        sendSyncLog('info', `    -> 🔀  [UPSERT] Mise à jour ou création de ${config.name} (supabase_id: ${row.id}) localement...`, { data: prismaData });
+                        // Special handling for student_parents due to its unique constraint
+                        await prisma.studentParents.upsert({
+                            where: {
+                                student_id_parent_id_unique: {
+                                    student_id: prismaData.student.connect.id,
+                                    parent_id: prismaData.parent.connect.id,
+                                }
+                            },
+                            update: {
+                                supabase_id: row.id,
+                                last_modified: new Date(row.last_modified),
+                                is_deleted: false,
+                                needs_sync: false
+                            },
+                            create: {
+                                ...prismaData,
+                                supabase_id: row.id,
+                                last_modified: new Date(row.last_modified),
+                                needs_sync: false,
+                            }
+                        });
+                        sendSyncLog('success', `       ✅ Upsert local réussi.`);
+                    } else {
+                        sendSyncLog('info', `    -> ✨  [CREATE] Création de ${config.name} (supabase_id: ${row.id}) localement...`, { data: prismaData });
+                        await prisma[modelName].create({
+                            data: {
+                                ...prismaData,
+                                supabase_id: row.id,
+                                last_modified: new Date(row.last_modified),
+                                needs_sync: false,
+                            },
+                        });
+                        sendSyncLog('success', `       ✅ Création locale réussie.`);
+                    }
                 }
             } catch (error) {
                 sendSyncLog('error', `  -> ❌  [ERREUR PULL] Échec pour la ligne supabase_id: ${row.id} de la table ${config.name}:`, { error: error.message });
@@ -843,11 +970,12 @@ async function runSync(prisma, schoolId, token) {
     }
 }
 
-function setupSyncIPC(prisma) {
+function setupSyncIPC(prisma, imagesDir) {
   if (isSyncIpcSetup) {
     return;
   }
   isSyncIpcSetup = true;
+  localImagesDir = imagesDir;
     ipcMain.handle('sync:run', async (event, { schoolId, token }) => {
         try {
             await runSync(prisma, schoolId, token);

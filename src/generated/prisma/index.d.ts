@@ -98,6 +98,16 @@ export type SalaryPayments = $Result.DefaultSelection<Prisma.$SalaryPaymentsPayl
  * 
  */
 export type Schedules = $Result.DefaultSelection<Prisma.$SchedulesPayload>
+/**
+ * Model FinancialCategory
+ * 
+ */
+export type FinancialCategory = $Result.DefaultSelection<Prisma.$FinancialCategoryPayload>
+/**
+ * Model FinancialTransaction
+ * 
+ */
+export type FinancialTransaction = $Result.DefaultSelection<Prisma.$FinancialTransactionPayload>
 
 /**
  * ##  Prisma Client ʲˢ
@@ -386,6 +396,26 @@ export class PrismaClient<
     * ```
     */
   get schedules(): Prisma.SchedulesDelegate<ExtArgs, ClientOptions>;
+
+  /**
+   * `prisma.financialCategory`: Exposes CRUD operations for the **FinancialCategory** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more FinancialCategories
+    * const financialCategories = await prisma.financialCategory.findMany()
+    * ```
+    */
+  get financialCategory(): Prisma.FinancialCategoryDelegate<ExtArgs, ClientOptions>;
+
+  /**
+   * `prisma.financialTransaction`: Exposes CRUD operations for the **FinancialTransaction** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more FinancialTransactions
+    * const financialTransactions = await prisma.financialTransaction.findMany()
+    * ```
+    */
+  get financialTransaction(): Prisma.FinancialTransactionDelegate<ExtArgs, ClientOptions>;
 }
 
 export namespace Prisma {
@@ -444,8 +474,8 @@ export namespace Prisma {
   export import Exact = $Public.Exact
 
   /**
-   * Prisma Client JS version: 6.14.0
-   * Query Engine version: 717184b7b35ea05dfa71a3236b7af656013e1e49
+   * Prisma Client JS version: 6.15.0
+   * Query Engine version: 85179d7826409ee107a6ba334b5e305ae3fba9fb
    */
   export type PrismaVersion = {
     client: string
@@ -842,7 +872,9 @@ export namespace Prisma {
     Attendances: 'Attendances',
     Employees: 'Employees',
     SalaryPayments: 'SalaryPayments',
-    Schedules: 'Schedules'
+    Schedules: 'Schedules',
+    FinancialCategory: 'FinancialCategory',
+    FinancialTransaction: 'FinancialTransaction'
   };
 
   export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -861,7 +893,7 @@ export namespace Prisma {
       omit: GlobalOmitOptions
     }
     meta: {
-      modelProps: "settings" | "classes" | "students" | "registrations" | "teachers" | "teacherWorkHours" | "lessons" | "subjects" | "notes" | "parents" | "studentParents" | "payments" | "fees" | "attendances" | "employees" | "salaryPayments" | "schedules"
+      modelProps: "settings" | "classes" | "students" | "registrations" | "teachers" | "teacherWorkHours" | "lessons" | "subjects" | "notes" | "parents" | "studentParents" | "payments" | "fees" | "attendances" | "employees" | "salaryPayments" | "schedules" | "financialCategory" | "financialTransaction"
       txIsolationLevel: Prisma.TransactionIsolationLevel
     }
     model: {
@@ -2123,6 +2155,154 @@ export namespace Prisma {
           }
         }
       }
+      FinancialCategory: {
+        payload: Prisma.$FinancialCategoryPayload<ExtArgs>
+        fields: Prisma.FinancialCategoryFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.FinancialCategoryFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$FinancialCategoryPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.FinancialCategoryFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$FinancialCategoryPayload>
+          }
+          findFirst: {
+            args: Prisma.FinancialCategoryFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$FinancialCategoryPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.FinancialCategoryFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$FinancialCategoryPayload>
+          }
+          findMany: {
+            args: Prisma.FinancialCategoryFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$FinancialCategoryPayload>[]
+          }
+          create: {
+            args: Prisma.FinancialCategoryCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$FinancialCategoryPayload>
+          }
+          createMany: {
+            args: Prisma.FinancialCategoryCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.FinancialCategoryCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$FinancialCategoryPayload>[]
+          }
+          delete: {
+            args: Prisma.FinancialCategoryDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$FinancialCategoryPayload>
+          }
+          update: {
+            args: Prisma.FinancialCategoryUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$FinancialCategoryPayload>
+          }
+          deleteMany: {
+            args: Prisma.FinancialCategoryDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.FinancialCategoryUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateManyAndReturn: {
+            args: Prisma.FinancialCategoryUpdateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$FinancialCategoryPayload>[]
+          }
+          upsert: {
+            args: Prisma.FinancialCategoryUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$FinancialCategoryPayload>
+          }
+          aggregate: {
+            args: Prisma.FinancialCategoryAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateFinancialCategory>
+          }
+          groupBy: {
+            args: Prisma.FinancialCategoryGroupByArgs<ExtArgs>
+            result: $Utils.Optional<FinancialCategoryGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.FinancialCategoryCountArgs<ExtArgs>
+            result: $Utils.Optional<FinancialCategoryCountAggregateOutputType> | number
+          }
+        }
+      }
+      FinancialTransaction: {
+        payload: Prisma.$FinancialTransactionPayload<ExtArgs>
+        fields: Prisma.FinancialTransactionFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.FinancialTransactionFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$FinancialTransactionPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.FinancialTransactionFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$FinancialTransactionPayload>
+          }
+          findFirst: {
+            args: Prisma.FinancialTransactionFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$FinancialTransactionPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.FinancialTransactionFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$FinancialTransactionPayload>
+          }
+          findMany: {
+            args: Prisma.FinancialTransactionFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$FinancialTransactionPayload>[]
+          }
+          create: {
+            args: Prisma.FinancialTransactionCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$FinancialTransactionPayload>
+          }
+          createMany: {
+            args: Prisma.FinancialTransactionCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.FinancialTransactionCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$FinancialTransactionPayload>[]
+          }
+          delete: {
+            args: Prisma.FinancialTransactionDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$FinancialTransactionPayload>
+          }
+          update: {
+            args: Prisma.FinancialTransactionUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$FinancialTransactionPayload>
+          }
+          deleteMany: {
+            args: Prisma.FinancialTransactionDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.FinancialTransactionUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateManyAndReturn: {
+            args: Prisma.FinancialTransactionUpdateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$FinancialTransactionPayload>[]
+          }
+          upsert: {
+            args: Prisma.FinancialTransactionUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$FinancialTransactionPayload>
+          }
+          aggregate: {
+            args: Prisma.FinancialTransactionAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateFinancialTransaction>
+          }
+          groupBy: {
+            args: Prisma.FinancialTransactionGroupByArgs<ExtArgs>
+            result: $Utils.Optional<FinancialTransactionGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.FinancialTransactionCountArgs<ExtArgs>
+            result: $Utils.Optional<FinancialTransactionCountAggregateOutputType> | number
+          }
+        }
+      }
     }
   } & {
     other: {
@@ -2232,6 +2412,8 @@ export namespace Prisma {
     employees?: EmployeesOmit
     salaryPayments?: SalaryPaymentsOmit
     schedules?: SchedulesOmit
+    financialCategory?: FinancialCategoryOmit
+    financialTransaction?: FinancialTransactionOmit
   }
 
   /* Types for Logging */
@@ -2655,6 +2837,37 @@ export namespace Prisma {
    */
   export type EmployeesCountOutputTypeCountSalary_paymentsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     where?: SalaryPaymentsWhereInput
+  }
+
+
+  /**
+   * Count Type FinancialCategoryCountOutputType
+   */
+
+  export type FinancialCategoryCountOutputType = {
+    transactions: number
+  }
+
+  export type FinancialCategoryCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    transactions?: boolean | FinancialCategoryCountOutputTypeCountTransactionsArgs
+  }
+
+  // Custom InputTypes
+  /**
+   * FinancialCategoryCountOutputType without action
+   */
+  export type FinancialCategoryCountOutputTypeDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the FinancialCategoryCountOutputType
+     */
+    select?: FinancialCategoryCountOutputTypeSelect<ExtArgs> | null
+  }
+
+  /**
+   * FinancialCategoryCountOutputType without action
+   */
+  export type FinancialCategoryCountOutputTypeCountTransactionsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: FinancialTransactionWhereInput
   }
 
 
@@ -17157,6 +17370,7 @@ export namespace Prisma {
     due_date: string | null
     school_year: string | null
     level: string | null
+    school_id: string | null
     supabase_id: string | null
     last_modified: Date | null
     needs_sync: boolean | null
@@ -17170,6 +17384,7 @@ export namespace Prisma {
     due_date: string | null
     school_year: string | null
     level: string | null
+    school_id: string | null
     supabase_id: string | null
     last_modified: Date | null
     needs_sync: boolean | null
@@ -17183,6 +17398,7 @@ export namespace Prisma {
     due_date: number
     school_year: number
     level: number
+    school_id: number
     supabase_id: number
     last_modified: number
     needs_sync: number
@@ -17208,6 +17424,7 @@ export namespace Prisma {
     due_date?: true
     school_year?: true
     level?: true
+    school_id?: true
     supabase_id?: true
     last_modified?: true
     needs_sync?: true
@@ -17221,6 +17438,7 @@ export namespace Prisma {
     due_date?: true
     school_year?: true
     level?: true
+    school_id?: true
     supabase_id?: true
     last_modified?: true
     needs_sync?: true
@@ -17234,6 +17452,7 @@ export namespace Prisma {
     due_date?: true
     school_year?: true
     level?: true
+    school_id?: true
     supabase_id?: true
     last_modified?: true
     needs_sync?: true
@@ -17334,6 +17553,7 @@ export namespace Prisma {
     due_date: string | null
     school_year: string | null
     level: string | null
+    school_id: string | null
     supabase_id: string | null
     last_modified: Date
     needs_sync: boolean
@@ -17366,6 +17586,7 @@ export namespace Prisma {
     due_date?: boolean
     school_year?: boolean
     level?: boolean
+    school_id?: boolean
     supabase_id?: boolean
     last_modified?: boolean
     needs_sync?: boolean
@@ -17381,6 +17602,7 @@ export namespace Prisma {
     due_date?: boolean
     school_year?: boolean
     level?: boolean
+    school_id?: boolean
     supabase_id?: boolean
     last_modified?: boolean
     needs_sync?: boolean
@@ -17394,6 +17616,7 @@ export namespace Prisma {
     due_date?: boolean
     school_year?: boolean
     level?: boolean
+    school_id?: boolean
     supabase_id?: boolean
     last_modified?: boolean
     needs_sync?: boolean
@@ -17407,13 +17630,14 @@ export namespace Prisma {
     due_date?: boolean
     school_year?: boolean
     level?: boolean
+    school_id?: boolean
     supabase_id?: boolean
     last_modified?: boolean
     needs_sync?: boolean
     is_deleted?: boolean
   }
 
-  export type FeesOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "name" | "amount" | "due_date" | "school_year" | "level" | "supabase_id" | "last_modified" | "needs_sync" | "is_deleted", ExtArgs["result"]["fees"]>
+  export type FeesOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "name" | "amount" | "due_date" | "school_year" | "level" | "school_id" | "supabase_id" | "last_modified" | "needs_sync" | "is_deleted", ExtArgs["result"]["fees"]>
   export type FeesInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     payments?: boolean | Fees$paymentsArgs<ExtArgs>
     _count?: boolean | FeesCountOutputTypeDefaultArgs<ExtArgs>
@@ -17433,6 +17657,7 @@ export namespace Prisma {
       due_date: string | null
       school_year: string | null
       level: string | null
+      school_id: string | null
       supabase_id: string | null
       last_modified: Date
       needs_sync: boolean
@@ -17867,6 +18092,7 @@ export namespace Prisma {
     readonly due_date: FieldRef<"Fees", 'String'>
     readonly school_year: FieldRef<"Fees", 'String'>
     readonly level: FieldRef<"Fees", 'String'>
+    readonly school_id: FieldRef<"Fees", 'String'>
     readonly supabase_id: FieldRef<"Fees", 'String'>
     readonly last_modified: FieldRef<"Fees", 'DateTime'>
     readonly needs_sync: FieldRef<"Fees", 'Boolean'>
@@ -23038,6 +23264,2323 @@ export namespace Prisma {
 
 
   /**
+   * Model FinancialCategory
+   */
+
+  export type AggregateFinancialCategory = {
+    _count: FinancialCategoryCountAggregateOutputType | null
+    _avg: FinancialCategoryAvgAggregateOutputType | null
+    _sum: FinancialCategorySumAggregateOutputType | null
+    _min: FinancialCategoryMinAggregateOutputType | null
+    _max: FinancialCategoryMaxAggregateOutputType | null
+  }
+
+  export type FinancialCategoryAvgAggregateOutputType = {
+    id: number | null
+  }
+
+  export type FinancialCategorySumAggregateOutputType = {
+    id: number | null
+  }
+
+  export type FinancialCategoryMinAggregateOutputType = {
+    id: number | null
+    name: string | null
+    type: string | null
+    school_id: string | null
+    supabase_id: string | null
+    last_modified: Date | null
+    needs_sync: boolean | null
+    is_deleted: boolean | null
+  }
+
+  export type FinancialCategoryMaxAggregateOutputType = {
+    id: number | null
+    name: string | null
+    type: string | null
+    school_id: string | null
+    supabase_id: string | null
+    last_modified: Date | null
+    needs_sync: boolean | null
+    is_deleted: boolean | null
+  }
+
+  export type FinancialCategoryCountAggregateOutputType = {
+    id: number
+    name: number
+    type: number
+    school_id: number
+    supabase_id: number
+    last_modified: number
+    needs_sync: number
+    is_deleted: number
+    _all: number
+  }
+
+
+  export type FinancialCategoryAvgAggregateInputType = {
+    id?: true
+  }
+
+  export type FinancialCategorySumAggregateInputType = {
+    id?: true
+  }
+
+  export type FinancialCategoryMinAggregateInputType = {
+    id?: true
+    name?: true
+    type?: true
+    school_id?: true
+    supabase_id?: true
+    last_modified?: true
+    needs_sync?: true
+    is_deleted?: true
+  }
+
+  export type FinancialCategoryMaxAggregateInputType = {
+    id?: true
+    name?: true
+    type?: true
+    school_id?: true
+    supabase_id?: true
+    last_modified?: true
+    needs_sync?: true
+    is_deleted?: true
+  }
+
+  export type FinancialCategoryCountAggregateInputType = {
+    id?: true
+    name?: true
+    type?: true
+    school_id?: true
+    supabase_id?: true
+    last_modified?: true
+    needs_sync?: true
+    is_deleted?: true
+    _all?: true
+  }
+
+  export type FinancialCategoryAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which FinancialCategory to aggregate.
+     */
+    where?: FinancialCategoryWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of FinancialCategories to fetch.
+     */
+    orderBy?: FinancialCategoryOrderByWithRelationInput | FinancialCategoryOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: FinancialCategoryWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` FinancialCategories from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` FinancialCategories.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned FinancialCategories
+    **/
+    _count?: true | FinancialCategoryCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to average
+    **/
+    _avg?: FinancialCategoryAvgAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to sum
+    **/
+    _sum?: FinancialCategorySumAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: FinancialCategoryMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: FinancialCategoryMaxAggregateInputType
+  }
+
+  export type GetFinancialCategoryAggregateType<T extends FinancialCategoryAggregateArgs> = {
+        [P in keyof T & keyof AggregateFinancialCategory]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateFinancialCategory[P]>
+      : GetScalarType<T[P], AggregateFinancialCategory[P]>
+  }
+
+
+
+
+  export type FinancialCategoryGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: FinancialCategoryWhereInput
+    orderBy?: FinancialCategoryOrderByWithAggregationInput | FinancialCategoryOrderByWithAggregationInput[]
+    by: FinancialCategoryScalarFieldEnum[] | FinancialCategoryScalarFieldEnum
+    having?: FinancialCategoryScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: FinancialCategoryCountAggregateInputType | true
+    _avg?: FinancialCategoryAvgAggregateInputType
+    _sum?: FinancialCategorySumAggregateInputType
+    _min?: FinancialCategoryMinAggregateInputType
+    _max?: FinancialCategoryMaxAggregateInputType
+  }
+
+  export type FinancialCategoryGroupByOutputType = {
+    id: number
+    name: string
+    type: string
+    school_id: string | null
+    supabase_id: string | null
+    last_modified: Date
+    needs_sync: boolean
+    is_deleted: boolean
+    _count: FinancialCategoryCountAggregateOutputType | null
+    _avg: FinancialCategoryAvgAggregateOutputType | null
+    _sum: FinancialCategorySumAggregateOutputType | null
+    _min: FinancialCategoryMinAggregateOutputType | null
+    _max: FinancialCategoryMaxAggregateOutputType | null
+  }
+
+  type GetFinancialCategoryGroupByPayload<T extends FinancialCategoryGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<FinancialCategoryGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof FinancialCategoryGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], FinancialCategoryGroupByOutputType[P]>
+            : GetScalarType<T[P], FinancialCategoryGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type FinancialCategorySelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    name?: boolean
+    type?: boolean
+    school_id?: boolean
+    supabase_id?: boolean
+    last_modified?: boolean
+    needs_sync?: boolean
+    is_deleted?: boolean
+    transactions?: boolean | FinancialCategory$transactionsArgs<ExtArgs>
+    _count?: boolean | FinancialCategoryCountOutputTypeDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["financialCategory"]>
+
+  export type FinancialCategorySelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    name?: boolean
+    type?: boolean
+    school_id?: boolean
+    supabase_id?: boolean
+    last_modified?: boolean
+    needs_sync?: boolean
+    is_deleted?: boolean
+  }, ExtArgs["result"]["financialCategory"]>
+
+  export type FinancialCategorySelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    name?: boolean
+    type?: boolean
+    school_id?: boolean
+    supabase_id?: boolean
+    last_modified?: boolean
+    needs_sync?: boolean
+    is_deleted?: boolean
+  }, ExtArgs["result"]["financialCategory"]>
+
+  export type FinancialCategorySelectScalar = {
+    id?: boolean
+    name?: boolean
+    type?: boolean
+    school_id?: boolean
+    supabase_id?: boolean
+    last_modified?: boolean
+    needs_sync?: boolean
+    is_deleted?: boolean
+  }
+
+  export type FinancialCategoryOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "name" | "type" | "school_id" | "supabase_id" | "last_modified" | "needs_sync" | "is_deleted", ExtArgs["result"]["financialCategory"]>
+  export type FinancialCategoryInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    transactions?: boolean | FinancialCategory$transactionsArgs<ExtArgs>
+    _count?: boolean | FinancialCategoryCountOutputTypeDefaultArgs<ExtArgs>
+  }
+  export type FinancialCategoryIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {}
+  export type FinancialCategoryIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {}
+
+  export type $FinancialCategoryPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "FinancialCategory"
+    objects: {
+      transactions: Prisma.$FinancialTransactionPayload<ExtArgs>[]
+    }
+    scalars: $Extensions.GetPayloadResult<{
+      id: number
+      name: string
+      type: string
+      school_id: string | null
+      supabase_id: string | null
+      last_modified: Date
+      needs_sync: boolean
+      is_deleted: boolean
+    }, ExtArgs["result"]["financialCategory"]>
+    composites: {}
+  }
+
+  type FinancialCategoryGetPayload<S extends boolean | null | undefined | FinancialCategoryDefaultArgs> = $Result.GetResult<Prisma.$FinancialCategoryPayload, S>
+
+  type FinancialCategoryCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<FinancialCategoryFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: FinancialCategoryCountAggregateInputType | true
+    }
+
+  export interface FinancialCategoryDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['FinancialCategory'], meta: { name: 'FinancialCategory' } }
+    /**
+     * Find zero or one FinancialCategory that matches the filter.
+     * @param {FinancialCategoryFindUniqueArgs} args - Arguments to find a FinancialCategory
+     * @example
+     * // Get one FinancialCategory
+     * const financialCategory = await prisma.financialCategory.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends FinancialCategoryFindUniqueArgs>(args: SelectSubset<T, FinancialCategoryFindUniqueArgs<ExtArgs>>): Prisma__FinancialCategoryClient<$Result.GetResult<Prisma.$FinancialCategoryPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one FinancialCategory that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {FinancialCategoryFindUniqueOrThrowArgs} args - Arguments to find a FinancialCategory
+     * @example
+     * // Get one FinancialCategory
+     * const financialCategory = await prisma.financialCategory.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends FinancialCategoryFindUniqueOrThrowArgs>(args: SelectSubset<T, FinancialCategoryFindUniqueOrThrowArgs<ExtArgs>>): Prisma__FinancialCategoryClient<$Result.GetResult<Prisma.$FinancialCategoryPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first FinancialCategory that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {FinancialCategoryFindFirstArgs} args - Arguments to find a FinancialCategory
+     * @example
+     * // Get one FinancialCategory
+     * const financialCategory = await prisma.financialCategory.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends FinancialCategoryFindFirstArgs>(args?: SelectSubset<T, FinancialCategoryFindFirstArgs<ExtArgs>>): Prisma__FinancialCategoryClient<$Result.GetResult<Prisma.$FinancialCategoryPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first FinancialCategory that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {FinancialCategoryFindFirstOrThrowArgs} args - Arguments to find a FinancialCategory
+     * @example
+     * // Get one FinancialCategory
+     * const financialCategory = await prisma.financialCategory.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends FinancialCategoryFindFirstOrThrowArgs>(args?: SelectSubset<T, FinancialCategoryFindFirstOrThrowArgs<ExtArgs>>): Prisma__FinancialCategoryClient<$Result.GetResult<Prisma.$FinancialCategoryPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more FinancialCategories that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {FinancialCategoryFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all FinancialCategories
+     * const financialCategories = await prisma.financialCategory.findMany()
+     * 
+     * // Get first 10 FinancialCategories
+     * const financialCategories = await prisma.financialCategory.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const financialCategoryWithIdOnly = await prisma.financialCategory.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends FinancialCategoryFindManyArgs>(args?: SelectSubset<T, FinancialCategoryFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$FinancialCategoryPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a FinancialCategory.
+     * @param {FinancialCategoryCreateArgs} args - Arguments to create a FinancialCategory.
+     * @example
+     * // Create one FinancialCategory
+     * const FinancialCategory = await prisma.financialCategory.create({
+     *   data: {
+     *     // ... data to create a FinancialCategory
+     *   }
+     * })
+     * 
+     */
+    create<T extends FinancialCategoryCreateArgs>(args: SelectSubset<T, FinancialCategoryCreateArgs<ExtArgs>>): Prisma__FinancialCategoryClient<$Result.GetResult<Prisma.$FinancialCategoryPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many FinancialCategories.
+     * @param {FinancialCategoryCreateManyArgs} args - Arguments to create many FinancialCategories.
+     * @example
+     * // Create many FinancialCategories
+     * const financialCategory = await prisma.financialCategory.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends FinancialCategoryCreateManyArgs>(args?: SelectSubset<T, FinancialCategoryCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many FinancialCategories and returns the data saved in the database.
+     * @param {FinancialCategoryCreateManyAndReturnArgs} args - Arguments to create many FinancialCategories.
+     * @example
+     * // Create many FinancialCategories
+     * const financialCategory = await prisma.financialCategory.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many FinancialCategories and only return the `id`
+     * const financialCategoryWithIdOnly = await prisma.financialCategory.createManyAndReturn({
+     *   select: { id: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends FinancialCategoryCreateManyAndReturnArgs>(args?: SelectSubset<T, FinancialCategoryCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$FinancialCategoryPayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Delete a FinancialCategory.
+     * @param {FinancialCategoryDeleteArgs} args - Arguments to delete one FinancialCategory.
+     * @example
+     * // Delete one FinancialCategory
+     * const FinancialCategory = await prisma.financialCategory.delete({
+     *   where: {
+     *     // ... filter to delete one FinancialCategory
+     *   }
+     * })
+     * 
+     */
+    delete<T extends FinancialCategoryDeleteArgs>(args: SelectSubset<T, FinancialCategoryDeleteArgs<ExtArgs>>): Prisma__FinancialCategoryClient<$Result.GetResult<Prisma.$FinancialCategoryPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one FinancialCategory.
+     * @param {FinancialCategoryUpdateArgs} args - Arguments to update one FinancialCategory.
+     * @example
+     * // Update one FinancialCategory
+     * const financialCategory = await prisma.financialCategory.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends FinancialCategoryUpdateArgs>(args: SelectSubset<T, FinancialCategoryUpdateArgs<ExtArgs>>): Prisma__FinancialCategoryClient<$Result.GetResult<Prisma.$FinancialCategoryPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more FinancialCategories.
+     * @param {FinancialCategoryDeleteManyArgs} args - Arguments to filter FinancialCategories to delete.
+     * @example
+     * // Delete a few FinancialCategories
+     * const { count } = await prisma.financialCategory.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends FinancialCategoryDeleteManyArgs>(args?: SelectSubset<T, FinancialCategoryDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more FinancialCategories.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {FinancialCategoryUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many FinancialCategories
+     * const financialCategory = await prisma.financialCategory.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends FinancialCategoryUpdateManyArgs>(args: SelectSubset<T, FinancialCategoryUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more FinancialCategories and returns the data updated in the database.
+     * @param {FinancialCategoryUpdateManyAndReturnArgs} args - Arguments to update many FinancialCategories.
+     * @example
+     * // Update many FinancialCategories
+     * const financialCategory = await prisma.financialCategory.updateManyAndReturn({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Update zero or more FinancialCategories and only return the `id`
+     * const financialCategoryWithIdOnly = await prisma.financialCategory.updateManyAndReturn({
+     *   select: { id: true },
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    updateManyAndReturn<T extends FinancialCategoryUpdateManyAndReturnArgs>(args: SelectSubset<T, FinancialCategoryUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$FinancialCategoryPayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Create or update one FinancialCategory.
+     * @param {FinancialCategoryUpsertArgs} args - Arguments to update or create a FinancialCategory.
+     * @example
+     * // Update or create a FinancialCategory
+     * const financialCategory = await prisma.financialCategory.upsert({
+     *   create: {
+     *     // ... data to create a FinancialCategory
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the FinancialCategory we want to update
+     *   }
+     * })
+     */
+    upsert<T extends FinancialCategoryUpsertArgs>(args: SelectSubset<T, FinancialCategoryUpsertArgs<ExtArgs>>): Prisma__FinancialCategoryClient<$Result.GetResult<Prisma.$FinancialCategoryPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+
+    /**
+     * Count the number of FinancialCategories.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {FinancialCategoryCountArgs} args - Arguments to filter FinancialCategories to count.
+     * @example
+     * // Count the number of FinancialCategories
+     * const count = await prisma.financialCategory.count({
+     *   where: {
+     *     // ... the filter for the FinancialCategories we want to count
+     *   }
+     * })
+    **/
+    count<T extends FinancialCategoryCountArgs>(
+      args?: Subset<T, FinancialCategoryCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], FinancialCategoryCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a FinancialCategory.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {FinancialCategoryAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends FinancialCategoryAggregateArgs>(args: Subset<T, FinancialCategoryAggregateArgs>): Prisma.PrismaPromise<GetFinancialCategoryAggregateType<T>>
+
+    /**
+     * Group by FinancialCategory.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {FinancialCategoryGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends FinancialCategoryGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: FinancialCategoryGroupByArgs['orderBy'] }
+        : { orderBy?: FinancialCategoryGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, FinancialCategoryGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetFinancialCategoryGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the FinancialCategory model
+   */
+  readonly fields: FinancialCategoryFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for FinancialCategory.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__FinancialCategoryClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    transactions<T extends FinancialCategory$transactionsArgs<ExtArgs> = {}>(args?: Subset<T, FinancialCategory$transactionsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$FinancialTransactionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the FinancialCategory model
+   */
+  interface FinancialCategoryFieldRefs {
+    readonly id: FieldRef<"FinancialCategory", 'Int'>
+    readonly name: FieldRef<"FinancialCategory", 'String'>
+    readonly type: FieldRef<"FinancialCategory", 'String'>
+    readonly school_id: FieldRef<"FinancialCategory", 'String'>
+    readonly supabase_id: FieldRef<"FinancialCategory", 'String'>
+    readonly last_modified: FieldRef<"FinancialCategory", 'DateTime'>
+    readonly needs_sync: FieldRef<"FinancialCategory", 'Boolean'>
+    readonly is_deleted: FieldRef<"FinancialCategory", 'Boolean'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * FinancialCategory findUnique
+   */
+  export type FinancialCategoryFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the FinancialCategory
+     */
+    select?: FinancialCategorySelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the FinancialCategory
+     */
+    omit?: FinancialCategoryOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: FinancialCategoryInclude<ExtArgs> | null
+    /**
+     * Filter, which FinancialCategory to fetch.
+     */
+    where: FinancialCategoryWhereUniqueInput
+  }
+
+  /**
+   * FinancialCategory findUniqueOrThrow
+   */
+  export type FinancialCategoryFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the FinancialCategory
+     */
+    select?: FinancialCategorySelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the FinancialCategory
+     */
+    omit?: FinancialCategoryOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: FinancialCategoryInclude<ExtArgs> | null
+    /**
+     * Filter, which FinancialCategory to fetch.
+     */
+    where: FinancialCategoryWhereUniqueInput
+  }
+
+  /**
+   * FinancialCategory findFirst
+   */
+  export type FinancialCategoryFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the FinancialCategory
+     */
+    select?: FinancialCategorySelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the FinancialCategory
+     */
+    omit?: FinancialCategoryOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: FinancialCategoryInclude<ExtArgs> | null
+    /**
+     * Filter, which FinancialCategory to fetch.
+     */
+    where?: FinancialCategoryWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of FinancialCategories to fetch.
+     */
+    orderBy?: FinancialCategoryOrderByWithRelationInput | FinancialCategoryOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for FinancialCategories.
+     */
+    cursor?: FinancialCategoryWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` FinancialCategories from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` FinancialCategories.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of FinancialCategories.
+     */
+    distinct?: FinancialCategoryScalarFieldEnum | FinancialCategoryScalarFieldEnum[]
+  }
+
+  /**
+   * FinancialCategory findFirstOrThrow
+   */
+  export type FinancialCategoryFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the FinancialCategory
+     */
+    select?: FinancialCategorySelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the FinancialCategory
+     */
+    omit?: FinancialCategoryOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: FinancialCategoryInclude<ExtArgs> | null
+    /**
+     * Filter, which FinancialCategory to fetch.
+     */
+    where?: FinancialCategoryWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of FinancialCategories to fetch.
+     */
+    orderBy?: FinancialCategoryOrderByWithRelationInput | FinancialCategoryOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for FinancialCategories.
+     */
+    cursor?: FinancialCategoryWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` FinancialCategories from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` FinancialCategories.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of FinancialCategories.
+     */
+    distinct?: FinancialCategoryScalarFieldEnum | FinancialCategoryScalarFieldEnum[]
+  }
+
+  /**
+   * FinancialCategory findMany
+   */
+  export type FinancialCategoryFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the FinancialCategory
+     */
+    select?: FinancialCategorySelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the FinancialCategory
+     */
+    omit?: FinancialCategoryOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: FinancialCategoryInclude<ExtArgs> | null
+    /**
+     * Filter, which FinancialCategories to fetch.
+     */
+    where?: FinancialCategoryWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of FinancialCategories to fetch.
+     */
+    orderBy?: FinancialCategoryOrderByWithRelationInput | FinancialCategoryOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing FinancialCategories.
+     */
+    cursor?: FinancialCategoryWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` FinancialCategories from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` FinancialCategories.
+     */
+    skip?: number
+    distinct?: FinancialCategoryScalarFieldEnum | FinancialCategoryScalarFieldEnum[]
+  }
+
+  /**
+   * FinancialCategory create
+   */
+  export type FinancialCategoryCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the FinancialCategory
+     */
+    select?: FinancialCategorySelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the FinancialCategory
+     */
+    omit?: FinancialCategoryOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: FinancialCategoryInclude<ExtArgs> | null
+    /**
+     * The data needed to create a FinancialCategory.
+     */
+    data: XOR<FinancialCategoryCreateInput, FinancialCategoryUncheckedCreateInput>
+  }
+
+  /**
+   * FinancialCategory createMany
+   */
+  export type FinancialCategoryCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many FinancialCategories.
+     */
+    data: FinancialCategoryCreateManyInput | FinancialCategoryCreateManyInput[]
+  }
+
+  /**
+   * FinancialCategory createManyAndReturn
+   */
+  export type FinancialCategoryCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the FinancialCategory
+     */
+    select?: FinancialCategorySelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the FinancialCategory
+     */
+    omit?: FinancialCategoryOmit<ExtArgs> | null
+    /**
+     * The data used to create many FinancialCategories.
+     */
+    data: FinancialCategoryCreateManyInput | FinancialCategoryCreateManyInput[]
+  }
+
+  /**
+   * FinancialCategory update
+   */
+  export type FinancialCategoryUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the FinancialCategory
+     */
+    select?: FinancialCategorySelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the FinancialCategory
+     */
+    omit?: FinancialCategoryOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: FinancialCategoryInclude<ExtArgs> | null
+    /**
+     * The data needed to update a FinancialCategory.
+     */
+    data: XOR<FinancialCategoryUpdateInput, FinancialCategoryUncheckedUpdateInput>
+    /**
+     * Choose, which FinancialCategory to update.
+     */
+    where: FinancialCategoryWhereUniqueInput
+  }
+
+  /**
+   * FinancialCategory updateMany
+   */
+  export type FinancialCategoryUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update FinancialCategories.
+     */
+    data: XOR<FinancialCategoryUpdateManyMutationInput, FinancialCategoryUncheckedUpdateManyInput>
+    /**
+     * Filter which FinancialCategories to update
+     */
+    where?: FinancialCategoryWhereInput
+    /**
+     * Limit how many FinancialCategories to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * FinancialCategory updateManyAndReturn
+   */
+  export type FinancialCategoryUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the FinancialCategory
+     */
+    select?: FinancialCategorySelectUpdateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the FinancialCategory
+     */
+    omit?: FinancialCategoryOmit<ExtArgs> | null
+    /**
+     * The data used to update FinancialCategories.
+     */
+    data: XOR<FinancialCategoryUpdateManyMutationInput, FinancialCategoryUncheckedUpdateManyInput>
+    /**
+     * Filter which FinancialCategories to update
+     */
+    where?: FinancialCategoryWhereInput
+    /**
+     * Limit how many FinancialCategories to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * FinancialCategory upsert
+   */
+  export type FinancialCategoryUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the FinancialCategory
+     */
+    select?: FinancialCategorySelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the FinancialCategory
+     */
+    omit?: FinancialCategoryOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: FinancialCategoryInclude<ExtArgs> | null
+    /**
+     * The filter to search for the FinancialCategory to update in case it exists.
+     */
+    where: FinancialCategoryWhereUniqueInput
+    /**
+     * In case the FinancialCategory found by the `where` argument doesn't exist, create a new FinancialCategory with this data.
+     */
+    create: XOR<FinancialCategoryCreateInput, FinancialCategoryUncheckedCreateInput>
+    /**
+     * In case the FinancialCategory was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<FinancialCategoryUpdateInput, FinancialCategoryUncheckedUpdateInput>
+  }
+
+  /**
+   * FinancialCategory delete
+   */
+  export type FinancialCategoryDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the FinancialCategory
+     */
+    select?: FinancialCategorySelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the FinancialCategory
+     */
+    omit?: FinancialCategoryOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: FinancialCategoryInclude<ExtArgs> | null
+    /**
+     * Filter which FinancialCategory to delete.
+     */
+    where: FinancialCategoryWhereUniqueInput
+  }
+
+  /**
+   * FinancialCategory deleteMany
+   */
+  export type FinancialCategoryDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which FinancialCategories to delete
+     */
+    where?: FinancialCategoryWhereInput
+    /**
+     * Limit how many FinancialCategories to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * FinancialCategory.transactions
+   */
+  export type FinancialCategory$transactionsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the FinancialTransaction
+     */
+    select?: FinancialTransactionSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the FinancialTransaction
+     */
+    omit?: FinancialTransactionOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: FinancialTransactionInclude<ExtArgs> | null
+    where?: FinancialTransactionWhereInput
+    orderBy?: FinancialTransactionOrderByWithRelationInput | FinancialTransactionOrderByWithRelationInput[]
+    cursor?: FinancialTransactionWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: FinancialTransactionScalarFieldEnum | FinancialTransactionScalarFieldEnum[]
+  }
+
+  /**
+   * FinancialCategory without action
+   */
+  export type FinancialCategoryDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the FinancialCategory
+     */
+    select?: FinancialCategorySelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the FinancialCategory
+     */
+    omit?: FinancialCategoryOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: FinancialCategoryInclude<ExtArgs> | null
+  }
+
+
+  /**
+   * Model FinancialTransaction
+   */
+
+  export type AggregateFinancialTransaction = {
+    _count: FinancialTransactionCountAggregateOutputType | null
+    _avg: FinancialTransactionAvgAggregateOutputType | null
+    _sum: FinancialTransactionSumAggregateOutputType | null
+    _min: FinancialTransactionMinAggregateOutputType | null
+    _max: FinancialTransactionMaxAggregateOutputType | null
+  }
+
+  export type FinancialTransactionAvgAggregateOutputType = {
+    id: number | null
+    amount: number | null
+    category_id: number | null
+  }
+
+  export type FinancialTransactionSumAggregateOutputType = {
+    id: number | null
+    amount: number | null
+    category_id: number | null
+  }
+
+  export type FinancialTransactionMinAggregateOutputType = {
+    id: number | null
+    date: Date | null
+    description: string | null
+    amount: number | null
+    type: string | null
+    category_id: number | null
+    school_id: string | null
+    supabase_id: string | null
+    last_modified: Date | null
+    needs_sync: boolean | null
+    is_deleted: boolean | null
+  }
+
+  export type FinancialTransactionMaxAggregateOutputType = {
+    id: number | null
+    date: Date | null
+    description: string | null
+    amount: number | null
+    type: string | null
+    category_id: number | null
+    school_id: string | null
+    supabase_id: string | null
+    last_modified: Date | null
+    needs_sync: boolean | null
+    is_deleted: boolean | null
+  }
+
+  export type FinancialTransactionCountAggregateOutputType = {
+    id: number
+    date: number
+    description: number
+    amount: number
+    type: number
+    category_id: number
+    school_id: number
+    supabase_id: number
+    last_modified: number
+    needs_sync: number
+    is_deleted: number
+    _all: number
+  }
+
+
+  export type FinancialTransactionAvgAggregateInputType = {
+    id?: true
+    amount?: true
+    category_id?: true
+  }
+
+  export type FinancialTransactionSumAggregateInputType = {
+    id?: true
+    amount?: true
+    category_id?: true
+  }
+
+  export type FinancialTransactionMinAggregateInputType = {
+    id?: true
+    date?: true
+    description?: true
+    amount?: true
+    type?: true
+    category_id?: true
+    school_id?: true
+    supabase_id?: true
+    last_modified?: true
+    needs_sync?: true
+    is_deleted?: true
+  }
+
+  export type FinancialTransactionMaxAggregateInputType = {
+    id?: true
+    date?: true
+    description?: true
+    amount?: true
+    type?: true
+    category_id?: true
+    school_id?: true
+    supabase_id?: true
+    last_modified?: true
+    needs_sync?: true
+    is_deleted?: true
+  }
+
+  export type FinancialTransactionCountAggregateInputType = {
+    id?: true
+    date?: true
+    description?: true
+    amount?: true
+    type?: true
+    category_id?: true
+    school_id?: true
+    supabase_id?: true
+    last_modified?: true
+    needs_sync?: true
+    is_deleted?: true
+    _all?: true
+  }
+
+  export type FinancialTransactionAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which FinancialTransaction to aggregate.
+     */
+    where?: FinancialTransactionWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of FinancialTransactions to fetch.
+     */
+    orderBy?: FinancialTransactionOrderByWithRelationInput | FinancialTransactionOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: FinancialTransactionWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` FinancialTransactions from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` FinancialTransactions.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned FinancialTransactions
+    **/
+    _count?: true | FinancialTransactionCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to average
+    **/
+    _avg?: FinancialTransactionAvgAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to sum
+    **/
+    _sum?: FinancialTransactionSumAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: FinancialTransactionMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: FinancialTransactionMaxAggregateInputType
+  }
+
+  export type GetFinancialTransactionAggregateType<T extends FinancialTransactionAggregateArgs> = {
+        [P in keyof T & keyof AggregateFinancialTransaction]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateFinancialTransaction[P]>
+      : GetScalarType<T[P], AggregateFinancialTransaction[P]>
+  }
+
+
+
+
+  export type FinancialTransactionGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: FinancialTransactionWhereInput
+    orderBy?: FinancialTransactionOrderByWithAggregationInput | FinancialTransactionOrderByWithAggregationInput[]
+    by: FinancialTransactionScalarFieldEnum[] | FinancialTransactionScalarFieldEnum
+    having?: FinancialTransactionScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: FinancialTransactionCountAggregateInputType | true
+    _avg?: FinancialTransactionAvgAggregateInputType
+    _sum?: FinancialTransactionSumAggregateInputType
+    _min?: FinancialTransactionMinAggregateInputType
+    _max?: FinancialTransactionMaxAggregateInputType
+  }
+
+  export type FinancialTransactionGroupByOutputType = {
+    id: number
+    date: Date
+    description: string
+    amount: number
+    type: string
+    category_id: number
+    school_id: string | null
+    supabase_id: string | null
+    last_modified: Date
+    needs_sync: boolean
+    is_deleted: boolean
+    _count: FinancialTransactionCountAggregateOutputType | null
+    _avg: FinancialTransactionAvgAggregateOutputType | null
+    _sum: FinancialTransactionSumAggregateOutputType | null
+    _min: FinancialTransactionMinAggregateOutputType | null
+    _max: FinancialTransactionMaxAggregateOutputType | null
+  }
+
+  type GetFinancialTransactionGroupByPayload<T extends FinancialTransactionGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<FinancialTransactionGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof FinancialTransactionGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], FinancialTransactionGroupByOutputType[P]>
+            : GetScalarType<T[P], FinancialTransactionGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type FinancialTransactionSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    date?: boolean
+    description?: boolean
+    amount?: boolean
+    type?: boolean
+    category_id?: boolean
+    school_id?: boolean
+    supabase_id?: boolean
+    last_modified?: boolean
+    needs_sync?: boolean
+    is_deleted?: boolean
+    category?: boolean | FinancialCategoryDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["financialTransaction"]>
+
+  export type FinancialTransactionSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    date?: boolean
+    description?: boolean
+    amount?: boolean
+    type?: boolean
+    category_id?: boolean
+    school_id?: boolean
+    supabase_id?: boolean
+    last_modified?: boolean
+    needs_sync?: boolean
+    is_deleted?: boolean
+    category?: boolean | FinancialCategoryDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["financialTransaction"]>
+
+  export type FinancialTransactionSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    date?: boolean
+    description?: boolean
+    amount?: boolean
+    type?: boolean
+    category_id?: boolean
+    school_id?: boolean
+    supabase_id?: boolean
+    last_modified?: boolean
+    needs_sync?: boolean
+    is_deleted?: boolean
+    category?: boolean | FinancialCategoryDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["financialTransaction"]>
+
+  export type FinancialTransactionSelectScalar = {
+    id?: boolean
+    date?: boolean
+    description?: boolean
+    amount?: boolean
+    type?: boolean
+    category_id?: boolean
+    school_id?: boolean
+    supabase_id?: boolean
+    last_modified?: boolean
+    needs_sync?: boolean
+    is_deleted?: boolean
+  }
+
+  export type FinancialTransactionOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "date" | "description" | "amount" | "type" | "category_id" | "school_id" | "supabase_id" | "last_modified" | "needs_sync" | "is_deleted", ExtArgs["result"]["financialTransaction"]>
+  export type FinancialTransactionInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    category?: boolean | FinancialCategoryDefaultArgs<ExtArgs>
+  }
+  export type FinancialTransactionIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    category?: boolean | FinancialCategoryDefaultArgs<ExtArgs>
+  }
+  export type FinancialTransactionIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    category?: boolean | FinancialCategoryDefaultArgs<ExtArgs>
+  }
+
+  export type $FinancialTransactionPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "FinancialTransaction"
+    objects: {
+      category: Prisma.$FinancialCategoryPayload<ExtArgs>
+    }
+    scalars: $Extensions.GetPayloadResult<{
+      id: number
+      date: Date
+      description: string
+      amount: number
+      type: string
+      category_id: number
+      school_id: string | null
+      supabase_id: string | null
+      last_modified: Date
+      needs_sync: boolean
+      is_deleted: boolean
+    }, ExtArgs["result"]["financialTransaction"]>
+    composites: {}
+  }
+
+  type FinancialTransactionGetPayload<S extends boolean | null | undefined | FinancialTransactionDefaultArgs> = $Result.GetResult<Prisma.$FinancialTransactionPayload, S>
+
+  type FinancialTransactionCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<FinancialTransactionFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: FinancialTransactionCountAggregateInputType | true
+    }
+
+  export interface FinancialTransactionDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['FinancialTransaction'], meta: { name: 'FinancialTransaction' } }
+    /**
+     * Find zero or one FinancialTransaction that matches the filter.
+     * @param {FinancialTransactionFindUniqueArgs} args - Arguments to find a FinancialTransaction
+     * @example
+     * // Get one FinancialTransaction
+     * const financialTransaction = await prisma.financialTransaction.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends FinancialTransactionFindUniqueArgs>(args: SelectSubset<T, FinancialTransactionFindUniqueArgs<ExtArgs>>): Prisma__FinancialTransactionClient<$Result.GetResult<Prisma.$FinancialTransactionPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one FinancialTransaction that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {FinancialTransactionFindUniqueOrThrowArgs} args - Arguments to find a FinancialTransaction
+     * @example
+     * // Get one FinancialTransaction
+     * const financialTransaction = await prisma.financialTransaction.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends FinancialTransactionFindUniqueOrThrowArgs>(args: SelectSubset<T, FinancialTransactionFindUniqueOrThrowArgs<ExtArgs>>): Prisma__FinancialTransactionClient<$Result.GetResult<Prisma.$FinancialTransactionPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first FinancialTransaction that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {FinancialTransactionFindFirstArgs} args - Arguments to find a FinancialTransaction
+     * @example
+     * // Get one FinancialTransaction
+     * const financialTransaction = await prisma.financialTransaction.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends FinancialTransactionFindFirstArgs>(args?: SelectSubset<T, FinancialTransactionFindFirstArgs<ExtArgs>>): Prisma__FinancialTransactionClient<$Result.GetResult<Prisma.$FinancialTransactionPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first FinancialTransaction that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {FinancialTransactionFindFirstOrThrowArgs} args - Arguments to find a FinancialTransaction
+     * @example
+     * // Get one FinancialTransaction
+     * const financialTransaction = await prisma.financialTransaction.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends FinancialTransactionFindFirstOrThrowArgs>(args?: SelectSubset<T, FinancialTransactionFindFirstOrThrowArgs<ExtArgs>>): Prisma__FinancialTransactionClient<$Result.GetResult<Prisma.$FinancialTransactionPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more FinancialTransactions that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {FinancialTransactionFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all FinancialTransactions
+     * const financialTransactions = await prisma.financialTransaction.findMany()
+     * 
+     * // Get first 10 FinancialTransactions
+     * const financialTransactions = await prisma.financialTransaction.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const financialTransactionWithIdOnly = await prisma.financialTransaction.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends FinancialTransactionFindManyArgs>(args?: SelectSubset<T, FinancialTransactionFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$FinancialTransactionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a FinancialTransaction.
+     * @param {FinancialTransactionCreateArgs} args - Arguments to create a FinancialTransaction.
+     * @example
+     * // Create one FinancialTransaction
+     * const FinancialTransaction = await prisma.financialTransaction.create({
+     *   data: {
+     *     // ... data to create a FinancialTransaction
+     *   }
+     * })
+     * 
+     */
+    create<T extends FinancialTransactionCreateArgs>(args: SelectSubset<T, FinancialTransactionCreateArgs<ExtArgs>>): Prisma__FinancialTransactionClient<$Result.GetResult<Prisma.$FinancialTransactionPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many FinancialTransactions.
+     * @param {FinancialTransactionCreateManyArgs} args - Arguments to create many FinancialTransactions.
+     * @example
+     * // Create many FinancialTransactions
+     * const financialTransaction = await prisma.financialTransaction.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends FinancialTransactionCreateManyArgs>(args?: SelectSubset<T, FinancialTransactionCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many FinancialTransactions and returns the data saved in the database.
+     * @param {FinancialTransactionCreateManyAndReturnArgs} args - Arguments to create many FinancialTransactions.
+     * @example
+     * // Create many FinancialTransactions
+     * const financialTransaction = await prisma.financialTransaction.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many FinancialTransactions and only return the `id`
+     * const financialTransactionWithIdOnly = await prisma.financialTransaction.createManyAndReturn({
+     *   select: { id: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends FinancialTransactionCreateManyAndReturnArgs>(args?: SelectSubset<T, FinancialTransactionCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$FinancialTransactionPayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Delete a FinancialTransaction.
+     * @param {FinancialTransactionDeleteArgs} args - Arguments to delete one FinancialTransaction.
+     * @example
+     * // Delete one FinancialTransaction
+     * const FinancialTransaction = await prisma.financialTransaction.delete({
+     *   where: {
+     *     // ... filter to delete one FinancialTransaction
+     *   }
+     * })
+     * 
+     */
+    delete<T extends FinancialTransactionDeleteArgs>(args: SelectSubset<T, FinancialTransactionDeleteArgs<ExtArgs>>): Prisma__FinancialTransactionClient<$Result.GetResult<Prisma.$FinancialTransactionPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one FinancialTransaction.
+     * @param {FinancialTransactionUpdateArgs} args - Arguments to update one FinancialTransaction.
+     * @example
+     * // Update one FinancialTransaction
+     * const financialTransaction = await prisma.financialTransaction.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends FinancialTransactionUpdateArgs>(args: SelectSubset<T, FinancialTransactionUpdateArgs<ExtArgs>>): Prisma__FinancialTransactionClient<$Result.GetResult<Prisma.$FinancialTransactionPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more FinancialTransactions.
+     * @param {FinancialTransactionDeleteManyArgs} args - Arguments to filter FinancialTransactions to delete.
+     * @example
+     * // Delete a few FinancialTransactions
+     * const { count } = await prisma.financialTransaction.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends FinancialTransactionDeleteManyArgs>(args?: SelectSubset<T, FinancialTransactionDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more FinancialTransactions.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {FinancialTransactionUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many FinancialTransactions
+     * const financialTransaction = await prisma.financialTransaction.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends FinancialTransactionUpdateManyArgs>(args: SelectSubset<T, FinancialTransactionUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more FinancialTransactions and returns the data updated in the database.
+     * @param {FinancialTransactionUpdateManyAndReturnArgs} args - Arguments to update many FinancialTransactions.
+     * @example
+     * // Update many FinancialTransactions
+     * const financialTransaction = await prisma.financialTransaction.updateManyAndReturn({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Update zero or more FinancialTransactions and only return the `id`
+     * const financialTransactionWithIdOnly = await prisma.financialTransaction.updateManyAndReturn({
+     *   select: { id: true },
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    updateManyAndReturn<T extends FinancialTransactionUpdateManyAndReturnArgs>(args: SelectSubset<T, FinancialTransactionUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$FinancialTransactionPayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Create or update one FinancialTransaction.
+     * @param {FinancialTransactionUpsertArgs} args - Arguments to update or create a FinancialTransaction.
+     * @example
+     * // Update or create a FinancialTransaction
+     * const financialTransaction = await prisma.financialTransaction.upsert({
+     *   create: {
+     *     // ... data to create a FinancialTransaction
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the FinancialTransaction we want to update
+     *   }
+     * })
+     */
+    upsert<T extends FinancialTransactionUpsertArgs>(args: SelectSubset<T, FinancialTransactionUpsertArgs<ExtArgs>>): Prisma__FinancialTransactionClient<$Result.GetResult<Prisma.$FinancialTransactionPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+
+    /**
+     * Count the number of FinancialTransactions.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {FinancialTransactionCountArgs} args - Arguments to filter FinancialTransactions to count.
+     * @example
+     * // Count the number of FinancialTransactions
+     * const count = await prisma.financialTransaction.count({
+     *   where: {
+     *     // ... the filter for the FinancialTransactions we want to count
+     *   }
+     * })
+    **/
+    count<T extends FinancialTransactionCountArgs>(
+      args?: Subset<T, FinancialTransactionCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], FinancialTransactionCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a FinancialTransaction.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {FinancialTransactionAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends FinancialTransactionAggregateArgs>(args: Subset<T, FinancialTransactionAggregateArgs>): Prisma.PrismaPromise<GetFinancialTransactionAggregateType<T>>
+
+    /**
+     * Group by FinancialTransaction.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {FinancialTransactionGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends FinancialTransactionGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: FinancialTransactionGroupByArgs['orderBy'] }
+        : { orderBy?: FinancialTransactionGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, FinancialTransactionGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetFinancialTransactionGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the FinancialTransaction model
+   */
+  readonly fields: FinancialTransactionFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for FinancialTransaction.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__FinancialTransactionClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    category<T extends FinancialCategoryDefaultArgs<ExtArgs> = {}>(args?: Subset<T, FinancialCategoryDefaultArgs<ExtArgs>>): Prisma__FinancialCategoryClient<$Result.GetResult<Prisma.$FinancialCategoryPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the FinancialTransaction model
+   */
+  interface FinancialTransactionFieldRefs {
+    readonly id: FieldRef<"FinancialTransaction", 'Int'>
+    readonly date: FieldRef<"FinancialTransaction", 'DateTime'>
+    readonly description: FieldRef<"FinancialTransaction", 'String'>
+    readonly amount: FieldRef<"FinancialTransaction", 'Float'>
+    readonly type: FieldRef<"FinancialTransaction", 'String'>
+    readonly category_id: FieldRef<"FinancialTransaction", 'Int'>
+    readonly school_id: FieldRef<"FinancialTransaction", 'String'>
+    readonly supabase_id: FieldRef<"FinancialTransaction", 'String'>
+    readonly last_modified: FieldRef<"FinancialTransaction", 'DateTime'>
+    readonly needs_sync: FieldRef<"FinancialTransaction", 'Boolean'>
+    readonly is_deleted: FieldRef<"FinancialTransaction", 'Boolean'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * FinancialTransaction findUnique
+   */
+  export type FinancialTransactionFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the FinancialTransaction
+     */
+    select?: FinancialTransactionSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the FinancialTransaction
+     */
+    omit?: FinancialTransactionOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: FinancialTransactionInclude<ExtArgs> | null
+    /**
+     * Filter, which FinancialTransaction to fetch.
+     */
+    where: FinancialTransactionWhereUniqueInput
+  }
+
+  /**
+   * FinancialTransaction findUniqueOrThrow
+   */
+  export type FinancialTransactionFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the FinancialTransaction
+     */
+    select?: FinancialTransactionSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the FinancialTransaction
+     */
+    omit?: FinancialTransactionOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: FinancialTransactionInclude<ExtArgs> | null
+    /**
+     * Filter, which FinancialTransaction to fetch.
+     */
+    where: FinancialTransactionWhereUniqueInput
+  }
+
+  /**
+   * FinancialTransaction findFirst
+   */
+  export type FinancialTransactionFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the FinancialTransaction
+     */
+    select?: FinancialTransactionSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the FinancialTransaction
+     */
+    omit?: FinancialTransactionOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: FinancialTransactionInclude<ExtArgs> | null
+    /**
+     * Filter, which FinancialTransaction to fetch.
+     */
+    where?: FinancialTransactionWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of FinancialTransactions to fetch.
+     */
+    orderBy?: FinancialTransactionOrderByWithRelationInput | FinancialTransactionOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for FinancialTransactions.
+     */
+    cursor?: FinancialTransactionWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` FinancialTransactions from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` FinancialTransactions.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of FinancialTransactions.
+     */
+    distinct?: FinancialTransactionScalarFieldEnum | FinancialTransactionScalarFieldEnum[]
+  }
+
+  /**
+   * FinancialTransaction findFirstOrThrow
+   */
+  export type FinancialTransactionFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the FinancialTransaction
+     */
+    select?: FinancialTransactionSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the FinancialTransaction
+     */
+    omit?: FinancialTransactionOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: FinancialTransactionInclude<ExtArgs> | null
+    /**
+     * Filter, which FinancialTransaction to fetch.
+     */
+    where?: FinancialTransactionWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of FinancialTransactions to fetch.
+     */
+    orderBy?: FinancialTransactionOrderByWithRelationInput | FinancialTransactionOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for FinancialTransactions.
+     */
+    cursor?: FinancialTransactionWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` FinancialTransactions from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` FinancialTransactions.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of FinancialTransactions.
+     */
+    distinct?: FinancialTransactionScalarFieldEnum | FinancialTransactionScalarFieldEnum[]
+  }
+
+  /**
+   * FinancialTransaction findMany
+   */
+  export type FinancialTransactionFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the FinancialTransaction
+     */
+    select?: FinancialTransactionSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the FinancialTransaction
+     */
+    omit?: FinancialTransactionOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: FinancialTransactionInclude<ExtArgs> | null
+    /**
+     * Filter, which FinancialTransactions to fetch.
+     */
+    where?: FinancialTransactionWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of FinancialTransactions to fetch.
+     */
+    orderBy?: FinancialTransactionOrderByWithRelationInput | FinancialTransactionOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing FinancialTransactions.
+     */
+    cursor?: FinancialTransactionWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` FinancialTransactions from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` FinancialTransactions.
+     */
+    skip?: number
+    distinct?: FinancialTransactionScalarFieldEnum | FinancialTransactionScalarFieldEnum[]
+  }
+
+  /**
+   * FinancialTransaction create
+   */
+  export type FinancialTransactionCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the FinancialTransaction
+     */
+    select?: FinancialTransactionSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the FinancialTransaction
+     */
+    omit?: FinancialTransactionOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: FinancialTransactionInclude<ExtArgs> | null
+    /**
+     * The data needed to create a FinancialTransaction.
+     */
+    data: XOR<FinancialTransactionCreateInput, FinancialTransactionUncheckedCreateInput>
+  }
+
+  /**
+   * FinancialTransaction createMany
+   */
+  export type FinancialTransactionCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many FinancialTransactions.
+     */
+    data: FinancialTransactionCreateManyInput | FinancialTransactionCreateManyInput[]
+  }
+
+  /**
+   * FinancialTransaction createManyAndReturn
+   */
+  export type FinancialTransactionCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the FinancialTransaction
+     */
+    select?: FinancialTransactionSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the FinancialTransaction
+     */
+    omit?: FinancialTransactionOmit<ExtArgs> | null
+    /**
+     * The data used to create many FinancialTransactions.
+     */
+    data: FinancialTransactionCreateManyInput | FinancialTransactionCreateManyInput[]
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: FinancialTransactionIncludeCreateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * FinancialTransaction update
+   */
+  export type FinancialTransactionUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the FinancialTransaction
+     */
+    select?: FinancialTransactionSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the FinancialTransaction
+     */
+    omit?: FinancialTransactionOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: FinancialTransactionInclude<ExtArgs> | null
+    /**
+     * The data needed to update a FinancialTransaction.
+     */
+    data: XOR<FinancialTransactionUpdateInput, FinancialTransactionUncheckedUpdateInput>
+    /**
+     * Choose, which FinancialTransaction to update.
+     */
+    where: FinancialTransactionWhereUniqueInput
+  }
+
+  /**
+   * FinancialTransaction updateMany
+   */
+  export type FinancialTransactionUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update FinancialTransactions.
+     */
+    data: XOR<FinancialTransactionUpdateManyMutationInput, FinancialTransactionUncheckedUpdateManyInput>
+    /**
+     * Filter which FinancialTransactions to update
+     */
+    where?: FinancialTransactionWhereInput
+    /**
+     * Limit how many FinancialTransactions to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * FinancialTransaction updateManyAndReturn
+   */
+  export type FinancialTransactionUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the FinancialTransaction
+     */
+    select?: FinancialTransactionSelectUpdateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the FinancialTransaction
+     */
+    omit?: FinancialTransactionOmit<ExtArgs> | null
+    /**
+     * The data used to update FinancialTransactions.
+     */
+    data: XOR<FinancialTransactionUpdateManyMutationInput, FinancialTransactionUncheckedUpdateManyInput>
+    /**
+     * Filter which FinancialTransactions to update
+     */
+    where?: FinancialTransactionWhereInput
+    /**
+     * Limit how many FinancialTransactions to update.
+     */
+    limit?: number
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: FinancialTransactionIncludeUpdateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * FinancialTransaction upsert
+   */
+  export type FinancialTransactionUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the FinancialTransaction
+     */
+    select?: FinancialTransactionSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the FinancialTransaction
+     */
+    omit?: FinancialTransactionOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: FinancialTransactionInclude<ExtArgs> | null
+    /**
+     * The filter to search for the FinancialTransaction to update in case it exists.
+     */
+    where: FinancialTransactionWhereUniqueInput
+    /**
+     * In case the FinancialTransaction found by the `where` argument doesn't exist, create a new FinancialTransaction with this data.
+     */
+    create: XOR<FinancialTransactionCreateInput, FinancialTransactionUncheckedCreateInput>
+    /**
+     * In case the FinancialTransaction was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<FinancialTransactionUpdateInput, FinancialTransactionUncheckedUpdateInput>
+  }
+
+  /**
+   * FinancialTransaction delete
+   */
+  export type FinancialTransactionDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the FinancialTransaction
+     */
+    select?: FinancialTransactionSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the FinancialTransaction
+     */
+    omit?: FinancialTransactionOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: FinancialTransactionInclude<ExtArgs> | null
+    /**
+     * Filter which FinancialTransaction to delete.
+     */
+    where: FinancialTransactionWhereUniqueInput
+  }
+
+  /**
+   * FinancialTransaction deleteMany
+   */
+  export type FinancialTransactionDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which FinancialTransactions to delete
+     */
+    where?: FinancialTransactionWhereInput
+    /**
+     * Limit how many FinancialTransactions to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * FinancialTransaction without action
+   */
+  export type FinancialTransactionDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the FinancialTransaction
+     */
+    select?: FinancialTransactionSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the FinancialTransaction
+     */
+    omit?: FinancialTransactionOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: FinancialTransactionInclude<ExtArgs> | null
+  }
+
+
+  /**
    * Enums
    */
 
@@ -23254,6 +25797,7 @@ export namespace Prisma {
     due_date: 'due_date',
     school_year: 'school_year',
     level: 'level',
+    school_id: 'school_id',
     supabase_id: 'supabase_id',
     last_modified: 'last_modified',
     needs_sync: 'needs_sync',
@@ -23331,6 +25875,37 @@ export namespace Prisma {
   };
 
   export type SchedulesScalarFieldEnum = (typeof SchedulesScalarFieldEnum)[keyof typeof SchedulesScalarFieldEnum]
+
+
+  export const FinancialCategoryScalarFieldEnum: {
+    id: 'id',
+    name: 'name',
+    type: 'type',
+    school_id: 'school_id',
+    supabase_id: 'supabase_id',
+    last_modified: 'last_modified',
+    needs_sync: 'needs_sync',
+    is_deleted: 'is_deleted'
+  };
+
+  export type FinancialCategoryScalarFieldEnum = (typeof FinancialCategoryScalarFieldEnum)[keyof typeof FinancialCategoryScalarFieldEnum]
+
+
+  export const FinancialTransactionScalarFieldEnum: {
+    id: 'id',
+    date: 'date',
+    description: 'description',
+    amount: 'amount',
+    type: 'type',
+    category_id: 'category_id',
+    school_id: 'school_id',
+    supabase_id: 'supabase_id',
+    last_modified: 'last_modified',
+    needs_sync: 'needs_sync',
+    is_deleted: 'is_deleted'
+  };
+
+  export type FinancialTransactionScalarFieldEnum = (typeof FinancialTransactionScalarFieldEnum)[keyof typeof FinancialTransactionScalarFieldEnum]
 
 
   export const SortOrder: {
@@ -24473,6 +27048,7 @@ export namespace Prisma {
     due_date?: StringNullableFilter<"Fees"> | string | null
     school_year?: StringNullableFilter<"Fees"> | string | null
     level?: StringNullableFilter<"Fees"> | string | null
+    school_id?: StringNullableFilter<"Fees"> | string | null
     supabase_id?: StringNullableFilter<"Fees"> | string | null
     last_modified?: DateTimeFilter<"Fees"> | Date | string
     needs_sync?: BoolFilter<"Fees"> | boolean
@@ -24487,6 +27063,7 @@ export namespace Prisma {
     due_date?: SortOrderInput | SortOrder
     school_year?: SortOrderInput | SortOrder
     level?: SortOrderInput | SortOrder
+    school_id?: SortOrderInput | SortOrder
     supabase_id?: SortOrderInput | SortOrder
     last_modified?: SortOrder
     needs_sync?: SortOrder
@@ -24505,6 +27082,7 @@ export namespace Prisma {
     due_date?: StringNullableFilter<"Fees"> | string | null
     school_year?: StringNullableFilter<"Fees"> | string | null
     level?: StringNullableFilter<"Fees"> | string | null
+    school_id?: StringNullableFilter<"Fees"> | string | null
     last_modified?: DateTimeFilter<"Fees"> | Date | string
     needs_sync?: BoolFilter<"Fees"> | boolean
     is_deleted?: BoolFilter<"Fees"> | boolean
@@ -24518,6 +27096,7 @@ export namespace Prisma {
     due_date?: SortOrderInput | SortOrder
     school_year?: SortOrderInput | SortOrder
     level?: SortOrderInput | SortOrder
+    school_id?: SortOrderInput | SortOrder
     supabase_id?: SortOrderInput | SortOrder
     last_modified?: SortOrder
     needs_sync?: SortOrder
@@ -24539,6 +27118,7 @@ export namespace Prisma {
     due_date?: StringNullableWithAggregatesFilter<"Fees"> | string | null
     school_year?: StringNullableWithAggregatesFilter<"Fees"> | string | null
     level?: StringNullableWithAggregatesFilter<"Fees"> | string | null
+    school_id?: StringNullableWithAggregatesFilter<"Fees"> | string | null
     supabase_id?: StringNullableWithAggregatesFilter<"Fees"> | string | null
     last_modified?: DateTimeWithAggregatesFilter<"Fees"> | Date | string
     needs_sync?: BoolWithAggregatesFilter<"Fees"> | boolean
@@ -24901,6 +27481,165 @@ export namespace Prisma {
     last_modified?: DateTimeWithAggregatesFilter<"Schedules"> | Date | string
     needs_sync?: BoolWithAggregatesFilter<"Schedules"> | boolean
     is_deleted?: BoolWithAggregatesFilter<"Schedules"> | boolean
+  }
+
+  export type FinancialCategoryWhereInput = {
+    AND?: FinancialCategoryWhereInput | FinancialCategoryWhereInput[]
+    OR?: FinancialCategoryWhereInput[]
+    NOT?: FinancialCategoryWhereInput | FinancialCategoryWhereInput[]
+    id?: IntFilter<"FinancialCategory"> | number
+    name?: StringFilter<"FinancialCategory"> | string
+    type?: StringFilter<"FinancialCategory"> | string
+    school_id?: StringNullableFilter<"FinancialCategory"> | string | null
+    supabase_id?: StringNullableFilter<"FinancialCategory"> | string | null
+    last_modified?: DateTimeFilter<"FinancialCategory"> | Date | string
+    needs_sync?: BoolFilter<"FinancialCategory"> | boolean
+    is_deleted?: BoolFilter<"FinancialCategory"> | boolean
+    transactions?: FinancialTransactionListRelationFilter
+  }
+
+  export type FinancialCategoryOrderByWithRelationInput = {
+    id?: SortOrder
+    name?: SortOrder
+    type?: SortOrder
+    school_id?: SortOrderInput | SortOrder
+    supabase_id?: SortOrderInput | SortOrder
+    last_modified?: SortOrder
+    needs_sync?: SortOrder
+    is_deleted?: SortOrder
+    transactions?: FinancialTransactionOrderByRelationAggregateInput
+  }
+
+  export type FinancialCategoryWhereUniqueInput = Prisma.AtLeast<{
+    id?: number
+    supabase_id?: string
+    AND?: FinancialCategoryWhereInput | FinancialCategoryWhereInput[]
+    OR?: FinancialCategoryWhereInput[]
+    NOT?: FinancialCategoryWhereInput | FinancialCategoryWhereInput[]
+    name?: StringFilter<"FinancialCategory"> | string
+    type?: StringFilter<"FinancialCategory"> | string
+    school_id?: StringNullableFilter<"FinancialCategory"> | string | null
+    last_modified?: DateTimeFilter<"FinancialCategory"> | Date | string
+    needs_sync?: BoolFilter<"FinancialCategory"> | boolean
+    is_deleted?: BoolFilter<"FinancialCategory"> | boolean
+    transactions?: FinancialTransactionListRelationFilter
+  }, "id" | "supabase_id">
+
+  export type FinancialCategoryOrderByWithAggregationInput = {
+    id?: SortOrder
+    name?: SortOrder
+    type?: SortOrder
+    school_id?: SortOrderInput | SortOrder
+    supabase_id?: SortOrderInput | SortOrder
+    last_modified?: SortOrder
+    needs_sync?: SortOrder
+    is_deleted?: SortOrder
+    _count?: FinancialCategoryCountOrderByAggregateInput
+    _avg?: FinancialCategoryAvgOrderByAggregateInput
+    _max?: FinancialCategoryMaxOrderByAggregateInput
+    _min?: FinancialCategoryMinOrderByAggregateInput
+    _sum?: FinancialCategorySumOrderByAggregateInput
+  }
+
+  export type FinancialCategoryScalarWhereWithAggregatesInput = {
+    AND?: FinancialCategoryScalarWhereWithAggregatesInput | FinancialCategoryScalarWhereWithAggregatesInput[]
+    OR?: FinancialCategoryScalarWhereWithAggregatesInput[]
+    NOT?: FinancialCategoryScalarWhereWithAggregatesInput | FinancialCategoryScalarWhereWithAggregatesInput[]
+    id?: IntWithAggregatesFilter<"FinancialCategory"> | number
+    name?: StringWithAggregatesFilter<"FinancialCategory"> | string
+    type?: StringWithAggregatesFilter<"FinancialCategory"> | string
+    school_id?: StringNullableWithAggregatesFilter<"FinancialCategory"> | string | null
+    supabase_id?: StringNullableWithAggregatesFilter<"FinancialCategory"> | string | null
+    last_modified?: DateTimeWithAggregatesFilter<"FinancialCategory"> | Date | string
+    needs_sync?: BoolWithAggregatesFilter<"FinancialCategory"> | boolean
+    is_deleted?: BoolWithAggregatesFilter<"FinancialCategory"> | boolean
+  }
+
+  export type FinancialTransactionWhereInput = {
+    AND?: FinancialTransactionWhereInput | FinancialTransactionWhereInput[]
+    OR?: FinancialTransactionWhereInput[]
+    NOT?: FinancialTransactionWhereInput | FinancialTransactionWhereInput[]
+    id?: IntFilter<"FinancialTransaction"> | number
+    date?: DateTimeFilter<"FinancialTransaction"> | Date | string
+    description?: StringFilter<"FinancialTransaction"> | string
+    amount?: FloatFilter<"FinancialTransaction"> | number
+    type?: StringFilter<"FinancialTransaction"> | string
+    category_id?: IntFilter<"FinancialTransaction"> | number
+    school_id?: StringNullableFilter<"FinancialTransaction"> | string | null
+    supabase_id?: StringNullableFilter<"FinancialTransaction"> | string | null
+    last_modified?: DateTimeFilter<"FinancialTransaction"> | Date | string
+    needs_sync?: BoolFilter<"FinancialTransaction"> | boolean
+    is_deleted?: BoolFilter<"FinancialTransaction"> | boolean
+    category?: XOR<FinancialCategoryScalarRelationFilter, FinancialCategoryWhereInput>
+  }
+
+  export type FinancialTransactionOrderByWithRelationInput = {
+    id?: SortOrder
+    date?: SortOrder
+    description?: SortOrder
+    amount?: SortOrder
+    type?: SortOrder
+    category_id?: SortOrder
+    school_id?: SortOrderInput | SortOrder
+    supabase_id?: SortOrderInput | SortOrder
+    last_modified?: SortOrder
+    needs_sync?: SortOrder
+    is_deleted?: SortOrder
+    category?: FinancialCategoryOrderByWithRelationInput
+  }
+
+  export type FinancialTransactionWhereUniqueInput = Prisma.AtLeast<{
+    id?: number
+    supabase_id?: string
+    AND?: FinancialTransactionWhereInput | FinancialTransactionWhereInput[]
+    OR?: FinancialTransactionWhereInput[]
+    NOT?: FinancialTransactionWhereInput | FinancialTransactionWhereInput[]
+    date?: DateTimeFilter<"FinancialTransaction"> | Date | string
+    description?: StringFilter<"FinancialTransaction"> | string
+    amount?: FloatFilter<"FinancialTransaction"> | number
+    type?: StringFilter<"FinancialTransaction"> | string
+    category_id?: IntFilter<"FinancialTransaction"> | number
+    school_id?: StringNullableFilter<"FinancialTransaction"> | string | null
+    last_modified?: DateTimeFilter<"FinancialTransaction"> | Date | string
+    needs_sync?: BoolFilter<"FinancialTransaction"> | boolean
+    is_deleted?: BoolFilter<"FinancialTransaction"> | boolean
+    category?: XOR<FinancialCategoryScalarRelationFilter, FinancialCategoryWhereInput>
+  }, "id" | "supabase_id">
+
+  export type FinancialTransactionOrderByWithAggregationInput = {
+    id?: SortOrder
+    date?: SortOrder
+    description?: SortOrder
+    amount?: SortOrder
+    type?: SortOrder
+    category_id?: SortOrder
+    school_id?: SortOrderInput | SortOrder
+    supabase_id?: SortOrderInput | SortOrder
+    last_modified?: SortOrder
+    needs_sync?: SortOrder
+    is_deleted?: SortOrder
+    _count?: FinancialTransactionCountOrderByAggregateInput
+    _avg?: FinancialTransactionAvgOrderByAggregateInput
+    _max?: FinancialTransactionMaxOrderByAggregateInput
+    _min?: FinancialTransactionMinOrderByAggregateInput
+    _sum?: FinancialTransactionSumOrderByAggregateInput
+  }
+
+  export type FinancialTransactionScalarWhereWithAggregatesInput = {
+    AND?: FinancialTransactionScalarWhereWithAggregatesInput | FinancialTransactionScalarWhereWithAggregatesInput[]
+    OR?: FinancialTransactionScalarWhereWithAggregatesInput[]
+    NOT?: FinancialTransactionScalarWhereWithAggregatesInput | FinancialTransactionScalarWhereWithAggregatesInput[]
+    id?: IntWithAggregatesFilter<"FinancialTransaction"> | number
+    date?: DateTimeWithAggregatesFilter<"FinancialTransaction"> | Date | string
+    description?: StringWithAggregatesFilter<"FinancialTransaction"> | string
+    amount?: FloatWithAggregatesFilter<"FinancialTransaction"> | number
+    type?: StringWithAggregatesFilter<"FinancialTransaction"> | string
+    category_id?: IntWithAggregatesFilter<"FinancialTransaction"> | number
+    school_id?: StringNullableWithAggregatesFilter<"FinancialTransaction"> | string | null
+    supabase_id?: StringNullableWithAggregatesFilter<"FinancialTransaction"> | string | null
+    last_modified?: DateTimeWithAggregatesFilter<"FinancialTransaction"> | Date | string
+    needs_sync?: BoolWithAggregatesFilter<"FinancialTransaction"> | boolean
+    is_deleted?: BoolWithAggregatesFilter<"FinancialTransaction"> | boolean
   }
 
   export type SettingsCreateInput = {
@@ -26060,6 +28799,7 @@ export namespace Prisma {
     due_date?: string | null
     school_year?: string | null
     level?: string | null
+    school_id?: string | null
     supabase_id?: string | null
     last_modified?: Date | string
     needs_sync?: boolean
@@ -26074,6 +28814,7 @@ export namespace Prisma {
     due_date?: string | null
     school_year?: string | null
     level?: string | null
+    school_id?: string | null
     supabase_id?: string | null
     last_modified?: Date | string
     needs_sync?: boolean
@@ -26087,6 +28828,7 @@ export namespace Prisma {
     due_date?: NullableStringFieldUpdateOperationsInput | string | null
     school_year?: NullableStringFieldUpdateOperationsInput | string | null
     level?: NullableStringFieldUpdateOperationsInput | string | null
+    school_id?: NullableStringFieldUpdateOperationsInput | string | null
     supabase_id?: NullableStringFieldUpdateOperationsInput | string | null
     last_modified?: DateTimeFieldUpdateOperationsInput | Date | string
     needs_sync?: BoolFieldUpdateOperationsInput | boolean
@@ -26101,6 +28843,7 @@ export namespace Prisma {
     due_date?: NullableStringFieldUpdateOperationsInput | string | null
     school_year?: NullableStringFieldUpdateOperationsInput | string | null
     level?: NullableStringFieldUpdateOperationsInput | string | null
+    school_id?: NullableStringFieldUpdateOperationsInput | string | null
     supabase_id?: NullableStringFieldUpdateOperationsInput | string | null
     last_modified?: DateTimeFieldUpdateOperationsInput | Date | string
     needs_sync?: BoolFieldUpdateOperationsInput | boolean
@@ -26115,6 +28858,7 @@ export namespace Prisma {
     due_date?: string | null
     school_year?: string | null
     level?: string | null
+    school_id?: string | null
     supabase_id?: string | null
     last_modified?: Date | string
     needs_sync?: boolean
@@ -26127,6 +28871,7 @@ export namespace Prisma {
     due_date?: NullableStringFieldUpdateOperationsInput | string | null
     school_year?: NullableStringFieldUpdateOperationsInput | string | null
     level?: NullableStringFieldUpdateOperationsInput | string | null
+    school_id?: NullableStringFieldUpdateOperationsInput | string | null
     supabase_id?: NullableStringFieldUpdateOperationsInput | string | null
     last_modified?: DateTimeFieldUpdateOperationsInput | Date | string
     needs_sync?: BoolFieldUpdateOperationsInput | boolean
@@ -26140,6 +28885,7 @@ export namespace Prisma {
     due_date?: NullableStringFieldUpdateOperationsInput | string | null
     school_year?: NullableStringFieldUpdateOperationsInput | string | null
     level?: NullableStringFieldUpdateOperationsInput | string | null
+    school_id?: NullableStringFieldUpdateOperationsInput | string | null
     supabase_id?: NullableStringFieldUpdateOperationsInput | string | null
     last_modified?: DateTimeFieldUpdateOperationsInput | Date | string
     needs_sync?: BoolFieldUpdateOperationsInput | boolean
@@ -26535,6 +29281,178 @@ export namespace Prisma {
     day_of_week?: NullableStringFieldUpdateOperationsInput | string | null
     start_time?: NullableStringFieldUpdateOperationsInput | string | null
     end_time?: NullableStringFieldUpdateOperationsInput | string | null
+    supabase_id?: NullableStringFieldUpdateOperationsInput | string | null
+    last_modified?: DateTimeFieldUpdateOperationsInput | Date | string
+    needs_sync?: BoolFieldUpdateOperationsInput | boolean
+    is_deleted?: BoolFieldUpdateOperationsInput | boolean
+  }
+
+  export type FinancialCategoryCreateInput = {
+    name: string
+    type: string
+    school_id?: string | null
+    supabase_id?: string | null
+    last_modified?: Date | string
+    needs_sync?: boolean
+    is_deleted?: boolean
+    transactions?: FinancialTransactionCreateNestedManyWithoutCategoryInput
+  }
+
+  export type FinancialCategoryUncheckedCreateInput = {
+    id?: number
+    name: string
+    type: string
+    school_id?: string | null
+    supabase_id?: string | null
+    last_modified?: Date | string
+    needs_sync?: boolean
+    is_deleted?: boolean
+    transactions?: FinancialTransactionUncheckedCreateNestedManyWithoutCategoryInput
+  }
+
+  export type FinancialCategoryUpdateInput = {
+    name?: StringFieldUpdateOperationsInput | string
+    type?: StringFieldUpdateOperationsInput | string
+    school_id?: NullableStringFieldUpdateOperationsInput | string | null
+    supabase_id?: NullableStringFieldUpdateOperationsInput | string | null
+    last_modified?: DateTimeFieldUpdateOperationsInput | Date | string
+    needs_sync?: BoolFieldUpdateOperationsInput | boolean
+    is_deleted?: BoolFieldUpdateOperationsInput | boolean
+    transactions?: FinancialTransactionUpdateManyWithoutCategoryNestedInput
+  }
+
+  export type FinancialCategoryUncheckedUpdateInput = {
+    id?: IntFieldUpdateOperationsInput | number
+    name?: StringFieldUpdateOperationsInput | string
+    type?: StringFieldUpdateOperationsInput | string
+    school_id?: NullableStringFieldUpdateOperationsInput | string | null
+    supabase_id?: NullableStringFieldUpdateOperationsInput | string | null
+    last_modified?: DateTimeFieldUpdateOperationsInput | Date | string
+    needs_sync?: BoolFieldUpdateOperationsInput | boolean
+    is_deleted?: BoolFieldUpdateOperationsInput | boolean
+    transactions?: FinancialTransactionUncheckedUpdateManyWithoutCategoryNestedInput
+  }
+
+  export type FinancialCategoryCreateManyInput = {
+    id?: number
+    name: string
+    type: string
+    school_id?: string | null
+    supabase_id?: string | null
+    last_modified?: Date | string
+    needs_sync?: boolean
+    is_deleted?: boolean
+  }
+
+  export type FinancialCategoryUpdateManyMutationInput = {
+    name?: StringFieldUpdateOperationsInput | string
+    type?: StringFieldUpdateOperationsInput | string
+    school_id?: NullableStringFieldUpdateOperationsInput | string | null
+    supabase_id?: NullableStringFieldUpdateOperationsInput | string | null
+    last_modified?: DateTimeFieldUpdateOperationsInput | Date | string
+    needs_sync?: BoolFieldUpdateOperationsInput | boolean
+    is_deleted?: BoolFieldUpdateOperationsInput | boolean
+  }
+
+  export type FinancialCategoryUncheckedUpdateManyInput = {
+    id?: IntFieldUpdateOperationsInput | number
+    name?: StringFieldUpdateOperationsInput | string
+    type?: StringFieldUpdateOperationsInput | string
+    school_id?: NullableStringFieldUpdateOperationsInput | string | null
+    supabase_id?: NullableStringFieldUpdateOperationsInput | string | null
+    last_modified?: DateTimeFieldUpdateOperationsInput | Date | string
+    needs_sync?: BoolFieldUpdateOperationsInput | boolean
+    is_deleted?: BoolFieldUpdateOperationsInput | boolean
+  }
+
+  export type FinancialTransactionCreateInput = {
+    date: Date | string
+    description: string
+    amount: number
+    type: string
+    school_id?: string | null
+    supabase_id?: string | null
+    last_modified?: Date | string
+    needs_sync?: boolean
+    is_deleted?: boolean
+    category: FinancialCategoryCreateNestedOneWithoutTransactionsInput
+  }
+
+  export type FinancialTransactionUncheckedCreateInput = {
+    id?: number
+    date: Date | string
+    description: string
+    amount: number
+    type: string
+    category_id: number
+    school_id?: string | null
+    supabase_id?: string | null
+    last_modified?: Date | string
+    needs_sync?: boolean
+    is_deleted?: boolean
+  }
+
+  export type FinancialTransactionUpdateInput = {
+    date?: DateTimeFieldUpdateOperationsInput | Date | string
+    description?: StringFieldUpdateOperationsInput | string
+    amount?: FloatFieldUpdateOperationsInput | number
+    type?: StringFieldUpdateOperationsInput | string
+    school_id?: NullableStringFieldUpdateOperationsInput | string | null
+    supabase_id?: NullableStringFieldUpdateOperationsInput | string | null
+    last_modified?: DateTimeFieldUpdateOperationsInput | Date | string
+    needs_sync?: BoolFieldUpdateOperationsInput | boolean
+    is_deleted?: BoolFieldUpdateOperationsInput | boolean
+    category?: FinancialCategoryUpdateOneRequiredWithoutTransactionsNestedInput
+  }
+
+  export type FinancialTransactionUncheckedUpdateInput = {
+    id?: IntFieldUpdateOperationsInput | number
+    date?: DateTimeFieldUpdateOperationsInput | Date | string
+    description?: StringFieldUpdateOperationsInput | string
+    amount?: FloatFieldUpdateOperationsInput | number
+    type?: StringFieldUpdateOperationsInput | string
+    category_id?: IntFieldUpdateOperationsInput | number
+    school_id?: NullableStringFieldUpdateOperationsInput | string | null
+    supabase_id?: NullableStringFieldUpdateOperationsInput | string | null
+    last_modified?: DateTimeFieldUpdateOperationsInput | Date | string
+    needs_sync?: BoolFieldUpdateOperationsInput | boolean
+    is_deleted?: BoolFieldUpdateOperationsInput | boolean
+  }
+
+  export type FinancialTransactionCreateManyInput = {
+    id?: number
+    date: Date | string
+    description: string
+    amount: number
+    type: string
+    category_id: number
+    school_id?: string | null
+    supabase_id?: string | null
+    last_modified?: Date | string
+    needs_sync?: boolean
+    is_deleted?: boolean
+  }
+
+  export type FinancialTransactionUpdateManyMutationInput = {
+    date?: DateTimeFieldUpdateOperationsInput | Date | string
+    description?: StringFieldUpdateOperationsInput | string
+    amount?: FloatFieldUpdateOperationsInput | number
+    type?: StringFieldUpdateOperationsInput | string
+    school_id?: NullableStringFieldUpdateOperationsInput | string | null
+    supabase_id?: NullableStringFieldUpdateOperationsInput | string | null
+    last_modified?: DateTimeFieldUpdateOperationsInput | Date | string
+    needs_sync?: BoolFieldUpdateOperationsInput | boolean
+    is_deleted?: BoolFieldUpdateOperationsInput | boolean
+  }
+
+  export type FinancialTransactionUncheckedUpdateManyInput = {
+    id?: IntFieldUpdateOperationsInput | number
+    date?: DateTimeFieldUpdateOperationsInput | Date | string
+    description?: StringFieldUpdateOperationsInput | string
+    amount?: FloatFieldUpdateOperationsInput | number
+    type?: StringFieldUpdateOperationsInput | string
+    category_id?: IntFieldUpdateOperationsInput | number
+    school_id?: NullableStringFieldUpdateOperationsInput | string | null
     supabase_id?: NullableStringFieldUpdateOperationsInput | string | null
     last_modified?: DateTimeFieldUpdateOperationsInput | Date | string
     needs_sync?: BoolFieldUpdateOperationsInput | boolean
@@ -27558,6 +30476,7 @@ export namespace Prisma {
     due_date?: SortOrder
     school_year?: SortOrder
     level?: SortOrder
+    school_id?: SortOrder
     supabase_id?: SortOrder
     last_modified?: SortOrder
     needs_sync?: SortOrder
@@ -27576,6 +30495,7 @@ export namespace Prisma {
     due_date?: SortOrder
     school_year?: SortOrder
     level?: SortOrder
+    school_id?: SortOrder
     supabase_id?: SortOrder
     last_modified?: SortOrder
     needs_sync?: SortOrder
@@ -27589,6 +30509,7 @@ export namespace Prisma {
     due_date?: SortOrder
     school_year?: SortOrder
     level?: SortOrder
+    school_id?: SortOrder
     supabase_id?: SortOrder
     last_modified?: SortOrder
     needs_sync?: SortOrder
@@ -27833,6 +30754,116 @@ export namespace Prisma {
   export type SchedulesSumOrderByAggregateInput = {
     id?: SortOrder
     lesson_id?: SortOrder
+  }
+
+  export type FinancialTransactionListRelationFilter = {
+    every?: FinancialTransactionWhereInput
+    some?: FinancialTransactionWhereInput
+    none?: FinancialTransactionWhereInput
+  }
+
+  export type FinancialTransactionOrderByRelationAggregateInput = {
+    _count?: SortOrder
+  }
+
+  export type FinancialCategoryCountOrderByAggregateInput = {
+    id?: SortOrder
+    name?: SortOrder
+    type?: SortOrder
+    school_id?: SortOrder
+    supabase_id?: SortOrder
+    last_modified?: SortOrder
+    needs_sync?: SortOrder
+    is_deleted?: SortOrder
+  }
+
+  export type FinancialCategoryAvgOrderByAggregateInput = {
+    id?: SortOrder
+  }
+
+  export type FinancialCategoryMaxOrderByAggregateInput = {
+    id?: SortOrder
+    name?: SortOrder
+    type?: SortOrder
+    school_id?: SortOrder
+    supabase_id?: SortOrder
+    last_modified?: SortOrder
+    needs_sync?: SortOrder
+    is_deleted?: SortOrder
+  }
+
+  export type FinancialCategoryMinOrderByAggregateInput = {
+    id?: SortOrder
+    name?: SortOrder
+    type?: SortOrder
+    school_id?: SortOrder
+    supabase_id?: SortOrder
+    last_modified?: SortOrder
+    needs_sync?: SortOrder
+    is_deleted?: SortOrder
+  }
+
+  export type FinancialCategorySumOrderByAggregateInput = {
+    id?: SortOrder
+  }
+
+  export type FinancialCategoryScalarRelationFilter = {
+    is?: FinancialCategoryWhereInput
+    isNot?: FinancialCategoryWhereInput
+  }
+
+  export type FinancialTransactionCountOrderByAggregateInput = {
+    id?: SortOrder
+    date?: SortOrder
+    description?: SortOrder
+    amount?: SortOrder
+    type?: SortOrder
+    category_id?: SortOrder
+    school_id?: SortOrder
+    supabase_id?: SortOrder
+    last_modified?: SortOrder
+    needs_sync?: SortOrder
+    is_deleted?: SortOrder
+  }
+
+  export type FinancialTransactionAvgOrderByAggregateInput = {
+    id?: SortOrder
+    amount?: SortOrder
+    category_id?: SortOrder
+  }
+
+  export type FinancialTransactionMaxOrderByAggregateInput = {
+    id?: SortOrder
+    date?: SortOrder
+    description?: SortOrder
+    amount?: SortOrder
+    type?: SortOrder
+    category_id?: SortOrder
+    school_id?: SortOrder
+    supabase_id?: SortOrder
+    last_modified?: SortOrder
+    needs_sync?: SortOrder
+    is_deleted?: SortOrder
+  }
+
+  export type FinancialTransactionMinOrderByAggregateInput = {
+    id?: SortOrder
+    date?: SortOrder
+    description?: SortOrder
+    amount?: SortOrder
+    type?: SortOrder
+    category_id?: SortOrder
+    school_id?: SortOrder
+    supabase_id?: SortOrder
+    last_modified?: SortOrder
+    needs_sync?: SortOrder
+    is_deleted?: SortOrder
+  }
+
+  export type FinancialTransactionSumOrderByAggregateInput = {
+    id?: SortOrder
+    amount?: SortOrder
+    category_id?: SortOrder
   }
 
   export type NullableStringFieldUpdateOperationsInput = {
@@ -28845,6 +31876,62 @@ export namespace Prisma {
     upsert?: LessonsUpsertWithoutSchedulesInput
     connect?: LessonsWhereUniqueInput
     update?: XOR<XOR<LessonsUpdateToOneWithWhereWithoutSchedulesInput, LessonsUpdateWithoutSchedulesInput>, LessonsUncheckedUpdateWithoutSchedulesInput>
+  }
+
+  export type FinancialTransactionCreateNestedManyWithoutCategoryInput = {
+    create?: XOR<FinancialTransactionCreateWithoutCategoryInput, FinancialTransactionUncheckedCreateWithoutCategoryInput> | FinancialTransactionCreateWithoutCategoryInput[] | FinancialTransactionUncheckedCreateWithoutCategoryInput[]
+    connectOrCreate?: FinancialTransactionCreateOrConnectWithoutCategoryInput | FinancialTransactionCreateOrConnectWithoutCategoryInput[]
+    createMany?: FinancialTransactionCreateManyCategoryInputEnvelope
+    connect?: FinancialTransactionWhereUniqueInput | FinancialTransactionWhereUniqueInput[]
+  }
+
+  export type FinancialTransactionUncheckedCreateNestedManyWithoutCategoryInput = {
+    create?: XOR<FinancialTransactionCreateWithoutCategoryInput, FinancialTransactionUncheckedCreateWithoutCategoryInput> | FinancialTransactionCreateWithoutCategoryInput[] | FinancialTransactionUncheckedCreateWithoutCategoryInput[]
+    connectOrCreate?: FinancialTransactionCreateOrConnectWithoutCategoryInput | FinancialTransactionCreateOrConnectWithoutCategoryInput[]
+    createMany?: FinancialTransactionCreateManyCategoryInputEnvelope
+    connect?: FinancialTransactionWhereUniqueInput | FinancialTransactionWhereUniqueInput[]
+  }
+
+  export type FinancialTransactionUpdateManyWithoutCategoryNestedInput = {
+    create?: XOR<FinancialTransactionCreateWithoutCategoryInput, FinancialTransactionUncheckedCreateWithoutCategoryInput> | FinancialTransactionCreateWithoutCategoryInput[] | FinancialTransactionUncheckedCreateWithoutCategoryInput[]
+    connectOrCreate?: FinancialTransactionCreateOrConnectWithoutCategoryInput | FinancialTransactionCreateOrConnectWithoutCategoryInput[]
+    upsert?: FinancialTransactionUpsertWithWhereUniqueWithoutCategoryInput | FinancialTransactionUpsertWithWhereUniqueWithoutCategoryInput[]
+    createMany?: FinancialTransactionCreateManyCategoryInputEnvelope
+    set?: FinancialTransactionWhereUniqueInput | FinancialTransactionWhereUniqueInput[]
+    disconnect?: FinancialTransactionWhereUniqueInput | FinancialTransactionWhereUniqueInput[]
+    delete?: FinancialTransactionWhereUniqueInput | FinancialTransactionWhereUniqueInput[]
+    connect?: FinancialTransactionWhereUniqueInput | FinancialTransactionWhereUniqueInput[]
+    update?: FinancialTransactionUpdateWithWhereUniqueWithoutCategoryInput | FinancialTransactionUpdateWithWhereUniqueWithoutCategoryInput[]
+    updateMany?: FinancialTransactionUpdateManyWithWhereWithoutCategoryInput | FinancialTransactionUpdateManyWithWhereWithoutCategoryInput[]
+    deleteMany?: FinancialTransactionScalarWhereInput | FinancialTransactionScalarWhereInput[]
+  }
+
+  export type FinancialTransactionUncheckedUpdateManyWithoutCategoryNestedInput = {
+    create?: XOR<FinancialTransactionCreateWithoutCategoryInput, FinancialTransactionUncheckedCreateWithoutCategoryInput> | FinancialTransactionCreateWithoutCategoryInput[] | FinancialTransactionUncheckedCreateWithoutCategoryInput[]
+    connectOrCreate?: FinancialTransactionCreateOrConnectWithoutCategoryInput | FinancialTransactionCreateOrConnectWithoutCategoryInput[]
+    upsert?: FinancialTransactionUpsertWithWhereUniqueWithoutCategoryInput | FinancialTransactionUpsertWithWhereUniqueWithoutCategoryInput[]
+    createMany?: FinancialTransactionCreateManyCategoryInputEnvelope
+    set?: FinancialTransactionWhereUniqueInput | FinancialTransactionWhereUniqueInput[]
+    disconnect?: FinancialTransactionWhereUniqueInput | FinancialTransactionWhereUniqueInput[]
+    delete?: FinancialTransactionWhereUniqueInput | FinancialTransactionWhereUniqueInput[]
+    connect?: FinancialTransactionWhereUniqueInput | FinancialTransactionWhereUniqueInput[]
+    update?: FinancialTransactionUpdateWithWhereUniqueWithoutCategoryInput | FinancialTransactionUpdateWithWhereUniqueWithoutCategoryInput[]
+    updateMany?: FinancialTransactionUpdateManyWithWhereWithoutCategoryInput | FinancialTransactionUpdateManyWithWhereWithoutCategoryInput[]
+    deleteMany?: FinancialTransactionScalarWhereInput | FinancialTransactionScalarWhereInput[]
+  }
+
+  export type FinancialCategoryCreateNestedOneWithoutTransactionsInput = {
+    create?: XOR<FinancialCategoryCreateWithoutTransactionsInput, FinancialCategoryUncheckedCreateWithoutTransactionsInput>
+    connectOrCreate?: FinancialCategoryCreateOrConnectWithoutTransactionsInput
+    connect?: FinancialCategoryWhereUniqueInput
+  }
+
+  export type FinancialCategoryUpdateOneRequiredWithoutTransactionsNestedInput = {
+    create?: XOR<FinancialCategoryCreateWithoutTransactionsInput, FinancialCategoryUncheckedCreateWithoutTransactionsInput>
+    connectOrCreate?: FinancialCategoryCreateOrConnectWithoutTransactionsInput
+    upsert?: FinancialCategoryUpsertWithoutTransactionsInput
+    connect?: FinancialCategoryWhereUniqueInput
+    update?: XOR<XOR<FinancialCategoryUpdateToOneWithWhereWithoutTransactionsInput, FinancialCategoryUpdateWithoutTransactionsInput>, FinancialCategoryUncheckedUpdateWithoutTransactionsInput>
   }
 
   export type NestedIntFilter<$PrismaModel = never> = {
@@ -30876,6 +33963,7 @@ export namespace Prisma {
     due_date?: string | null
     school_year?: string | null
     level?: string | null
+    school_id?: string | null
     supabase_id?: string | null
     last_modified?: Date | string
     needs_sync?: boolean
@@ -30889,6 +33977,7 @@ export namespace Prisma {
     due_date?: string | null
     school_year?: string | null
     level?: string | null
+    school_id?: string | null
     supabase_id?: string | null
     last_modified?: Date | string
     needs_sync?: boolean
@@ -30947,6 +34036,7 @@ export namespace Prisma {
     due_date?: NullableStringFieldUpdateOperationsInput | string | null
     school_year?: NullableStringFieldUpdateOperationsInput | string | null
     level?: NullableStringFieldUpdateOperationsInput | string | null
+    school_id?: NullableStringFieldUpdateOperationsInput | string | null
     supabase_id?: NullableStringFieldUpdateOperationsInput | string | null
     last_modified?: DateTimeFieldUpdateOperationsInput | Date | string
     needs_sync?: BoolFieldUpdateOperationsInput | boolean
@@ -30960,6 +34050,7 @@ export namespace Prisma {
     due_date?: NullableStringFieldUpdateOperationsInput | string | null
     school_year?: NullableStringFieldUpdateOperationsInput | string | null
     level?: NullableStringFieldUpdateOperationsInput | string | null
+    school_id?: NullableStringFieldUpdateOperationsInput | string | null
     supabase_id?: NullableStringFieldUpdateOperationsInput | string | null
     last_modified?: DateTimeFieldUpdateOperationsInput | Date | string
     needs_sync?: BoolFieldUpdateOperationsInput | boolean
@@ -31361,6 +34452,131 @@ export namespace Prisma {
     needs_sync?: BoolFieldUpdateOperationsInput | boolean
     is_deleted?: BoolFieldUpdateOperationsInput | boolean
     notes?: NotesUncheckedUpdateManyWithoutLessonNestedInput
+  }
+
+  export type FinancialTransactionCreateWithoutCategoryInput = {
+    date: Date | string
+    description: string
+    amount: number
+    type: string
+    school_id?: string | null
+    supabase_id?: string | null
+    last_modified?: Date | string
+    needs_sync?: boolean
+    is_deleted?: boolean
+  }
+
+  export type FinancialTransactionUncheckedCreateWithoutCategoryInput = {
+    id?: number
+    date: Date | string
+    description: string
+    amount: number
+    type: string
+    school_id?: string | null
+    supabase_id?: string | null
+    last_modified?: Date | string
+    needs_sync?: boolean
+    is_deleted?: boolean
+  }
+
+  export type FinancialTransactionCreateOrConnectWithoutCategoryInput = {
+    where: FinancialTransactionWhereUniqueInput
+    create: XOR<FinancialTransactionCreateWithoutCategoryInput, FinancialTransactionUncheckedCreateWithoutCategoryInput>
+  }
+
+  export type FinancialTransactionCreateManyCategoryInputEnvelope = {
+    data: FinancialTransactionCreateManyCategoryInput | FinancialTransactionCreateManyCategoryInput[]
+  }
+
+  export type FinancialTransactionUpsertWithWhereUniqueWithoutCategoryInput = {
+    where: FinancialTransactionWhereUniqueInput
+    update: XOR<FinancialTransactionUpdateWithoutCategoryInput, FinancialTransactionUncheckedUpdateWithoutCategoryInput>
+    create: XOR<FinancialTransactionCreateWithoutCategoryInput, FinancialTransactionUncheckedCreateWithoutCategoryInput>
+  }
+
+  export type FinancialTransactionUpdateWithWhereUniqueWithoutCategoryInput = {
+    where: FinancialTransactionWhereUniqueInput
+    data: XOR<FinancialTransactionUpdateWithoutCategoryInput, FinancialTransactionUncheckedUpdateWithoutCategoryInput>
+  }
+
+  export type FinancialTransactionUpdateManyWithWhereWithoutCategoryInput = {
+    where: FinancialTransactionScalarWhereInput
+    data: XOR<FinancialTransactionUpdateManyMutationInput, FinancialTransactionUncheckedUpdateManyWithoutCategoryInput>
+  }
+
+  export type FinancialTransactionScalarWhereInput = {
+    AND?: FinancialTransactionScalarWhereInput | FinancialTransactionScalarWhereInput[]
+    OR?: FinancialTransactionScalarWhereInput[]
+    NOT?: FinancialTransactionScalarWhereInput | FinancialTransactionScalarWhereInput[]
+    id?: IntFilter<"FinancialTransaction"> | number
+    date?: DateTimeFilter<"FinancialTransaction"> | Date | string
+    description?: StringFilter<"FinancialTransaction"> | string
+    amount?: FloatFilter<"FinancialTransaction"> | number
+    type?: StringFilter<"FinancialTransaction"> | string
+    category_id?: IntFilter<"FinancialTransaction"> | number
+    school_id?: StringNullableFilter<"FinancialTransaction"> | string | null
+    supabase_id?: StringNullableFilter<"FinancialTransaction"> | string | null
+    last_modified?: DateTimeFilter<"FinancialTransaction"> | Date | string
+    needs_sync?: BoolFilter<"FinancialTransaction"> | boolean
+    is_deleted?: BoolFilter<"FinancialTransaction"> | boolean
+  }
+
+  export type FinancialCategoryCreateWithoutTransactionsInput = {
+    name: string
+    type: string
+    school_id?: string | null
+    supabase_id?: string | null
+    last_modified?: Date | string
+    needs_sync?: boolean
+    is_deleted?: boolean
+  }
+
+  export type FinancialCategoryUncheckedCreateWithoutTransactionsInput = {
+    id?: number
+    name: string
+    type: string
+    school_id?: string | null
+    supabase_id?: string | null
+    last_modified?: Date | string
+    needs_sync?: boolean
+    is_deleted?: boolean
+  }
+
+  export type FinancialCategoryCreateOrConnectWithoutTransactionsInput = {
+    where: FinancialCategoryWhereUniqueInput
+    create: XOR<FinancialCategoryCreateWithoutTransactionsInput, FinancialCategoryUncheckedCreateWithoutTransactionsInput>
+  }
+
+  export type FinancialCategoryUpsertWithoutTransactionsInput = {
+    update: XOR<FinancialCategoryUpdateWithoutTransactionsInput, FinancialCategoryUncheckedUpdateWithoutTransactionsInput>
+    create: XOR<FinancialCategoryCreateWithoutTransactionsInput, FinancialCategoryUncheckedCreateWithoutTransactionsInput>
+    where?: FinancialCategoryWhereInput
+  }
+
+  export type FinancialCategoryUpdateToOneWithWhereWithoutTransactionsInput = {
+    where?: FinancialCategoryWhereInput
+    data: XOR<FinancialCategoryUpdateWithoutTransactionsInput, FinancialCategoryUncheckedUpdateWithoutTransactionsInput>
+  }
+
+  export type FinancialCategoryUpdateWithoutTransactionsInput = {
+    name?: StringFieldUpdateOperationsInput | string
+    type?: StringFieldUpdateOperationsInput | string
+    school_id?: NullableStringFieldUpdateOperationsInput | string | null
+    supabase_id?: NullableStringFieldUpdateOperationsInput | string | null
+    last_modified?: DateTimeFieldUpdateOperationsInput | Date | string
+    needs_sync?: BoolFieldUpdateOperationsInput | boolean
+    is_deleted?: BoolFieldUpdateOperationsInput | boolean
+  }
+
+  export type FinancialCategoryUncheckedUpdateWithoutTransactionsInput = {
+    id?: IntFieldUpdateOperationsInput | number
+    name?: StringFieldUpdateOperationsInput | string
+    type?: StringFieldUpdateOperationsInput | string
+    school_id?: NullableStringFieldUpdateOperationsInput | string | null
+    supabase_id?: NullableStringFieldUpdateOperationsInput | string | null
+    last_modified?: DateTimeFieldUpdateOperationsInput | Date | string
+    needs_sync?: BoolFieldUpdateOperationsInput | boolean
+    is_deleted?: BoolFieldUpdateOperationsInput | boolean
   }
 
   export type LessonsCreateManyClassInput = {
@@ -32172,6 +35388,57 @@ export namespace Prisma {
     total_amount?: FloatFieldUpdateOperationsInput | number
     payment_date?: StringFieldUpdateOperationsInput | string
     notes?: NullableStringFieldUpdateOperationsInput | string | null
+    supabase_id?: NullableStringFieldUpdateOperationsInput | string | null
+    last_modified?: DateTimeFieldUpdateOperationsInput | Date | string
+    needs_sync?: BoolFieldUpdateOperationsInput | boolean
+    is_deleted?: BoolFieldUpdateOperationsInput | boolean
+  }
+
+  export type FinancialTransactionCreateManyCategoryInput = {
+    id?: number
+    date: Date | string
+    description: string
+    amount: number
+    type: string
+    school_id?: string | null
+    supabase_id?: string | null
+    last_modified?: Date | string
+    needs_sync?: boolean
+    is_deleted?: boolean
+  }
+
+  export type FinancialTransactionUpdateWithoutCategoryInput = {
+    date?: DateTimeFieldUpdateOperationsInput | Date | string
+    description?: StringFieldUpdateOperationsInput | string
+    amount?: FloatFieldUpdateOperationsInput | number
+    type?: StringFieldUpdateOperationsInput | string
+    school_id?: NullableStringFieldUpdateOperationsInput | string | null
+    supabase_id?: NullableStringFieldUpdateOperationsInput | string | null
+    last_modified?: DateTimeFieldUpdateOperationsInput | Date | string
+    needs_sync?: BoolFieldUpdateOperationsInput | boolean
+    is_deleted?: BoolFieldUpdateOperationsInput | boolean
+  }
+
+  export type FinancialTransactionUncheckedUpdateWithoutCategoryInput = {
+    id?: IntFieldUpdateOperationsInput | number
+    date?: DateTimeFieldUpdateOperationsInput | Date | string
+    description?: StringFieldUpdateOperationsInput | string
+    amount?: FloatFieldUpdateOperationsInput | number
+    type?: StringFieldUpdateOperationsInput | string
+    school_id?: NullableStringFieldUpdateOperationsInput | string | null
+    supabase_id?: NullableStringFieldUpdateOperationsInput | string | null
+    last_modified?: DateTimeFieldUpdateOperationsInput | Date | string
+    needs_sync?: BoolFieldUpdateOperationsInput | boolean
+    is_deleted?: BoolFieldUpdateOperationsInput | boolean
+  }
+
+  export type FinancialTransactionUncheckedUpdateManyWithoutCategoryInput = {
+    id?: IntFieldUpdateOperationsInput | number
+    date?: DateTimeFieldUpdateOperationsInput | Date | string
+    description?: StringFieldUpdateOperationsInput | string
+    amount?: FloatFieldUpdateOperationsInput | number
+    type?: StringFieldUpdateOperationsInput | string
+    school_id?: NullableStringFieldUpdateOperationsInput | string | null
     supabase_id?: NullableStringFieldUpdateOperationsInput | string | null
     last_modified?: DateTimeFieldUpdateOperationsInput | Date | string
     needs_sync?: BoolFieldUpdateOperationsInput | boolean

@@ -21,8 +21,8 @@ class AuthService {
     }
     
     try {
-      const { ipcRenderer } = window.require('electron');
-      return await ipcRenderer.invoke('auth:login-local', { email, password });
+      
+      return await window.api.invoke('auth:login-local', { email, password });
     } catch (error) {
       console.error('Erreur de connexion:', error);
       return { success: false, message: 'Erreur de communication avec le processus principal.' };
@@ -34,8 +34,8 @@ class AuthService {
     if (typeof window === 'undefined') return;
     
     try {
-      const { ipcRenderer } = window.require('electron');
-      await ipcRenderer.invoke('auth:logout');
+      
+      await window.api.invoke('auth:logout');
     } catch (error) {
       console.error('Erreur de déconnexion:', error);
     }
@@ -48,8 +48,8 @@ class AuthService {
     }
     
     try {
-      const { ipcRenderer } = window.require('electron');
-      return await ipcRenderer.invoke('auth:getStatus');
+      
+      return await window.api.invoke('auth:getStatus');
     } catch (error) {
       console.error('Erreur de récupération du statut:', error);
       return { loggedIn: false };

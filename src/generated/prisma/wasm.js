@@ -20,12 +20,12 @@ exports.Prisma = Prisma
 exports.$Enums = {}
 
 /**
- * Prisma Client JS version: 6.14.0
- * Query Engine version: 717184b7b35ea05dfa71a3236b7af656013e1e49
+ * Prisma Client JS version: 6.15.0
+ * Query Engine version: 85179d7826409ee107a6ba334b5e305ae3fba9fb
  */
 Prisma.prismaVersion = {
-  client: "6.14.0",
-  engine: "717184b7b35ea05dfa71a3236b7af656013e1e49"
+  client: "6.15.0",
+  engine: "85179d7826409ee107a6ba334b5e305ae3fba9fb"
 }
 
 Prisma.PrismaClientKnownRequestError = () => {
@@ -287,6 +287,7 @@ exports.Prisma.FeesScalarFieldEnum = {
   due_date: 'due_date',
   school_year: 'school_year',
   level: 'level',
+  school_id: 'school_id',
   supabase_id: 'supabase_id',
   last_modified: 'last_modified',
   needs_sync: 'needs_sync',
@@ -351,6 +352,31 @@ exports.Prisma.SchedulesScalarFieldEnum = {
   is_deleted: 'is_deleted'
 };
 
+exports.Prisma.FinancialCategoryScalarFieldEnum = {
+  id: 'id',
+  name: 'name',
+  type: 'type',
+  school_id: 'school_id',
+  supabase_id: 'supabase_id',
+  last_modified: 'last_modified',
+  needs_sync: 'needs_sync',
+  is_deleted: 'is_deleted'
+};
+
+exports.Prisma.FinancialTransactionScalarFieldEnum = {
+  id: 'id',
+  date: 'date',
+  description: 'description',
+  amount: 'amount',
+  type: 'type',
+  category_id: 'category_id',
+  school_id: 'school_id',
+  supabase_id: 'supabase_id',
+  last_modified: 'last_modified',
+  needs_sync: 'needs_sync',
+  is_deleted: 'is_deleted'
+};
+
 exports.Prisma.SortOrder = {
   asc: 'asc',
   desc: 'desc'
@@ -379,7 +405,9 @@ exports.Prisma.ModelName = {
   Attendances: 'Attendances',
   Employees: 'Employees',
   SalaryPayments: 'SalaryPayments',
-  Schedules: 'Schedules'
+  Schedules: 'Schedules',
+  FinancialCategory: 'FinancialCategory',
+  FinancialTransaction: 'FinancialTransaction'
 };
 
 /**

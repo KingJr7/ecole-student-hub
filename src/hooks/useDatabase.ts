@@ -1,11 +1,9 @@
 import { useCallback, useMemo } from 'react';
 
-const { ipcRenderer } = window.require('electron');
-
-// Typage générique pour les fonctions IPC pour réduire la répétition
 const invoke = <T,>(channel: string, ...args: any[]): Promise<T> => {
   try {
-    return ipcRenderer.invoke(channel, ...args);
+    // @ts-ignore
+    return window.api.invoke(channel, ...args);
   } catch (error) {
     console.error(`Erreur IPC sur le canal ${channel}:`, error);
     throw error;
@@ -27,8 +25,8 @@ export function useDatabase() {
 
   // #region Students
   const getAllStudents = useCallback((args?: any) => invoke('db:students:getAll', args), []);
-  const createStudent = useCallback((data: any) => invoke('db:students:create', data), []);
-  const updateStudent = useCallback((id: number, data: any) => invoke('db:students:update', { id, data }), []);
+  const createStudent = useCallback((studentData: any, parentsData: any) => invoke('db:students:create', { studentData, parentsData }), []);
+  const updateStudent = useCallback((id: number, studentData: any, parentsData: any) => invoke('db:students:update', { id, studentData, parentsData }), []);
   const deleteStudent = useCallback((id: number) => invoke('db:students:delete', id), []);
   const getRecentStudents = useCallback(() => invoke('db:students:getRecent'), []);
   // #endregion
@@ -42,6 +40,7 @@ export function useDatabase() {
 
   // #region Payments
   const getAllPayments = useCallback(() => invoke('db:payments:getAll'), []);
+  const getLatePayments = useCallback(() => invoke('db:payments:getLatePayments'), []);
   const createPayment = useCallback((data: any) => invoke('db:payments:create', data), []);
   const updatePayment = useCallback((id: number, data: any) => invoke('db:payments:update', { id, data }), []);
   const deletePayment = useCallback((id: number) => invoke('db:payments:delete', id), []);
@@ -95,6 +94,18 @@ export function useDatabase() {
   // #region Dashboard & Reports
   const getDashboardStats = useCallback(() => invoke('db:dashboard:getStats'), []);
   const getClassResults = useCallback((classId: number, quarter: number) => invoke('db:reports:getClassResults', { classId, quarter }), []);
+  const getAllClassesPerformance = useCallback((filters: any) => invoke('db:reports:getAllClassesPerformance', filters), []);
+  const getClassTrend = useCallback((classId: number) => invoke('db:reports:getClassTrend', { classId }), []);
+  // #endregion
+
+  // #region Financial Management
+  const getFinancialSummary = useCallback(() => invoke('db:financial-reports:getSummary'), []);
+  const getAllFinancialCategories = useCallback(() => invoke('db:financial-categories:getAll'), []);
+  const createFinancialCategory = useCallback((data: any) => invoke('db:financial-categories:create', data), []);
+  const getAllFinancialTransactions = useCallback((filters?: any) => invoke('db:financial-transactions:getAll', filters), []);
+  const createFinancialTransaction = useCallback((data: any) => invoke('db:financial-transactions:create', data), []);
+  const updateFinancialTransaction = useCallback((id: number, data: any) => invoke('db:financial-transactions:update', { id, data }), []);
+  const deleteFinancialTransaction = useCallback((id: number) => invoke('db:financial-transactions:delete', id), []);
   // #endregion
 
   // #region Schedules
@@ -137,14 +148,21 @@ export function useDatabase() {
     getAllClasses, createClass, updateClass, deleteClass,
     getAllStudents, createStudent, updateStudent, deleteStudent, getRecentStudents,
     getAllTeachers, createTeacher, updateTeacher, deleteTeacher,
-    getAllPayments, createPayment, updatePayment, deletePayment,
+    getAllPayments, createPayment, updatePayment, deletePayment, getLatePayments,
     getAllSubjects, createSubject, updateSubject, deleteSubject, getClassSubjects,
     getAllAttendances, createAttendance, updateAttendance, deleteAttendance, getAttendancesByStudentId,
     getAllParents, createParent, updateParent, deleteParent, findParentByPhone,
     getAllRegistrations, createRegistration, updateRegistration, deleteRegistration, getLatestRegistrationForStudent,
     getStudentParents, linkStudentToParent, unlinkStudentFromParent,
     getAllLessons, createLesson, updateLesson, deleteLesson,
-    getDashboardStats, getClassResults,
+    getDashboardStats, getClassResults, getAllClassesPerformance, getClassTrend,
+    getFinancialSummary,
+    getAllFinancialCategories,
+    createFinancialCategory,
+    getAllFinancialTransactions,
+    createFinancialTransaction,
+    updateFinancialTransaction,
+    deleteFinancialTransaction,
     getAllSchedules, createSchedule, updateSchedule, deleteSchedule, getSchedulesForClass,
     getAllNotes, createNote, updateNote, deleteNote,
     getAllEmployees, createEmployee, updateEmployee, deleteEmployee,
