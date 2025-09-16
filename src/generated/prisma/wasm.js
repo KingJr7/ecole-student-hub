@@ -377,6 +377,53 @@ exports.Prisma.FinancialTransactionScalarFieldEnum = {
   is_deleted: 'is_deleted'
 };
 
+exports.Prisma.BudgetScalarFieldEnum = {
+  id: 'id',
+  category: 'category',
+  amount: 'amount',
+  period_start: 'period_start',
+  period_end: 'period_end',
+  school_id: 'school_id',
+  supabase_id: 'supabase_id',
+  last_modified: 'last_modified',
+  needs_sync: 'needs_sync',
+  is_deleted: 'is_deleted'
+};
+
+exports.Prisma.FinancialReportScalarFieldEnum = {
+  id: 'id',
+  title: 'title',
+  generated_at: 'generated_at',
+  start_date: 'start_date',
+  end_date: 'end_date',
+  content: 'content',
+  school_id: 'school_id',
+  supabase_id: 'supabase_id',
+  last_modified: 'last_modified',
+  needs_sync: 'needs_sync',
+  is_deleted: 'is_deleted'
+};
+
+exports.Prisma.DispatchRuleScalarFieldEnum = {
+  id: 'id',
+  name: 'name',
+  source_fee_id: 'source_fee_id',
+  school_id: 'school_id',
+  last_modified: 'last_modified',
+  needs_sync: 'needs_sync',
+  is_deleted: 'is_deleted'
+};
+
+exports.Prisma.DispatchRuleDetailScalarFieldEnum = {
+  id: 'id',
+  dispatch_rule_id: 'dispatch_rule_id',
+  destination_category_id: 'destination_category_id',
+  percentage: 'percentage',
+  last_modified: 'last_modified',
+  needs_sync: 'needs_sync',
+  is_deleted: 'is_deleted'
+};
+
 exports.Prisma.SortOrder = {
   asc: 'asc',
   desc: 'desc'
@@ -407,7 +454,11 @@ exports.Prisma.ModelName = {
   SalaryPayments: 'SalaryPayments',
   Schedules: 'Schedules',
   FinancialCategory: 'FinancialCategory',
-  FinancialTransaction: 'FinancialTransaction'
+  FinancialTransaction: 'FinancialTransaction',
+  Budget: 'Budget',
+  FinancialReport: 'FinancialReport',
+  DispatchRule: 'DispatchRule',
+  DispatchRuleDetail: 'DispatchRuleDetail'
 };
 
 /**

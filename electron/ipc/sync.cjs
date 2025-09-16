@@ -2,6 +2,7 @@ const { ipcMain, BrowserWindow } = require('electron');
 const { createClient } = require('@supabase/supabase-js');
 const path = require('path');
 const bcrypt = require('bcryptjs');
+const https = require('https');
 require('dotenv').config({ path: path.resolve(__dirname, '../../.env') });
 const fs = require('fs').promises;
 
@@ -96,13 +97,6 @@ const tableConfigs = {
             // Check if we have a local, non-synced picture
             if (row.picture_url && !row.picture_url.startsWith('http')) {
                 newPictureUrl = await uploadStudentPhoto(supabase, row.picture_url);
-                if (newPictureUrl) {
-                    // Update local record with the new Supabase URL to prevent re-uploads
-                    await prisma.students.update({
-                        where: { id: row.id },
-                        data: { picture_url: newPictureUrl }
-                    });
-                }
             }
             
             return { 
@@ -114,14 +108,49 @@ const tableConfigs = {
                 matricul: row.matricul
             };
         },
-        localMap: (row) => ({ 
-            name: row.name,
-            first_name: row.first_name,
-            genre: row.genre,
-            birth_date: row.birth_date,
-            picture_url: row.picture_url,
-            matricul: row.matricul // Ajouté pour la synchro
-        })
+        localMap: async (row) => {
+            let finalPictureUrl = row.picture_url;
+
+            if (row.picture_url && row.picture_url.startsWith('http')) {
+                const filename = path.basename(new URL(row.picture_url).pathname);
+                const localPath = path.join(localImagesDir, filename);
+                finalPictureUrl = filename; // Always store the local filename
+
+                try {
+                    await fs.access(localPath);
+                } catch (e) {
+                    // File doesn't exist, download it
+                    try {
+                        sendSyncLog('info', `  -> 🖼️ Téléchargement de la photo ${filename}...`);
+                        await new Promise((resolve, reject) => {
+                            const file = require('fs').createWriteStream(localPath);
+                            https.get(row.picture_url, (response) => {
+                                response.pipe(file);
+                                file.on('finish', () => file.close(resolve));
+                                file.on('error', (err) => {
+                                    require('fs').unlink(localPath, () => reject(err));
+                                });
+                            }).on('error', (err) => {
+                                require('fs').unlink(localPath, () => reject(err));
+                            });
+                        });
+                        sendSyncLog('success', `     ✅ Photo ${filename} téléchargée.`);
+                    } catch (downloadError) {
+                        sendSyncLog('error', `  -> ❌ Erreur lors du téléchargement de ${filename}`, { error: downloadError });
+                        finalPictureUrl = null; // Don't save a broken link
+                    }
+                }
+            }
+            
+            return { 
+                name: row.name,
+                first_name: row.first_name,
+                genre: row.genre,
+                birth_date: row.birth_date,
+                picture_url: finalPictureUrl,
+                matricul: row.matricul
+            };
+        }
     },
     registrations: {
         name: 'registrations', model: 'registrations',
@@ -855,6 +884,10 @@ async function pullChanges(prisma, schoolId, supabase) {
 
         for (const row of supabaseRows) {
             try {
+                if (config.name === 'students') {
+                    sendSyncLog('info', `[PULL-DEBUG] Données brutes de l\'étudiant reçues de Supabase (ID: ${row.id}):`, { picture_url: row.picture_url });
+                }
+
                 const localRow = await prisma[modelName].findUnique({ where: { supabase_id: row.id } });
 
                 if (row.is_deleted) {

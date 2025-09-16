@@ -96,6 +96,7 @@ export function useDatabase() {
   const getClassResults = useCallback((classId: number, quarter: number) => invoke('db:reports:getClassResults', { classId, quarter }), []);
   const getAllClassesPerformance = useCallback((filters: any) => invoke('db:reports:getAllClassesPerformance', filters), []);
   const getClassTrend = useCallback((classId: number) => invoke('db:reports:getClassTrend', { classId }), []);
+  const getFrequentLatePayers = useCallback(() => invoke('db:reports:getFrequentLatePayers'), []);
   // #endregion
 
   // #region Financial Management
@@ -143,6 +144,14 @@ export function useDatabase() {
   const printReceipt = useCallback((data: any) => invoke('printers:print-receipt', data), []);
   // #endregion
 
+  // #region Dispatch Rules
+  const getAllDispatchRules = useCallback(() => invoke('db:dispatch-rules:getAll'), []);
+  const createDispatchRule = useCallback((data: any) => invoke('db:dispatch-rules:create', data), []);
+  
+  const deleteDispatchRule = useCallback((id: number) => invoke('db:dispatch-rules:delete', id), []);
+  const updateDispatchRule = useCallback((id: number, data: any) => invoke('db:dispatch-rules:update', { id, data }), []);
+  // #endregion
+
   return useMemo(() => ({
     getSettings, updateSettings,
     getAllClasses, createClass, updateClass, deleteClass,
@@ -155,7 +164,7 @@ export function useDatabase() {
     getAllRegistrations, createRegistration, updateRegistration, deleteRegistration, getLatestRegistrationForStudent,
     getStudentParents, linkStudentToParent, unlinkStudentFromParent,
     getAllLessons, createLesson, updateLesson, deleteLesson,
-    getDashboardStats, getClassResults, getAllClassesPerformance, getClassTrend,
+    getDashboardStats, getClassResults, getAllClassesPerformance, getClassTrend, getFrequentLatePayers,
     getFinancialSummary,
     getAllFinancialCategories,
     createFinancialCategory,
@@ -168,6 +177,7 @@ export function useDatabase() {
     getAllEmployees, createEmployee, updateEmployee, deleteEmployee,
     getAllFees, createFee, updateFee, deleteFee, getStudentFeeStatus, 
     getPrinters, printReceipt,
+    getAllDispatchRules, createDispatchRule, updateDispatchRule, deleteDispatchRule,
     processStudentPhoto: () => invoke('images:process-student-photo'),
   }), []);
 }

@@ -26,6 +26,67 @@ async function getUserSchoolId(event) {
   return schoolId;
 }
 
+async function handlePaymentDispatch(tx, payment, schoolId) {
+  const { fee_id, amount, date, registration } = payment;
+  const studentName = `${registration.student.first_name} ${registration.student.name}`;
+  const feeName = payment.fee?.name || 'Revenu scolaire';
+  const description = `Paiement de ${feeName} par ${studentName}`;
+
+  const dispatchRule = await tx.dispatchRule.findUnique({
+    where: { source_fee_id: fee_id },
+    include: { details: true },
+  });
+
+  let totalDispatched = 0;
+
+  if (dispatchRule && dispatchRule.details.length > 0) {
+    for (const detail of dispatchRule.details) {
+      const dispatchedAmount = Math.floor(amount * detail.percentage);
+      if (dispatchedAmount > 0) {
+        totalDispatched += dispatchedAmount;
+        await tx.financialTransaction.create({
+          data: {
+            date: new Date(date),
+            description: `${description} (Répartition: ${detail.percentage * 100}%)`,
+            amount: dispatchedAmount,
+            type: 'income',
+            category_id: detail.destination_category_id,
+            school_id: schoolId,
+            needs_sync: true,
+            last_modified: new Date(),
+          },
+        });
+      }
+    }
+  }
+  
+  const remainder = amount - totalDispatched;
+  if (remainder > 0) {
+    let incomeCategory = await tx.financialCategory.findFirst({
+      where: { name: feeName, type: 'income', school_id: schoolId },
+    });
+
+    if (!incomeCategory) {
+      incomeCategory = await tx.financialCategory.create({
+        data: { name: feeName, type: 'income', school_id: schoolId, needs_sync: true, last_modified: new Date() },
+      });
+    }
+
+    await tx.financialTransaction.create({
+      data: {
+        date: new Date(date),
+        description: `${description} (Principal)`,
+        amount: remainder,
+        type: 'income',
+        category_id: incomeCategory.id,
+        school_id: schoolId,
+        needs_sync: true,
+        last_modified: new Date(),
+      },
+    });
+  }
+}
+
 async function calculateClassResults(classId, quarter) {
   console.log('Calculating results for class:', classId, 'and quarter:', quarter, 'type:', typeof quarter);
 
@@ -315,6 +376,7 @@ function setupDatabaseIPC(prismaClient) {
 };
 
 ipcMain.handle('db:students:create', async (event, { studentData, parentsData }) => {
+  console.log("[DEBUG] Création d'un étudiant avec les données:", studentData);
   return prisma.$transaction(async (tx) => {
     // Génération du matricule
     const year = new Date().getFullYear().toString().slice(-2);
@@ -363,13 +425,17 @@ ipcMain.handle('db:students:create', async (event, { studentData, parentsData })
       const motherRecord = await findOrCreateParent(tx, mother);
 
       if (fatherRecord) {
-        await tx.studentParents.create({
-          data: { student_id: newStudent.id, parent_id: fatherRecord.id, relation: 'père', needs_sync: true, last_modified: new Date() },
+        await tx.studentParents.upsert({
+          where: { student_id_parent_id_unique: { student_id: newStudent.id, parent_id: fatherRecord.id } },
+          update: { is_deleted: false, relation: 'père', needs_sync: true, last_modified: new Date() },
+          create: { student_id: newStudent.id, parent_id: fatherRecord.id, relation: 'père', needs_sync: true, last_modified: new Date() },
         });
       }
       if (motherRecord) {
-        await tx.studentParents.create({
-          data: { student_id: newStudent.id, parent_id: motherRecord.id, relation: 'mère', needs_sync: true, last_modified: new Date() },
+        await tx.studentParents.upsert({
+          where: { student_id_parent_id_unique: { student_id: newStudent.id, parent_id: motherRecord.id } },
+          update: { is_deleted: false, relation: 'mère', needs_sync: true, last_modified: new Date() },
+          create: { student_id: newStudent.id, parent_id: motherRecord.id, relation: 'mère', needs_sync: true, last_modified: new Date() },
         });
       }
     }
@@ -408,6 +474,7 @@ ipcMain.handle('db:students:create', async (event, { studentData, parentsData })
 });
 
 ipcMain.handle('db:students:update', async (event, { id, studentData, parentsData }) => {
+  console.log(`[DEBUG] Mise à jour de l'étudiant #${id} avec les données:`, studentData);
   return prisma.$transaction(async (tx) => {
     await tx.students.update({
       where: { id },
@@ -632,7 +699,6 @@ ipcMain.handle('db:teachers:update', async (event, { id, data }) => {
       throw new Error("Accès non autorisé: le professeur spécifié n'appartient pas à votre école.");
     }
 
-    // Calculer la durée en heures
     const start = new Date(`${date}T${start_time}`);
     const end = new Date(`${date}T${end_time}`);
     const durationMs = end.getTime() - start.getTime();
@@ -642,18 +708,55 @@ ipcMain.handle('db:teachers:update', async (event, { id, data }) => {
       throw new Error("L'heure de fin doit être après l'heure de début.");
     }
 
-    return prisma.teacherWorkHours.create({
-      data: {
-        teacher_id,
-        subject_id,
-        date,
-        start_time,
-        end_time,
-        hours,
-        notes,
-        needs_sync: true,
-        last_modified: new Date(),
-      },
+    const amount = hours * (teacher.hourlyRate || 0);
+
+    return prisma.$transaction(async (tx) => {
+      const workHour = await tx.teacherWorkHours.create({
+        data: {
+          teacher_id,
+          subject_id,
+          date,
+          start_time,
+          end_time,
+          hours,
+          notes,
+          needs_sync: true,
+          last_modified: new Date(),
+        },
+      });
+
+      if (amount > 0) {
+        let salaryCategory = await tx.financialCategory.findFirst({
+          where: { name: 'Salaires Professeurs', type: 'expense', school_id: schoolId },
+        });
+
+        if (!salaryCategory) {
+          salaryCategory = await tx.financialCategory.create({
+            data: {
+              name: 'Salaires Professeurs',
+              type: 'expense',
+              school_id: schoolId,
+              needs_sync: true,
+              last_modified: new Date(),
+            },
+          });
+        }
+
+        await tx.financialTransaction.create({
+          data: {
+            date: new Date(date),
+            description: `Pointage heures - ${teacher.first_name} ${teacher.name}`,
+            amount: amount,
+            type: 'expense',
+            category_id: salaryCategory.id,
+            school_id: schoolId,
+            needs_sync: true,
+            last_modified: new Date(),
+          },
+        });
+      }
+
+      return workHour;
     });
   });
 
@@ -771,7 +874,6 @@ ipcMain.handle('db:teachers:update', async (event, { id, data }) => {
       where: { 
         is_deleted: false, 
         registration: { 
-          isNot: null,
           class: {
             school_id: schoolId
           }
@@ -860,11 +962,21 @@ ipcMain.handle('db:teachers:update', async (event, { id, data }) => {
     });
 
     const allFees = await prisma.fees.findMany({
-      where: { is_deleted: false },
+      where: { 
+        is_deleted: false,
+        school_id: schoolId
+      },
     });
 
     const allPayments = await prisma.payments.findMany({
-      where: { is_deleted: false },
+      where: { 
+        is_deleted: false,
+        registration: {
+          class: {
+            school_id: schoolId
+          }
+        }
+      },
     });
 
     const latePayments = [];
@@ -920,7 +1032,7 @@ ipcMain.handle('db:teachers:update', async (event, { id, data }) => {
   });
 
   // Supprimer le champ month qui n'existe pas dans le schéma
-  ipcMain.handle('db:payments:create', async (event, { registration_id, fee_id, amount, date, method, reference }) => {
+      ipcMain.handle('db:payments:create', async (event, { registration_id, fee_id, amount, date, method, reference }) => {
     const schoolId = await getUserSchoolId(event);
 
     const registration = await prisma.registrations.findUnique({
@@ -933,60 +1045,12 @@ ipcMain.handle('db:teachers:update', async (event, { id, data }) => {
     }
 
     return prisma.$transaction(async (tx) => {
-      // Étape 1: Créer le paiement de l'étudiant
       const payment = await tx.payments.create({
-        data: {
-          registration_id,
-          fee_id,
-          amount,
-          date,
-          method,
-          reference,
-          needs_sync: true,
-          last_modified: new Date(),
-        },
-        include: {
-          fee: true,
-          registration: {
-            include: {
-              student: true,
-            },
-          },
-        },
+        data: { registration_id, fee_id, amount, date, method, reference, needs_sync: true, last_modified: new Date() },
+        include: { fee: true, registration: { include: { student: true } } },
       });
-  
-      // Étape 2: Trouver ou créer la catégorie de revenu correspondante
-      const feeName = payment.fee?.name || 'Revenu scolaire';
-      let incomeCategory = await tx.financialCategory.findFirst({
-        where: { name: feeName, type: 'income', school_id: schoolId },
-      });
-  
-      if (!incomeCategory) {
-        incomeCategory = await tx.financialCategory.create({
-          data: {
-            name: feeName,
-            type: 'income',
-            school_id: schoolId,
-            needs_sync: true,
-            last_modified: new Date(),
-          },
-        });
-      }
-  
-      // Étape 3: Créer la transaction financière
-      const studentName = `${payment.registration.student.first_name} ${payment.registration.student.name}`;
-      await tx.financialTransaction.create({
-        data: {
-          date: new Date(date),
-          description: `Paiement de ${feeName} par ${studentName}`,
-          amount: amount,
-          type: 'income',
-          category_id: incomeCategory.id,
-          school_id: schoolId,
-          needs_sync: true,
-          last_modified: new Date(),
-        },
-      });
+
+      await handlePaymentDispatch(tx, payment, schoolId);
   
       return payment;
     });
@@ -2891,6 +2955,129 @@ ipcMain.handle('db:fees:delete', async (event, id) => {
     });
   });
   // #endregion
+
+  // #region Dispatch Rules
+  ipcMain.handle('db:dispatch-rules:getAll', async (event) => {
+    const schoolId = await getUserSchoolId(event);
+    return prisma.dispatchRule.findMany({
+      where: { school_id: schoolId, is_deleted: false },
+      include: {
+        source_fee: true,
+        details: {
+          include: {
+            destination_category: true,
+          },
+        },
+      },
+      orderBy: { name: 'asc' },
+    });
+  });
+
+  ipcMain.handle('db:dispatch-rules:create', async (event, { name, source_fee_id, details }) => {
+    const schoolId = await getUserSchoolId(event);
+
+    const fee = await prisma.fees.findUnique({ where: { id: source_fee_id } });
+    if (!fee || fee.school_id !== schoolId) {
+      throw new Error("Accès non autorisé: le type de frais spécifié n'appartient pas à votre école.");
+    }
+
+    return prisma.$transaction(async (tx) => {
+      const rule = await tx.dispatchRule.upsert({
+        where: { source_fee_id },
+        update: {
+          name,
+          needs_sync: true,
+          last_modified: new Date(),
+        },
+        create: {
+          name,
+          source_fee_id,
+          school_id: schoolId,
+          needs_sync: true,
+          last_modified: new Date(),
+        },
+      });
+
+      // Supprimer les anciens détails et créer les nouveaux
+      await tx.dispatchRuleDetail.deleteMany({
+        where: { dispatch_rule_id: rule.id },
+      });
+
+      for (const detail of details) {
+        await tx.dispatchRuleDetail.create({
+          data: {
+            dispatch_rule_id: rule.id,
+            destination_category_id: detail.destination_category_id,
+            percentage: detail.percentage,
+            needs_sync: true,
+            last_modified: new Date(),
+          },
+        });
+      }
+      return rule;
+    });
+  });
+
+  
+
+  ipcMain.handle('db:dispatch-rules:delete', async (event, id) => {
+    const schoolId = await getUserSchoolId(event);
+    const ruleToDelete = await prisma.dispatchRule.findUnique({ where: { id } });
+
+    if (!ruleToDelete || ruleToDelete.school_id !== schoolId) {
+      throw new Error("Accès non autorisé ou règle non trouvée.");
+    }
+
+    return prisma.dispatchRule.update({
+      where: { id },
+      data: {
+        is_deleted: true,
+        needs_sync: true,
+        last_modified: new Date(),
+      },
+    });
+  });
+
+  ipcMain.handle('db:dispatch-rules:update', async (event, { id, data }) => {
+    const schoolId = await getUserSchoolId(event);
+    const { name, source_fee_id, details } = data;
+
+    const ruleToUpdate = await prisma.dispatchRule.findUnique({ where: { id } });
+    if (!ruleToUpdate || ruleToUpdate.school_id !== schoolId) {
+      throw new Error("Accès non autorisé ou règle non trouvée.");
+    }
+
+    return prisma.$transaction(async (tx) => {
+      const updatedRule = await tx.dispatchRule.update({
+        where: { id },
+        data: {
+          name,
+          source_fee_id,
+          needs_sync: true,
+          last_modified: new Date(),
+        },
+      });
+
+      await tx.dispatchRuleDetail.deleteMany({
+        where: { dispatch_rule_id: id },
+      });
+
+      for (const detail of details) {
+        await tx.dispatchRuleDetail.create({
+          data: {
+            dispatch_rule_id: updatedRule.id,
+            destination_category_id: detail.destination_category_id,
+            percentage: detail.percentage,
+            needs_sync: true,
+            last_modified: new Date(),
+          },
+        });
+      }
+      return updatedRule;
+    });
+  });
+  // #endregion
+
 }
 
 module.exports = { initializePrisma, setupDatabaseIPC }; // Exporter la fonction d'initialisation

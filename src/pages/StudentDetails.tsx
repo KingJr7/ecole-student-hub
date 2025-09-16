@@ -138,6 +138,9 @@ const StudentDetails = () => {
     return <MainLayout><div className="text-center py-10">Étudiant non trouvé.</div></MainLayout>;
   }
 
+  console.log("[DEBUG] Affichage de la page de détails pour l'étudiant:", student);
+  console.log("[DEBUG] URL de l'image reçue par le composant:", student.picture_url);
+
   return (
     <MainLayout>
       <div className="space-y-8 p-4 pt-6 md:p-8">
@@ -145,7 +148,7 @@ const StudentDetails = () => {
             <div className="md:col-span-1">
                 {student.picture_url ? (
                     <img 
-                        src={`ntik-fs://${student.picture_url}`}
+                        src={student.picture_url.startsWith('http') ? student.picture_url : `ntik-fs://${student.picture_url}`}
                         alt={`${student.first_name} ${student.name}`} 
                         className="w-full rounded-lg shadow-lg object-cover aspect-square"
                     />

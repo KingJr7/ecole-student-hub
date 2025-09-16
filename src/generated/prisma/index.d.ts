@@ -108,6 +108,26 @@ export type FinancialCategory = $Result.DefaultSelection<Prisma.$FinancialCatego
  * 
  */
 export type FinancialTransaction = $Result.DefaultSelection<Prisma.$FinancialTransactionPayload>
+/**
+ * Model Budget
+ * 
+ */
+export type Budget = $Result.DefaultSelection<Prisma.$BudgetPayload>
+/**
+ * Model FinancialReport
+ * 
+ */
+export type FinancialReport = $Result.DefaultSelection<Prisma.$FinancialReportPayload>
+/**
+ * Model DispatchRule
+ * 
+ */
+export type DispatchRule = $Result.DefaultSelection<Prisma.$DispatchRulePayload>
+/**
+ * Model DispatchRuleDetail
+ * 
+ */
+export type DispatchRuleDetail = $Result.DefaultSelection<Prisma.$DispatchRuleDetailPayload>
 
 /**
  * ##  Prisma Client ʲˢ
@@ -416,6 +436,46 @@ export class PrismaClient<
     * ```
     */
   get financialTransaction(): Prisma.FinancialTransactionDelegate<ExtArgs, ClientOptions>;
+
+  /**
+   * `prisma.budget`: Exposes CRUD operations for the **Budget** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more Budgets
+    * const budgets = await prisma.budget.findMany()
+    * ```
+    */
+  get budget(): Prisma.BudgetDelegate<ExtArgs, ClientOptions>;
+
+  /**
+   * `prisma.financialReport`: Exposes CRUD operations for the **FinancialReport** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more FinancialReports
+    * const financialReports = await prisma.financialReport.findMany()
+    * ```
+    */
+  get financialReport(): Prisma.FinancialReportDelegate<ExtArgs, ClientOptions>;
+
+  /**
+   * `prisma.dispatchRule`: Exposes CRUD operations for the **DispatchRule** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more DispatchRules
+    * const dispatchRules = await prisma.dispatchRule.findMany()
+    * ```
+    */
+  get dispatchRule(): Prisma.DispatchRuleDelegate<ExtArgs, ClientOptions>;
+
+  /**
+   * `prisma.dispatchRuleDetail`: Exposes CRUD operations for the **DispatchRuleDetail** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more DispatchRuleDetails
+    * const dispatchRuleDetails = await prisma.dispatchRuleDetail.findMany()
+    * ```
+    */
+  get dispatchRuleDetail(): Prisma.DispatchRuleDetailDelegate<ExtArgs, ClientOptions>;
 }
 
 export namespace Prisma {
@@ -874,7 +934,11 @@ export namespace Prisma {
     SalaryPayments: 'SalaryPayments',
     Schedules: 'Schedules',
     FinancialCategory: 'FinancialCategory',
-    FinancialTransaction: 'FinancialTransaction'
+    FinancialTransaction: 'FinancialTransaction',
+    Budget: 'Budget',
+    FinancialReport: 'FinancialReport',
+    DispatchRule: 'DispatchRule',
+    DispatchRuleDetail: 'DispatchRuleDetail'
   };
 
   export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -893,7 +957,7 @@ export namespace Prisma {
       omit: GlobalOmitOptions
     }
     meta: {
-      modelProps: "settings" | "classes" | "students" | "registrations" | "teachers" | "teacherWorkHours" | "lessons" | "subjects" | "notes" | "parents" | "studentParents" | "payments" | "fees" | "attendances" | "employees" | "salaryPayments" | "schedules" | "financialCategory" | "financialTransaction"
+      modelProps: "settings" | "classes" | "students" | "registrations" | "teachers" | "teacherWorkHours" | "lessons" | "subjects" | "notes" | "parents" | "studentParents" | "payments" | "fees" | "attendances" | "employees" | "salaryPayments" | "schedules" | "financialCategory" | "financialTransaction" | "budget" | "financialReport" | "dispatchRule" | "dispatchRuleDetail"
       txIsolationLevel: Prisma.TransactionIsolationLevel
     }
     model: {
@@ -2303,6 +2367,302 @@ export namespace Prisma {
           }
         }
       }
+      Budget: {
+        payload: Prisma.$BudgetPayload<ExtArgs>
+        fields: Prisma.BudgetFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.BudgetFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$BudgetPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.BudgetFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$BudgetPayload>
+          }
+          findFirst: {
+            args: Prisma.BudgetFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$BudgetPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.BudgetFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$BudgetPayload>
+          }
+          findMany: {
+            args: Prisma.BudgetFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$BudgetPayload>[]
+          }
+          create: {
+            args: Prisma.BudgetCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$BudgetPayload>
+          }
+          createMany: {
+            args: Prisma.BudgetCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.BudgetCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$BudgetPayload>[]
+          }
+          delete: {
+            args: Prisma.BudgetDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$BudgetPayload>
+          }
+          update: {
+            args: Prisma.BudgetUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$BudgetPayload>
+          }
+          deleteMany: {
+            args: Prisma.BudgetDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.BudgetUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateManyAndReturn: {
+            args: Prisma.BudgetUpdateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$BudgetPayload>[]
+          }
+          upsert: {
+            args: Prisma.BudgetUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$BudgetPayload>
+          }
+          aggregate: {
+            args: Prisma.BudgetAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateBudget>
+          }
+          groupBy: {
+            args: Prisma.BudgetGroupByArgs<ExtArgs>
+            result: $Utils.Optional<BudgetGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.BudgetCountArgs<ExtArgs>
+            result: $Utils.Optional<BudgetCountAggregateOutputType> | number
+          }
+        }
+      }
+      FinancialReport: {
+        payload: Prisma.$FinancialReportPayload<ExtArgs>
+        fields: Prisma.FinancialReportFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.FinancialReportFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$FinancialReportPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.FinancialReportFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$FinancialReportPayload>
+          }
+          findFirst: {
+            args: Prisma.FinancialReportFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$FinancialReportPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.FinancialReportFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$FinancialReportPayload>
+          }
+          findMany: {
+            args: Prisma.FinancialReportFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$FinancialReportPayload>[]
+          }
+          create: {
+            args: Prisma.FinancialReportCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$FinancialReportPayload>
+          }
+          createMany: {
+            args: Prisma.FinancialReportCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.FinancialReportCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$FinancialReportPayload>[]
+          }
+          delete: {
+            args: Prisma.FinancialReportDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$FinancialReportPayload>
+          }
+          update: {
+            args: Prisma.FinancialReportUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$FinancialReportPayload>
+          }
+          deleteMany: {
+            args: Prisma.FinancialReportDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.FinancialReportUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateManyAndReturn: {
+            args: Prisma.FinancialReportUpdateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$FinancialReportPayload>[]
+          }
+          upsert: {
+            args: Prisma.FinancialReportUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$FinancialReportPayload>
+          }
+          aggregate: {
+            args: Prisma.FinancialReportAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateFinancialReport>
+          }
+          groupBy: {
+            args: Prisma.FinancialReportGroupByArgs<ExtArgs>
+            result: $Utils.Optional<FinancialReportGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.FinancialReportCountArgs<ExtArgs>
+            result: $Utils.Optional<FinancialReportCountAggregateOutputType> | number
+          }
+        }
+      }
+      DispatchRule: {
+        payload: Prisma.$DispatchRulePayload<ExtArgs>
+        fields: Prisma.DispatchRuleFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.DispatchRuleFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$DispatchRulePayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.DispatchRuleFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$DispatchRulePayload>
+          }
+          findFirst: {
+            args: Prisma.DispatchRuleFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$DispatchRulePayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.DispatchRuleFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$DispatchRulePayload>
+          }
+          findMany: {
+            args: Prisma.DispatchRuleFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$DispatchRulePayload>[]
+          }
+          create: {
+            args: Prisma.DispatchRuleCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$DispatchRulePayload>
+          }
+          createMany: {
+            args: Prisma.DispatchRuleCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.DispatchRuleCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$DispatchRulePayload>[]
+          }
+          delete: {
+            args: Prisma.DispatchRuleDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$DispatchRulePayload>
+          }
+          update: {
+            args: Prisma.DispatchRuleUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$DispatchRulePayload>
+          }
+          deleteMany: {
+            args: Prisma.DispatchRuleDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.DispatchRuleUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateManyAndReturn: {
+            args: Prisma.DispatchRuleUpdateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$DispatchRulePayload>[]
+          }
+          upsert: {
+            args: Prisma.DispatchRuleUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$DispatchRulePayload>
+          }
+          aggregate: {
+            args: Prisma.DispatchRuleAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateDispatchRule>
+          }
+          groupBy: {
+            args: Prisma.DispatchRuleGroupByArgs<ExtArgs>
+            result: $Utils.Optional<DispatchRuleGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.DispatchRuleCountArgs<ExtArgs>
+            result: $Utils.Optional<DispatchRuleCountAggregateOutputType> | number
+          }
+        }
+      }
+      DispatchRuleDetail: {
+        payload: Prisma.$DispatchRuleDetailPayload<ExtArgs>
+        fields: Prisma.DispatchRuleDetailFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.DispatchRuleDetailFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$DispatchRuleDetailPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.DispatchRuleDetailFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$DispatchRuleDetailPayload>
+          }
+          findFirst: {
+            args: Prisma.DispatchRuleDetailFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$DispatchRuleDetailPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.DispatchRuleDetailFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$DispatchRuleDetailPayload>
+          }
+          findMany: {
+            args: Prisma.DispatchRuleDetailFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$DispatchRuleDetailPayload>[]
+          }
+          create: {
+            args: Prisma.DispatchRuleDetailCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$DispatchRuleDetailPayload>
+          }
+          createMany: {
+            args: Prisma.DispatchRuleDetailCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.DispatchRuleDetailCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$DispatchRuleDetailPayload>[]
+          }
+          delete: {
+            args: Prisma.DispatchRuleDetailDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$DispatchRuleDetailPayload>
+          }
+          update: {
+            args: Prisma.DispatchRuleDetailUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$DispatchRuleDetailPayload>
+          }
+          deleteMany: {
+            args: Prisma.DispatchRuleDetailDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.DispatchRuleDetailUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateManyAndReturn: {
+            args: Prisma.DispatchRuleDetailUpdateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$DispatchRuleDetailPayload>[]
+          }
+          upsert: {
+            args: Prisma.DispatchRuleDetailUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$DispatchRuleDetailPayload>
+          }
+          aggregate: {
+            args: Prisma.DispatchRuleDetailAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateDispatchRuleDetail>
+          }
+          groupBy: {
+            args: Prisma.DispatchRuleDetailGroupByArgs<ExtArgs>
+            result: $Utils.Optional<DispatchRuleDetailGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.DispatchRuleDetailCountArgs<ExtArgs>
+            result: $Utils.Optional<DispatchRuleDetailCountAggregateOutputType> | number
+          }
+        }
+      }
     }
   } & {
     other: {
@@ -2414,6 +2774,10 @@ export namespace Prisma {
     schedules?: SchedulesOmit
     financialCategory?: FinancialCategoryOmit
     financialTransaction?: FinancialTransactionOmit
+    budget?: BudgetOmit
+    financialReport?: FinancialReportOmit
+    dispatchRule?: DispatchRuleOmit
+    dispatchRuleDetail?: DispatchRuleDetailOmit
   }
 
   /* Types for Logging */
@@ -2784,10 +3148,12 @@ export namespace Prisma {
 
   export type FeesCountOutputType = {
     payments: number
+    dispatch_rules: number
   }
 
   export type FeesCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     payments?: boolean | FeesCountOutputTypeCountPaymentsArgs
+    dispatch_rules?: boolean | FeesCountOutputTypeCountDispatch_rulesArgs
   }
 
   // Custom InputTypes
@@ -2806,6 +3172,13 @@ export namespace Prisma {
    */
   export type FeesCountOutputTypeCountPaymentsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     where?: PaymentsWhereInput
+  }
+
+  /**
+   * FeesCountOutputType without action
+   */
+  export type FeesCountOutputTypeCountDispatch_rulesArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: DispatchRuleWhereInput
   }
 
 
@@ -2846,10 +3219,12 @@ export namespace Prisma {
 
   export type FinancialCategoryCountOutputType = {
     transactions: number
+    dispatch_rule_details: number
   }
 
   export type FinancialCategoryCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     transactions?: boolean | FinancialCategoryCountOutputTypeCountTransactionsArgs
+    dispatch_rule_details?: boolean | FinancialCategoryCountOutputTypeCountDispatch_rule_detailsArgs
   }
 
   // Custom InputTypes
@@ -2868,6 +3243,44 @@ export namespace Prisma {
    */
   export type FinancialCategoryCountOutputTypeCountTransactionsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     where?: FinancialTransactionWhereInput
+  }
+
+  /**
+   * FinancialCategoryCountOutputType without action
+   */
+  export type FinancialCategoryCountOutputTypeCountDispatch_rule_detailsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: DispatchRuleDetailWhereInput
+  }
+
+
+  /**
+   * Count Type DispatchRuleCountOutputType
+   */
+
+  export type DispatchRuleCountOutputType = {
+    details: number
+  }
+
+  export type DispatchRuleCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    details?: boolean | DispatchRuleCountOutputTypeCountDetailsArgs
+  }
+
+  // Custom InputTypes
+  /**
+   * DispatchRuleCountOutputType without action
+   */
+  export type DispatchRuleCountOutputTypeDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the DispatchRuleCountOutputType
+     */
+    select?: DispatchRuleCountOutputTypeSelect<ExtArgs> | null
+  }
+
+  /**
+   * DispatchRuleCountOutputType without action
+   */
+  export type DispatchRuleCountOutputTypeCountDetailsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: DispatchRuleDetailWhereInput
   }
 
 
@@ -17592,6 +18005,7 @@ export namespace Prisma {
     needs_sync?: boolean
     is_deleted?: boolean
     payments?: boolean | Fees$paymentsArgs<ExtArgs>
+    dispatch_rules?: boolean | Fees$dispatch_rulesArgs<ExtArgs>
     _count?: boolean | FeesCountOutputTypeDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["fees"]>
 
@@ -17640,6 +18054,7 @@ export namespace Prisma {
   export type FeesOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "name" | "amount" | "due_date" | "school_year" | "level" | "school_id" | "supabase_id" | "last_modified" | "needs_sync" | "is_deleted", ExtArgs["result"]["fees"]>
   export type FeesInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     payments?: boolean | Fees$paymentsArgs<ExtArgs>
+    dispatch_rules?: boolean | Fees$dispatch_rulesArgs<ExtArgs>
     _count?: boolean | FeesCountOutputTypeDefaultArgs<ExtArgs>
   }
   export type FeesIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {}
@@ -17649,6 +18064,7 @@ export namespace Prisma {
     name: "Fees"
     objects: {
       payments: Prisma.$PaymentsPayload<ExtArgs>[]
+      dispatch_rules: Prisma.$DispatchRulePayload<ExtArgs>[]
     }
     scalars: $Extensions.GetPayloadResult<{
       id: number
@@ -18057,6 +18473,7 @@ export namespace Prisma {
   export interface Prisma__FeesClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
     readonly [Symbol.toStringTag]: "PrismaPromise"
     payments<T extends Fees$paymentsArgs<ExtArgs> = {}>(args?: Subset<T, Fees$paymentsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$PaymentsPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    dispatch_rules<T extends Fees$dispatch_rulesArgs<ExtArgs> = {}>(args?: Subset<T, Fees$dispatch_rulesArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$DispatchRulePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
      * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -18504,6 +18921,30 @@ export namespace Prisma {
     take?: number
     skip?: number
     distinct?: PaymentsScalarFieldEnum | PaymentsScalarFieldEnum[]
+  }
+
+  /**
+   * Fees.dispatch_rules
+   */
+  export type Fees$dispatch_rulesArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the DispatchRule
+     */
+    select?: DispatchRuleSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the DispatchRule
+     */
+    omit?: DispatchRuleOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: DispatchRuleInclude<ExtArgs> | null
+    where?: DispatchRuleWhereInput
+    orderBy?: DispatchRuleOrderByWithRelationInput | DispatchRuleOrderByWithRelationInput[]
+    cursor?: DispatchRuleWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: DispatchRuleScalarFieldEnum | DispatchRuleScalarFieldEnum[]
   }
 
   /**
@@ -23486,6 +23927,7 @@ export namespace Prisma {
     needs_sync?: boolean
     is_deleted?: boolean
     transactions?: boolean | FinancialCategory$transactionsArgs<ExtArgs>
+    dispatch_rule_details?: boolean | FinancialCategory$dispatch_rule_detailsArgs<ExtArgs>
     _count?: boolean | FinancialCategoryCountOutputTypeDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["financialCategory"]>
 
@@ -23525,6 +23967,7 @@ export namespace Prisma {
   export type FinancialCategoryOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "name" | "type" | "school_id" | "supabase_id" | "last_modified" | "needs_sync" | "is_deleted", ExtArgs["result"]["financialCategory"]>
   export type FinancialCategoryInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     transactions?: boolean | FinancialCategory$transactionsArgs<ExtArgs>
+    dispatch_rule_details?: boolean | FinancialCategory$dispatch_rule_detailsArgs<ExtArgs>
     _count?: boolean | FinancialCategoryCountOutputTypeDefaultArgs<ExtArgs>
   }
   export type FinancialCategoryIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {}
@@ -23534,6 +23977,7 @@ export namespace Prisma {
     name: "FinancialCategory"
     objects: {
       transactions: Prisma.$FinancialTransactionPayload<ExtArgs>[]
+      dispatch_rule_details: Prisma.$DispatchRuleDetailPayload<ExtArgs>[]
     }
     scalars: $Extensions.GetPayloadResult<{
       id: number
@@ -23939,6 +24383,7 @@ export namespace Prisma {
   export interface Prisma__FinancialCategoryClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
     readonly [Symbol.toStringTag]: "PrismaPromise"
     transactions<T extends FinancialCategory$transactionsArgs<ExtArgs> = {}>(args?: Subset<T, FinancialCategory$transactionsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$FinancialTransactionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    dispatch_rule_details<T extends FinancialCategory$dispatch_rule_detailsArgs<ExtArgs> = {}>(args?: Subset<T, FinancialCategory$dispatch_rule_detailsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$DispatchRuleDetailPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
      * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -24383,6 +24828,30 @@ export namespace Prisma {
     take?: number
     skip?: number
     distinct?: FinancialTransactionScalarFieldEnum | FinancialTransactionScalarFieldEnum[]
+  }
+
+  /**
+   * FinancialCategory.dispatch_rule_details
+   */
+  export type FinancialCategory$dispatch_rule_detailsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the DispatchRuleDetail
+     */
+    select?: DispatchRuleDetailSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the DispatchRuleDetail
+     */
+    omit?: DispatchRuleDetailOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: DispatchRuleDetailInclude<ExtArgs> | null
+    where?: DispatchRuleDetailWhereInput
+    orderBy?: DispatchRuleDetailOrderByWithRelationInput | DispatchRuleDetailOrderByWithRelationInput[]
+    cursor?: DispatchRuleDetailWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: DispatchRuleDetailScalarFieldEnum | DispatchRuleDetailScalarFieldEnum[]
   }
 
   /**
@@ -25581,6 +26050,4493 @@ export namespace Prisma {
 
 
   /**
+   * Model Budget
+   */
+
+  export type AggregateBudget = {
+    _count: BudgetCountAggregateOutputType | null
+    _avg: BudgetAvgAggregateOutputType | null
+    _sum: BudgetSumAggregateOutputType | null
+    _min: BudgetMinAggregateOutputType | null
+    _max: BudgetMaxAggregateOutputType | null
+  }
+
+  export type BudgetAvgAggregateOutputType = {
+    id: number | null
+    amount: number | null
+  }
+
+  export type BudgetSumAggregateOutputType = {
+    id: number | null
+    amount: number | null
+  }
+
+  export type BudgetMinAggregateOutputType = {
+    id: number | null
+    category: string | null
+    amount: number | null
+    period_start: Date | null
+    period_end: Date | null
+    school_id: string | null
+    supabase_id: string | null
+    last_modified: Date | null
+    needs_sync: boolean | null
+    is_deleted: boolean | null
+  }
+
+  export type BudgetMaxAggregateOutputType = {
+    id: number | null
+    category: string | null
+    amount: number | null
+    period_start: Date | null
+    period_end: Date | null
+    school_id: string | null
+    supabase_id: string | null
+    last_modified: Date | null
+    needs_sync: boolean | null
+    is_deleted: boolean | null
+  }
+
+  export type BudgetCountAggregateOutputType = {
+    id: number
+    category: number
+    amount: number
+    period_start: number
+    period_end: number
+    school_id: number
+    supabase_id: number
+    last_modified: number
+    needs_sync: number
+    is_deleted: number
+    _all: number
+  }
+
+
+  export type BudgetAvgAggregateInputType = {
+    id?: true
+    amount?: true
+  }
+
+  export type BudgetSumAggregateInputType = {
+    id?: true
+    amount?: true
+  }
+
+  export type BudgetMinAggregateInputType = {
+    id?: true
+    category?: true
+    amount?: true
+    period_start?: true
+    period_end?: true
+    school_id?: true
+    supabase_id?: true
+    last_modified?: true
+    needs_sync?: true
+    is_deleted?: true
+  }
+
+  export type BudgetMaxAggregateInputType = {
+    id?: true
+    category?: true
+    amount?: true
+    period_start?: true
+    period_end?: true
+    school_id?: true
+    supabase_id?: true
+    last_modified?: true
+    needs_sync?: true
+    is_deleted?: true
+  }
+
+  export type BudgetCountAggregateInputType = {
+    id?: true
+    category?: true
+    amount?: true
+    period_start?: true
+    period_end?: true
+    school_id?: true
+    supabase_id?: true
+    last_modified?: true
+    needs_sync?: true
+    is_deleted?: true
+    _all?: true
+  }
+
+  export type BudgetAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which Budget to aggregate.
+     */
+    where?: BudgetWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of Budgets to fetch.
+     */
+    orderBy?: BudgetOrderByWithRelationInput | BudgetOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: BudgetWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` Budgets from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` Budgets.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned Budgets
+    **/
+    _count?: true | BudgetCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to average
+    **/
+    _avg?: BudgetAvgAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to sum
+    **/
+    _sum?: BudgetSumAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: BudgetMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: BudgetMaxAggregateInputType
+  }
+
+  export type GetBudgetAggregateType<T extends BudgetAggregateArgs> = {
+        [P in keyof T & keyof AggregateBudget]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateBudget[P]>
+      : GetScalarType<T[P], AggregateBudget[P]>
+  }
+
+
+
+
+  export type BudgetGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: BudgetWhereInput
+    orderBy?: BudgetOrderByWithAggregationInput | BudgetOrderByWithAggregationInput[]
+    by: BudgetScalarFieldEnum[] | BudgetScalarFieldEnum
+    having?: BudgetScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: BudgetCountAggregateInputType | true
+    _avg?: BudgetAvgAggregateInputType
+    _sum?: BudgetSumAggregateInputType
+    _min?: BudgetMinAggregateInputType
+    _max?: BudgetMaxAggregateInputType
+  }
+
+  export type BudgetGroupByOutputType = {
+    id: number
+    category: string
+    amount: number
+    period_start: Date
+    period_end: Date
+    school_id: string | null
+    supabase_id: string | null
+    last_modified: Date
+    needs_sync: boolean
+    is_deleted: boolean
+    _count: BudgetCountAggregateOutputType | null
+    _avg: BudgetAvgAggregateOutputType | null
+    _sum: BudgetSumAggregateOutputType | null
+    _min: BudgetMinAggregateOutputType | null
+    _max: BudgetMaxAggregateOutputType | null
+  }
+
+  type GetBudgetGroupByPayload<T extends BudgetGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<BudgetGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof BudgetGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], BudgetGroupByOutputType[P]>
+            : GetScalarType<T[P], BudgetGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type BudgetSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    category?: boolean
+    amount?: boolean
+    period_start?: boolean
+    period_end?: boolean
+    school_id?: boolean
+    supabase_id?: boolean
+    last_modified?: boolean
+    needs_sync?: boolean
+    is_deleted?: boolean
+  }, ExtArgs["result"]["budget"]>
+
+  export type BudgetSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    category?: boolean
+    amount?: boolean
+    period_start?: boolean
+    period_end?: boolean
+    school_id?: boolean
+    supabase_id?: boolean
+    last_modified?: boolean
+    needs_sync?: boolean
+    is_deleted?: boolean
+  }, ExtArgs["result"]["budget"]>
+
+  export type BudgetSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    category?: boolean
+    amount?: boolean
+    period_start?: boolean
+    period_end?: boolean
+    school_id?: boolean
+    supabase_id?: boolean
+    last_modified?: boolean
+    needs_sync?: boolean
+    is_deleted?: boolean
+  }, ExtArgs["result"]["budget"]>
+
+  export type BudgetSelectScalar = {
+    id?: boolean
+    category?: boolean
+    amount?: boolean
+    period_start?: boolean
+    period_end?: boolean
+    school_id?: boolean
+    supabase_id?: boolean
+    last_modified?: boolean
+    needs_sync?: boolean
+    is_deleted?: boolean
+  }
+
+  export type BudgetOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "category" | "amount" | "period_start" | "period_end" | "school_id" | "supabase_id" | "last_modified" | "needs_sync" | "is_deleted", ExtArgs["result"]["budget"]>
+
+  export type $BudgetPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "Budget"
+    objects: {}
+    scalars: $Extensions.GetPayloadResult<{
+      id: number
+      category: string
+      amount: number
+      period_start: Date
+      period_end: Date
+      school_id: string | null
+      supabase_id: string | null
+      last_modified: Date
+      needs_sync: boolean
+      is_deleted: boolean
+    }, ExtArgs["result"]["budget"]>
+    composites: {}
+  }
+
+  type BudgetGetPayload<S extends boolean | null | undefined | BudgetDefaultArgs> = $Result.GetResult<Prisma.$BudgetPayload, S>
+
+  type BudgetCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<BudgetFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: BudgetCountAggregateInputType | true
+    }
+
+  export interface BudgetDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['Budget'], meta: { name: 'Budget' } }
+    /**
+     * Find zero or one Budget that matches the filter.
+     * @param {BudgetFindUniqueArgs} args - Arguments to find a Budget
+     * @example
+     * // Get one Budget
+     * const budget = await prisma.budget.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends BudgetFindUniqueArgs>(args: SelectSubset<T, BudgetFindUniqueArgs<ExtArgs>>): Prisma__BudgetClient<$Result.GetResult<Prisma.$BudgetPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one Budget that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {BudgetFindUniqueOrThrowArgs} args - Arguments to find a Budget
+     * @example
+     * // Get one Budget
+     * const budget = await prisma.budget.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends BudgetFindUniqueOrThrowArgs>(args: SelectSubset<T, BudgetFindUniqueOrThrowArgs<ExtArgs>>): Prisma__BudgetClient<$Result.GetResult<Prisma.$BudgetPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first Budget that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {BudgetFindFirstArgs} args - Arguments to find a Budget
+     * @example
+     * // Get one Budget
+     * const budget = await prisma.budget.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends BudgetFindFirstArgs>(args?: SelectSubset<T, BudgetFindFirstArgs<ExtArgs>>): Prisma__BudgetClient<$Result.GetResult<Prisma.$BudgetPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first Budget that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {BudgetFindFirstOrThrowArgs} args - Arguments to find a Budget
+     * @example
+     * // Get one Budget
+     * const budget = await prisma.budget.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends BudgetFindFirstOrThrowArgs>(args?: SelectSubset<T, BudgetFindFirstOrThrowArgs<ExtArgs>>): Prisma__BudgetClient<$Result.GetResult<Prisma.$BudgetPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more Budgets that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {BudgetFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all Budgets
+     * const budgets = await prisma.budget.findMany()
+     * 
+     * // Get first 10 Budgets
+     * const budgets = await prisma.budget.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const budgetWithIdOnly = await prisma.budget.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends BudgetFindManyArgs>(args?: SelectSubset<T, BudgetFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$BudgetPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a Budget.
+     * @param {BudgetCreateArgs} args - Arguments to create a Budget.
+     * @example
+     * // Create one Budget
+     * const Budget = await prisma.budget.create({
+     *   data: {
+     *     // ... data to create a Budget
+     *   }
+     * })
+     * 
+     */
+    create<T extends BudgetCreateArgs>(args: SelectSubset<T, BudgetCreateArgs<ExtArgs>>): Prisma__BudgetClient<$Result.GetResult<Prisma.$BudgetPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many Budgets.
+     * @param {BudgetCreateManyArgs} args - Arguments to create many Budgets.
+     * @example
+     * // Create many Budgets
+     * const budget = await prisma.budget.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends BudgetCreateManyArgs>(args?: SelectSubset<T, BudgetCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many Budgets and returns the data saved in the database.
+     * @param {BudgetCreateManyAndReturnArgs} args - Arguments to create many Budgets.
+     * @example
+     * // Create many Budgets
+     * const budget = await prisma.budget.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many Budgets and only return the `id`
+     * const budgetWithIdOnly = await prisma.budget.createManyAndReturn({
+     *   select: { id: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends BudgetCreateManyAndReturnArgs>(args?: SelectSubset<T, BudgetCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$BudgetPayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Delete a Budget.
+     * @param {BudgetDeleteArgs} args - Arguments to delete one Budget.
+     * @example
+     * // Delete one Budget
+     * const Budget = await prisma.budget.delete({
+     *   where: {
+     *     // ... filter to delete one Budget
+     *   }
+     * })
+     * 
+     */
+    delete<T extends BudgetDeleteArgs>(args: SelectSubset<T, BudgetDeleteArgs<ExtArgs>>): Prisma__BudgetClient<$Result.GetResult<Prisma.$BudgetPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one Budget.
+     * @param {BudgetUpdateArgs} args - Arguments to update one Budget.
+     * @example
+     * // Update one Budget
+     * const budget = await prisma.budget.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends BudgetUpdateArgs>(args: SelectSubset<T, BudgetUpdateArgs<ExtArgs>>): Prisma__BudgetClient<$Result.GetResult<Prisma.$BudgetPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more Budgets.
+     * @param {BudgetDeleteManyArgs} args - Arguments to filter Budgets to delete.
+     * @example
+     * // Delete a few Budgets
+     * const { count } = await prisma.budget.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends BudgetDeleteManyArgs>(args?: SelectSubset<T, BudgetDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more Budgets.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {BudgetUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many Budgets
+     * const budget = await prisma.budget.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends BudgetUpdateManyArgs>(args: SelectSubset<T, BudgetUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more Budgets and returns the data updated in the database.
+     * @param {BudgetUpdateManyAndReturnArgs} args - Arguments to update many Budgets.
+     * @example
+     * // Update many Budgets
+     * const budget = await prisma.budget.updateManyAndReturn({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Update zero or more Budgets and only return the `id`
+     * const budgetWithIdOnly = await prisma.budget.updateManyAndReturn({
+     *   select: { id: true },
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    updateManyAndReturn<T extends BudgetUpdateManyAndReturnArgs>(args: SelectSubset<T, BudgetUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$BudgetPayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Create or update one Budget.
+     * @param {BudgetUpsertArgs} args - Arguments to update or create a Budget.
+     * @example
+     * // Update or create a Budget
+     * const budget = await prisma.budget.upsert({
+     *   create: {
+     *     // ... data to create a Budget
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the Budget we want to update
+     *   }
+     * })
+     */
+    upsert<T extends BudgetUpsertArgs>(args: SelectSubset<T, BudgetUpsertArgs<ExtArgs>>): Prisma__BudgetClient<$Result.GetResult<Prisma.$BudgetPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+
+    /**
+     * Count the number of Budgets.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {BudgetCountArgs} args - Arguments to filter Budgets to count.
+     * @example
+     * // Count the number of Budgets
+     * const count = await prisma.budget.count({
+     *   where: {
+     *     // ... the filter for the Budgets we want to count
+     *   }
+     * })
+    **/
+    count<T extends BudgetCountArgs>(
+      args?: Subset<T, BudgetCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], BudgetCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a Budget.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {BudgetAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends BudgetAggregateArgs>(args: Subset<T, BudgetAggregateArgs>): Prisma.PrismaPromise<GetBudgetAggregateType<T>>
+
+    /**
+     * Group by Budget.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {BudgetGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends BudgetGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: BudgetGroupByArgs['orderBy'] }
+        : { orderBy?: BudgetGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, BudgetGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetBudgetGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the Budget model
+   */
+  readonly fields: BudgetFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for Budget.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__BudgetClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the Budget model
+   */
+  interface BudgetFieldRefs {
+    readonly id: FieldRef<"Budget", 'Int'>
+    readonly category: FieldRef<"Budget", 'String'>
+    readonly amount: FieldRef<"Budget", 'Float'>
+    readonly period_start: FieldRef<"Budget", 'DateTime'>
+    readonly period_end: FieldRef<"Budget", 'DateTime'>
+    readonly school_id: FieldRef<"Budget", 'String'>
+    readonly supabase_id: FieldRef<"Budget", 'String'>
+    readonly last_modified: FieldRef<"Budget", 'DateTime'>
+    readonly needs_sync: FieldRef<"Budget", 'Boolean'>
+    readonly is_deleted: FieldRef<"Budget", 'Boolean'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * Budget findUnique
+   */
+  export type BudgetFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Budget
+     */
+    select?: BudgetSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Budget
+     */
+    omit?: BudgetOmit<ExtArgs> | null
+    /**
+     * Filter, which Budget to fetch.
+     */
+    where: BudgetWhereUniqueInput
+  }
+
+  /**
+   * Budget findUniqueOrThrow
+   */
+  export type BudgetFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Budget
+     */
+    select?: BudgetSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Budget
+     */
+    omit?: BudgetOmit<ExtArgs> | null
+    /**
+     * Filter, which Budget to fetch.
+     */
+    where: BudgetWhereUniqueInput
+  }
+
+  /**
+   * Budget findFirst
+   */
+  export type BudgetFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Budget
+     */
+    select?: BudgetSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Budget
+     */
+    omit?: BudgetOmit<ExtArgs> | null
+    /**
+     * Filter, which Budget to fetch.
+     */
+    where?: BudgetWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of Budgets to fetch.
+     */
+    orderBy?: BudgetOrderByWithRelationInput | BudgetOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for Budgets.
+     */
+    cursor?: BudgetWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` Budgets from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` Budgets.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of Budgets.
+     */
+    distinct?: BudgetScalarFieldEnum | BudgetScalarFieldEnum[]
+  }
+
+  /**
+   * Budget findFirstOrThrow
+   */
+  export type BudgetFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Budget
+     */
+    select?: BudgetSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Budget
+     */
+    omit?: BudgetOmit<ExtArgs> | null
+    /**
+     * Filter, which Budget to fetch.
+     */
+    where?: BudgetWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of Budgets to fetch.
+     */
+    orderBy?: BudgetOrderByWithRelationInput | BudgetOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for Budgets.
+     */
+    cursor?: BudgetWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` Budgets from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` Budgets.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of Budgets.
+     */
+    distinct?: BudgetScalarFieldEnum | BudgetScalarFieldEnum[]
+  }
+
+  /**
+   * Budget findMany
+   */
+  export type BudgetFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Budget
+     */
+    select?: BudgetSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Budget
+     */
+    omit?: BudgetOmit<ExtArgs> | null
+    /**
+     * Filter, which Budgets to fetch.
+     */
+    where?: BudgetWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of Budgets to fetch.
+     */
+    orderBy?: BudgetOrderByWithRelationInput | BudgetOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing Budgets.
+     */
+    cursor?: BudgetWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` Budgets from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` Budgets.
+     */
+    skip?: number
+    distinct?: BudgetScalarFieldEnum | BudgetScalarFieldEnum[]
+  }
+
+  /**
+   * Budget create
+   */
+  export type BudgetCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Budget
+     */
+    select?: BudgetSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Budget
+     */
+    omit?: BudgetOmit<ExtArgs> | null
+    /**
+     * The data needed to create a Budget.
+     */
+    data: XOR<BudgetCreateInput, BudgetUncheckedCreateInput>
+  }
+
+  /**
+   * Budget createMany
+   */
+  export type BudgetCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many Budgets.
+     */
+    data: BudgetCreateManyInput | BudgetCreateManyInput[]
+  }
+
+  /**
+   * Budget createManyAndReturn
+   */
+  export type BudgetCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Budget
+     */
+    select?: BudgetSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the Budget
+     */
+    omit?: BudgetOmit<ExtArgs> | null
+    /**
+     * The data used to create many Budgets.
+     */
+    data: BudgetCreateManyInput | BudgetCreateManyInput[]
+  }
+
+  /**
+   * Budget update
+   */
+  export type BudgetUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Budget
+     */
+    select?: BudgetSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Budget
+     */
+    omit?: BudgetOmit<ExtArgs> | null
+    /**
+     * The data needed to update a Budget.
+     */
+    data: XOR<BudgetUpdateInput, BudgetUncheckedUpdateInput>
+    /**
+     * Choose, which Budget to update.
+     */
+    where: BudgetWhereUniqueInput
+  }
+
+  /**
+   * Budget updateMany
+   */
+  export type BudgetUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update Budgets.
+     */
+    data: XOR<BudgetUpdateManyMutationInput, BudgetUncheckedUpdateManyInput>
+    /**
+     * Filter which Budgets to update
+     */
+    where?: BudgetWhereInput
+    /**
+     * Limit how many Budgets to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * Budget updateManyAndReturn
+   */
+  export type BudgetUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Budget
+     */
+    select?: BudgetSelectUpdateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the Budget
+     */
+    omit?: BudgetOmit<ExtArgs> | null
+    /**
+     * The data used to update Budgets.
+     */
+    data: XOR<BudgetUpdateManyMutationInput, BudgetUncheckedUpdateManyInput>
+    /**
+     * Filter which Budgets to update
+     */
+    where?: BudgetWhereInput
+    /**
+     * Limit how many Budgets to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * Budget upsert
+   */
+  export type BudgetUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Budget
+     */
+    select?: BudgetSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Budget
+     */
+    omit?: BudgetOmit<ExtArgs> | null
+    /**
+     * The filter to search for the Budget to update in case it exists.
+     */
+    where: BudgetWhereUniqueInput
+    /**
+     * In case the Budget found by the `where` argument doesn't exist, create a new Budget with this data.
+     */
+    create: XOR<BudgetCreateInput, BudgetUncheckedCreateInput>
+    /**
+     * In case the Budget was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<BudgetUpdateInput, BudgetUncheckedUpdateInput>
+  }
+
+  /**
+   * Budget delete
+   */
+  export type BudgetDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Budget
+     */
+    select?: BudgetSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Budget
+     */
+    omit?: BudgetOmit<ExtArgs> | null
+    /**
+     * Filter which Budget to delete.
+     */
+    where: BudgetWhereUniqueInput
+  }
+
+  /**
+   * Budget deleteMany
+   */
+  export type BudgetDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which Budgets to delete
+     */
+    where?: BudgetWhereInput
+    /**
+     * Limit how many Budgets to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * Budget without action
+   */
+  export type BudgetDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Budget
+     */
+    select?: BudgetSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Budget
+     */
+    omit?: BudgetOmit<ExtArgs> | null
+  }
+
+
+  /**
+   * Model FinancialReport
+   */
+
+  export type AggregateFinancialReport = {
+    _count: FinancialReportCountAggregateOutputType | null
+    _avg: FinancialReportAvgAggregateOutputType | null
+    _sum: FinancialReportSumAggregateOutputType | null
+    _min: FinancialReportMinAggregateOutputType | null
+    _max: FinancialReportMaxAggregateOutputType | null
+  }
+
+  export type FinancialReportAvgAggregateOutputType = {
+    id: number | null
+  }
+
+  export type FinancialReportSumAggregateOutputType = {
+    id: number | null
+  }
+
+  export type FinancialReportMinAggregateOutputType = {
+    id: number | null
+    title: string | null
+    generated_at: Date | null
+    start_date: Date | null
+    end_date: Date | null
+    content: string | null
+    school_id: string | null
+    supabase_id: string | null
+    last_modified: Date | null
+    needs_sync: boolean | null
+    is_deleted: boolean | null
+  }
+
+  export type FinancialReportMaxAggregateOutputType = {
+    id: number | null
+    title: string | null
+    generated_at: Date | null
+    start_date: Date | null
+    end_date: Date | null
+    content: string | null
+    school_id: string | null
+    supabase_id: string | null
+    last_modified: Date | null
+    needs_sync: boolean | null
+    is_deleted: boolean | null
+  }
+
+  export type FinancialReportCountAggregateOutputType = {
+    id: number
+    title: number
+    generated_at: number
+    start_date: number
+    end_date: number
+    content: number
+    school_id: number
+    supabase_id: number
+    last_modified: number
+    needs_sync: number
+    is_deleted: number
+    _all: number
+  }
+
+
+  export type FinancialReportAvgAggregateInputType = {
+    id?: true
+  }
+
+  export type FinancialReportSumAggregateInputType = {
+    id?: true
+  }
+
+  export type FinancialReportMinAggregateInputType = {
+    id?: true
+    title?: true
+    generated_at?: true
+    start_date?: true
+    end_date?: true
+    content?: true
+    school_id?: true
+    supabase_id?: true
+    last_modified?: true
+    needs_sync?: true
+    is_deleted?: true
+  }
+
+  export type FinancialReportMaxAggregateInputType = {
+    id?: true
+    title?: true
+    generated_at?: true
+    start_date?: true
+    end_date?: true
+    content?: true
+    school_id?: true
+    supabase_id?: true
+    last_modified?: true
+    needs_sync?: true
+    is_deleted?: true
+  }
+
+  export type FinancialReportCountAggregateInputType = {
+    id?: true
+    title?: true
+    generated_at?: true
+    start_date?: true
+    end_date?: true
+    content?: true
+    school_id?: true
+    supabase_id?: true
+    last_modified?: true
+    needs_sync?: true
+    is_deleted?: true
+    _all?: true
+  }
+
+  export type FinancialReportAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which FinancialReport to aggregate.
+     */
+    where?: FinancialReportWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of FinancialReports to fetch.
+     */
+    orderBy?: FinancialReportOrderByWithRelationInput | FinancialReportOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: FinancialReportWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` FinancialReports from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` FinancialReports.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned FinancialReports
+    **/
+    _count?: true | FinancialReportCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to average
+    **/
+    _avg?: FinancialReportAvgAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to sum
+    **/
+    _sum?: FinancialReportSumAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: FinancialReportMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: FinancialReportMaxAggregateInputType
+  }
+
+  export type GetFinancialReportAggregateType<T extends FinancialReportAggregateArgs> = {
+        [P in keyof T & keyof AggregateFinancialReport]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateFinancialReport[P]>
+      : GetScalarType<T[P], AggregateFinancialReport[P]>
+  }
+
+
+
+
+  export type FinancialReportGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: FinancialReportWhereInput
+    orderBy?: FinancialReportOrderByWithAggregationInput | FinancialReportOrderByWithAggregationInput[]
+    by: FinancialReportScalarFieldEnum[] | FinancialReportScalarFieldEnum
+    having?: FinancialReportScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: FinancialReportCountAggregateInputType | true
+    _avg?: FinancialReportAvgAggregateInputType
+    _sum?: FinancialReportSumAggregateInputType
+    _min?: FinancialReportMinAggregateInputType
+    _max?: FinancialReportMaxAggregateInputType
+  }
+
+  export type FinancialReportGroupByOutputType = {
+    id: number
+    title: string
+    generated_at: Date
+    start_date: Date
+    end_date: Date
+    content: string
+    school_id: string | null
+    supabase_id: string | null
+    last_modified: Date
+    needs_sync: boolean
+    is_deleted: boolean
+    _count: FinancialReportCountAggregateOutputType | null
+    _avg: FinancialReportAvgAggregateOutputType | null
+    _sum: FinancialReportSumAggregateOutputType | null
+    _min: FinancialReportMinAggregateOutputType | null
+    _max: FinancialReportMaxAggregateOutputType | null
+  }
+
+  type GetFinancialReportGroupByPayload<T extends FinancialReportGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<FinancialReportGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof FinancialReportGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], FinancialReportGroupByOutputType[P]>
+            : GetScalarType<T[P], FinancialReportGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type FinancialReportSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    title?: boolean
+    generated_at?: boolean
+    start_date?: boolean
+    end_date?: boolean
+    content?: boolean
+    school_id?: boolean
+    supabase_id?: boolean
+    last_modified?: boolean
+    needs_sync?: boolean
+    is_deleted?: boolean
+  }, ExtArgs["result"]["financialReport"]>
+
+  export type FinancialReportSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    title?: boolean
+    generated_at?: boolean
+    start_date?: boolean
+    end_date?: boolean
+    content?: boolean
+    school_id?: boolean
+    supabase_id?: boolean
+    last_modified?: boolean
+    needs_sync?: boolean
+    is_deleted?: boolean
+  }, ExtArgs["result"]["financialReport"]>
+
+  export type FinancialReportSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    title?: boolean
+    generated_at?: boolean
+    start_date?: boolean
+    end_date?: boolean
+    content?: boolean
+    school_id?: boolean
+    supabase_id?: boolean
+    last_modified?: boolean
+    needs_sync?: boolean
+    is_deleted?: boolean
+  }, ExtArgs["result"]["financialReport"]>
+
+  export type FinancialReportSelectScalar = {
+    id?: boolean
+    title?: boolean
+    generated_at?: boolean
+    start_date?: boolean
+    end_date?: boolean
+    content?: boolean
+    school_id?: boolean
+    supabase_id?: boolean
+    last_modified?: boolean
+    needs_sync?: boolean
+    is_deleted?: boolean
+  }
+
+  export type FinancialReportOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "title" | "generated_at" | "start_date" | "end_date" | "content" | "school_id" | "supabase_id" | "last_modified" | "needs_sync" | "is_deleted", ExtArgs["result"]["financialReport"]>
+
+  export type $FinancialReportPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "FinancialReport"
+    objects: {}
+    scalars: $Extensions.GetPayloadResult<{
+      id: number
+      title: string
+      generated_at: Date
+      start_date: Date
+      end_date: Date
+      content: string
+      school_id: string | null
+      supabase_id: string | null
+      last_modified: Date
+      needs_sync: boolean
+      is_deleted: boolean
+    }, ExtArgs["result"]["financialReport"]>
+    composites: {}
+  }
+
+  type FinancialReportGetPayload<S extends boolean | null | undefined | FinancialReportDefaultArgs> = $Result.GetResult<Prisma.$FinancialReportPayload, S>
+
+  type FinancialReportCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<FinancialReportFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: FinancialReportCountAggregateInputType | true
+    }
+
+  export interface FinancialReportDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['FinancialReport'], meta: { name: 'FinancialReport' } }
+    /**
+     * Find zero or one FinancialReport that matches the filter.
+     * @param {FinancialReportFindUniqueArgs} args - Arguments to find a FinancialReport
+     * @example
+     * // Get one FinancialReport
+     * const financialReport = await prisma.financialReport.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends FinancialReportFindUniqueArgs>(args: SelectSubset<T, FinancialReportFindUniqueArgs<ExtArgs>>): Prisma__FinancialReportClient<$Result.GetResult<Prisma.$FinancialReportPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one FinancialReport that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {FinancialReportFindUniqueOrThrowArgs} args - Arguments to find a FinancialReport
+     * @example
+     * // Get one FinancialReport
+     * const financialReport = await prisma.financialReport.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends FinancialReportFindUniqueOrThrowArgs>(args: SelectSubset<T, FinancialReportFindUniqueOrThrowArgs<ExtArgs>>): Prisma__FinancialReportClient<$Result.GetResult<Prisma.$FinancialReportPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first FinancialReport that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {FinancialReportFindFirstArgs} args - Arguments to find a FinancialReport
+     * @example
+     * // Get one FinancialReport
+     * const financialReport = await prisma.financialReport.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends FinancialReportFindFirstArgs>(args?: SelectSubset<T, FinancialReportFindFirstArgs<ExtArgs>>): Prisma__FinancialReportClient<$Result.GetResult<Prisma.$FinancialReportPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first FinancialReport that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {FinancialReportFindFirstOrThrowArgs} args - Arguments to find a FinancialReport
+     * @example
+     * // Get one FinancialReport
+     * const financialReport = await prisma.financialReport.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends FinancialReportFindFirstOrThrowArgs>(args?: SelectSubset<T, FinancialReportFindFirstOrThrowArgs<ExtArgs>>): Prisma__FinancialReportClient<$Result.GetResult<Prisma.$FinancialReportPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more FinancialReports that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {FinancialReportFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all FinancialReports
+     * const financialReports = await prisma.financialReport.findMany()
+     * 
+     * // Get first 10 FinancialReports
+     * const financialReports = await prisma.financialReport.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const financialReportWithIdOnly = await prisma.financialReport.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends FinancialReportFindManyArgs>(args?: SelectSubset<T, FinancialReportFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$FinancialReportPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a FinancialReport.
+     * @param {FinancialReportCreateArgs} args - Arguments to create a FinancialReport.
+     * @example
+     * // Create one FinancialReport
+     * const FinancialReport = await prisma.financialReport.create({
+     *   data: {
+     *     // ... data to create a FinancialReport
+     *   }
+     * })
+     * 
+     */
+    create<T extends FinancialReportCreateArgs>(args: SelectSubset<T, FinancialReportCreateArgs<ExtArgs>>): Prisma__FinancialReportClient<$Result.GetResult<Prisma.$FinancialReportPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many FinancialReports.
+     * @param {FinancialReportCreateManyArgs} args - Arguments to create many FinancialReports.
+     * @example
+     * // Create many FinancialReports
+     * const financialReport = await prisma.financialReport.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends FinancialReportCreateManyArgs>(args?: SelectSubset<T, FinancialReportCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many FinancialReports and returns the data saved in the database.
+     * @param {FinancialReportCreateManyAndReturnArgs} args - Arguments to create many FinancialReports.
+     * @example
+     * // Create many FinancialReports
+     * const financialReport = await prisma.financialReport.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many FinancialReports and only return the `id`
+     * const financialReportWithIdOnly = await prisma.financialReport.createManyAndReturn({
+     *   select: { id: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends FinancialReportCreateManyAndReturnArgs>(args?: SelectSubset<T, FinancialReportCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$FinancialReportPayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Delete a FinancialReport.
+     * @param {FinancialReportDeleteArgs} args - Arguments to delete one FinancialReport.
+     * @example
+     * // Delete one FinancialReport
+     * const FinancialReport = await prisma.financialReport.delete({
+     *   where: {
+     *     // ... filter to delete one FinancialReport
+     *   }
+     * })
+     * 
+     */
+    delete<T extends FinancialReportDeleteArgs>(args: SelectSubset<T, FinancialReportDeleteArgs<ExtArgs>>): Prisma__FinancialReportClient<$Result.GetResult<Prisma.$FinancialReportPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one FinancialReport.
+     * @param {FinancialReportUpdateArgs} args - Arguments to update one FinancialReport.
+     * @example
+     * // Update one FinancialReport
+     * const financialReport = await prisma.financialReport.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends FinancialReportUpdateArgs>(args: SelectSubset<T, FinancialReportUpdateArgs<ExtArgs>>): Prisma__FinancialReportClient<$Result.GetResult<Prisma.$FinancialReportPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more FinancialReports.
+     * @param {FinancialReportDeleteManyArgs} args - Arguments to filter FinancialReports to delete.
+     * @example
+     * // Delete a few FinancialReports
+     * const { count } = await prisma.financialReport.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends FinancialReportDeleteManyArgs>(args?: SelectSubset<T, FinancialReportDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more FinancialReports.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {FinancialReportUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many FinancialReports
+     * const financialReport = await prisma.financialReport.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends FinancialReportUpdateManyArgs>(args: SelectSubset<T, FinancialReportUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more FinancialReports and returns the data updated in the database.
+     * @param {FinancialReportUpdateManyAndReturnArgs} args - Arguments to update many FinancialReports.
+     * @example
+     * // Update many FinancialReports
+     * const financialReport = await prisma.financialReport.updateManyAndReturn({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Update zero or more FinancialReports and only return the `id`
+     * const financialReportWithIdOnly = await prisma.financialReport.updateManyAndReturn({
+     *   select: { id: true },
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    updateManyAndReturn<T extends FinancialReportUpdateManyAndReturnArgs>(args: SelectSubset<T, FinancialReportUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$FinancialReportPayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Create or update one FinancialReport.
+     * @param {FinancialReportUpsertArgs} args - Arguments to update or create a FinancialReport.
+     * @example
+     * // Update or create a FinancialReport
+     * const financialReport = await prisma.financialReport.upsert({
+     *   create: {
+     *     // ... data to create a FinancialReport
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the FinancialReport we want to update
+     *   }
+     * })
+     */
+    upsert<T extends FinancialReportUpsertArgs>(args: SelectSubset<T, FinancialReportUpsertArgs<ExtArgs>>): Prisma__FinancialReportClient<$Result.GetResult<Prisma.$FinancialReportPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+
+    /**
+     * Count the number of FinancialReports.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {FinancialReportCountArgs} args - Arguments to filter FinancialReports to count.
+     * @example
+     * // Count the number of FinancialReports
+     * const count = await prisma.financialReport.count({
+     *   where: {
+     *     // ... the filter for the FinancialReports we want to count
+     *   }
+     * })
+    **/
+    count<T extends FinancialReportCountArgs>(
+      args?: Subset<T, FinancialReportCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], FinancialReportCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a FinancialReport.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {FinancialReportAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends FinancialReportAggregateArgs>(args: Subset<T, FinancialReportAggregateArgs>): Prisma.PrismaPromise<GetFinancialReportAggregateType<T>>
+
+    /**
+     * Group by FinancialReport.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {FinancialReportGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends FinancialReportGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: FinancialReportGroupByArgs['orderBy'] }
+        : { orderBy?: FinancialReportGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, FinancialReportGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetFinancialReportGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the FinancialReport model
+   */
+  readonly fields: FinancialReportFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for FinancialReport.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__FinancialReportClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the FinancialReport model
+   */
+  interface FinancialReportFieldRefs {
+    readonly id: FieldRef<"FinancialReport", 'Int'>
+    readonly title: FieldRef<"FinancialReport", 'String'>
+    readonly generated_at: FieldRef<"FinancialReport", 'DateTime'>
+    readonly start_date: FieldRef<"FinancialReport", 'DateTime'>
+    readonly end_date: FieldRef<"FinancialReport", 'DateTime'>
+    readonly content: FieldRef<"FinancialReport", 'String'>
+    readonly school_id: FieldRef<"FinancialReport", 'String'>
+    readonly supabase_id: FieldRef<"FinancialReport", 'String'>
+    readonly last_modified: FieldRef<"FinancialReport", 'DateTime'>
+    readonly needs_sync: FieldRef<"FinancialReport", 'Boolean'>
+    readonly is_deleted: FieldRef<"FinancialReport", 'Boolean'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * FinancialReport findUnique
+   */
+  export type FinancialReportFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the FinancialReport
+     */
+    select?: FinancialReportSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the FinancialReport
+     */
+    omit?: FinancialReportOmit<ExtArgs> | null
+    /**
+     * Filter, which FinancialReport to fetch.
+     */
+    where: FinancialReportWhereUniqueInput
+  }
+
+  /**
+   * FinancialReport findUniqueOrThrow
+   */
+  export type FinancialReportFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the FinancialReport
+     */
+    select?: FinancialReportSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the FinancialReport
+     */
+    omit?: FinancialReportOmit<ExtArgs> | null
+    /**
+     * Filter, which FinancialReport to fetch.
+     */
+    where: FinancialReportWhereUniqueInput
+  }
+
+  /**
+   * FinancialReport findFirst
+   */
+  export type FinancialReportFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the FinancialReport
+     */
+    select?: FinancialReportSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the FinancialReport
+     */
+    omit?: FinancialReportOmit<ExtArgs> | null
+    /**
+     * Filter, which FinancialReport to fetch.
+     */
+    where?: FinancialReportWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of FinancialReports to fetch.
+     */
+    orderBy?: FinancialReportOrderByWithRelationInput | FinancialReportOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for FinancialReports.
+     */
+    cursor?: FinancialReportWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` FinancialReports from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` FinancialReports.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of FinancialReports.
+     */
+    distinct?: FinancialReportScalarFieldEnum | FinancialReportScalarFieldEnum[]
+  }
+
+  /**
+   * FinancialReport findFirstOrThrow
+   */
+  export type FinancialReportFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the FinancialReport
+     */
+    select?: FinancialReportSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the FinancialReport
+     */
+    omit?: FinancialReportOmit<ExtArgs> | null
+    /**
+     * Filter, which FinancialReport to fetch.
+     */
+    where?: FinancialReportWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of FinancialReports to fetch.
+     */
+    orderBy?: FinancialReportOrderByWithRelationInput | FinancialReportOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for FinancialReports.
+     */
+    cursor?: FinancialReportWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` FinancialReports from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` FinancialReports.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of FinancialReports.
+     */
+    distinct?: FinancialReportScalarFieldEnum | FinancialReportScalarFieldEnum[]
+  }
+
+  /**
+   * FinancialReport findMany
+   */
+  export type FinancialReportFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the FinancialReport
+     */
+    select?: FinancialReportSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the FinancialReport
+     */
+    omit?: FinancialReportOmit<ExtArgs> | null
+    /**
+     * Filter, which FinancialReports to fetch.
+     */
+    where?: FinancialReportWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of FinancialReports to fetch.
+     */
+    orderBy?: FinancialReportOrderByWithRelationInput | FinancialReportOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing FinancialReports.
+     */
+    cursor?: FinancialReportWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` FinancialReports from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` FinancialReports.
+     */
+    skip?: number
+    distinct?: FinancialReportScalarFieldEnum | FinancialReportScalarFieldEnum[]
+  }
+
+  /**
+   * FinancialReport create
+   */
+  export type FinancialReportCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the FinancialReport
+     */
+    select?: FinancialReportSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the FinancialReport
+     */
+    omit?: FinancialReportOmit<ExtArgs> | null
+    /**
+     * The data needed to create a FinancialReport.
+     */
+    data: XOR<FinancialReportCreateInput, FinancialReportUncheckedCreateInput>
+  }
+
+  /**
+   * FinancialReport createMany
+   */
+  export type FinancialReportCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many FinancialReports.
+     */
+    data: FinancialReportCreateManyInput | FinancialReportCreateManyInput[]
+  }
+
+  /**
+   * FinancialReport createManyAndReturn
+   */
+  export type FinancialReportCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the FinancialReport
+     */
+    select?: FinancialReportSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the FinancialReport
+     */
+    omit?: FinancialReportOmit<ExtArgs> | null
+    /**
+     * The data used to create many FinancialReports.
+     */
+    data: FinancialReportCreateManyInput | FinancialReportCreateManyInput[]
+  }
+
+  /**
+   * FinancialReport update
+   */
+  export type FinancialReportUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the FinancialReport
+     */
+    select?: FinancialReportSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the FinancialReport
+     */
+    omit?: FinancialReportOmit<ExtArgs> | null
+    /**
+     * The data needed to update a FinancialReport.
+     */
+    data: XOR<FinancialReportUpdateInput, FinancialReportUncheckedUpdateInput>
+    /**
+     * Choose, which FinancialReport to update.
+     */
+    where: FinancialReportWhereUniqueInput
+  }
+
+  /**
+   * FinancialReport updateMany
+   */
+  export type FinancialReportUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update FinancialReports.
+     */
+    data: XOR<FinancialReportUpdateManyMutationInput, FinancialReportUncheckedUpdateManyInput>
+    /**
+     * Filter which FinancialReports to update
+     */
+    where?: FinancialReportWhereInput
+    /**
+     * Limit how many FinancialReports to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * FinancialReport updateManyAndReturn
+   */
+  export type FinancialReportUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the FinancialReport
+     */
+    select?: FinancialReportSelectUpdateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the FinancialReport
+     */
+    omit?: FinancialReportOmit<ExtArgs> | null
+    /**
+     * The data used to update FinancialReports.
+     */
+    data: XOR<FinancialReportUpdateManyMutationInput, FinancialReportUncheckedUpdateManyInput>
+    /**
+     * Filter which FinancialReports to update
+     */
+    where?: FinancialReportWhereInput
+    /**
+     * Limit how many FinancialReports to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * FinancialReport upsert
+   */
+  export type FinancialReportUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the FinancialReport
+     */
+    select?: FinancialReportSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the FinancialReport
+     */
+    omit?: FinancialReportOmit<ExtArgs> | null
+    /**
+     * The filter to search for the FinancialReport to update in case it exists.
+     */
+    where: FinancialReportWhereUniqueInput
+    /**
+     * In case the FinancialReport found by the `where` argument doesn't exist, create a new FinancialReport with this data.
+     */
+    create: XOR<FinancialReportCreateInput, FinancialReportUncheckedCreateInput>
+    /**
+     * In case the FinancialReport was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<FinancialReportUpdateInput, FinancialReportUncheckedUpdateInput>
+  }
+
+  /**
+   * FinancialReport delete
+   */
+  export type FinancialReportDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the FinancialReport
+     */
+    select?: FinancialReportSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the FinancialReport
+     */
+    omit?: FinancialReportOmit<ExtArgs> | null
+    /**
+     * Filter which FinancialReport to delete.
+     */
+    where: FinancialReportWhereUniqueInput
+  }
+
+  /**
+   * FinancialReport deleteMany
+   */
+  export type FinancialReportDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which FinancialReports to delete
+     */
+    where?: FinancialReportWhereInput
+    /**
+     * Limit how many FinancialReports to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * FinancialReport without action
+   */
+  export type FinancialReportDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the FinancialReport
+     */
+    select?: FinancialReportSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the FinancialReport
+     */
+    omit?: FinancialReportOmit<ExtArgs> | null
+  }
+
+
+  /**
+   * Model DispatchRule
+   */
+
+  export type AggregateDispatchRule = {
+    _count: DispatchRuleCountAggregateOutputType | null
+    _avg: DispatchRuleAvgAggregateOutputType | null
+    _sum: DispatchRuleSumAggregateOutputType | null
+    _min: DispatchRuleMinAggregateOutputType | null
+    _max: DispatchRuleMaxAggregateOutputType | null
+  }
+
+  export type DispatchRuleAvgAggregateOutputType = {
+    id: number | null
+    source_fee_id: number | null
+  }
+
+  export type DispatchRuleSumAggregateOutputType = {
+    id: number | null
+    source_fee_id: number | null
+  }
+
+  export type DispatchRuleMinAggregateOutputType = {
+    id: number | null
+    name: string | null
+    source_fee_id: number | null
+    school_id: string | null
+    last_modified: Date | null
+    needs_sync: boolean | null
+    is_deleted: boolean | null
+  }
+
+  export type DispatchRuleMaxAggregateOutputType = {
+    id: number | null
+    name: string | null
+    source_fee_id: number | null
+    school_id: string | null
+    last_modified: Date | null
+    needs_sync: boolean | null
+    is_deleted: boolean | null
+  }
+
+  export type DispatchRuleCountAggregateOutputType = {
+    id: number
+    name: number
+    source_fee_id: number
+    school_id: number
+    last_modified: number
+    needs_sync: number
+    is_deleted: number
+    _all: number
+  }
+
+
+  export type DispatchRuleAvgAggregateInputType = {
+    id?: true
+    source_fee_id?: true
+  }
+
+  export type DispatchRuleSumAggregateInputType = {
+    id?: true
+    source_fee_id?: true
+  }
+
+  export type DispatchRuleMinAggregateInputType = {
+    id?: true
+    name?: true
+    source_fee_id?: true
+    school_id?: true
+    last_modified?: true
+    needs_sync?: true
+    is_deleted?: true
+  }
+
+  export type DispatchRuleMaxAggregateInputType = {
+    id?: true
+    name?: true
+    source_fee_id?: true
+    school_id?: true
+    last_modified?: true
+    needs_sync?: true
+    is_deleted?: true
+  }
+
+  export type DispatchRuleCountAggregateInputType = {
+    id?: true
+    name?: true
+    source_fee_id?: true
+    school_id?: true
+    last_modified?: true
+    needs_sync?: true
+    is_deleted?: true
+    _all?: true
+  }
+
+  export type DispatchRuleAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which DispatchRule to aggregate.
+     */
+    where?: DispatchRuleWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of DispatchRules to fetch.
+     */
+    orderBy?: DispatchRuleOrderByWithRelationInput | DispatchRuleOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: DispatchRuleWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` DispatchRules from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` DispatchRules.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned DispatchRules
+    **/
+    _count?: true | DispatchRuleCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to average
+    **/
+    _avg?: DispatchRuleAvgAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to sum
+    **/
+    _sum?: DispatchRuleSumAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: DispatchRuleMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: DispatchRuleMaxAggregateInputType
+  }
+
+  export type GetDispatchRuleAggregateType<T extends DispatchRuleAggregateArgs> = {
+        [P in keyof T & keyof AggregateDispatchRule]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateDispatchRule[P]>
+      : GetScalarType<T[P], AggregateDispatchRule[P]>
+  }
+
+
+
+
+  export type DispatchRuleGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: DispatchRuleWhereInput
+    orderBy?: DispatchRuleOrderByWithAggregationInput | DispatchRuleOrderByWithAggregationInput[]
+    by: DispatchRuleScalarFieldEnum[] | DispatchRuleScalarFieldEnum
+    having?: DispatchRuleScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: DispatchRuleCountAggregateInputType | true
+    _avg?: DispatchRuleAvgAggregateInputType
+    _sum?: DispatchRuleSumAggregateInputType
+    _min?: DispatchRuleMinAggregateInputType
+    _max?: DispatchRuleMaxAggregateInputType
+  }
+
+  export type DispatchRuleGroupByOutputType = {
+    id: number
+    name: string
+    source_fee_id: number
+    school_id: string
+    last_modified: Date
+    needs_sync: boolean
+    is_deleted: boolean
+    _count: DispatchRuleCountAggregateOutputType | null
+    _avg: DispatchRuleAvgAggregateOutputType | null
+    _sum: DispatchRuleSumAggregateOutputType | null
+    _min: DispatchRuleMinAggregateOutputType | null
+    _max: DispatchRuleMaxAggregateOutputType | null
+  }
+
+  type GetDispatchRuleGroupByPayload<T extends DispatchRuleGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<DispatchRuleGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof DispatchRuleGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], DispatchRuleGroupByOutputType[P]>
+            : GetScalarType<T[P], DispatchRuleGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type DispatchRuleSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    name?: boolean
+    source_fee_id?: boolean
+    school_id?: boolean
+    last_modified?: boolean
+    needs_sync?: boolean
+    is_deleted?: boolean
+    source_fee?: boolean | FeesDefaultArgs<ExtArgs>
+    details?: boolean | DispatchRule$detailsArgs<ExtArgs>
+    _count?: boolean | DispatchRuleCountOutputTypeDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["dispatchRule"]>
+
+  export type DispatchRuleSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    name?: boolean
+    source_fee_id?: boolean
+    school_id?: boolean
+    last_modified?: boolean
+    needs_sync?: boolean
+    is_deleted?: boolean
+    source_fee?: boolean | FeesDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["dispatchRule"]>
+
+  export type DispatchRuleSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    name?: boolean
+    source_fee_id?: boolean
+    school_id?: boolean
+    last_modified?: boolean
+    needs_sync?: boolean
+    is_deleted?: boolean
+    source_fee?: boolean | FeesDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["dispatchRule"]>
+
+  export type DispatchRuleSelectScalar = {
+    id?: boolean
+    name?: boolean
+    source_fee_id?: boolean
+    school_id?: boolean
+    last_modified?: boolean
+    needs_sync?: boolean
+    is_deleted?: boolean
+  }
+
+  export type DispatchRuleOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "name" | "source_fee_id" | "school_id" | "last_modified" | "needs_sync" | "is_deleted", ExtArgs["result"]["dispatchRule"]>
+  export type DispatchRuleInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    source_fee?: boolean | FeesDefaultArgs<ExtArgs>
+    details?: boolean | DispatchRule$detailsArgs<ExtArgs>
+    _count?: boolean | DispatchRuleCountOutputTypeDefaultArgs<ExtArgs>
+  }
+  export type DispatchRuleIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    source_fee?: boolean | FeesDefaultArgs<ExtArgs>
+  }
+  export type DispatchRuleIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    source_fee?: boolean | FeesDefaultArgs<ExtArgs>
+  }
+
+  export type $DispatchRulePayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "DispatchRule"
+    objects: {
+      source_fee: Prisma.$FeesPayload<ExtArgs>
+      details: Prisma.$DispatchRuleDetailPayload<ExtArgs>[]
+    }
+    scalars: $Extensions.GetPayloadResult<{
+      id: number
+      name: string
+      source_fee_id: number
+      school_id: string
+      last_modified: Date
+      needs_sync: boolean
+      is_deleted: boolean
+    }, ExtArgs["result"]["dispatchRule"]>
+    composites: {}
+  }
+
+  type DispatchRuleGetPayload<S extends boolean | null | undefined | DispatchRuleDefaultArgs> = $Result.GetResult<Prisma.$DispatchRulePayload, S>
+
+  type DispatchRuleCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<DispatchRuleFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: DispatchRuleCountAggregateInputType | true
+    }
+
+  export interface DispatchRuleDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['DispatchRule'], meta: { name: 'DispatchRule' } }
+    /**
+     * Find zero or one DispatchRule that matches the filter.
+     * @param {DispatchRuleFindUniqueArgs} args - Arguments to find a DispatchRule
+     * @example
+     * // Get one DispatchRule
+     * const dispatchRule = await prisma.dispatchRule.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends DispatchRuleFindUniqueArgs>(args: SelectSubset<T, DispatchRuleFindUniqueArgs<ExtArgs>>): Prisma__DispatchRuleClient<$Result.GetResult<Prisma.$DispatchRulePayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one DispatchRule that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {DispatchRuleFindUniqueOrThrowArgs} args - Arguments to find a DispatchRule
+     * @example
+     * // Get one DispatchRule
+     * const dispatchRule = await prisma.dispatchRule.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends DispatchRuleFindUniqueOrThrowArgs>(args: SelectSubset<T, DispatchRuleFindUniqueOrThrowArgs<ExtArgs>>): Prisma__DispatchRuleClient<$Result.GetResult<Prisma.$DispatchRulePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first DispatchRule that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {DispatchRuleFindFirstArgs} args - Arguments to find a DispatchRule
+     * @example
+     * // Get one DispatchRule
+     * const dispatchRule = await prisma.dispatchRule.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends DispatchRuleFindFirstArgs>(args?: SelectSubset<T, DispatchRuleFindFirstArgs<ExtArgs>>): Prisma__DispatchRuleClient<$Result.GetResult<Prisma.$DispatchRulePayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first DispatchRule that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {DispatchRuleFindFirstOrThrowArgs} args - Arguments to find a DispatchRule
+     * @example
+     * // Get one DispatchRule
+     * const dispatchRule = await prisma.dispatchRule.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends DispatchRuleFindFirstOrThrowArgs>(args?: SelectSubset<T, DispatchRuleFindFirstOrThrowArgs<ExtArgs>>): Prisma__DispatchRuleClient<$Result.GetResult<Prisma.$DispatchRulePayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more DispatchRules that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {DispatchRuleFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all DispatchRules
+     * const dispatchRules = await prisma.dispatchRule.findMany()
+     * 
+     * // Get first 10 DispatchRules
+     * const dispatchRules = await prisma.dispatchRule.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const dispatchRuleWithIdOnly = await prisma.dispatchRule.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends DispatchRuleFindManyArgs>(args?: SelectSubset<T, DispatchRuleFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$DispatchRulePayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a DispatchRule.
+     * @param {DispatchRuleCreateArgs} args - Arguments to create a DispatchRule.
+     * @example
+     * // Create one DispatchRule
+     * const DispatchRule = await prisma.dispatchRule.create({
+     *   data: {
+     *     // ... data to create a DispatchRule
+     *   }
+     * })
+     * 
+     */
+    create<T extends DispatchRuleCreateArgs>(args: SelectSubset<T, DispatchRuleCreateArgs<ExtArgs>>): Prisma__DispatchRuleClient<$Result.GetResult<Prisma.$DispatchRulePayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many DispatchRules.
+     * @param {DispatchRuleCreateManyArgs} args - Arguments to create many DispatchRules.
+     * @example
+     * // Create many DispatchRules
+     * const dispatchRule = await prisma.dispatchRule.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends DispatchRuleCreateManyArgs>(args?: SelectSubset<T, DispatchRuleCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many DispatchRules and returns the data saved in the database.
+     * @param {DispatchRuleCreateManyAndReturnArgs} args - Arguments to create many DispatchRules.
+     * @example
+     * // Create many DispatchRules
+     * const dispatchRule = await prisma.dispatchRule.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many DispatchRules and only return the `id`
+     * const dispatchRuleWithIdOnly = await prisma.dispatchRule.createManyAndReturn({
+     *   select: { id: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends DispatchRuleCreateManyAndReturnArgs>(args?: SelectSubset<T, DispatchRuleCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$DispatchRulePayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Delete a DispatchRule.
+     * @param {DispatchRuleDeleteArgs} args - Arguments to delete one DispatchRule.
+     * @example
+     * // Delete one DispatchRule
+     * const DispatchRule = await prisma.dispatchRule.delete({
+     *   where: {
+     *     // ... filter to delete one DispatchRule
+     *   }
+     * })
+     * 
+     */
+    delete<T extends DispatchRuleDeleteArgs>(args: SelectSubset<T, DispatchRuleDeleteArgs<ExtArgs>>): Prisma__DispatchRuleClient<$Result.GetResult<Prisma.$DispatchRulePayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one DispatchRule.
+     * @param {DispatchRuleUpdateArgs} args - Arguments to update one DispatchRule.
+     * @example
+     * // Update one DispatchRule
+     * const dispatchRule = await prisma.dispatchRule.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends DispatchRuleUpdateArgs>(args: SelectSubset<T, DispatchRuleUpdateArgs<ExtArgs>>): Prisma__DispatchRuleClient<$Result.GetResult<Prisma.$DispatchRulePayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more DispatchRules.
+     * @param {DispatchRuleDeleteManyArgs} args - Arguments to filter DispatchRules to delete.
+     * @example
+     * // Delete a few DispatchRules
+     * const { count } = await prisma.dispatchRule.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends DispatchRuleDeleteManyArgs>(args?: SelectSubset<T, DispatchRuleDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more DispatchRules.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {DispatchRuleUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many DispatchRules
+     * const dispatchRule = await prisma.dispatchRule.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends DispatchRuleUpdateManyArgs>(args: SelectSubset<T, DispatchRuleUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more DispatchRules and returns the data updated in the database.
+     * @param {DispatchRuleUpdateManyAndReturnArgs} args - Arguments to update many DispatchRules.
+     * @example
+     * // Update many DispatchRules
+     * const dispatchRule = await prisma.dispatchRule.updateManyAndReturn({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Update zero or more DispatchRules and only return the `id`
+     * const dispatchRuleWithIdOnly = await prisma.dispatchRule.updateManyAndReturn({
+     *   select: { id: true },
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    updateManyAndReturn<T extends DispatchRuleUpdateManyAndReturnArgs>(args: SelectSubset<T, DispatchRuleUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$DispatchRulePayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Create or update one DispatchRule.
+     * @param {DispatchRuleUpsertArgs} args - Arguments to update or create a DispatchRule.
+     * @example
+     * // Update or create a DispatchRule
+     * const dispatchRule = await prisma.dispatchRule.upsert({
+     *   create: {
+     *     // ... data to create a DispatchRule
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the DispatchRule we want to update
+     *   }
+     * })
+     */
+    upsert<T extends DispatchRuleUpsertArgs>(args: SelectSubset<T, DispatchRuleUpsertArgs<ExtArgs>>): Prisma__DispatchRuleClient<$Result.GetResult<Prisma.$DispatchRulePayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+
+    /**
+     * Count the number of DispatchRules.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {DispatchRuleCountArgs} args - Arguments to filter DispatchRules to count.
+     * @example
+     * // Count the number of DispatchRules
+     * const count = await prisma.dispatchRule.count({
+     *   where: {
+     *     // ... the filter for the DispatchRules we want to count
+     *   }
+     * })
+    **/
+    count<T extends DispatchRuleCountArgs>(
+      args?: Subset<T, DispatchRuleCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], DispatchRuleCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a DispatchRule.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {DispatchRuleAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends DispatchRuleAggregateArgs>(args: Subset<T, DispatchRuleAggregateArgs>): Prisma.PrismaPromise<GetDispatchRuleAggregateType<T>>
+
+    /**
+     * Group by DispatchRule.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {DispatchRuleGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends DispatchRuleGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: DispatchRuleGroupByArgs['orderBy'] }
+        : { orderBy?: DispatchRuleGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, DispatchRuleGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetDispatchRuleGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the DispatchRule model
+   */
+  readonly fields: DispatchRuleFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for DispatchRule.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__DispatchRuleClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    source_fee<T extends FeesDefaultArgs<ExtArgs> = {}>(args?: Subset<T, FeesDefaultArgs<ExtArgs>>): Prisma__FeesClient<$Result.GetResult<Prisma.$FeesPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    details<T extends DispatchRule$detailsArgs<ExtArgs> = {}>(args?: Subset<T, DispatchRule$detailsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$DispatchRuleDetailPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the DispatchRule model
+   */
+  interface DispatchRuleFieldRefs {
+    readonly id: FieldRef<"DispatchRule", 'Int'>
+    readonly name: FieldRef<"DispatchRule", 'String'>
+    readonly source_fee_id: FieldRef<"DispatchRule", 'Int'>
+    readonly school_id: FieldRef<"DispatchRule", 'String'>
+    readonly last_modified: FieldRef<"DispatchRule", 'DateTime'>
+    readonly needs_sync: FieldRef<"DispatchRule", 'Boolean'>
+    readonly is_deleted: FieldRef<"DispatchRule", 'Boolean'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * DispatchRule findUnique
+   */
+  export type DispatchRuleFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the DispatchRule
+     */
+    select?: DispatchRuleSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the DispatchRule
+     */
+    omit?: DispatchRuleOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: DispatchRuleInclude<ExtArgs> | null
+    /**
+     * Filter, which DispatchRule to fetch.
+     */
+    where: DispatchRuleWhereUniqueInput
+  }
+
+  /**
+   * DispatchRule findUniqueOrThrow
+   */
+  export type DispatchRuleFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the DispatchRule
+     */
+    select?: DispatchRuleSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the DispatchRule
+     */
+    omit?: DispatchRuleOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: DispatchRuleInclude<ExtArgs> | null
+    /**
+     * Filter, which DispatchRule to fetch.
+     */
+    where: DispatchRuleWhereUniqueInput
+  }
+
+  /**
+   * DispatchRule findFirst
+   */
+  export type DispatchRuleFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the DispatchRule
+     */
+    select?: DispatchRuleSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the DispatchRule
+     */
+    omit?: DispatchRuleOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: DispatchRuleInclude<ExtArgs> | null
+    /**
+     * Filter, which DispatchRule to fetch.
+     */
+    where?: DispatchRuleWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of DispatchRules to fetch.
+     */
+    orderBy?: DispatchRuleOrderByWithRelationInput | DispatchRuleOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for DispatchRules.
+     */
+    cursor?: DispatchRuleWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` DispatchRules from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` DispatchRules.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of DispatchRules.
+     */
+    distinct?: DispatchRuleScalarFieldEnum | DispatchRuleScalarFieldEnum[]
+  }
+
+  /**
+   * DispatchRule findFirstOrThrow
+   */
+  export type DispatchRuleFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the DispatchRule
+     */
+    select?: DispatchRuleSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the DispatchRule
+     */
+    omit?: DispatchRuleOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: DispatchRuleInclude<ExtArgs> | null
+    /**
+     * Filter, which DispatchRule to fetch.
+     */
+    where?: DispatchRuleWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of DispatchRules to fetch.
+     */
+    orderBy?: DispatchRuleOrderByWithRelationInput | DispatchRuleOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for DispatchRules.
+     */
+    cursor?: DispatchRuleWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` DispatchRules from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` DispatchRules.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of DispatchRules.
+     */
+    distinct?: DispatchRuleScalarFieldEnum | DispatchRuleScalarFieldEnum[]
+  }
+
+  /**
+   * DispatchRule findMany
+   */
+  export type DispatchRuleFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the DispatchRule
+     */
+    select?: DispatchRuleSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the DispatchRule
+     */
+    omit?: DispatchRuleOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: DispatchRuleInclude<ExtArgs> | null
+    /**
+     * Filter, which DispatchRules to fetch.
+     */
+    where?: DispatchRuleWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of DispatchRules to fetch.
+     */
+    orderBy?: DispatchRuleOrderByWithRelationInput | DispatchRuleOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing DispatchRules.
+     */
+    cursor?: DispatchRuleWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` DispatchRules from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` DispatchRules.
+     */
+    skip?: number
+    distinct?: DispatchRuleScalarFieldEnum | DispatchRuleScalarFieldEnum[]
+  }
+
+  /**
+   * DispatchRule create
+   */
+  export type DispatchRuleCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the DispatchRule
+     */
+    select?: DispatchRuleSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the DispatchRule
+     */
+    omit?: DispatchRuleOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: DispatchRuleInclude<ExtArgs> | null
+    /**
+     * The data needed to create a DispatchRule.
+     */
+    data: XOR<DispatchRuleCreateInput, DispatchRuleUncheckedCreateInput>
+  }
+
+  /**
+   * DispatchRule createMany
+   */
+  export type DispatchRuleCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many DispatchRules.
+     */
+    data: DispatchRuleCreateManyInput | DispatchRuleCreateManyInput[]
+  }
+
+  /**
+   * DispatchRule createManyAndReturn
+   */
+  export type DispatchRuleCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the DispatchRule
+     */
+    select?: DispatchRuleSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the DispatchRule
+     */
+    omit?: DispatchRuleOmit<ExtArgs> | null
+    /**
+     * The data used to create many DispatchRules.
+     */
+    data: DispatchRuleCreateManyInput | DispatchRuleCreateManyInput[]
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: DispatchRuleIncludeCreateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * DispatchRule update
+   */
+  export type DispatchRuleUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the DispatchRule
+     */
+    select?: DispatchRuleSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the DispatchRule
+     */
+    omit?: DispatchRuleOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: DispatchRuleInclude<ExtArgs> | null
+    /**
+     * The data needed to update a DispatchRule.
+     */
+    data: XOR<DispatchRuleUpdateInput, DispatchRuleUncheckedUpdateInput>
+    /**
+     * Choose, which DispatchRule to update.
+     */
+    where: DispatchRuleWhereUniqueInput
+  }
+
+  /**
+   * DispatchRule updateMany
+   */
+  export type DispatchRuleUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update DispatchRules.
+     */
+    data: XOR<DispatchRuleUpdateManyMutationInput, DispatchRuleUncheckedUpdateManyInput>
+    /**
+     * Filter which DispatchRules to update
+     */
+    where?: DispatchRuleWhereInput
+    /**
+     * Limit how many DispatchRules to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * DispatchRule updateManyAndReturn
+   */
+  export type DispatchRuleUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the DispatchRule
+     */
+    select?: DispatchRuleSelectUpdateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the DispatchRule
+     */
+    omit?: DispatchRuleOmit<ExtArgs> | null
+    /**
+     * The data used to update DispatchRules.
+     */
+    data: XOR<DispatchRuleUpdateManyMutationInput, DispatchRuleUncheckedUpdateManyInput>
+    /**
+     * Filter which DispatchRules to update
+     */
+    where?: DispatchRuleWhereInput
+    /**
+     * Limit how many DispatchRules to update.
+     */
+    limit?: number
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: DispatchRuleIncludeUpdateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * DispatchRule upsert
+   */
+  export type DispatchRuleUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the DispatchRule
+     */
+    select?: DispatchRuleSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the DispatchRule
+     */
+    omit?: DispatchRuleOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: DispatchRuleInclude<ExtArgs> | null
+    /**
+     * The filter to search for the DispatchRule to update in case it exists.
+     */
+    where: DispatchRuleWhereUniqueInput
+    /**
+     * In case the DispatchRule found by the `where` argument doesn't exist, create a new DispatchRule with this data.
+     */
+    create: XOR<DispatchRuleCreateInput, DispatchRuleUncheckedCreateInput>
+    /**
+     * In case the DispatchRule was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<DispatchRuleUpdateInput, DispatchRuleUncheckedUpdateInput>
+  }
+
+  /**
+   * DispatchRule delete
+   */
+  export type DispatchRuleDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the DispatchRule
+     */
+    select?: DispatchRuleSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the DispatchRule
+     */
+    omit?: DispatchRuleOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: DispatchRuleInclude<ExtArgs> | null
+    /**
+     * Filter which DispatchRule to delete.
+     */
+    where: DispatchRuleWhereUniqueInput
+  }
+
+  /**
+   * DispatchRule deleteMany
+   */
+  export type DispatchRuleDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which DispatchRules to delete
+     */
+    where?: DispatchRuleWhereInput
+    /**
+     * Limit how many DispatchRules to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * DispatchRule.details
+   */
+  export type DispatchRule$detailsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the DispatchRuleDetail
+     */
+    select?: DispatchRuleDetailSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the DispatchRuleDetail
+     */
+    omit?: DispatchRuleDetailOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: DispatchRuleDetailInclude<ExtArgs> | null
+    where?: DispatchRuleDetailWhereInput
+    orderBy?: DispatchRuleDetailOrderByWithRelationInput | DispatchRuleDetailOrderByWithRelationInput[]
+    cursor?: DispatchRuleDetailWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: DispatchRuleDetailScalarFieldEnum | DispatchRuleDetailScalarFieldEnum[]
+  }
+
+  /**
+   * DispatchRule without action
+   */
+  export type DispatchRuleDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the DispatchRule
+     */
+    select?: DispatchRuleSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the DispatchRule
+     */
+    omit?: DispatchRuleOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: DispatchRuleInclude<ExtArgs> | null
+  }
+
+
+  /**
+   * Model DispatchRuleDetail
+   */
+
+  export type AggregateDispatchRuleDetail = {
+    _count: DispatchRuleDetailCountAggregateOutputType | null
+    _avg: DispatchRuleDetailAvgAggregateOutputType | null
+    _sum: DispatchRuleDetailSumAggregateOutputType | null
+    _min: DispatchRuleDetailMinAggregateOutputType | null
+    _max: DispatchRuleDetailMaxAggregateOutputType | null
+  }
+
+  export type DispatchRuleDetailAvgAggregateOutputType = {
+    id: number | null
+    dispatch_rule_id: number | null
+    destination_category_id: number | null
+    percentage: number | null
+  }
+
+  export type DispatchRuleDetailSumAggregateOutputType = {
+    id: number | null
+    dispatch_rule_id: number | null
+    destination_category_id: number | null
+    percentage: number | null
+  }
+
+  export type DispatchRuleDetailMinAggregateOutputType = {
+    id: number | null
+    dispatch_rule_id: number | null
+    destination_category_id: number | null
+    percentage: number | null
+    last_modified: Date | null
+    needs_sync: boolean | null
+    is_deleted: boolean | null
+  }
+
+  export type DispatchRuleDetailMaxAggregateOutputType = {
+    id: number | null
+    dispatch_rule_id: number | null
+    destination_category_id: number | null
+    percentage: number | null
+    last_modified: Date | null
+    needs_sync: boolean | null
+    is_deleted: boolean | null
+  }
+
+  export type DispatchRuleDetailCountAggregateOutputType = {
+    id: number
+    dispatch_rule_id: number
+    destination_category_id: number
+    percentage: number
+    last_modified: number
+    needs_sync: number
+    is_deleted: number
+    _all: number
+  }
+
+
+  export type DispatchRuleDetailAvgAggregateInputType = {
+    id?: true
+    dispatch_rule_id?: true
+    destination_category_id?: true
+    percentage?: true
+  }
+
+  export type DispatchRuleDetailSumAggregateInputType = {
+    id?: true
+    dispatch_rule_id?: true
+    destination_category_id?: true
+    percentage?: true
+  }
+
+  export type DispatchRuleDetailMinAggregateInputType = {
+    id?: true
+    dispatch_rule_id?: true
+    destination_category_id?: true
+    percentage?: true
+    last_modified?: true
+    needs_sync?: true
+    is_deleted?: true
+  }
+
+  export type DispatchRuleDetailMaxAggregateInputType = {
+    id?: true
+    dispatch_rule_id?: true
+    destination_category_id?: true
+    percentage?: true
+    last_modified?: true
+    needs_sync?: true
+    is_deleted?: true
+  }
+
+  export type DispatchRuleDetailCountAggregateInputType = {
+    id?: true
+    dispatch_rule_id?: true
+    destination_category_id?: true
+    percentage?: true
+    last_modified?: true
+    needs_sync?: true
+    is_deleted?: true
+    _all?: true
+  }
+
+  export type DispatchRuleDetailAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which DispatchRuleDetail to aggregate.
+     */
+    where?: DispatchRuleDetailWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of DispatchRuleDetails to fetch.
+     */
+    orderBy?: DispatchRuleDetailOrderByWithRelationInput | DispatchRuleDetailOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: DispatchRuleDetailWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` DispatchRuleDetails from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` DispatchRuleDetails.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned DispatchRuleDetails
+    **/
+    _count?: true | DispatchRuleDetailCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to average
+    **/
+    _avg?: DispatchRuleDetailAvgAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to sum
+    **/
+    _sum?: DispatchRuleDetailSumAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: DispatchRuleDetailMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: DispatchRuleDetailMaxAggregateInputType
+  }
+
+  export type GetDispatchRuleDetailAggregateType<T extends DispatchRuleDetailAggregateArgs> = {
+        [P in keyof T & keyof AggregateDispatchRuleDetail]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateDispatchRuleDetail[P]>
+      : GetScalarType<T[P], AggregateDispatchRuleDetail[P]>
+  }
+
+
+
+
+  export type DispatchRuleDetailGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: DispatchRuleDetailWhereInput
+    orderBy?: DispatchRuleDetailOrderByWithAggregationInput | DispatchRuleDetailOrderByWithAggregationInput[]
+    by: DispatchRuleDetailScalarFieldEnum[] | DispatchRuleDetailScalarFieldEnum
+    having?: DispatchRuleDetailScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: DispatchRuleDetailCountAggregateInputType | true
+    _avg?: DispatchRuleDetailAvgAggregateInputType
+    _sum?: DispatchRuleDetailSumAggregateInputType
+    _min?: DispatchRuleDetailMinAggregateInputType
+    _max?: DispatchRuleDetailMaxAggregateInputType
+  }
+
+  export type DispatchRuleDetailGroupByOutputType = {
+    id: number
+    dispatch_rule_id: number
+    destination_category_id: number
+    percentage: number
+    last_modified: Date
+    needs_sync: boolean
+    is_deleted: boolean
+    _count: DispatchRuleDetailCountAggregateOutputType | null
+    _avg: DispatchRuleDetailAvgAggregateOutputType | null
+    _sum: DispatchRuleDetailSumAggregateOutputType | null
+    _min: DispatchRuleDetailMinAggregateOutputType | null
+    _max: DispatchRuleDetailMaxAggregateOutputType | null
+  }
+
+  type GetDispatchRuleDetailGroupByPayload<T extends DispatchRuleDetailGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<DispatchRuleDetailGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof DispatchRuleDetailGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], DispatchRuleDetailGroupByOutputType[P]>
+            : GetScalarType<T[P], DispatchRuleDetailGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type DispatchRuleDetailSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    dispatch_rule_id?: boolean
+    destination_category_id?: boolean
+    percentage?: boolean
+    last_modified?: boolean
+    needs_sync?: boolean
+    is_deleted?: boolean
+    dispatch_rule?: boolean | DispatchRuleDefaultArgs<ExtArgs>
+    destination_category?: boolean | FinancialCategoryDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["dispatchRuleDetail"]>
+
+  export type DispatchRuleDetailSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    dispatch_rule_id?: boolean
+    destination_category_id?: boolean
+    percentage?: boolean
+    last_modified?: boolean
+    needs_sync?: boolean
+    is_deleted?: boolean
+    dispatch_rule?: boolean | DispatchRuleDefaultArgs<ExtArgs>
+    destination_category?: boolean | FinancialCategoryDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["dispatchRuleDetail"]>
+
+  export type DispatchRuleDetailSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    dispatch_rule_id?: boolean
+    destination_category_id?: boolean
+    percentage?: boolean
+    last_modified?: boolean
+    needs_sync?: boolean
+    is_deleted?: boolean
+    dispatch_rule?: boolean | DispatchRuleDefaultArgs<ExtArgs>
+    destination_category?: boolean | FinancialCategoryDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["dispatchRuleDetail"]>
+
+  export type DispatchRuleDetailSelectScalar = {
+    id?: boolean
+    dispatch_rule_id?: boolean
+    destination_category_id?: boolean
+    percentage?: boolean
+    last_modified?: boolean
+    needs_sync?: boolean
+    is_deleted?: boolean
+  }
+
+  export type DispatchRuleDetailOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "dispatch_rule_id" | "destination_category_id" | "percentage" | "last_modified" | "needs_sync" | "is_deleted", ExtArgs["result"]["dispatchRuleDetail"]>
+  export type DispatchRuleDetailInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    dispatch_rule?: boolean | DispatchRuleDefaultArgs<ExtArgs>
+    destination_category?: boolean | FinancialCategoryDefaultArgs<ExtArgs>
+  }
+  export type DispatchRuleDetailIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    dispatch_rule?: boolean | DispatchRuleDefaultArgs<ExtArgs>
+    destination_category?: boolean | FinancialCategoryDefaultArgs<ExtArgs>
+  }
+  export type DispatchRuleDetailIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    dispatch_rule?: boolean | DispatchRuleDefaultArgs<ExtArgs>
+    destination_category?: boolean | FinancialCategoryDefaultArgs<ExtArgs>
+  }
+
+  export type $DispatchRuleDetailPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "DispatchRuleDetail"
+    objects: {
+      dispatch_rule: Prisma.$DispatchRulePayload<ExtArgs>
+      destination_category: Prisma.$FinancialCategoryPayload<ExtArgs>
+    }
+    scalars: $Extensions.GetPayloadResult<{
+      id: number
+      dispatch_rule_id: number
+      destination_category_id: number
+      percentage: number
+      last_modified: Date
+      needs_sync: boolean
+      is_deleted: boolean
+    }, ExtArgs["result"]["dispatchRuleDetail"]>
+    composites: {}
+  }
+
+  type DispatchRuleDetailGetPayload<S extends boolean | null | undefined | DispatchRuleDetailDefaultArgs> = $Result.GetResult<Prisma.$DispatchRuleDetailPayload, S>
+
+  type DispatchRuleDetailCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<DispatchRuleDetailFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: DispatchRuleDetailCountAggregateInputType | true
+    }
+
+  export interface DispatchRuleDetailDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['DispatchRuleDetail'], meta: { name: 'DispatchRuleDetail' } }
+    /**
+     * Find zero or one DispatchRuleDetail that matches the filter.
+     * @param {DispatchRuleDetailFindUniqueArgs} args - Arguments to find a DispatchRuleDetail
+     * @example
+     * // Get one DispatchRuleDetail
+     * const dispatchRuleDetail = await prisma.dispatchRuleDetail.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends DispatchRuleDetailFindUniqueArgs>(args: SelectSubset<T, DispatchRuleDetailFindUniqueArgs<ExtArgs>>): Prisma__DispatchRuleDetailClient<$Result.GetResult<Prisma.$DispatchRuleDetailPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one DispatchRuleDetail that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {DispatchRuleDetailFindUniqueOrThrowArgs} args - Arguments to find a DispatchRuleDetail
+     * @example
+     * // Get one DispatchRuleDetail
+     * const dispatchRuleDetail = await prisma.dispatchRuleDetail.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends DispatchRuleDetailFindUniqueOrThrowArgs>(args: SelectSubset<T, DispatchRuleDetailFindUniqueOrThrowArgs<ExtArgs>>): Prisma__DispatchRuleDetailClient<$Result.GetResult<Prisma.$DispatchRuleDetailPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first DispatchRuleDetail that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {DispatchRuleDetailFindFirstArgs} args - Arguments to find a DispatchRuleDetail
+     * @example
+     * // Get one DispatchRuleDetail
+     * const dispatchRuleDetail = await prisma.dispatchRuleDetail.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends DispatchRuleDetailFindFirstArgs>(args?: SelectSubset<T, DispatchRuleDetailFindFirstArgs<ExtArgs>>): Prisma__DispatchRuleDetailClient<$Result.GetResult<Prisma.$DispatchRuleDetailPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first DispatchRuleDetail that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {DispatchRuleDetailFindFirstOrThrowArgs} args - Arguments to find a DispatchRuleDetail
+     * @example
+     * // Get one DispatchRuleDetail
+     * const dispatchRuleDetail = await prisma.dispatchRuleDetail.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends DispatchRuleDetailFindFirstOrThrowArgs>(args?: SelectSubset<T, DispatchRuleDetailFindFirstOrThrowArgs<ExtArgs>>): Prisma__DispatchRuleDetailClient<$Result.GetResult<Prisma.$DispatchRuleDetailPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more DispatchRuleDetails that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {DispatchRuleDetailFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all DispatchRuleDetails
+     * const dispatchRuleDetails = await prisma.dispatchRuleDetail.findMany()
+     * 
+     * // Get first 10 DispatchRuleDetails
+     * const dispatchRuleDetails = await prisma.dispatchRuleDetail.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const dispatchRuleDetailWithIdOnly = await prisma.dispatchRuleDetail.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends DispatchRuleDetailFindManyArgs>(args?: SelectSubset<T, DispatchRuleDetailFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$DispatchRuleDetailPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a DispatchRuleDetail.
+     * @param {DispatchRuleDetailCreateArgs} args - Arguments to create a DispatchRuleDetail.
+     * @example
+     * // Create one DispatchRuleDetail
+     * const DispatchRuleDetail = await prisma.dispatchRuleDetail.create({
+     *   data: {
+     *     // ... data to create a DispatchRuleDetail
+     *   }
+     * })
+     * 
+     */
+    create<T extends DispatchRuleDetailCreateArgs>(args: SelectSubset<T, DispatchRuleDetailCreateArgs<ExtArgs>>): Prisma__DispatchRuleDetailClient<$Result.GetResult<Prisma.$DispatchRuleDetailPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many DispatchRuleDetails.
+     * @param {DispatchRuleDetailCreateManyArgs} args - Arguments to create many DispatchRuleDetails.
+     * @example
+     * // Create many DispatchRuleDetails
+     * const dispatchRuleDetail = await prisma.dispatchRuleDetail.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends DispatchRuleDetailCreateManyArgs>(args?: SelectSubset<T, DispatchRuleDetailCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many DispatchRuleDetails and returns the data saved in the database.
+     * @param {DispatchRuleDetailCreateManyAndReturnArgs} args - Arguments to create many DispatchRuleDetails.
+     * @example
+     * // Create many DispatchRuleDetails
+     * const dispatchRuleDetail = await prisma.dispatchRuleDetail.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many DispatchRuleDetails and only return the `id`
+     * const dispatchRuleDetailWithIdOnly = await prisma.dispatchRuleDetail.createManyAndReturn({
+     *   select: { id: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends DispatchRuleDetailCreateManyAndReturnArgs>(args?: SelectSubset<T, DispatchRuleDetailCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$DispatchRuleDetailPayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Delete a DispatchRuleDetail.
+     * @param {DispatchRuleDetailDeleteArgs} args - Arguments to delete one DispatchRuleDetail.
+     * @example
+     * // Delete one DispatchRuleDetail
+     * const DispatchRuleDetail = await prisma.dispatchRuleDetail.delete({
+     *   where: {
+     *     // ... filter to delete one DispatchRuleDetail
+     *   }
+     * })
+     * 
+     */
+    delete<T extends DispatchRuleDetailDeleteArgs>(args: SelectSubset<T, DispatchRuleDetailDeleteArgs<ExtArgs>>): Prisma__DispatchRuleDetailClient<$Result.GetResult<Prisma.$DispatchRuleDetailPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one DispatchRuleDetail.
+     * @param {DispatchRuleDetailUpdateArgs} args - Arguments to update one DispatchRuleDetail.
+     * @example
+     * // Update one DispatchRuleDetail
+     * const dispatchRuleDetail = await prisma.dispatchRuleDetail.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends DispatchRuleDetailUpdateArgs>(args: SelectSubset<T, DispatchRuleDetailUpdateArgs<ExtArgs>>): Prisma__DispatchRuleDetailClient<$Result.GetResult<Prisma.$DispatchRuleDetailPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more DispatchRuleDetails.
+     * @param {DispatchRuleDetailDeleteManyArgs} args - Arguments to filter DispatchRuleDetails to delete.
+     * @example
+     * // Delete a few DispatchRuleDetails
+     * const { count } = await prisma.dispatchRuleDetail.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends DispatchRuleDetailDeleteManyArgs>(args?: SelectSubset<T, DispatchRuleDetailDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more DispatchRuleDetails.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {DispatchRuleDetailUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many DispatchRuleDetails
+     * const dispatchRuleDetail = await prisma.dispatchRuleDetail.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends DispatchRuleDetailUpdateManyArgs>(args: SelectSubset<T, DispatchRuleDetailUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more DispatchRuleDetails and returns the data updated in the database.
+     * @param {DispatchRuleDetailUpdateManyAndReturnArgs} args - Arguments to update many DispatchRuleDetails.
+     * @example
+     * // Update many DispatchRuleDetails
+     * const dispatchRuleDetail = await prisma.dispatchRuleDetail.updateManyAndReturn({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Update zero or more DispatchRuleDetails and only return the `id`
+     * const dispatchRuleDetailWithIdOnly = await prisma.dispatchRuleDetail.updateManyAndReturn({
+     *   select: { id: true },
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    updateManyAndReturn<T extends DispatchRuleDetailUpdateManyAndReturnArgs>(args: SelectSubset<T, DispatchRuleDetailUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$DispatchRuleDetailPayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Create or update one DispatchRuleDetail.
+     * @param {DispatchRuleDetailUpsertArgs} args - Arguments to update or create a DispatchRuleDetail.
+     * @example
+     * // Update or create a DispatchRuleDetail
+     * const dispatchRuleDetail = await prisma.dispatchRuleDetail.upsert({
+     *   create: {
+     *     // ... data to create a DispatchRuleDetail
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the DispatchRuleDetail we want to update
+     *   }
+     * })
+     */
+    upsert<T extends DispatchRuleDetailUpsertArgs>(args: SelectSubset<T, DispatchRuleDetailUpsertArgs<ExtArgs>>): Prisma__DispatchRuleDetailClient<$Result.GetResult<Prisma.$DispatchRuleDetailPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+
+    /**
+     * Count the number of DispatchRuleDetails.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {DispatchRuleDetailCountArgs} args - Arguments to filter DispatchRuleDetails to count.
+     * @example
+     * // Count the number of DispatchRuleDetails
+     * const count = await prisma.dispatchRuleDetail.count({
+     *   where: {
+     *     // ... the filter for the DispatchRuleDetails we want to count
+     *   }
+     * })
+    **/
+    count<T extends DispatchRuleDetailCountArgs>(
+      args?: Subset<T, DispatchRuleDetailCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], DispatchRuleDetailCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a DispatchRuleDetail.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {DispatchRuleDetailAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends DispatchRuleDetailAggregateArgs>(args: Subset<T, DispatchRuleDetailAggregateArgs>): Prisma.PrismaPromise<GetDispatchRuleDetailAggregateType<T>>
+
+    /**
+     * Group by DispatchRuleDetail.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {DispatchRuleDetailGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends DispatchRuleDetailGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: DispatchRuleDetailGroupByArgs['orderBy'] }
+        : { orderBy?: DispatchRuleDetailGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, DispatchRuleDetailGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetDispatchRuleDetailGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the DispatchRuleDetail model
+   */
+  readonly fields: DispatchRuleDetailFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for DispatchRuleDetail.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__DispatchRuleDetailClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    dispatch_rule<T extends DispatchRuleDefaultArgs<ExtArgs> = {}>(args?: Subset<T, DispatchRuleDefaultArgs<ExtArgs>>): Prisma__DispatchRuleClient<$Result.GetResult<Prisma.$DispatchRulePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    destination_category<T extends FinancialCategoryDefaultArgs<ExtArgs> = {}>(args?: Subset<T, FinancialCategoryDefaultArgs<ExtArgs>>): Prisma__FinancialCategoryClient<$Result.GetResult<Prisma.$FinancialCategoryPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the DispatchRuleDetail model
+   */
+  interface DispatchRuleDetailFieldRefs {
+    readonly id: FieldRef<"DispatchRuleDetail", 'Int'>
+    readonly dispatch_rule_id: FieldRef<"DispatchRuleDetail", 'Int'>
+    readonly destination_category_id: FieldRef<"DispatchRuleDetail", 'Int'>
+    readonly percentage: FieldRef<"DispatchRuleDetail", 'Float'>
+    readonly last_modified: FieldRef<"DispatchRuleDetail", 'DateTime'>
+    readonly needs_sync: FieldRef<"DispatchRuleDetail", 'Boolean'>
+    readonly is_deleted: FieldRef<"DispatchRuleDetail", 'Boolean'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * DispatchRuleDetail findUnique
+   */
+  export type DispatchRuleDetailFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the DispatchRuleDetail
+     */
+    select?: DispatchRuleDetailSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the DispatchRuleDetail
+     */
+    omit?: DispatchRuleDetailOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: DispatchRuleDetailInclude<ExtArgs> | null
+    /**
+     * Filter, which DispatchRuleDetail to fetch.
+     */
+    where: DispatchRuleDetailWhereUniqueInput
+  }
+
+  /**
+   * DispatchRuleDetail findUniqueOrThrow
+   */
+  export type DispatchRuleDetailFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the DispatchRuleDetail
+     */
+    select?: DispatchRuleDetailSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the DispatchRuleDetail
+     */
+    omit?: DispatchRuleDetailOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: DispatchRuleDetailInclude<ExtArgs> | null
+    /**
+     * Filter, which DispatchRuleDetail to fetch.
+     */
+    where: DispatchRuleDetailWhereUniqueInput
+  }
+
+  /**
+   * DispatchRuleDetail findFirst
+   */
+  export type DispatchRuleDetailFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the DispatchRuleDetail
+     */
+    select?: DispatchRuleDetailSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the DispatchRuleDetail
+     */
+    omit?: DispatchRuleDetailOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: DispatchRuleDetailInclude<ExtArgs> | null
+    /**
+     * Filter, which DispatchRuleDetail to fetch.
+     */
+    where?: DispatchRuleDetailWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of DispatchRuleDetails to fetch.
+     */
+    orderBy?: DispatchRuleDetailOrderByWithRelationInput | DispatchRuleDetailOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for DispatchRuleDetails.
+     */
+    cursor?: DispatchRuleDetailWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` DispatchRuleDetails from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` DispatchRuleDetails.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of DispatchRuleDetails.
+     */
+    distinct?: DispatchRuleDetailScalarFieldEnum | DispatchRuleDetailScalarFieldEnum[]
+  }
+
+  /**
+   * DispatchRuleDetail findFirstOrThrow
+   */
+  export type DispatchRuleDetailFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the DispatchRuleDetail
+     */
+    select?: DispatchRuleDetailSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the DispatchRuleDetail
+     */
+    omit?: DispatchRuleDetailOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: DispatchRuleDetailInclude<ExtArgs> | null
+    /**
+     * Filter, which DispatchRuleDetail to fetch.
+     */
+    where?: DispatchRuleDetailWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of DispatchRuleDetails to fetch.
+     */
+    orderBy?: DispatchRuleDetailOrderByWithRelationInput | DispatchRuleDetailOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for DispatchRuleDetails.
+     */
+    cursor?: DispatchRuleDetailWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` DispatchRuleDetails from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` DispatchRuleDetails.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of DispatchRuleDetails.
+     */
+    distinct?: DispatchRuleDetailScalarFieldEnum | DispatchRuleDetailScalarFieldEnum[]
+  }
+
+  /**
+   * DispatchRuleDetail findMany
+   */
+  export type DispatchRuleDetailFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the DispatchRuleDetail
+     */
+    select?: DispatchRuleDetailSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the DispatchRuleDetail
+     */
+    omit?: DispatchRuleDetailOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: DispatchRuleDetailInclude<ExtArgs> | null
+    /**
+     * Filter, which DispatchRuleDetails to fetch.
+     */
+    where?: DispatchRuleDetailWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of DispatchRuleDetails to fetch.
+     */
+    orderBy?: DispatchRuleDetailOrderByWithRelationInput | DispatchRuleDetailOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing DispatchRuleDetails.
+     */
+    cursor?: DispatchRuleDetailWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` DispatchRuleDetails from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` DispatchRuleDetails.
+     */
+    skip?: number
+    distinct?: DispatchRuleDetailScalarFieldEnum | DispatchRuleDetailScalarFieldEnum[]
+  }
+
+  /**
+   * DispatchRuleDetail create
+   */
+  export type DispatchRuleDetailCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the DispatchRuleDetail
+     */
+    select?: DispatchRuleDetailSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the DispatchRuleDetail
+     */
+    omit?: DispatchRuleDetailOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: DispatchRuleDetailInclude<ExtArgs> | null
+    /**
+     * The data needed to create a DispatchRuleDetail.
+     */
+    data: XOR<DispatchRuleDetailCreateInput, DispatchRuleDetailUncheckedCreateInput>
+  }
+
+  /**
+   * DispatchRuleDetail createMany
+   */
+  export type DispatchRuleDetailCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many DispatchRuleDetails.
+     */
+    data: DispatchRuleDetailCreateManyInput | DispatchRuleDetailCreateManyInput[]
+  }
+
+  /**
+   * DispatchRuleDetail createManyAndReturn
+   */
+  export type DispatchRuleDetailCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the DispatchRuleDetail
+     */
+    select?: DispatchRuleDetailSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the DispatchRuleDetail
+     */
+    omit?: DispatchRuleDetailOmit<ExtArgs> | null
+    /**
+     * The data used to create many DispatchRuleDetails.
+     */
+    data: DispatchRuleDetailCreateManyInput | DispatchRuleDetailCreateManyInput[]
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: DispatchRuleDetailIncludeCreateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * DispatchRuleDetail update
+   */
+  export type DispatchRuleDetailUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the DispatchRuleDetail
+     */
+    select?: DispatchRuleDetailSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the DispatchRuleDetail
+     */
+    omit?: DispatchRuleDetailOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: DispatchRuleDetailInclude<ExtArgs> | null
+    /**
+     * The data needed to update a DispatchRuleDetail.
+     */
+    data: XOR<DispatchRuleDetailUpdateInput, DispatchRuleDetailUncheckedUpdateInput>
+    /**
+     * Choose, which DispatchRuleDetail to update.
+     */
+    where: DispatchRuleDetailWhereUniqueInput
+  }
+
+  /**
+   * DispatchRuleDetail updateMany
+   */
+  export type DispatchRuleDetailUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update DispatchRuleDetails.
+     */
+    data: XOR<DispatchRuleDetailUpdateManyMutationInput, DispatchRuleDetailUncheckedUpdateManyInput>
+    /**
+     * Filter which DispatchRuleDetails to update
+     */
+    where?: DispatchRuleDetailWhereInput
+    /**
+     * Limit how many DispatchRuleDetails to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * DispatchRuleDetail updateManyAndReturn
+   */
+  export type DispatchRuleDetailUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the DispatchRuleDetail
+     */
+    select?: DispatchRuleDetailSelectUpdateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the DispatchRuleDetail
+     */
+    omit?: DispatchRuleDetailOmit<ExtArgs> | null
+    /**
+     * The data used to update DispatchRuleDetails.
+     */
+    data: XOR<DispatchRuleDetailUpdateManyMutationInput, DispatchRuleDetailUncheckedUpdateManyInput>
+    /**
+     * Filter which DispatchRuleDetails to update
+     */
+    where?: DispatchRuleDetailWhereInput
+    /**
+     * Limit how many DispatchRuleDetails to update.
+     */
+    limit?: number
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: DispatchRuleDetailIncludeUpdateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * DispatchRuleDetail upsert
+   */
+  export type DispatchRuleDetailUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the DispatchRuleDetail
+     */
+    select?: DispatchRuleDetailSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the DispatchRuleDetail
+     */
+    omit?: DispatchRuleDetailOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: DispatchRuleDetailInclude<ExtArgs> | null
+    /**
+     * The filter to search for the DispatchRuleDetail to update in case it exists.
+     */
+    where: DispatchRuleDetailWhereUniqueInput
+    /**
+     * In case the DispatchRuleDetail found by the `where` argument doesn't exist, create a new DispatchRuleDetail with this data.
+     */
+    create: XOR<DispatchRuleDetailCreateInput, DispatchRuleDetailUncheckedCreateInput>
+    /**
+     * In case the DispatchRuleDetail was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<DispatchRuleDetailUpdateInput, DispatchRuleDetailUncheckedUpdateInput>
+  }
+
+  /**
+   * DispatchRuleDetail delete
+   */
+  export type DispatchRuleDetailDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the DispatchRuleDetail
+     */
+    select?: DispatchRuleDetailSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the DispatchRuleDetail
+     */
+    omit?: DispatchRuleDetailOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: DispatchRuleDetailInclude<ExtArgs> | null
+    /**
+     * Filter which DispatchRuleDetail to delete.
+     */
+    where: DispatchRuleDetailWhereUniqueInput
+  }
+
+  /**
+   * DispatchRuleDetail deleteMany
+   */
+  export type DispatchRuleDetailDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which DispatchRuleDetails to delete
+     */
+    where?: DispatchRuleDetailWhereInput
+    /**
+     * Limit how many DispatchRuleDetails to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * DispatchRuleDetail without action
+   */
+  export type DispatchRuleDetailDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the DispatchRuleDetail
+     */
+    select?: DispatchRuleDetailSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the DispatchRuleDetail
+     */
+    omit?: DispatchRuleDetailOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: DispatchRuleDetailInclude<ExtArgs> | null
+  }
+
+
+  /**
    * Enums
    */
 
@@ -25906,6 +30862,65 @@ export namespace Prisma {
   };
 
   export type FinancialTransactionScalarFieldEnum = (typeof FinancialTransactionScalarFieldEnum)[keyof typeof FinancialTransactionScalarFieldEnum]
+
+
+  export const BudgetScalarFieldEnum: {
+    id: 'id',
+    category: 'category',
+    amount: 'amount',
+    period_start: 'period_start',
+    period_end: 'period_end',
+    school_id: 'school_id',
+    supabase_id: 'supabase_id',
+    last_modified: 'last_modified',
+    needs_sync: 'needs_sync',
+    is_deleted: 'is_deleted'
+  };
+
+  export type BudgetScalarFieldEnum = (typeof BudgetScalarFieldEnum)[keyof typeof BudgetScalarFieldEnum]
+
+
+  export const FinancialReportScalarFieldEnum: {
+    id: 'id',
+    title: 'title',
+    generated_at: 'generated_at',
+    start_date: 'start_date',
+    end_date: 'end_date',
+    content: 'content',
+    school_id: 'school_id',
+    supabase_id: 'supabase_id',
+    last_modified: 'last_modified',
+    needs_sync: 'needs_sync',
+    is_deleted: 'is_deleted'
+  };
+
+  export type FinancialReportScalarFieldEnum = (typeof FinancialReportScalarFieldEnum)[keyof typeof FinancialReportScalarFieldEnum]
+
+
+  export const DispatchRuleScalarFieldEnum: {
+    id: 'id',
+    name: 'name',
+    source_fee_id: 'source_fee_id',
+    school_id: 'school_id',
+    last_modified: 'last_modified',
+    needs_sync: 'needs_sync',
+    is_deleted: 'is_deleted'
+  };
+
+  export type DispatchRuleScalarFieldEnum = (typeof DispatchRuleScalarFieldEnum)[keyof typeof DispatchRuleScalarFieldEnum]
+
+
+  export const DispatchRuleDetailScalarFieldEnum: {
+    id: 'id',
+    dispatch_rule_id: 'dispatch_rule_id',
+    destination_category_id: 'destination_category_id',
+    percentage: 'percentage',
+    last_modified: 'last_modified',
+    needs_sync: 'needs_sync',
+    is_deleted: 'is_deleted'
+  };
+
+  export type DispatchRuleDetailScalarFieldEnum = (typeof DispatchRuleDetailScalarFieldEnum)[keyof typeof DispatchRuleDetailScalarFieldEnum]
 
 
   export const SortOrder: {
@@ -27054,6 +32069,7 @@ export namespace Prisma {
     needs_sync?: BoolFilter<"Fees"> | boolean
     is_deleted?: BoolFilter<"Fees"> | boolean
     payments?: PaymentsListRelationFilter
+    dispatch_rules?: DispatchRuleListRelationFilter
   }
 
   export type FeesOrderByWithRelationInput = {
@@ -27069,6 +32085,7 @@ export namespace Prisma {
     needs_sync?: SortOrder
     is_deleted?: SortOrder
     payments?: PaymentsOrderByRelationAggregateInput
+    dispatch_rules?: DispatchRuleOrderByRelationAggregateInput
   }
 
   export type FeesWhereUniqueInput = Prisma.AtLeast<{
@@ -27087,6 +32104,7 @@ export namespace Prisma {
     needs_sync?: BoolFilter<"Fees"> | boolean
     is_deleted?: BoolFilter<"Fees"> | boolean
     payments?: PaymentsListRelationFilter
+    dispatch_rules?: DispatchRuleListRelationFilter
   }, "id" | "supabase_id">
 
   export type FeesOrderByWithAggregationInput = {
@@ -27496,6 +32514,7 @@ export namespace Prisma {
     needs_sync?: BoolFilter<"FinancialCategory"> | boolean
     is_deleted?: BoolFilter<"FinancialCategory"> | boolean
     transactions?: FinancialTransactionListRelationFilter
+    dispatch_rule_details?: DispatchRuleDetailListRelationFilter
   }
 
   export type FinancialCategoryOrderByWithRelationInput = {
@@ -27508,6 +32527,7 @@ export namespace Prisma {
     needs_sync?: SortOrder
     is_deleted?: SortOrder
     transactions?: FinancialTransactionOrderByRelationAggregateInput
+    dispatch_rule_details?: DispatchRuleDetailOrderByRelationAggregateInput
   }
 
   export type FinancialCategoryWhereUniqueInput = Prisma.AtLeast<{
@@ -27523,6 +32543,7 @@ export namespace Prisma {
     needs_sync?: BoolFilter<"FinancialCategory"> | boolean
     is_deleted?: BoolFilter<"FinancialCategory"> | boolean
     transactions?: FinancialTransactionListRelationFilter
+    dispatch_rule_details?: DispatchRuleDetailListRelationFilter
   }, "id" | "supabase_id">
 
   export type FinancialCategoryOrderByWithAggregationInput = {
@@ -27640,6 +32661,309 @@ export namespace Prisma {
     last_modified?: DateTimeWithAggregatesFilter<"FinancialTransaction"> | Date | string
     needs_sync?: BoolWithAggregatesFilter<"FinancialTransaction"> | boolean
     is_deleted?: BoolWithAggregatesFilter<"FinancialTransaction"> | boolean
+  }
+
+  export type BudgetWhereInput = {
+    AND?: BudgetWhereInput | BudgetWhereInput[]
+    OR?: BudgetWhereInput[]
+    NOT?: BudgetWhereInput | BudgetWhereInput[]
+    id?: IntFilter<"Budget"> | number
+    category?: StringFilter<"Budget"> | string
+    amount?: FloatFilter<"Budget"> | number
+    period_start?: DateTimeFilter<"Budget"> | Date | string
+    period_end?: DateTimeFilter<"Budget"> | Date | string
+    school_id?: StringNullableFilter<"Budget"> | string | null
+    supabase_id?: StringNullableFilter<"Budget"> | string | null
+    last_modified?: DateTimeFilter<"Budget"> | Date | string
+    needs_sync?: BoolFilter<"Budget"> | boolean
+    is_deleted?: BoolFilter<"Budget"> | boolean
+  }
+
+  export type BudgetOrderByWithRelationInput = {
+    id?: SortOrder
+    category?: SortOrder
+    amount?: SortOrder
+    period_start?: SortOrder
+    period_end?: SortOrder
+    school_id?: SortOrderInput | SortOrder
+    supabase_id?: SortOrderInput | SortOrder
+    last_modified?: SortOrder
+    needs_sync?: SortOrder
+    is_deleted?: SortOrder
+  }
+
+  export type BudgetWhereUniqueInput = Prisma.AtLeast<{
+    id?: number
+    supabase_id?: string
+    AND?: BudgetWhereInput | BudgetWhereInput[]
+    OR?: BudgetWhereInput[]
+    NOT?: BudgetWhereInput | BudgetWhereInput[]
+    category?: StringFilter<"Budget"> | string
+    amount?: FloatFilter<"Budget"> | number
+    period_start?: DateTimeFilter<"Budget"> | Date | string
+    period_end?: DateTimeFilter<"Budget"> | Date | string
+    school_id?: StringNullableFilter<"Budget"> | string | null
+    last_modified?: DateTimeFilter<"Budget"> | Date | string
+    needs_sync?: BoolFilter<"Budget"> | boolean
+    is_deleted?: BoolFilter<"Budget"> | boolean
+  }, "id" | "supabase_id">
+
+  export type BudgetOrderByWithAggregationInput = {
+    id?: SortOrder
+    category?: SortOrder
+    amount?: SortOrder
+    period_start?: SortOrder
+    period_end?: SortOrder
+    school_id?: SortOrderInput | SortOrder
+    supabase_id?: SortOrderInput | SortOrder
+    last_modified?: SortOrder
+    needs_sync?: SortOrder
+    is_deleted?: SortOrder
+    _count?: BudgetCountOrderByAggregateInput
+    _avg?: BudgetAvgOrderByAggregateInput
+    _max?: BudgetMaxOrderByAggregateInput
+    _min?: BudgetMinOrderByAggregateInput
+    _sum?: BudgetSumOrderByAggregateInput
+  }
+
+  export type BudgetScalarWhereWithAggregatesInput = {
+    AND?: BudgetScalarWhereWithAggregatesInput | BudgetScalarWhereWithAggregatesInput[]
+    OR?: BudgetScalarWhereWithAggregatesInput[]
+    NOT?: BudgetScalarWhereWithAggregatesInput | BudgetScalarWhereWithAggregatesInput[]
+    id?: IntWithAggregatesFilter<"Budget"> | number
+    category?: StringWithAggregatesFilter<"Budget"> | string
+    amount?: FloatWithAggregatesFilter<"Budget"> | number
+    period_start?: DateTimeWithAggregatesFilter<"Budget"> | Date | string
+    period_end?: DateTimeWithAggregatesFilter<"Budget"> | Date | string
+    school_id?: StringNullableWithAggregatesFilter<"Budget"> | string | null
+    supabase_id?: StringNullableWithAggregatesFilter<"Budget"> | string | null
+    last_modified?: DateTimeWithAggregatesFilter<"Budget"> | Date | string
+    needs_sync?: BoolWithAggregatesFilter<"Budget"> | boolean
+    is_deleted?: BoolWithAggregatesFilter<"Budget"> | boolean
+  }
+
+  export type FinancialReportWhereInput = {
+    AND?: FinancialReportWhereInput | FinancialReportWhereInput[]
+    OR?: FinancialReportWhereInput[]
+    NOT?: FinancialReportWhereInput | FinancialReportWhereInput[]
+    id?: IntFilter<"FinancialReport"> | number
+    title?: StringFilter<"FinancialReport"> | string
+    generated_at?: DateTimeFilter<"FinancialReport"> | Date | string
+    start_date?: DateTimeFilter<"FinancialReport"> | Date | string
+    end_date?: DateTimeFilter<"FinancialReport"> | Date | string
+    content?: StringFilter<"FinancialReport"> | string
+    school_id?: StringNullableFilter<"FinancialReport"> | string | null
+    supabase_id?: StringNullableFilter<"FinancialReport"> | string | null
+    last_modified?: DateTimeFilter<"FinancialReport"> | Date | string
+    needs_sync?: BoolFilter<"FinancialReport"> | boolean
+    is_deleted?: BoolFilter<"FinancialReport"> | boolean
+  }
+
+  export type FinancialReportOrderByWithRelationInput = {
+    id?: SortOrder
+    title?: SortOrder
+    generated_at?: SortOrder
+    start_date?: SortOrder
+    end_date?: SortOrder
+    content?: SortOrder
+    school_id?: SortOrderInput | SortOrder
+    supabase_id?: SortOrderInput | SortOrder
+    last_modified?: SortOrder
+    needs_sync?: SortOrder
+    is_deleted?: SortOrder
+  }
+
+  export type FinancialReportWhereUniqueInput = Prisma.AtLeast<{
+    id?: number
+    supabase_id?: string
+    AND?: FinancialReportWhereInput | FinancialReportWhereInput[]
+    OR?: FinancialReportWhereInput[]
+    NOT?: FinancialReportWhereInput | FinancialReportWhereInput[]
+    title?: StringFilter<"FinancialReport"> | string
+    generated_at?: DateTimeFilter<"FinancialReport"> | Date | string
+    start_date?: DateTimeFilter<"FinancialReport"> | Date | string
+    end_date?: DateTimeFilter<"FinancialReport"> | Date | string
+    content?: StringFilter<"FinancialReport"> | string
+    school_id?: StringNullableFilter<"FinancialReport"> | string | null
+    last_modified?: DateTimeFilter<"FinancialReport"> | Date | string
+    needs_sync?: BoolFilter<"FinancialReport"> | boolean
+    is_deleted?: BoolFilter<"FinancialReport"> | boolean
+  }, "id" | "supabase_id">
+
+  export type FinancialReportOrderByWithAggregationInput = {
+    id?: SortOrder
+    title?: SortOrder
+    generated_at?: SortOrder
+    start_date?: SortOrder
+    end_date?: SortOrder
+    content?: SortOrder
+    school_id?: SortOrderInput | SortOrder
+    supabase_id?: SortOrderInput | SortOrder
+    last_modified?: SortOrder
+    needs_sync?: SortOrder
+    is_deleted?: SortOrder
+    _count?: FinancialReportCountOrderByAggregateInput
+    _avg?: FinancialReportAvgOrderByAggregateInput
+    _max?: FinancialReportMaxOrderByAggregateInput
+    _min?: FinancialReportMinOrderByAggregateInput
+    _sum?: FinancialReportSumOrderByAggregateInput
+  }
+
+  export type FinancialReportScalarWhereWithAggregatesInput = {
+    AND?: FinancialReportScalarWhereWithAggregatesInput | FinancialReportScalarWhereWithAggregatesInput[]
+    OR?: FinancialReportScalarWhereWithAggregatesInput[]
+    NOT?: FinancialReportScalarWhereWithAggregatesInput | FinancialReportScalarWhereWithAggregatesInput[]
+    id?: IntWithAggregatesFilter<"FinancialReport"> | number
+    title?: StringWithAggregatesFilter<"FinancialReport"> | string
+    generated_at?: DateTimeWithAggregatesFilter<"FinancialReport"> | Date | string
+    start_date?: DateTimeWithAggregatesFilter<"FinancialReport"> | Date | string
+    end_date?: DateTimeWithAggregatesFilter<"FinancialReport"> | Date | string
+    content?: StringWithAggregatesFilter<"FinancialReport"> | string
+    school_id?: StringNullableWithAggregatesFilter<"FinancialReport"> | string | null
+    supabase_id?: StringNullableWithAggregatesFilter<"FinancialReport"> | string | null
+    last_modified?: DateTimeWithAggregatesFilter<"FinancialReport"> | Date | string
+    needs_sync?: BoolWithAggregatesFilter<"FinancialReport"> | boolean
+    is_deleted?: BoolWithAggregatesFilter<"FinancialReport"> | boolean
+  }
+
+  export type DispatchRuleWhereInput = {
+    AND?: DispatchRuleWhereInput | DispatchRuleWhereInput[]
+    OR?: DispatchRuleWhereInput[]
+    NOT?: DispatchRuleWhereInput | DispatchRuleWhereInput[]
+    id?: IntFilter<"DispatchRule"> | number
+    name?: StringFilter<"DispatchRule"> | string
+    source_fee_id?: IntFilter<"DispatchRule"> | number
+    school_id?: StringFilter<"DispatchRule"> | string
+    last_modified?: DateTimeFilter<"DispatchRule"> | Date | string
+    needs_sync?: BoolFilter<"DispatchRule"> | boolean
+    is_deleted?: BoolFilter<"DispatchRule"> | boolean
+    source_fee?: XOR<FeesScalarRelationFilter, FeesWhereInput>
+    details?: DispatchRuleDetailListRelationFilter
+  }
+
+  export type DispatchRuleOrderByWithRelationInput = {
+    id?: SortOrder
+    name?: SortOrder
+    source_fee_id?: SortOrder
+    school_id?: SortOrder
+    last_modified?: SortOrder
+    needs_sync?: SortOrder
+    is_deleted?: SortOrder
+    source_fee?: FeesOrderByWithRelationInput
+    details?: DispatchRuleDetailOrderByRelationAggregateInput
+  }
+
+  export type DispatchRuleWhereUniqueInput = Prisma.AtLeast<{
+    id?: number
+    source_fee_id?: number
+    AND?: DispatchRuleWhereInput | DispatchRuleWhereInput[]
+    OR?: DispatchRuleWhereInput[]
+    NOT?: DispatchRuleWhereInput | DispatchRuleWhereInput[]
+    name?: StringFilter<"DispatchRule"> | string
+    school_id?: StringFilter<"DispatchRule"> | string
+    last_modified?: DateTimeFilter<"DispatchRule"> | Date | string
+    needs_sync?: BoolFilter<"DispatchRule"> | boolean
+    is_deleted?: BoolFilter<"DispatchRule"> | boolean
+    source_fee?: XOR<FeesScalarRelationFilter, FeesWhereInput>
+    details?: DispatchRuleDetailListRelationFilter
+  }, "id" | "source_fee_id">
+
+  export type DispatchRuleOrderByWithAggregationInput = {
+    id?: SortOrder
+    name?: SortOrder
+    source_fee_id?: SortOrder
+    school_id?: SortOrder
+    last_modified?: SortOrder
+    needs_sync?: SortOrder
+    is_deleted?: SortOrder
+    _count?: DispatchRuleCountOrderByAggregateInput
+    _avg?: DispatchRuleAvgOrderByAggregateInput
+    _max?: DispatchRuleMaxOrderByAggregateInput
+    _min?: DispatchRuleMinOrderByAggregateInput
+    _sum?: DispatchRuleSumOrderByAggregateInput
+  }
+
+  export type DispatchRuleScalarWhereWithAggregatesInput = {
+    AND?: DispatchRuleScalarWhereWithAggregatesInput | DispatchRuleScalarWhereWithAggregatesInput[]
+    OR?: DispatchRuleScalarWhereWithAggregatesInput[]
+    NOT?: DispatchRuleScalarWhereWithAggregatesInput | DispatchRuleScalarWhereWithAggregatesInput[]
+    id?: IntWithAggregatesFilter<"DispatchRule"> | number
+    name?: StringWithAggregatesFilter<"DispatchRule"> | string
+    source_fee_id?: IntWithAggregatesFilter<"DispatchRule"> | number
+    school_id?: StringWithAggregatesFilter<"DispatchRule"> | string
+    last_modified?: DateTimeWithAggregatesFilter<"DispatchRule"> | Date | string
+    needs_sync?: BoolWithAggregatesFilter<"DispatchRule"> | boolean
+    is_deleted?: BoolWithAggregatesFilter<"DispatchRule"> | boolean
+  }
+
+  export type DispatchRuleDetailWhereInput = {
+    AND?: DispatchRuleDetailWhereInput | DispatchRuleDetailWhereInput[]
+    OR?: DispatchRuleDetailWhereInput[]
+    NOT?: DispatchRuleDetailWhereInput | DispatchRuleDetailWhereInput[]
+    id?: IntFilter<"DispatchRuleDetail"> | number
+    dispatch_rule_id?: IntFilter<"DispatchRuleDetail"> | number
+    destination_category_id?: IntFilter<"DispatchRuleDetail"> | number
+    percentage?: FloatFilter<"DispatchRuleDetail"> | number
+    last_modified?: DateTimeFilter<"DispatchRuleDetail"> | Date | string
+    needs_sync?: BoolFilter<"DispatchRuleDetail"> | boolean
+    is_deleted?: BoolFilter<"DispatchRuleDetail"> | boolean
+    dispatch_rule?: XOR<DispatchRuleScalarRelationFilter, DispatchRuleWhereInput>
+    destination_category?: XOR<FinancialCategoryScalarRelationFilter, FinancialCategoryWhereInput>
+  }
+
+  export type DispatchRuleDetailOrderByWithRelationInput = {
+    id?: SortOrder
+    dispatch_rule_id?: SortOrder
+    destination_category_id?: SortOrder
+    percentage?: SortOrder
+    last_modified?: SortOrder
+    needs_sync?: SortOrder
+    is_deleted?: SortOrder
+    dispatch_rule?: DispatchRuleOrderByWithRelationInput
+    destination_category?: FinancialCategoryOrderByWithRelationInput
+  }
+
+  export type DispatchRuleDetailWhereUniqueInput = Prisma.AtLeast<{
+    id?: number
+    AND?: DispatchRuleDetailWhereInput | DispatchRuleDetailWhereInput[]
+    OR?: DispatchRuleDetailWhereInput[]
+    NOT?: DispatchRuleDetailWhereInput | DispatchRuleDetailWhereInput[]
+    dispatch_rule_id?: IntFilter<"DispatchRuleDetail"> | number
+    destination_category_id?: IntFilter<"DispatchRuleDetail"> | number
+    percentage?: FloatFilter<"DispatchRuleDetail"> | number
+    last_modified?: DateTimeFilter<"DispatchRuleDetail"> | Date | string
+    needs_sync?: BoolFilter<"DispatchRuleDetail"> | boolean
+    is_deleted?: BoolFilter<"DispatchRuleDetail"> | boolean
+    dispatch_rule?: XOR<DispatchRuleScalarRelationFilter, DispatchRuleWhereInput>
+    destination_category?: XOR<FinancialCategoryScalarRelationFilter, FinancialCategoryWhereInput>
+  }, "id">
+
+  export type DispatchRuleDetailOrderByWithAggregationInput = {
+    id?: SortOrder
+    dispatch_rule_id?: SortOrder
+    destination_category_id?: SortOrder
+    percentage?: SortOrder
+    last_modified?: SortOrder
+    needs_sync?: SortOrder
+    is_deleted?: SortOrder
+    _count?: DispatchRuleDetailCountOrderByAggregateInput
+    _avg?: DispatchRuleDetailAvgOrderByAggregateInput
+    _max?: DispatchRuleDetailMaxOrderByAggregateInput
+    _min?: DispatchRuleDetailMinOrderByAggregateInput
+    _sum?: DispatchRuleDetailSumOrderByAggregateInput
+  }
+
+  export type DispatchRuleDetailScalarWhereWithAggregatesInput = {
+    AND?: DispatchRuleDetailScalarWhereWithAggregatesInput | DispatchRuleDetailScalarWhereWithAggregatesInput[]
+    OR?: DispatchRuleDetailScalarWhereWithAggregatesInput[]
+    NOT?: DispatchRuleDetailScalarWhereWithAggregatesInput | DispatchRuleDetailScalarWhereWithAggregatesInput[]
+    id?: IntWithAggregatesFilter<"DispatchRuleDetail"> | number
+    dispatch_rule_id?: IntWithAggregatesFilter<"DispatchRuleDetail"> | number
+    destination_category_id?: IntWithAggregatesFilter<"DispatchRuleDetail"> | number
+    percentage?: FloatWithAggregatesFilter<"DispatchRuleDetail"> | number
+    last_modified?: DateTimeWithAggregatesFilter<"DispatchRuleDetail"> | Date | string
+    needs_sync?: BoolWithAggregatesFilter<"DispatchRuleDetail"> | boolean
+    is_deleted?: BoolWithAggregatesFilter<"DispatchRuleDetail"> | boolean
   }
 
   export type SettingsCreateInput = {
@@ -28805,6 +34129,7 @@ export namespace Prisma {
     needs_sync?: boolean
     is_deleted?: boolean
     payments?: PaymentsCreateNestedManyWithoutFeeInput
+    dispatch_rules?: DispatchRuleCreateNestedManyWithoutSource_feeInput
   }
 
   export type FeesUncheckedCreateInput = {
@@ -28820,6 +34145,7 @@ export namespace Prisma {
     needs_sync?: boolean
     is_deleted?: boolean
     payments?: PaymentsUncheckedCreateNestedManyWithoutFeeInput
+    dispatch_rules?: DispatchRuleUncheckedCreateNestedManyWithoutSource_feeInput
   }
 
   export type FeesUpdateInput = {
@@ -28834,6 +34160,7 @@ export namespace Prisma {
     needs_sync?: BoolFieldUpdateOperationsInput | boolean
     is_deleted?: BoolFieldUpdateOperationsInput | boolean
     payments?: PaymentsUpdateManyWithoutFeeNestedInput
+    dispatch_rules?: DispatchRuleUpdateManyWithoutSource_feeNestedInput
   }
 
   export type FeesUncheckedUpdateInput = {
@@ -28849,6 +34176,7 @@ export namespace Prisma {
     needs_sync?: BoolFieldUpdateOperationsInput | boolean
     is_deleted?: BoolFieldUpdateOperationsInput | boolean
     payments?: PaymentsUncheckedUpdateManyWithoutFeeNestedInput
+    dispatch_rules?: DispatchRuleUncheckedUpdateManyWithoutSource_feeNestedInput
   }
 
   export type FeesCreateManyInput = {
@@ -29296,6 +34624,7 @@ export namespace Prisma {
     needs_sync?: boolean
     is_deleted?: boolean
     transactions?: FinancialTransactionCreateNestedManyWithoutCategoryInput
+    dispatch_rule_details?: DispatchRuleDetailCreateNestedManyWithoutDestination_categoryInput
   }
 
   export type FinancialCategoryUncheckedCreateInput = {
@@ -29308,6 +34637,7 @@ export namespace Prisma {
     needs_sync?: boolean
     is_deleted?: boolean
     transactions?: FinancialTransactionUncheckedCreateNestedManyWithoutCategoryInput
+    dispatch_rule_details?: DispatchRuleDetailUncheckedCreateNestedManyWithoutDestination_categoryInput
   }
 
   export type FinancialCategoryUpdateInput = {
@@ -29319,6 +34649,7 @@ export namespace Prisma {
     needs_sync?: BoolFieldUpdateOperationsInput | boolean
     is_deleted?: BoolFieldUpdateOperationsInput | boolean
     transactions?: FinancialTransactionUpdateManyWithoutCategoryNestedInput
+    dispatch_rule_details?: DispatchRuleDetailUpdateManyWithoutDestination_categoryNestedInput
   }
 
   export type FinancialCategoryUncheckedUpdateInput = {
@@ -29331,6 +34662,7 @@ export namespace Prisma {
     needs_sync?: BoolFieldUpdateOperationsInput | boolean
     is_deleted?: BoolFieldUpdateOperationsInput | boolean
     transactions?: FinancialTransactionUncheckedUpdateManyWithoutCategoryNestedInput
+    dispatch_rule_details?: DispatchRuleDetailUncheckedUpdateManyWithoutDestination_categoryNestedInput
   }
 
   export type FinancialCategoryCreateManyInput = {
@@ -29454,6 +34786,324 @@ export namespace Prisma {
     category_id?: IntFieldUpdateOperationsInput | number
     school_id?: NullableStringFieldUpdateOperationsInput | string | null
     supabase_id?: NullableStringFieldUpdateOperationsInput | string | null
+    last_modified?: DateTimeFieldUpdateOperationsInput | Date | string
+    needs_sync?: BoolFieldUpdateOperationsInput | boolean
+    is_deleted?: BoolFieldUpdateOperationsInput | boolean
+  }
+
+  export type BudgetCreateInput = {
+    category: string
+    amount: number
+    period_start: Date | string
+    period_end: Date | string
+    school_id?: string | null
+    supabase_id?: string | null
+    last_modified?: Date | string
+    needs_sync?: boolean
+    is_deleted?: boolean
+  }
+
+  export type BudgetUncheckedCreateInput = {
+    id?: number
+    category: string
+    amount: number
+    period_start: Date | string
+    period_end: Date | string
+    school_id?: string | null
+    supabase_id?: string | null
+    last_modified?: Date | string
+    needs_sync?: boolean
+    is_deleted?: boolean
+  }
+
+  export type BudgetUpdateInput = {
+    category?: StringFieldUpdateOperationsInput | string
+    amount?: FloatFieldUpdateOperationsInput | number
+    period_start?: DateTimeFieldUpdateOperationsInput | Date | string
+    period_end?: DateTimeFieldUpdateOperationsInput | Date | string
+    school_id?: NullableStringFieldUpdateOperationsInput | string | null
+    supabase_id?: NullableStringFieldUpdateOperationsInput | string | null
+    last_modified?: DateTimeFieldUpdateOperationsInput | Date | string
+    needs_sync?: BoolFieldUpdateOperationsInput | boolean
+    is_deleted?: BoolFieldUpdateOperationsInput | boolean
+  }
+
+  export type BudgetUncheckedUpdateInput = {
+    id?: IntFieldUpdateOperationsInput | number
+    category?: StringFieldUpdateOperationsInput | string
+    amount?: FloatFieldUpdateOperationsInput | number
+    period_start?: DateTimeFieldUpdateOperationsInput | Date | string
+    period_end?: DateTimeFieldUpdateOperationsInput | Date | string
+    school_id?: NullableStringFieldUpdateOperationsInput | string | null
+    supabase_id?: NullableStringFieldUpdateOperationsInput | string | null
+    last_modified?: DateTimeFieldUpdateOperationsInput | Date | string
+    needs_sync?: BoolFieldUpdateOperationsInput | boolean
+    is_deleted?: BoolFieldUpdateOperationsInput | boolean
+  }
+
+  export type BudgetCreateManyInput = {
+    id?: number
+    category: string
+    amount: number
+    period_start: Date | string
+    period_end: Date | string
+    school_id?: string | null
+    supabase_id?: string | null
+    last_modified?: Date | string
+    needs_sync?: boolean
+    is_deleted?: boolean
+  }
+
+  export type BudgetUpdateManyMutationInput = {
+    category?: StringFieldUpdateOperationsInput | string
+    amount?: FloatFieldUpdateOperationsInput | number
+    period_start?: DateTimeFieldUpdateOperationsInput | Date | string
+    period_end?: DateTimeFieldUpdateOperationsInput | Date | string
+    school_id?: NullableStringFieldUpdateOperationsInput | string | null
+    supabase_id?: NullableStringFieldUpdateOperationsInput | string | null
+    last_modified?: DateTimeFieldUpdateOperationsInput | Date | string
+    needs_sync?: BoolFieldUpdateOperationsInput | boolean
+    is_deleted?: BoolFieldUpdateOperationsInput | boolean
+  }
+
+  export type BudgetUncheckedUpdateManyInput = {
+    id?: IntFieldUpdateOperationsInput | number
+    category?: StringFieldUpdateOperationsInput | string
+    amount?: FloatFieldUpdateOperationsInput | number
+    period_start?: DateTimeFieldUpdateOperationsInput | Date | string
+    period_end?: DateTimeFieldUpdateOperationsInput | Date | string
+    school_id?: NullableStringFieldUpdateOperationsInput | string | null
+    supabase_id?: NullableStringFieldUpdateOperationsInput | string | null
+    last_modified?: DateTimeFieldUpdateOperationsInput | Date | string
+    needs_sync?: BoolFieldUpdateOperationsInput | boolean
+    is_deleted?: BoolFieldUpdateOperationsInput | boolean
+  }
+
+  export type FinancialReportCreateInput = {
+    title: string
+    generated_at: Date | string
+    start_date: Date | string
+    end_date: Date | string
+    content: string
+    school_id?: string | null
+    supabase_id?: string | null
+    last_modified?: Date | string
+    needs_sync?: boolean
+    is_deleted?: boolean
+  }
+
+  export type FinancialReportUncheckedCreateInput = {
+    id?: number
+    title: string
+    generated_at: Date | string
+    start_date: Date | string
+    end_date: Date | string
+    content: string
+    school_id?: string | null
+    supabase_id?: string | null
+    last_modified?: Date | string
+    needs_sync?: boolean
+    is_deleted?: boolean
+  }
+
+  export type FinancialReportUpdateInput = {
+    title?: StringFieldUpdateOperationsInput | string
+    generated_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    start_date?: DateTimeFieldUpdateOperationsInput | Date | string
+    end_date?: DateTimeFieldUpdateOperationsInput | Date | string
+    content?: StringFieldUpdateOperationsInput | string
+    school_id?: NullableStringFieldUpdateOperationsInput | string | null
+    supabase_id?: NullableStringFieldUpdateOperationsInput | string | null
+    last_modified?: DateTimeFieldUpdateOperationsInput | Date | string
+    needs_sync?: BoolFieldUpdateOperationsInput | boolean
+    is_deleted?: BoolFieldUpdateOperationsInput | boolean
+  }
+
+  export type FinancialReportUncheckedUpdateInput = {
+    id?: IntFieldUpdateOperationsInput | number
+    title?: StringFieldUpdateOperationsInput | string
+    generated_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    start_date?: DateTimeFieldUpdateOperationsInput | Date | string
+    end_date?: DateTimeFieldUpdateOperationsInput | Date | string
+    content?: StringFieldUpdateOperationsInput | string
+    school_id?: NullableStringFieldUpdateOperationsInput | string | null
+    supabase_id?: NullableStringFieldUpdateOperationsInput | string | null
+    last_modified?: DateTimeFieldUpdateOperationsInput | Date | string
+    needs_sync?: BoolFieldUpdateOperationsInput | boolean
+    is_deleted?: BoolFieldUpdateOperationsInput | boolean
+  }
+
+  export type FinancialReportCreateManyInput = {
+    id?: number
+    title: string
+    generated_at: Date | string
+    start_date: Date | string
+    end_date: Date | string
+    content: string
+    school_id?: string | null
+    supabase_id?: string | null
+    last_modified?: Date | string
+    needs_sync?: boolean
+    is_deleted?: boolean
+  }
+
+  export type FinancialReportUpdateManyMutationInput = {
+    title?: StringFieldUpdateOperationsInput | string
+    generated_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    start_date?: DateTimeFieldUpdateOperationsInput | Date | string
+    end_date?: DateTimeFieldUpdateOperationsInput | Date | string
+    content?: StringFieldUpdateOperationsInput | string
+    school_id?: NullableStringFieldUpdateOperationsInput | string | null
+    supabase_id?: NullableStringFieldUpdateOperationsInput | string | null
+    last_modified?: DateTimeFieldUpdateOperationsInput | Date | string
+    needs_sync?: BoolFieldUpdateOperationsInput | boolean
+    is_deleted?: BoolFieldUpdateOperationsInput | boolean
+  }
+
+  export type FinancialReportUncheckedUpdateManyInput = {
+    id?: IntFieldUpdateOperationsInput | number
+    title?: StringFieldUpdateOperationsInput | string
+    generated_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    start_date?: DateTimeFieldUpdateOperationsInput | Date | string
+    end_date?: DateTimeFieldUpdateOperationsInput | Date | string
+    content?: StringFieldUpdateOperationsInput | string
+    school_id?: NullableStringFieldUpdateOperationsInput | string | null
+    supabase_id?: NullableStringFieldUpdateOperationsInput | string | null
+    last_modified?: DateTimeFieldUpdateOperationsInput | Date | string
+    needs_sync?: BoolFieldUpdateOperationsInput | boolean
+    is_deleted?: BoolFieldUpdateOperationsInput | boolean
+  }
+
+  export type DispatchRuleCreateInput = {
+    name: string
+    school_id: string
+    last_modified?: Date | string
+    needs_sync?: boolean
+    is_deleted?: boolean
+    source_fee: FeesCreateNestedOneWithoutDispatch_rulesInput
+    details?: DispatchRuleDetailCreateNestedManyWithoutDispatch_ruleInput
+  }
+
+  export type DispatchRuleUncheckedCreateInput = {
+    id?: number
+    name: string
+    source_fee_id: number
+    school_id: string
+    last_modified?: Date | string
+    needs_sync?: boolean
+    is_deleted?: boolean
+    details?: DispatchRuleDetailUncheckedCreateNestedManyWithoutDispatch_ruleInput
+  }
+
+  export type DispatchRuleUpdateInput = {
+    name?: StringFieldUpdateOperationsInput | string
+    school_id?: StringFieldUpdateOperationsInput | string
+    last_modified?: DateTimeFieldUpdateOperationsInput | Date | string
+    needs_sync?: BoolFieldUpdateOperationsInput | boolean
+    is_deleted?: BoolFieldUpdateOperationsInput | boolean
+    source_fee?: FeesUpdateOneRequiredWithoutDispatch_rulesNestedInput
+    details?: DispatchRuleDetailUpdateManyWithoutDispatch_ruleNestedInput
+  }
+
+  export type DispatchRuleUncheckedUpdateInput = {
+    id?: IntFieldUpdateOperationsInput | number
+    name?: StringFieldUpdateOperationsInput | string
+    source_fee_id?: IntFieldUpdateOperationsInput | number
+    school_id?: StringFieldUpdateOperationsInput | string
+    last_modified?: DateTimeFieldUpdateOperationsInput | Date | string
+    needs_sync?: BoolFieldUpdateOperationsInput | boolean
+    is_deleted?: BoolFieldUpdateOperationsInput | boolean
+    details?: DispatchRuleDetailUncheckedUpdateManyWithoutDispatch_ruleNestedInput
+  }
+
+  export type DispatchRuleCreateManyInput = {
+    id?: number
+    name: string
+    source_fee_id: number
+    school_id: string
+    last_modified?: Date | string
+    needs_sync?: boolean
+    is_deleted?: boolean
+  }
+
+  export type DispatchRuleUpdateManyMutationInput = {
+    name?: StringFieldUpdateOperationsInput | string
+    school_id?: StringFieldUpdateOperationsInput | string
+    last_modified?: DateTimeFieldUpdateOperationsInput | Date | string
+    needs_sync?: BoolFieldUpdateOperationsInput | boolean
+    is_deleted?: BoolFieldUpdateOperationsInput | boolean
+  }
+
+  export type DispatchRuleUncheckedUpdateManyInput = {
+    id?: IntFieldUpdateOperationsInput | number
+    name?: StringFieldUpdateOperationsInput | string
+    source_fee_id?: IntFieldUpdateOperationsInput | number
+    school_id?: StringFieldUpdateOperationsInput | string
+    last_modified?: DateTimeFieldUpdateOperationsInput | Date | string
+    needs_sync?: BoolFieldUpdateOperationsInput | boolean
+    is_deleted?: BoolFieldUpdateOperationsInput | boolean
+  }
+
+  export type DispatchRuleDetailCreateInput = {
+    percentage: number
+    last_modified?: Date | string
+    needs_sync?: boolean
+    is_deleted?: boolean
+    dispatch_rule: DispatchRuleCreateNestedOneWithoutDetailsInput
+    destination_category: FinancialCategoryCreateNestedOneWithoutDispatch_rule_detailsInput
+  }
+
+  export type DispatchRuleDetailUncheckedCreateInput = {
+    id?: number
+    dispatch_rule_id: number
+    destination_category_id: number
+    percentage: number
+    last_modified?: Date | string
+    needs_sync?: boolean
+    is_deleted?: boolean
+  }
+
+  export type DispatchRuleDetailUpdateInput = {
+    percentage?: FloatFieldUpdateOperationsInput | number
+    last_modified?: DateTimeFieldUpdateOperationsInput | Date | string
+    needs_sync?: BoolFieldUpdateOperationsInput | boolean
+    is_deleted?: BoolFieldUpdateOperationsInput | boolean
+    dispatch_rule?: DispatchRuleUpdateOneRequiredWithoutDetailsNestedInput
+    destination_category?: FinancialCategoryUpdateOneRequiredWithoutDispatch_rule_detailsNestedInput
+  }
+
+  export type DispatchRuleDetailUncheckedUpdateInput = {
+    id?: IntFieldUpdateOperationsInput | number
+    dispatch_rule_id?: IntFieldUpdateOperationsInput | number
+    destination_category_id?: IntFieldUpdateOperationsInput | number
+    percentage?: FloatFieldUpdateOperationsInput | number
+    last_modified?: DateTimeFieldUpdateOperationsInput | Date | string
+    needs_sync?: BoolFieldUpdateOperationsInput | boolean
+    is_deleted?: BoolFieldUpdateOperationsInput | boolean
+  }
+
+  export type DispatchRuleDetailCreateManyInput = {
+    id?: number
+    dispatch_rule_id: number
+    destination_category_id: number
+    percentage: number
+    last_modified?: Date | string
+    needs_sync?: boolean
+    is_deleted?: boolean
+  }
+
+  export type DispatchRuleDetailUpdateManyMutationInput = {
+    percentage?: FloatFieldUpdateOperationsInput | number
+    last_modified?: DateTimeFieldUpdateOperationsInput | Date | string
+    needs_sync?: BoolFieldUpdateOperationsInput | boolean
+    is_deleted?: BoolFieldUpdateOperationsInput | boolean
+  }
+
+  export type DispatchRuleDetailUncheckedUpdateManyInput = {
+    id?: IntFieldUpdateOperationsInput | number
+    dispatch_rule_id?: IntFieldUpdateOperationsInput | number
+    destination_category_id?: IntFieldUpdateOperationsInput | number
+    percentage?: FloatFieldUpdateOperationsInput | number
     last_modified?: DateTimeFieldUpdateOperationsInput | Date | string
     needs_sync?: BoolFieldUpdateOperationsInput | boolean
     is_deleted?: BoolFieldUpdateOperationsInput | boolean
@@ -30469,6 +36119,16 @@ export namespace Prisma {
     amount?: SortOrder
   }
 
+  export type DispatchRuleListRelationFilter = {
+    every?: DispatchRuleWhereInput
+    some?: DispatchRuleWhereInput
+    none?: DispatchRuleWhereInput
+  }
+
+  export type DispatchRuleOrderByRelationAggregateInput = {
+    _count?: SortOrder
+  }
+
   export type FeesCountOrderByAggregateInput = {
     id?: SortOrder
     name?: SortOrder
@@ -30762,7 +36422,17 @@ export namespace Prisma {
     none?: FinancialTransactionWhereInput
   }
 
+  export type DispatchRuleDetailListRelationFilter = {
+    every?: DispatchRuleDetailWhereInput
+    some?: DispatchRuleDetailWhereInput
+    none?: DispatchRuleDetailWhereInput
+  }
+
   export type FinancialTransactionOrderByRelationAggregateInput = {
+    _count?: SortOrder
+  }
+
+  export type DispatchRuleDetailOrderByRelationAggregateInput = {
     _count?: SortOrder
   }
 
@@ -30864,6 +36534,199 @@ export namespace Prisma {
     id?: SortOrder
     amount?: SortOrder
     category_id?: SortOrder
+  }
+
+  export type BudgetCountOrderByAggregateInput = {
+    id?: SortOrder
+    category?: SortOrder
+    amount?: SortOrder
+    period_start?: SortOrder
+    period_end?: SortOrder
+    school_id?: SortOrder
+    supabase_id?: SortOrder
+    last_modified?: SortOrder
+    needs_sync?: SortOrder
+    is_deleted?: SortOrder
+  }
+
+  export type BudgetAvgOrderByAggregateInput = {
+    id?: SortOrder
+    amount?: SortOrder
+  }
+
+  export type BudgetMaxOrderByAggregateInput = {
+    id?: SortOrder
+    category?: SortOrder
+    amount?: SortOrder
+    period_start?: SortOrder
+    period_end?: SortOrder
+    school_id?: SortOrder
+    supabase_id?: SortOrder
+    last_modified?: SortOrder
+    needs_sync?: SortOrder
+    is_deleted?: SortOrder
+  }
+
+  export type BudgetMinOrderByAggregateInput = {
+    id?: SortOrder
+    category?: SortOrder
+    amount?: SortOrder
+    period_start?: SortOrder
+    period_end?: SortOrder
+    school_id?: SortOrder
+    supabase_id?: SortOrder
+    last_modified?: SortOrder
+    needs_sync?: SortOrder
+    is_deleted?: SortOrder
+  }
+
+  export type BudgetSumOrderByAggregateInput = {
+    id?: SortOrder
+    amount?: SortOrder
+  }
+
+  export type FinancialReportCountOrderByAggregateInput = {
+    id?: SortOrder
+    title?: SortOrder
+    generated_at?: SortOrder
+    start_date?: SortOrder
+    end_date?: SortOrder
+    content?: SortOrder
+    school_id?: SortOrder
+    supabase_id?: SortOrder
+    last_modified?: SortOrder
+    needs_sync?: SortOrder
+    is_deleted?: SortOrder
+  }
+
+  export type FinancialReportAvgOrderByAggregateInput = {
+    id?: SortOrder
+  }
+
+  export type FinancialReportMaxOrderByAggregateInput = {
+    id?: SortOrder
+    title?: SortOrder
+    generated_at?: SortOrder
+    start_date?: SortOrder
+    end_date?: SortOrder
+    content?: SortOrder
+    school_id?: SortOrder
+    supabase_id?: SortOrder
+    last_modified?: SortOrder
+    needs_sync?: SortOrder
+    is_deleted?: SortOrder
+  }
+
+  export type FinancialReportMinOrderByAggregateInput = {
+    id?: SortOrder
+    title?: SortOrder
+    generated_at?: SortOrder
+    start_date?: SortOrder
+    end_date?: SortOrder
+    content?: SortOrder
+    school_id?: SortOrder
+    supabase_id?: SortOrder
+    last_modified?: SortOrder
+    needs_sync?: SortOrder
+    is_deleted?: SortOrder
+  }
+
+  export type FinancialReportSumOrderByAggregateInput = {
+    id?: SortOrder
+  }
+
+  export type FeesScalarRelationFilter = {
+    is?: FeesWhereInput
+    isNot?: FeesWhereInput
+  }
+
+  export type DispatchRuleCountOrderByAggregateInput = {
+    id?: SortOrder
+    name?: SortOrder
+    source_fee_id?: SortOrder
+    school_id?: SortOrder
+    last_modified?: SortOrder
+    needs_sync?: SortOrder
+    is_deleted?: SortOrder
+  }
+
+  export type DispatchRuleAvgOrderByAggregateInput = {
+    id?: SortOrder
+    source_fee_id?: SortOrder
+  }
+
+  export type DispatchRuleMaxOrderByAggregateInput = {
+    id?: SortOrder
+    name?: SortOrder
+    source_fee_id?: SortOrder
+    school_id?: SortOrder
+    last_modified?: SortOrder
+    needs_sync?: SortOrder
+    is_deleted?: SortOrder
+  }
+
+  export type DispatchRuleMinOrderByAggregateInput = {
+    id?: SortOrder
+    name?: SortOrder
+    source_fee_id?: SortOrder
+    school_id?: SortOrder
+    last_modified?: SortOrder
+    needs_sync?: SortOrder
+    is_deleted?: SortOrder
+  }
+
+  export type DispatchRuleSumOrderByAggregateInput = {
+    id?: SortOrder
+    source_fee_id?: SortOrder
+  }
+
+  export type DispatchRuleScalarRelationFilter = {
+    is?: DispatchRuleWhereInput
+    isNot?: DispatchRuleWhereInput
+  }
+
+  export type DispatchRuleDetailCountOrderByAggregateInput = {
+    id?: SortOrder
+    dispatch_rule_id?: SortOrder
+    destination_category_id?: SortOrder
+    percentage?: SortOrder
+    last_modified?: SortOrder
+    needs_sync?: SortOrder
+    is_deleted?: SortOrder
+  }
+
+  export type DispatchRuleDetailAvgOrderByAggregateInput = {
+    id?: SortOrder
+    dispatch_rule_id?: SortOrder
+    destination_category_id?: SortOrder
+    percentage?: SortOrder
+  }
+
+  export type DispatchRuleDetailMaxOrderByAggregateInput = {
+    id?: SortOrder
+    dispatch_rule_id?: SortOrder
+    destination_category_id?: SortOrder
+    percentage?: SortOrder
+    last_modified?: SortOrder
+    needs_sync?: SortOrder
+    is_deleted?: SortOrder
+  }
+
+  export type DispatchRuleDetailMinOrderByAggregateInput = {
+    id?: SortOrder
+    dispatch_rule_id?: SortOrder
+    destination_category_id?: SortOrder
+    percentage?: SortOrder
+    last_modified?: SortOrder
+    needs_sync?: SortOrder
+    is_deleted?: SortOrder
+  }
+
+  export type DispatchRuleDetailSumOrderByAggregateInput = {
+    id?: SortOrder
+    dispatch_rule_id?: SortOrder
+    destination_category_id?: SortOrder
+    percentage?: SortOrder
   }
 
   export type NullableStringFieldUpdateOperationsInput = {
@@ -31759,11 +37622,25 @@ export namespace Prisma {
     connect?: PaymentsWhereUniqueInput | PaymentsWhereUniqueInput[]
   }
 
+  export type DispatchRuleCreateNestedManyWithoutSource_feeInput = {
+    create?: XOR<DispatchRuleCreateWithoutSource_feeInput, DispatchRuleUncheckedCreateWithoutSource_feeInput> | DispatchRuleCreateWithoutSource_feeInput[] | DispatchRuleUncheckedCreateWithoutSource_feeInput[]
+    connectOrCreate?: DispatchRuleCreateOrConnectWithoutSource_feeInput | DispatchRuleCreateOrConnectWithoutSource_feeInput[]
+    createMany?: DispatchRuleCreateManySource_feeInputEnvelope
+    connect?: DispatchRuleWhereUniqueInput | DispatchRuleWhereUniqueInput[]
+  }
+
   export type PaymentsUncheckedCreateNestedManyWithoutFeeInput = {
     create?: XOR<PaymentsCreateWithoutFeeInput, PaymentsUncheckedCreateWithoutFeeInput> | PaymentsCreateWithoutFeeInput[] | PaymentsUncheckedCreateWithoutFeeInput[]
     connectOrCreate?: PaymentsCreateOrConnectWithoutFeeInput | PaymentsCreateOrConnectWithoutFeeInput[]
     createMany?: PaymentsCreateManyFeeInputEnvelope
     connect?: PaymentsWhereUniqueInput | PaymentsWhereUniqueInput[]
+  }
+
+  export type DispatchRuleUncheckedCreateNestedManyWithoutSource_feeInput = {
+    create?: XOR<DispatchRuleCreateWithoutSource_feeInput, DispatchRuleUncheckedCreateWithoutSource_feeInput> | DispatchRuleCreateWithoutSource_feeInput[] | DispatchRuleUncheckedCreateWithoutSource_feeInput[]
+    connectOrCreate?: DispatchRuleCreateOrConnectWithoutSource_feeInput | DispatchRuleCreateOrConnectWithoutSource_feeInput[]
+    createMany?: DispatchRuleCreateManySource_feeInputEnvelope
+    connect?: DispatchRuleWhereUniqueInput | DispatchRuleWhereUniqueInput[]
   }
 
   export type PaymentsUpdateManyWithoutFeeNestedInput = {
@@ -31780,6 +37657,20 @@ export namespace Prisma {
     deleteMany?: PaymentsScalarWhereInput | PaymentsScalarWhereInput[]
   }
 
+  export type DispatchRuleUpdateManyWithoutSource_feeNestedInput = {
+    create?: XOR<DispatchRuleCreateWithoutSource_feeInput, DispatchRuleUncheckedCreateWithoutSource_feeInput> | DispatchRuleCreateWithoutSource_feeInput[] | DispatchRuleUncheckedCreateWithoutSource_feeInput[]
+    connectOrCreate?: DispatchRuleCreateOrConnectWithoutSource_feeInput | DispatchRuleCreateOrConnectWithoutSource_feeInput[]
+    upsert?: DispatchRuleUpsertWithWhereUniqueWithoutSource_feeInput | DispatchRuleUpsertWithWhereUniqueWithoutSource_feeInput[]
+    createMany?: DispatchRuleCreateManySource_feeInputEnvelope
+    set?: DispatchRuleWhereUniqueInput | DispatchRuleWhereUniqueInput[]
+    disconnect?: DispatchRuleWhereUniqueInput | DispatchRuleWhereUniqueInput[]
+    delete?: DispatchRuleWhereUniqueInput | DispatchRuleWhereUniqueInput[]
+    connect?: DispatchRuleWhereUniqueInput | DispatchRuleWhereUniqueInput[]
+    update?: DispatchRuleUpdateWithWhereUniqueWithoutSource_feeInput | DispatchRuleUpdateWithWhereUniqueWithoutSource_feeInput[]
+    updateMany?: DispatchRuleUpdateManyWithWhereWithoutSource_feeInput | DispatchRuleUpdateManyWithWhereWithoutSource_feeInput[]
+    deleteMany?: DispatchRuleScalarWhereInput | DispatchRuleScalarWhereInput[]
+  }
+
   export type PaymentsUncheckedUpdateManyWithoutFeeNestedInput = {
     create?: XOR<PaymentsCreateWithoutFeeInput, PaymentsUncheckedCreateWithoutFeeInput> | PaymentsCreateWithoutFeeInput[] | PaymentsUncheckedCreateWithoutFeeInput[]
     connectOrCreate?: PaymentsCreateOrConnectWithoutFeeInput | PaymentsCreateOrConnectWithoutFeeInput[]
@@ -31792,6 +37683,20 @@ export namespace Prisma {
     update?: PaymentsUpdateWithWhereUniqueWithoutFeeInput | PaymentsUpdateWithWhereUniqueWithoutFeeInput[]
     updateMany?: PaymentsUpdateManyWithWhereWithoutFeeInput | PaymentsUpdateManyWithWhereWithoutFeeInput[]
     deleteMany?: PaymentsScalarWhereInput | PaymentsScalarWhereInput[]
+  }
+
+  export type DispatchRuleUncheckedUpdateManyWithoutSource_feeNestedInput = {
+    create?: XOR<DispatchRuleCreateWithoutSource_feeInput, DispatchRuleUncheckedCreateWithoutSource_feeInput> | DispatchRuleCreateWithoutSource_feeInput[] | DispatchRuleUncheckedCreateWithoutSource_feeInput[]
+    connectOrCreate?: DispatchRuleCreateOrConnectWithoutSource_feeInput | DispatchRuleCreateOrConnectWithoutSource_feeInput[]
+    upsert?: DispatchRuleUpsertWithWhereUniqueWithoutSource_feeInput | DispatchRuleUpsertWithWhereUniqueWithoutSource_feeInput[]
+    createMany?: DispatchRuleCreateManySource_feeInputEnvelope
+    set?: DispatchRuleWhereUniqueInput | DispatchRuleWhereUniqueInput[]
+    disconnect?: DispatchRuleWhereUniqueInput | DispatchRuleWhereUniqueInput[]
+    delete?: DispatchRuleWhereUniqueInput | DispatchRuleWhereUniqueInput[]
+    connect?: DispatchRuleWhereUniqueInput | DispatchRuleWhereUniqueInput[]
+    update?: DispatchRuleUpdateWithWhereUniqueWithoutSource_feeInput | DispatchRuleUpdateWithWhereUniqueWithoutSource_feeInput[]
+    updateMany?: DispatchRuleUpdateManyWithWhereWithoutSource_feeInput | DispatchRuleUpdateManyWithWhereWithoutSource_feeInput[]
+    deleteMany?: DispatchRuleScalarWhereInput | DispatchRuleScalarWhereInput[]
   }
 
   export type StudentsCreateNestedOneWithoutAttendancesInput = {
@@ -31885,11 +37790,25 @@ export namespace Prisma {
     connect?: FinancialTransactionWhereUniqueInput | FinancialTransactionWhereUniqueInput[]
   }
 
+  export type DispatchRuleDetailCreateNestedManyWithoutDestination_categoryInput = {
+    create?: XOR<DispatchRuleDetailCreateWithoutDestination_categoryInput, DispatchRuleDetailUncheckedCreateWithoutDestination_categoryInput> | DispatchRuleDetailCreateWithoutDestination_categoryInput[] | DispatchRuleDetailUncheckedCreateWithoutDestination_categoryInput[]
+    connectOrCreate?: DispatchRuleDetailCreateOrConnectWithoutDestination_categoryInput | DispatchRuleDetailCreateOrConnectWithoutDestination_categoryInput[]
+    createMany?: DispatchRuleDetailCreateManyDestination_categoryInputEnvelope
+    connect?: DispatchRuleDetailWhereUniqueInput | DispatchRuleDetailWhereUniqueInput[]
+  }
+
   export type FinancialTransactionUncheckedCreateNestedManyWithoutCategoryInput = {
     create?: XOR<FinancialTransactionCreateWithoutCategoryInput, FinancialTransactionUncheckedCreateWithoutCategoryInput> | FinancialTransactionCreateWithoutCategoryInput[] | FinancialTransactionUncheckedCreateWithoutCategoryInput[]
     connectOrCreate?: FinancialTransactionCreateOrConnectWithoutCategoryInput | FinancialTransactionCreateOrConnectWithoutCategoryInput[]
     createMany?: FinancialTransactionCreateManyCategoryInputEnvelope
     connect?: FinancialTransactionWhereUniqueInput | FinancialTransactionWhereUniqueInput[]
+  }
+
+  export type DispatchRuleDetailUncheckedCreateNestedManyWithoutDestination_categoryInput = {
+    create?: XOR<DispatchRuleDetailCreateWithoutDestination_categoryInput, DispatchRuleDetailUncheckedCreateWithoutDestination_categoryInput> | DispatchRuleDetailCreateWithoutDestination_categoryInput[] | DispatchRuleDetailUncheckedCreateWithoutDestination_categoryInput[]
+    connectOrCreate?: DispatchRuleDetailCreateOrConnectWithoutDestination_categoryInput | DispatchRuleDetailCreateOrConnectWithoutDestination_categoryInput[]
+    createMany?: DispatchRuleDetailCreateManyDestination_categoryInputEnvelope
+    connect?: DispatchRuleDetailWhereUniqueInput | DispatchRuleDetailWhereUniqueInput[]
   }
 
   export type FinancialTransactionUpdateManyWithoutCategoryNestedInput = {
@@ -31906,6 +37825,20 @@ export namespace Prisma {
     deleteMany?: FinancialTransactionScalarWhereInput | FinancialTransactionScalarWhereInput[]
   }
 
+  export type DispatchRuleDetailUpdateManyWithoutDestination_categoryNestedInput = {
+    create?: XOR<DispatchRuleDetailCreateWithoutDestination_categoryInput, DispatchRuleDetailUncheckedCreateWithoutDestination_categoryInput> | DispatchRuleDetailCreateWithoutDestination_categoryInput[] | DispatchRuleDetailUncheckedCreateWithoutDestination_categoryInput[]
+    connectOrCreate?: DispatchRuleDetailCreateOrConnectWithoutDestination_categoryInput | DispatchRuleDetailCreateOrConnectWithoutDestination_categoryInput[]
+    upsert?: DispatchRuleDetailUpsertWithWhereUniqueWithoutDestination_categoryInput | DispatchRuleDetailUpsertWithWhereUniqueWithoutDestination_categoryInput[]
+    createMany?: DispatchRuleDetailCreateManyDestination_categoryInputEnvelope
+    set?: DispatchRuleDetailWhereUniqueInput | DispatchRuleDetailWhereUniqueInput[]
+    disconnect?: DispatchRuleDetailWhereUniqueInput | DispatchRuleDetailWhereUniqueInput[]
+    delete?: DispatchRuleDetailWhereUniqueInput | DispatchRuleDetailWhereUniqueInput[]
+    connect?: DispatchRuleDetailWhereUniqueInput | DispatchRuleDetailWhereUniqueInput[]
+    update?: DispatchRuleDetailUpdateWithWhereUniqueWithoutDestination_categoryInput | DispatchRuleDetailUpdateWithWhereUniqueWithoutDestination_categoryInput[]
+    updateMany?: DispatchRuleDetailUpdateManyWithWhereWithoutDestination_categoryInput | DispatchRuleDetailUpdateManyWithWhereWithoutDestination_categoryInput[]
+    deleteMany?: DispatchRuleDetailScalarWhereInput | DispatchRuleDetailScalarWhereInput[]
+  }
+
   export type FinancialTransactionUncheckedUpdateManyWithoutCategoryNestedInput = {
     create?: XOR<FinancialTransactionCreateWithoutCategoryInput, FinancialTransactionUncheckedCreateWithoutCategoryInput> | FinancialTransactionCreateWithoutCategoryInput[] | FinancialTransactionUncheckedCreateWithoutCategoryInput[]
     connectOrCreate?: FinancialTransactionCreateOrConnectWithoutCategoryInput | FinancialTransactionCreateOrConnectWithoutCategoryInput[]
@@ -31920,6 +37853,20 @@ export namespace Prisma {
     deleteMany?: FinancialTransactionScalarWhereInput | FinancialTransactionScalarWhereInput[]
   }
 
+  export type DispatchRuleDetailUncheckedUpdateManyWithoutDestination_categoryNestedInput = {
+    create?: XOR<DispatchRuleDetailCreateWithoutDestination_categoryInput, DispatchRuleDetailUncheckedCreateWithoutDestination_categoryInput> | DispatchRuleDetailCreateWithoutDestination_categoryInput[] | DispatchRuleDetailUncheckedCreateWithoutDestination_categoryInput[]
+    connectOrCreate?: DispatchRuleDetailCreateOrConnectWithoutDestination_categoryInput | DispatchRuleDetailCreateOrConnectWithoutDestination_categoryInput[]
+    upsert?: DispatchRuleDetailUpsertWithWhereUniqueWithoutDestination_categoryInput | DispatchRuleDetailUpsertWithWhereUniqueWithoutDestination_categoryInput[]
+    createMany?: DispatchRuleDetailCreateManyDestination_categoryInputEnvelope
+    set?: DispatchRuleDetailWhereUniqueInput | DispatchRuleDetailWhereUniqueInput[]
+    disconnect?: DispatchRuleDetailWhereUniqueInput | DispatchRuleDetailWhereUniqueInput[]
+    delete?: DispatchRuleDetailWhereUniqueInput | DispatchRuleDetailWhereUniqueInput[]
+    connect?: DispatchRuleDetailWhereUniqueInput | DispatchRuleDetailWhereUniqueInput[]
+    update?: DispatchRuleDetailUpdateWithWhereUniqueWithoutDestination_categoryInput | DispatchRuleDetailUpdateWithWhereUniqueWithoutDestination_categoryInput[]
+    updateMany?: DispatchRuleDetailUpdateManyWithWhereWithoutDestination_categoryInput | DispatchRuleDetailUpdateManyWithWhereWithoutDestination_categoryInput[]
+    deleteMany?: DispatchRuleDetailScalarWhereInput | DispatchRuleDetailScalarWhereInput[]
+  }
+
   export type FinancialCategoryCreateNestedOneWithoutTransactionsInput = {
     create?: XOR<FinancialCategoryCreateWithoutTransactionsInput, FinancialCategoryUncheckedCreateWithoutTransactionsInput>
     connectOrCreate?: FinancialCategoryCreateOrConnectWithoutTransactionsInput
@@ -31932,6 +37879,90 @@ export namespace Prisma {
     upsert?: FinancialCategoryUpsertWithoutTransactionsInput
     connect?: FinancialCategoryWhereUniqueInput
     update?: XOR<XOR<FinancialCategoryUpdateToOneWithWhereWithoutTransactionsInput, FinancialCategoryUpdateWithoutTransactionsInput>, FinancialCategoryUncheckedUpdateWithoutTransactionsInput>
+  }
+
+  export type FeesCreateNestedOneWithoutDispatch_rulesInput = {
+    create?: XOR<FeesCreateWithoutDispatch_rulesInput, FeesUncheckedCreateWithoutDispatch_rulesInput>
+    connectOrCreate?: FeesCreateOrConnectWithoutDispatch_rulesInput
+    connect?: FeesWhereUniqueInput
+  }
+
+  export type DispatchRuleDetailCreateNestedManyWithoutDispatch_ruleInput = {
+    create?: XOR<DispatchRuleDetailCreateWithoutDispatch_ruleInput, DispatchRuleDetailUncheckedCreateWithoutDispatch_ruleInput> | DispatchRuleDetailCreateWithoutDispatch_ruleInput[] | DispatchRuleDetailUncheckedCreateWithoutDispatch_ruleInput[]
+    connectOrCreate?: DispatchRuleDetailCreateOrConnectWithoutDispatch_ruleInput | DispatchRuleDetailCreateOrConnectWithoutDispatch_ruleInput[]
+    createMany?: DispatchRuleDetailCreateManyDispatch_ruleInputEnvelope
+    connect?: DispatchRuleDetailWhereUniqueInput | DispatchRuleDetailWhereUniqueInput[]
+  }
+
+  export type DispatchRuleDetailUncheckedCreateNestedManyWithoutDispatch_ruleInput = {
+    create?: XOR<DispatchRuleDetailCreateWithoutDispatch_ruleInput, DispatchRuleDetailUncheckedCreateWithoutDispatch_ruleInput> | DispatchRuleDetailCreateWithoutDispatch_ruleInput[] | DispatchRuleDetailUncheckedCreateWithoutDispatch_ruleInput[]
+    connectOrCreate?: DispatchRuleDetailCreateOrConnectWithoutDispatch_ruleInput | DispatchRuleDetailCreateOrConnectWithoutDispatch_ruleInput[]
+    createMany?: DispatchRuleDetailCreateManyDispatch_ruleInputEnvelope
+    connect?: DispatchRuleDetailWhereUniqueInput | DispatchRuleDetailWhereUniqueInput[]
+  }
+
+  export type FeesUpdateOneRequiredWithoutDispatch_rulesNestedInput = {
+    create?: XOR<FeesCreateWithoutDispatch_rulesInput, FeesUncheckedCreateWithoutDispatch_rulesInput>
+    connectOrCreate?: FeesCreateOrConnectWithoutDispatch_rulesInput
+    upsert?: FeesUpsertWithoutDispatch_rulesInput
+    connect?: FeesWhereUniqueInput
+    update?: XOR<XOR<FeesUpdateToOneWithWhereWithoutDispatch_rulesInput, FeesUpdateWithoutDispatch_rulesInput>, FeesUncheckedUpdateWithoutDispatch_rulesInput>
+  }
+
+  export type DispatchRuleDetailUpdateManyWithoutDispatch_ruleNestedInput = {
+    create?: XOR<DispatchRuleDetailCreateWithoutDispatch_ruleInput, DispatchRuleDetailUncheckedCreateWithoutDispatch_ruleInput> | DispatchRuleDetailCreateWithoutDispatch_ruleInput[] | DispatchRuleDetailUncheckedCreateWithoutDispatch_ruleInput[]
+    connectOrCreate?: DispatchRuleDetailCreateOrConnectWithoutDispatch_ruleInput | DispatchRuleDetailCreateOrConnectWithoutDispatch_ruleInput[]
+    upsert?: DispatchRuleDetailUpsertWithWhereUniqueWithoutDispatch_ruleInput | DispatchRuleDetailUpsertWithWhereUniqueWithoutDispatch_ruleInput[]
+    createMany?: DispatchRuleDetailCreateManyDispatch_ruleInputEnvelope
+    set?: DispatchRuleDetailWhereUniqueInput | DispatchRuleDetailWhereUniqueInput[]
+    disconnect?: DispatchRuleDetailWhereUniqueInput | DispatchRuleDetailWhereUniqueInput[]
+    delete?: DispatchRuleDetailWhereUniqueInput | DispatchRuleDetailWhereUniqueInput[]
+    connect?: DispatchRuleDetailWhereUniqueInput | DispatchRuleDetailWhereUniqueInput[]
+    update?: DispatchRuleDetailUpdateWithWhereUniqueWithoutDispatch_ruleInput | DispatchRuleDetailUpdateWithWhereUniqueWithoutDispatch_ruleInput[]
+    updateMany?: DispatchRuleDetailUpdateManyWithWhereWithoutDispatch_ruleInput | DispatchRuleDetailUpdateManyWithWhereWithoutDispatch_ruleInput[]
+    deleteMany?: DispatchRuleDetailScalarWhereInput | DispatchRuleDetailScalarWhereInput[]
+  }
+
+  export type DispatchRuleDetailUncheckedUpdateManyWithoutDispatch_ruleNestedInput = {
+    create?: XOR<DispatchRuleDetailCreateWithoutDispatch_ruleInput, DispatchRuleDetailUncheckedCreateWithoutDispatch_ruleInput> | DispatchRuleDetailCreateWithoutDispatch_ruleInput[] | DispatchRuleDetailUncheckedCreateWithoutDispatch_ruleInput[]
+    connectOrCreate?: DispatchRuleDetailCreateOrConnectWithoutDispatch_ruleInput | DispatchRuleDetailCreateOrConnectWithoutDispatch_ruleInput[]
+    upsert?: DispatchRuleDetailUpsertWithWhereUniqueWithoutDispatch_ruleInput | DispatchRuleDetailUpsertWithWhereUniqueWithoutDispatch_ruleInput[]
+    createMany?: DispatchRuleDetailCreateManyDispatch_ruleInputEnvelope
+    set?: DispatchRuleDetailWhereUniqueInput | DispatchRuleDetailWhereUniqueInput[]
+    disconnect?: DispatchRuleDetailWhereUniqueInput | DispatchRuleDetailWhereUniqueInput[]
+    delete?: DispatchRuleDetailWhereUniqueInput | DispatchRuleDetailWhereUniqueInput[]
+    connect?: DispatchRuleDetailWhereUniqueInput | DispatchRuleDetailWhereUniqueInput[]
+    update?: DispatchRuleDetailUpdateWithWhereUniqueWithoutDispatch_ruleInput | DispatchRuleDetailUpdateWithWhereUniqueWithoutDispatch_ruleInput[]
+    updateMany?: DispatchRuleDetailUpdateManyWithWhereWithoutDispatch_ruleInput | DispatchRuleDetailUpdateManyWithWhereWithoutDispatch_ruleInput[]
+    deleteMany?: DispatchRuleDetailScalarWhereInput | DispatchRuleDetailScalarWhereInput[]
+  }
+
+  export type DispatchRuleCreateNestedOneWithoutDetailsInput = {
+    create?: XOR<DispatchRuleCreateWithoutDetailsInput, DispatchRuleUncheckedCreateWithoutDetailsInput>
+    connectOrCreate?: DispatchRuleCreateOrConnectWithoutDetailsInput
+    connect?: DispatchRuleWhereUniqueInput
+  }
+
+  export type FinancialCategoryCreateNestedOneWithoutDispatch_rule_detailsInput = {
+    create?: XOR<FinancialCategoryCreateWithoutDispatch_rule_detailsInput, FinancialCategoryUncheckedCreateWithoutDispatch_rule_detailsInput>
+    connectOrCreate?: FinancialCategoryCreateOrConnectWithoutDispatch_rule_detailsInput
+    connect?: FinancialCategoryWhereUniqueInput
+  }
+
+  export type DispatchRuleUpdateOneRequiredWithoutDetailsNestedInput = {
+    create?: XOR<DispatchRuleCreateWithoutDetailsInput, DispatchRuleUncheckedCreateWithoutDetailsInput>
+    connectOrCreate?: DispatchRuleCreateOrConnectWithoutDetailsInput
+    upsert?: DispatchRuleUpsertWithoutDetailsInput
+    connect?: DispatchRuleWhereUniqueInput
+    update?: XOR<XOR<DispatchRuleUpdateToOneWithWhereWithoutDetailsInput, DispatchRuleUpdateWithoutDetailsInput>, DispatchRuleUncheckedUpdateWithoutDetailsInput>
+  }
+
+  export type FinancialCategoryUpdateOneRequiredWithoutDispatch_rule_detailsNestedInput = {
+    create?: XOR<FinancialCategoryCreateWithoutDispatch_rule_detailsInput, FinancialCategoryUncheckedCreateWithoutDispatch_rule_detailsInput>
+    connectOrCreate?: FinancialCategoryCreateOrConnectWithoutDispatch_rule_detailsInput
+    upsert?: FinancialCategoryUpsertWithoutDispatch_rule_detailsInput
+    connect?: FinancialCategoryWhereUniqueInput
+    update?: XOR<XOR<FinancialCategoryUpdateToOneWithWhereWithoutDispatch_rule_detailsInput, FinancialCategoryUpdateWithoutDispatch_rule_detailsInput>, FinancialCategoryUncheckedUpdateWithoutDispatch_rule_detailsInput>
   }
 
   export type NestedIntFilter<$PrismaModel = never> = {
@@ -33968,6 +39999,7 @@ export namespace Prisma {
     last_modified?: Date | string
     needs_sync?: boolean
     is_deleted?: boolean
+    dispatch_rules?: DispatchRuleCreateNestedManyWithoutSource_feeInput
   }
 
   export type FeesUncheckedCreateWithoutPaymentsInput = {
@@ -33982,6 +40014,7 @@ export namespace Prisma {
     last_modified?: Date | string
     needs_sync?: boolean
     is_deleted?: boolean
+    dispatch_rules?: DispatchRuleUncheckedCreateNestedManyWithoutSource_feeInput
   }
 
   export type FeesCreateOrConnectWithoutPaymentsInput = {
@@ -34041,6 +40074,7 @@ export namespace Prisma {
     last_modified?: DateTimeFieldUpdateOperationsInput | Date | string
     needs_sync?: BoolFieldUpdateOperationsInput | boolean
     is_deleted?: BoolFieldUpdateOperationsInput | boolean
+    dispatch_rules?: DispatchRuleUpdateManyWithoutSource_feeNestedInput
   }
 
   export type FeesUncheckedUpdateWithoutPaymentsInput = {
@@ -34055,6 +40089,7 @@ export namespace Prisma {
     last_modified?: DateTimeFieldUpdateOperationsInput | Date | string
     needs_sync?: BoolFieldUpdateOperationsInput | boolean
     is_deleted?: BoolFieldUpdateOperationsInput | boolean
+    dispatch_rules?: DispatchRuleUncheckedUpdateManyWithoutSource_feeNestedInput
   }
 
   export type RegistrationsUpsertWithoutPaymentsInput = {
@@ -34129,6 +40164,34 @@ export namespace Prisma {
     data: PaymentsCreateManyFeeInput | PaymentsCreateManyFeeInput[]
   }
 
+  export type DispatchRuleCreateWithoutSource_feeInput = {
+    name: string
+    school_id: string
+    last_modified?: Date | string
+    needs_sync?: boolean
+    is_deleted?: boolean
+    details?: DispatchRuleDetailCreateNestedManyWithoutDispatch_ruleInput
+  }
+
+  export type DispatchRuleUncheckedCreateWithoutSource_feeInput = {
+    id?: number
+    name: string
+    school_id: string
+    last_modified?: Date | string
+    needs_sync?: boolean
+    is_deleted?: boolean
+    details?: DispatchRuleDetailUncheckedCreateNestedManyWithoutDispatch_ruleInput
+  }
+
+  export type DispatchRuleCreateOrConnectWithoutSource_feeInput = {
+    where: DispatchRuleWhereUniqueInput
+    create: XOR<DispatchRuleCreateWithoutSource_feeInput, DispatchRuleUncheckedCreateWithoutSource_feeInput>
+  }
+
+  export type DispatchRuleCreateManySource_feeInputEnvelope = {
+    data: DispatchRuleCreateManySource_feeInput | DispatchRuleCreateManySource_feeInput[]
+  }
+
   export type PaymentsUpsertWithWhereUniqueWithoutFeeInput = {
     where: PaymentsWhereUniqueInput
     update: XOR<PaymentsUpdateWithoutFeeInput, PaymentsUncheckedUpdateWithoutFeeInput>
@@ -34143,6 +40206,35 @@ export namespace Prisma {
   export type PaymentsUpdateManyWithWhereWithoutFeeInput = {
     where: PaymentsScalarWhereInput
     data: XOR<PaymentsUpdateManyMutationInput, PaymentsUncheckedUpdateManyWithoutFeeInput>
+  }
+
+  export type DispatchRuleUpsertWithWhereUniqueWithoutSource_feeInput = {
+    where: DispatchRuleWhereUniqueInput
+    update: XOR<DispatchRuleUpdateWithoutSource_feeInput, DispatchRuleUncheckedUpdateWithoutSource_feeInput>
+    create: XOR<DispatchRuleCreateWithoutSource_feeInput, DispatchRuleUncheckedCreateWithoutSource_feeInput>
+  }
+
+  export type DispatchRuleUpdateWithWhereUniqueWithoutSource_feeInput = {
+    where: DispatchRuleWhereUniqueInput
+    data: XOR<DispatchRuleUpdateWithoutSource_feeInput, DispatchRuleUncheckedUpdateWithoutSource_feeInput>
+  }
+
+  export type DispatchRuleUpdateManyWithWhereWithoutSource_feeInput = {
+    where: DispatchRuleScalarWhereInput
+    data: XOR<DispatchRuleUpdateManyMutationInput, DispatchRuleUncheckedUpdateManyWithoutSource_feeInput>
+  }
+
+  export type DispatchRuleScalarWhereInput = {
+    AND?: DispatchRuleScalarWhereInput | DispatchRuleScalarWhereInput[]
+    OR?: DispatchRuleScalarWhereInput[]
+    NOT?: DispatchRuleScalarWhereInput | DispatchRuleScalarWhereInput[]
+    id?: IntFilter<"DispatchRule"> | number
+    name?: StringFilter<"DispatchRule"> | string
+    source_fee_id?: IntFilter<"DispatchRule"> | number
+    school_id?: StringFilter<"DispatchRule"> | string
+    last_modified?: DateTimeFilter<"DispatchRule"> | Date | string
+    needs_sync?: BoolFilter<"DispatchRule"> | boolean
+    is_deleted?: BoolFilter<"DispatchRule"> | boolean
   }
 
   export type StudentsCreateWithoutAttendancesInput = {
@@ -34488,6 +40580,32 @@ export namespace Prisma {
     data: FinancialTransactionCreateManyCategoryInput | FinancialTransactionCreateManyCategoryInput[]
   }
 
+  export type DispatchRuleDetailCreateWithoutDestination_categoryInput = {
+    percentage: number
+    last_modified?: Date | string
+    needs_sync?: boolean
+    is_deleted?: boolean
+    dispatch_rule: DispatchRuleCreateNestedOneWithoutDetailsInput
+  }
+
+  export type DispatchRuleDetailUncheckedCreateWithoutDestination_categoryInput = {
+    id?: number
+    dispatch_rule_id: number
+    percentage: number
+    last_modified?: Date | string
+    needs_sync?: boolean
+    is_deleted?: boolean
+  }
+
+  export type DispatchRuleDetailCreateOrConnectWithoutDestination_categoryInput = {
+    where: DispatchRuleDetailWhereUniqueInput
+    create: XOR<DispatchRuleDetailCreateWithoutDestination_categoryInput, DispatchRuleDetailUncheckedCreateWithoutDestination_categoryInput>
+  }
+
+  export type DispatchRuleDetailCreateManyDestination_categoryInputEnvelope = {
+    data: DispatchRuleDetailCreateManyDestination_categoryInput | DispatchRuleDetailCreateManyDestination_categoryInput[]
+  }
+
   export type FinancialTransactionUpsertWithWhereUniqueWithoutCategoryInput = {
     where: FinancialTransactionWhereUniqueInput
     update: XOR<FinancialTransactionUpdateWithoutCategoryInput, FinancialTransactionUncheckedUpdateWithoutCategoryInput>
@@ -34521,6 +40639,35 @@ export namespace Prisma {
     is_deleted?: BoolFilter<"FinancialTransaction"> | boolean
   }
 
+  export type DispatchRuleDetailUpsertWithWhereUniqueWithoutDestination_categoryInput = {
+    where: DispatchRuleDetailWhereUniqueInput
+    update: XOR<DispatchRuleDetailUpdateWithoutDestination_categoryInput, DispatchRuleDetailUncheckedUpdateWithoutDestination_categoryInput>
+    create: XOR<DispatchRuleDetailCreateWithoutDestination_categoryInput, DispatchRuleDetailUncheckedCreateWithoutDestination_categoryInput>
+  }
+
+  export type DispatchRuleDetailUpdateWithWhereUniqueWithoutDestination_categoryInput = {
+    where: DispatchRuleDetailWhereUniqueInput
+    data: XOR<DispatchRuleDetailUpdateWithoutDestination_categoryInput, DispatchRuleDetailUncheckedUpdateWithoutDestination_categoryInput>
+  }
+
+  export type DispatchRuleDetailUpdateManyWithWhereWithoutDestination_categoryInput = {
+    where: DispatchRuleDetailScalarWhereInput
+    data: XOR<DispatchRuleDetailUpdateManyMutationInput, DispatchRuleDetailUncheckedUpdateManyWithoutDestination_categoryInput>
+  }
+
+  export type DispatchRuleDetailScalarWhereInput = {
+    AND?: DispatchRuleDetailScalarWhereInput | DispatchRuleDetailScalarWhereInput[]
+    OR?: DispatchRuleDetailScalarWhereInput[]
+    NOT?: DispatchRuleDetailScalarWhereInput | DispatchRuleDetailScalarWhereInput[]
+    id?: IntFilter<"DispatchRuleDetail"> | number
+    dispatch_rule_id?: IntFilter<"DispatchRuleDetail"> | number
+    destination_category_id?: IntFilter<"DispatchRuleDetail"> | number
+    percentage?: FloatFilter<"DispatchRuleDetail"> | number
+    last_modified?: DateTimeFilter<"DispatchRuleDetail"> | Date | string
+    needs_sync?: BoolFilter<"DispatchRuleDetail"> | boolean
+    is_deleted?: BoolFilter<"DispatchRuleDetail"> | boolean
+  }
+
   export type FinancialCategoryCreateWithoutTransactionsInput = {
     name: string
     type: string
@@ -34529,6 +40676,7 @@ export namespace Prisma {
     last_modified?: Date | string
     needs_sync?: boolean
     is_deleted?: boolean
+    dispatch_rule_details?: DispatchRuleDetailCreateNestedManyWithoutDestination_categoryInput
   }
 
   export type FinancialCategoryUncheckedCreateWithoutTransactionsInput = {
@@ -34540,6 +40688,7 @@ export namespace Prisma {
     last_modified?: Date | string
     needs_sync?: boolean
     is_deleted?: boolean
+    dispatch_rule_details?: DispatchRuleDetailUncheckedCreateNestedManyWithoutDestination_categoryInput
   }
 
   export type FinancialCategoryCreateOrConnectWithoutTransactionsInput = {
@@ -34566,6 +40715,7 @@ export namespace Prisma {
     last_modified?: DateTimeFieldUpdateOperationsInput | Date | string
     needs_sync?: BoolFieldUpdateOperationsInput | boolean
     is_deleted?: BoolFieldUpdateOperationsInput | boolean
+    dispatch_rule_details?: DispatchRuleDetailUpdateManyWithoutDestination_categoryNestedInput
   }
 
   export type FinancialCategoryUncheckedUpdateWithoutTransactionsInput = {
@@ -34577,6 +40727,239 @@ export namespace Prisma {
     last_modified?: DateTimeFieldUpdateOperationsInput | Date | string
     needs_sync?: BoolFieldUpdateOperationsInput | boolean
     is_deleted?: BoolFieldUpdateOperationsInput | boolean
+    dispatch_rule_details?: DispatchRuleDetailUncheckedUpdateManyWithoutDestination_categoryNestedInput
+  }
+
+  export type FeesCreateWithoutDispatch_rulesInput = {
+    name?: string | null
+    amount?: number | null
+    due_date?: string | null
+    school_year?: string | null
+    level?: string | null
+    school_id?: string | null
+    supabase_id?: string | null
+    last_modified?: Date | string
+    needs_sync?: boolean
+    is_deleted?: boolean
+    payments?: PaymentsCreateNestedManyWithoutFeeInput
+  }
+
+  export type FeesUncheckedCreateWithoutDispatch_rulesInput = {
+    id?: number
+    name?: string | null
+    amount?: number | null
+    due_date?: string | null
+    school_year?: string | null
+    level?: string | null
+    school_id?: string | null
+    supabase_id?: string | null
+    last_modified?: Date | string
+    needs_sync?: boolean
+    is_deleted?: boolean
+    payments?: PaymentsUncheckedCreateNestedManyWithoutFeeInput
+  }
+
+  export type FeesCreateOrConnectWithoutDispatch_rulesInput = {
+    where: FeesWhereUniqueInput
+    create: XOR<FeesCreateWithoutDispatch_rulesInput, FeesUncheckedCreateWithoutDispatch_rulesInput>
+  }
+
+  export type DispatchRuleDetailCreateWithoutDispatch_ruleInput = {
+    percentage: number
+    last_modified?: Date | string
+    needs_sync?: boolean
+    is_deleted?: boolean
+    destination_category: FinancialCategoryCreateNestedOneWithoutDispatch_rule_detailsInput
+  }
+
+  export type DispatchRuleDetailUncheckedCreateWithoutDispatch_ruleInput = {
+    id?: number
+    destination_category_id: number
+    percentage: number
+    last_modified?: Date | string
+    needs_sync?: boolean
+    is_deleted?: boolean
+  }
+
+  export type DispatchRuleDetailCreateOrConnectWithoutDispatch_ruleInput = {
+    where: DispatchRuleDetailWhereUniqueInput
+    create: XOR<DispatchRuleDetailCreateWithoutDispatch_ruleInput, DispatchRuleDetailUncheckedCreateWithoutDispatch_ruleInput>
+  }
+
+  export type DispatchRuleDetailCreateManyDispatch_ruleInputEnvelope = {
+    data: DispatchRuleDetailCreateManyDispatch_ruleInput | DispatchRuleDetailCreateManyDispatch_ruleInput[]
+  }
+
+  export type FeesUpsertWithoutDispatch_rulesInput = {
+    update: XOR<FeesUpdateWithoutDispatch_rulesInput, FeesUncheckedUpdateWithoutDispatch_rulesInput>
+    create: XOR<FeesCreateWithoutDispatch_rulesInput, FeesUncheckedCreateWithoutDispatch_rulesInput>
+    where?: FeesWhereInput
+  }
+
+  export type FeesUpdateToOneWithWhereWithoutDispatch_rulesInput = {
+    where?: FeesWhereInput
+    data: XOR<FeesUpdateWithoutDispatch_rulesInput, FeesUncheckedUpdateWithoutDispatch_rulesInput>
+  }
+
+  export type FeesUpdateWithoutDispatch_rulesInput = {
+    name?: NullableStringFieldUpdateOperationsInput | string | null
+    amount?: NullableFloatFieldUpdateOperationsInput | number | null
+    due_date?: NullableStringFieldUpdateOperationsInput | string | null
+    school_year?: NullableStringFieldUpdateOperationsInput | string | null
+    level?: NullableStringFieldUpdateOperationsInput | string | null
+    school_id?: NullableStringFieldUpdateOperationsInput | string | null
+    supabase_id?: NullableStringFieldUpdateOperationsInput | string | null
+    last_modified?: DateTimeFieldUpdateOperationsInput | Date | string
+    needs_sync?: BoolFieldUpdateOperationsInput | boolean
+    is_deleted?: BoolFieldUpdateOperationsInput | boolean
+    payments?: PaymentsUpdateManyWithoutFeeNestedInput
+  }
+
+  export type FeesUncheckedUpdateWithoutDispatch_rulesInput = {
+    id?: IntFieldUpdateOperationsInput | number
+    name?: NullableStringFieldUpdateOperationsInput | string | null
+    amount?: NullableFloatFieldUpdateOperationsInput | number | null
+    due_date?: NullableStringFieldUpdateOperationsInput | string | null
+    school_year?: NullableStringFieldUpdateOperationsInput | string | null
+    level?: NullableStringFieldUpdateOperationsInput | string | null
+    school_id?: NullableStringFieldUpdateOperationsInput | string | null
+    supabase_id?: NullableStringFieldUpdateOperationsInput | string | null
+    last_modified?: DateTimeFieldUpdateOperationsInput | Date | string
+    needs_sync?: BoolFieldUpdateOperationsInput | boolean
+    is_deleted?: BoolFieldUpdateOperationsInput | boolean
+    payments?: PaymentsUncheckedUpdateManyWithoutFeeNestedInput
+  }
+
+  export type DispatchRuleDetailUpsertWithWhereUniqueWithoutDispatch_ruleInput = {
+    where: DispatchRuleDetailWhereUniqueInput
+    update: XOR<DispatchRuleDetailUpdateWithoutDispatch_ruleInput, DispatchRuleDetailUncheckedUpdateWithoutDispatch_ruleInput>
+    create: XOR<DispatchRuleDetailCreateWithoutDispatch_ruleInput, DispatchRuleDetailUncheckedCreateWithoutDispatch_ruleInput>
+  }
+
+  export type DispatchRuleDetailUpdateWithWhereUniqueWithoutDispatch_ruleInput = {
+    where: DispatchRuleDetailWhereUniqueInput
+    data: XOR<DispatchRuleDetailUpdateWithoutDispatch_ruleInput, DispatchRuleDetailUncheckedUpdateWithoutDispatch_ruleInput>
+  }
+
+  export type DispatchRuleDetailUpdateManyWithWhereWithoutDispatch_ruleInput = {
+    where: DispatchRuleDetailScalarWhereInput
+    data: XOR<DispatchRuleDetailUpdateManyMutationInput, DispatchRuleDetailUncheckedUpdateManyWithoutDispatch_ruleInput>
+  }
+
+  export type DispatchRuleCreateWithoutDetailsInput = {
+    name: string
+    school_id: string
+    last_modified?: Date | string
+    needs_sync?: boolean
+    is_deleted?: boolean
+    source_fee: FeesCreateNestedOneWithoutDispatch_rulesInput
+  }
+
+  export type DispatchRuleUncheckedCreateWithoutDetailsInput = {
+    id?: number
+    name: string
+    source_fee_id: number
+    school_id: string
+    last_modified?: Date | string
+    needs_sync?: boolean
+    is_deleted?: boolean
+  }
+
+  export type DispatchRuleCreateOrConnectWithoutDetailsInput = {
+    where: DispatchRuleWhereUniqueInput
+    create: XOR<DispatchRuleCreateWithoutDetailsInput, DispatchRuleUncheckedCreateWithoutDetailsInput>
+  }
+
+  export type FinancialCategoryCreateWithoutDispatch_rule_detailsInput = {
+    name: string
+    type: string
+    school_id?: string | null
+    supabase_id?: string | null
+    last_modified?: Date | string
+    needs_sync?: boolean
+    is_deleted?: boolean
+    transactions?: FinancialTransactionCreateNestedManyWithoutCategoryInput
+  }
+
+  export type FinancialCategoryUncheckedCreateWithoutDispatch_rule_detailsInput = {
+    id?: number
+    name: string
+    type: string
+    school_id?: string | null
+    supabase_id?: string | null
+    last_modified?: Date | string
+    needs_sync?: boolean
+    is_deleted?: boolean
+    transactions?: FinancialTransactionUncheckedCreateNestedManyWithoutCategoryInput
+  }
+
+  export type FinancialCategoryCreateOrConnectWithoutDispatch_rule_detailsInput = {
+    where: FinancialCategoryWhereUniqueInput
+    create: XOR<FinancialCategoryCreateWithoutDispatch_rule_detailsInput, FinancialCategoryUncheckedCreateWithoutDispatch_rule_detailsInput>
+  }
+
+  export type DispatchRuleUpsertWithoutDetailsInput = {
+    update: XOR<DispatchRuleUpdateWithoutDetailsInput, DispatchRuleUncheckedUpdateWithoutDetailsInput>
+    create: XOR<DispatchRuleCreateWithoutDetailsInput, DispatchRuleUncheckedCreateWithoutDetailsInput>
+    where?: DispatchRuleWhereInput
+  }
+
+  export type DispatchRuleUpdateToOneWithWhereWithoutDetailsInput = {
+    where?: DispatchRuleWhereInput
+    data: XOR<DispatchRuleUpdateWithoutDetailsInput, DispatchRuleUncheckedUpdateWithoutDetailsInput>
+  }
+
+  export type DispatchRuleUpdateWithoutDetailsInput = {
+    name?: StringFieldUpdateOperationsInput | string
+    school_id?: StringFieldUpdateOperationsInput | string
+    last_modified?: DateTimeFieldUpdateOperationsInput | Date | string
+    needs_sync?: BoolFieldUpdateOperationsInput | boolean
+    is_deleted?: BoolFieldUpdateOperationsInput | boolean
+    source_fee?: FeesUpdateOneRequiredWithoutDispatch_rulesNestedInput
+  }
+
+  export type DispatchRuleUncheckedUpdateWithoutDetailsInput = {
+    id?: IntFieldUpdateOperationsInput | number
+    name?: StringFieldUpdateOperationsInput | string
+    source_fee_id?: IntFieldUpdateOperationsInput | number
+    school_id?: StringFieldUpdateOperationsInput | string
+    last_modified?: DateTimeFieldUpdateOperationsInput | Date | string
+    needs_sync?: BoolFieldUpdateOperationsInput | boolean
+    is_deleted?: BoolFieldUpdateOperationsInput | boolean
+  }
+
+  export type FinancialCategoryUpsertWithoutDispatch_rule_detailsInput = {
+    update: XOR<FinancialCategoryUpdateWithoutDispatch_rule_detailsInput, FinancialCategoryUncheckedUpdateWithoutDispatch_rule_detailsInput>
+    create: XOR<FinancialCategoryCreateWithoutDispatch_rule_detailsInput, FinancialCategoryUncheckedCreateWithoutDispatch_rule_detailsInput>
+    where?: FinancialCategoryWhereInput
+  }
+
+  export type FinancialCategoryUpdateToOneWithWhereWithoutDispatch_rule_detailsInput = {
+    where?: FinancialCategoryWhereInput
+    data: XOR<FinancialCategoryUpdateWithoutDispatch_rule_detailsInput, FinancialCategoryUncheckedUpdateWithoutDispatch_rule_detailsInput>
+  }
+
+  export type FinancialCategoryUpdateWithoutDispatch_rule_detailsInput = {
+    name?: StringFieldUpdateOperationsInput | string
+    type?: StringFieldUpdateOperationsInput | string
+    school_id?: NullableStringFieldUpdateOperationsInput | string | null
+    supabase_id?: NullableStringFieldUpdateOperationsInput | string | null
+    last_modified?: DateTimeFieldUpdateOperationsInput | Date | string
+    needs_sync?: BoolFieldUpdateOperationsInput | boolean
+    is_deleted?: BoolFieldUpdateOperationsInput | boolean
+    transactions?: FinancialTransactionUpdateManyWithoutCategoryNestedInput
+  }
+
+  export type FinancialCategoryUncheckedUpdateWithoutDispatch_rule_detailsInput = {
+    id?: IntFieldUpdateOperationsInput | number
+    name?: StringFieldUpdateOperationsInput | string
+    type?: StringFieldUpdateOperationsInput | string
+    school_id?: NullableStringFieldUpdateOperationsInput | string | null
+    supabase_id?: NullableStringFieldUpdateOperationsInput | string | null
+    last_modified?: DateTimeFieldUpdateOperationsInput | Date | string
+    needs_sync?: BoolFieldUpdateOperationsInput | boolean
+    is_deleted?: BoolFieldUpdateOperationsInput | boolean
+    transactions?: FinancialTransactionUncheckedUpdateManyWithoutCategoryNestedInput
   }
 
   export type LessonsCreateManyClassInput = {
@@ -35302,6 +41685,15 @@ export namespace Prisma {
     is_deleted?: boolean
   }
 
+  export type DispatchRuleCreateManySource_feeInput = {
+    id?: number
+    name: string
+    school_id: string
+    last_modified?: Date | string
+    needs_sync?: boolean
+    is_deleted?: boolean
+  }
+
   export type PaymentsUpdateWithoutFeeInput = {
     amount?: NullableFloatFieldUpdateOperationsInput | number | null
     method?: NullableStringFieldUpdateOperationsInput | string | null
@@ -35338,6 +41730,34 @@ export namespace Prisma {
     reference?: NullableStringFieldUpdateOperationsInput | string | null
     emitter_id?: NullableStringFieldUpdateOperationsInput | string | null
     supabase_id?: NullableStringFieldUpdateOperationsInput | string | null
+    last_modified?: DateTimeFieldUpdateOperationsInput | Date | string
+    needs_sync?: BoolFieldUpdateOperationsInput | boolean
+    is_deleted?: BoolFieldUpdateOperationsInput | boolean
+  }
+
+  export type DispatchRuleUpdateWithoutSource_feeInput = {
+    name?: StringFieldUpdateOperationsInput | string
+    school_id?: StringFieldUpdateOperationsInput | string
+    last_modified?: DateTimeFieldUpdateOperationsInput | Date | string
+    needs_sync?: BoolFieldUpdateOperationsInput | boolean
+    is_deleted?: BoolFieldUpdateOperationsInput | boolean
+    details?: DispatchRuleDetailUpdateManyWithoutDispatch_ruleNestedInput
+  }
+
+  export type DispatchRuleUncheckedUpdateWithoutSource_feeInput = {
+    id?: IntFieldUpdateOperationsInput | number
+    name?: StringFieldUpdateOperationsInput | string
+    school_id?: StringFieldUpdateOperationsInput | string
+    last_modified?: DateTimeFieldUpdateOperationsInput | Date | string
+    needs_sync?: BoolFieldUpdateOperationsInput | boolean
+    is_deleted?: BoolFieldUpdateOperationsInput | boolean
+    details?: DispatchRuleDetailUncheckedUpdateManyWithoutDispatch_ruleNestedInput
+  }
+
+  export type DispatchRuleUncheckedUpdateManyWithoutSource_feeInput = {
+    id?: IntFieldUpdateOperationsInput | number
+    name?: StringFieldUpdateOperationsInput | string
+    school_id?: StringFieldUpdateOperationsInput | string
     last_modified?: DateTimeFieldUpdateOperationsInput | Date | string
     needs_sync?: BoolFieldUpdateOperationsInput | boolean
     is_deleted?: BoolFieldUpdateOperationsInput | boolean
@@ -35407,6 +41827,15 @@ export namespace Prisma {
     is_deleted?: boolean
   }
 
+  export type DispatchRuleDetailCreateManyDestination_categoryInput = {
+    id?: number
+    dispatch_rule_id: number
+    percentage: number
+    last_modified?: Date | string
+    needs_sync?: boolean
+    is_deleted?: boolean
+  }
+
   export type FinancialTransactionUpdateWithoutCategoryInput = {
     date?: DateTimeFieldUpdateOperationsInput | Date | string
     description?: StringFieldUpdateOperationsInput | string
@@ -35440,6 +41869,67 @@ export namespace Prisma {
     type?: StringFieldUpdateOperationsInput | string
     school_id?: NullableStringFieldUpdateOperationsInput | string | null
     supabase_id?: NullableStringFieldUpdateOperationsInput | string | null
+    last_modified?: DateTimeFieldUpdateOperationsInput | Date | string
+    needs_sync?: BoolFieldUpdateOperationsInput | boolean
+    is_deleted?: BoolFieldUpdateOperationsInput | boolean
+  }
+
+  export type DispatchRuleDetailUpdateWithoutDestination_categoryInput = {
+    percentage?: FloatFieldUpdateOperationsInput | number
+    last_modified?: DateTimeFieldUpdateOperationsInput | Date | string
+    needs_sync?: BoolFieldUpdateOperationsInput | boolean
+    is_deleted?: BoolFieldUpdateOperationsInput | boolean
+    dispatch_rule?: DispatchRuleUpdateOneRequiredWithoutDetailsNestedInput
+  }
+
+  export type DispatchRuleDetailUncheckedUpdateWithoutDestination_categoryInput = {
+    id?: IntFieldUpdateOperationsInput | number
+    dispatch_rule_id?: IntFieldUpdateOperationsInput | number
+    percentage?: FloatFieldUpdateOperationsInput | number
+    last_modified?: DateTimeFieldUpdateOperationsInput | Date | string
+    needs_sync?: BoolFieldUpdateOperationsInput | boolean
+    is_deleted?: BoolFieldUpdateOperationsInput | boolean
+  }
+
+  export type DispatchRuleDetailUncheckedUpdateManyWithoutDestination_categoryInput = {
+    id?: IntFieldUpdateOperationsInput | number
+    dispatch_rule_id?: IntFieldUpdateOperationsInput | number
+    percentage?: FloatFieldUpdateOperationsInput | number
+    last_modified?: DateTimeFieldUpdateOperationsInput | Date | string
+    needs_sync?: BoolFieldUpdateOperationsInput | boolean
+    is_deleted?: BoolFieldUpdateOperationsInput | boolean
+  }
+
+  export type DispatchRuleDetailCreateManyDispatch_ruleInput = {
+    id?: number
+    destination_category_id: number
+    percentage: number
+    last_modified?: Date | string
+    needs_sync?: boolean
+    is_deleted?: boolean
+  }
+
+  export type DispatchRuleDetailUpdateWithoutDispatch_ruleInput = {
+    percentage?: FloatFieldUpdateOperationsInput | number
+    last_modified?: DateTimeFieldUpdateOperationsInput | Date | string
+    needs_sync?: BoolFieldUpdateOperationsInput | boolean
+    is_deleted?: BoolFieldUpdateOperationsInput | boolean
+    destination_category?: FinancialCategoryUpdateOneRequiredWithoutDispatch_rule_detailsNestedInput
+  }
+
+  export type DispatchRuleDetailUncheckedUpdateWithoutDispatch_ruleInput = {
+    id?: IntFieldUpdateOperationsInput | number
+    destination_category_id?: IntFieldUpdateOperationsInput | number
+    percentage?: FloatFieldUpdateOperationsInput | number
+    last_modified?: DateTimeFieldUpdateOperationsInput | Date | string
+    needs_sync?: BoolFieldUpdateOperationsInput | boolean
+    is_deleted?: BoolFieldUpdateOperationsInput | boolean
+  }
+
+  export type DispatchRuleDetailUncheckedUpdateManyWithoutDispatch_ruleInput = {
+    id?: IntFieldUpdateOperationsInput | number
+    destination_category_id?: IntFieldUpdateOperationsInput | number
+    percentage?: FloatFieldUpdateOperationsInput | number
     last_modified?: DateTimeFieldUpdateOperationsInput | Date | string
     needs_sync?: BoolFieldUpdateOperationsInput | boolean
     is_deleted?: BoolFieldUpdateOperationsInput | boolean

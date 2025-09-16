@@ -236,18 +236,19 @@ model Payments {
 }
 
 model Fees {
-  id            Int        @id @default(autoincrement())
-  name          String?
-  amount        Float?
-  due_date      String?
-  school_year   String?
-  level         String?
-  school_id     String?
-  supabase_id   String?    @unique
-  last_modified DateTime   @default(now())
-  needs_sync    Boolean    @default(false)
-  is_deleted    Boolean    @default(false)
-  payments      Payments[]
+  id             Int            @id @default(autoincrement())
+  name           String?
+  amount         Float?
+  due_date       String?
+  school_year    String?
+  level          String?
+  school_id      String?
+  supabase_id    String?        @unique
+  last_modified  DateTime       @default(now())
+  needs_sync     Boolean        @default(false)
+  is_deleted     Boolean        @default(false)
+  payments       Payments[]
+  dispatch_rules DispatchRule[]
 
   @@map("fees")
 }
@@ -327,15 +328,16 @@ model Schedules {
 }
 
 model FinancialCategory {
-  id            Int                    @id @default(autoincrement())
-  name          String
-  type          String // 'income' or 'expense'
-  school_id     String?
-  supabase_id   String?                @unique
-  last_modified DateTime               @default(now())
-  needs_sync    Boolean                @default(false)
-  is_deleted    Boolean                @default(false)
-  transactions  FinancialTransaction[]
+  id                    Int                    @id @default(autoincrement())
+  name                  String
+  type                  String // 'income' or 'expense'
+  school_id             String?
+  supabase_id           String?                @unique
+  last_modified         DateTime               @default(now())
+  needs_sync            Boolean                @default(false)
+  is_deleted            Boolean                @default(false)
+  transactions          FinancialTransaction[]
+  dispatch_rule_details DispatchRuleDetail[]
 
   @@map("financial_categories")
 }
@@ -357,4 +359,66 @@ model FinancialTransaction {
   @@index([category_id])
   @@index([school_id])
   @@map("financial_transactions")
+}
+
+model Budget {
+  id            Int      @id @default(autoincrement())
+  category      String
+  amount        Float
+  period_start  DateTime
+  period_end    DateTime
+  school_id     String?
+  supabase_id   String?  @unique
+  last_modified DateTime @default(now())
+  needs_sync    Boolean  @default(false)
+  is_deleted    Boolean  @default(false)
+
+  @@index([school_id])
+  @@map("budgets")
+}
+
+model FinancialReport {
+  id            Int      @id @default(autoincrement())
+  title         String
+  generated_at  DateTime
+  start_date    DateTime
+  end_date      DateTime
+  content       String // JSON or other structured format
+  school_id     String?
+  supabase_id   String?  @unique
+  last_modified DateTime @default(now())
+  needs_sync    Boolean  @default(false)
+  is_deleted    Boolean  @default(false)
+
+  @@index([school_id])
+  @@map("financial_reports")
+}
+
+model DispatchRule {
+  id            Int                  @id @default(autoincrement())
+  name          String
+  source_fee_id Int                  @unique
+  school_id     String
+  last_modified DateTime             @default(now())
+  needs_sync    Boolean              @default(false)
+  is_deleted    Boolean              @default(false)
+  source_fee    Fees                 @relation(fields: [source_fee_id], references: [id])
+  details       DispatchRuleDetail[]
+
+  @@index([school_id])
+  @@map("dispatch_rules")
+}
+
+model DispatchRuleDetail {
+  id                      Int               @id @default(autoincrement())
+  dispatch_rule_id        Int
+  destination_category_id Int
+  percentage              Float
+  last_modified           DateTime          @default(now())
+  needs_sync              Boolean           @default(false)
+  is_deleted              Boolean           @default(false)
+  dispatch_rule           DispatchRule      @relation(fields: [dispatch_rule_id], references: [id], onDelete: Cascade)
+  destination_category    FinancialCategory @relation(fields: [destination_category_id], references: [id])
+
+  @@map("dispatch_rule_details")
 }
