@@ -1,4 +1,4 @@
-const { app, BrowserWindow, ipcMain, protocol, dialog } = require('electron');
+const { app, BrowserWindow, ipcMain, protocol, dialog, session } = require('electron');
 const { autoUpdater } = require('electron-updater');
 const path = require('path');
 const fs = require('fs');
@@ -154,7 +154,55 @@ app.whenReady().then(async () => {
       return null;
     }
   });
-  
+
+  // #region Printer IPC Handlers
+  ipcMain.handle('printers:get-list', async (event) => {
+    if (event.sender && typeof event.sender.getPrintersAsync === 'function') {
+      return await event.sender.getPrintersAsync();
+    }
+    return [];
+  });
+
+  ipcMain.handle('printers:print-receipt', async (event, { htmlContent, printerName }) => {
+    const printWindow = new BrowserWindow({ show: false });
+    
+    await printWindow.loadURL(`data:text/html;charset=utf-8,${encodeURI(htmlContent)}`);
+    
+    return new Promise((resolve, reject) => {
+      printWindow.webContents.on('did-finish-load', () => {
+        printWindow.webContents.print({
+          silent: true,
+          deviceName: printerName,
+          printBackground: true,
+        }, (success, errorType) => {
+          if (!success) {
+            console.error('Printing failed:', errorType);
+            reject(new Error(errorType));
+          } else {
+            resolve({ success: true });
+          }
+          printWindow.close();
+        });
+      });
+    });
+  });
+  // #endregion
+
+  ipcMain.handle('debug:get-web-contents-methods', (event) => {
+    try {
+      const sender = event.sender;
+      const proto = Object.getPrototypeOf(sender);
+      const methods = Object.getOwnPropertyNames(proto);
+      const printerMethods = methods.filter(m => m.toLowerCase().includes('printer'));
+      return {
+        totalMethods: methods.length,
+        printerRelatedMethods: printerMethods,
+      };
+    } catch (e) {
+      return { error: e.message };
+    }
+  });
+
   createWindow();
 
   try {

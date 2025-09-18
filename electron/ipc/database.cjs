@@ -1,6 +1,17 @@
 const { app, ipcMain, BrowserWindow } = require('electron');
 const { PrismaClient } = require('../../src/generated/prisma');
 const bcrypt = require('bcryptjs');
+const { pushSingleItem } = require('./sync.cjs');
+const dns = require('dns');
+
+// Helper function to check for internet connection
+function isOnline() {
+  return new Promise((resolve) => {
+    dns.lookup('google.com', (err) => {
+      resolve(err === null);
+    });
+  });
+}
 
 // Le client Prisma lira automatiquement le DATABASE_URL depuis .env
 // Plus besoin de construire les chemins manuellement.
@@ -196,12 +207,23 @@ function setupDatabaseIPC(prismaClient) {
 
   // Handler pour mettre à jour les settings
   ipcMain.handle('db:settings:update', async (event, data) => {
-    const { schoolName, schoolAddress, printerName } = data;
-    return prisma.settings.upsert({
+    const { schoolName, schoolAddress } = data;
+    const updatedSettings = await prisma.settings.upsert({
       where: { id: 1 },
-      update: { schoolName, schoolAddress, printerName },
-      create: { schoolName, schoolAddress, printerName },
+      update: { schoolName, schoolAddress },
+      create: { schoolName, schoolAddress },
     });
+
+    isOnline().then(online => {
+      if (online) {
+        console.log(`[REALTIME] Internet connection detected, pushing item settings #${updatedSettings.id}`);
+        pushSingleItem(prisma, 'settings', updatedSettings.id).catch(err => {
+          console.error(`[REALTIME-PUSH-FAIL] for settings #${updatedSettings.id}: ${err.message}`);
+        });
+      }
+    });
+
+    return updatedSettings;
   });
 
   // #region Classes
@@ -215,7 +237,7 @@ function setupDatabaseIPC(prismaClient) {
   ipcMain.handle('db:classes:create', async (event, classData) => {
     const schoolId = await getUserSchoolId(event);
     const { name, level } = classData;
-    return prisma.classes.create({
+    const newClass = await prisma.classes.create({
       data: { 
         name, 
         level, 
@@ -224,6 +246,17 @@ function setupDatabaseIPC(prismaClient) {
         last_modified: new Date(),
       },
     });
+
+    isOnline().then(online => {
+      if (online) {
+        console.log(`[REALTIME] Internet connection detected, pushing item classes #${newClass.id}`);
+        pushSingleItem(prisma, 'classes', newClass.id).catch(err => {
+          console.error(`[REALTIME-PUSH-FAIL] for classes #${newClass.id}: ${err.message}`);
+        });
+      }
+    });
+
+    return newClass;
   });
 
   ipcMain.handle('db:classes:update', async (event, { id, data }) => {
@@ -235,7 +268,7 @@ function setupDatabaseIPC(prismaClient) {
     }
 
     const { name, level } = data;
-    return prisma.classes.update({
+    const updatedClass = await prisma.classes.update({
       where: { id },
       data: { 
         name, 
@@ -244,6 +277,17 @@ function setupDatabaseIPC(prismaClient) {
         last_modified: new Date(),
       },
     });
+
+    isOnline().then(online => {
+      if (online) {
+        console.log(`[REALTIME] Internet connection detected, pushing item classes #${updatedClass.id}`);
+        pushSingleItem(prisma, 'classes', updatedClass.id).catch(err => {
+          console.error(`[REALTIME-PUSH-FAIL] for classes #${updatedClass.id}: ${err.message}`);
+        });
+      }
+    });
+
+    return updatedClass;
   });
 
   ipcMain.handle('db:classes:delete', async (event, id) => {
@@ -263,7 +307,7 @@ function setupDatabaseIPC(prismaClient) {
       throw new Error('Impossible de supprimer une classe qui contient des étudiants inscrits');
     }
 
-    return prisma.classes.update({
+    const deletedClass = await prisma.classes.update({
       where: { id },
       data: { 
         is_deleted: true, 
@@ -271,6 +315,17 @@ function setupDatabaseIPC(prismaClient) {
         last_modified: new Date(),
       },
     });
+
+    isOnline().then(online => {
+      if (online) {
+        console.log(`[REALTIME] Internet connection detected, pushing deleted item classes #${deletedClass.id}`);
+        pushSingleItem(prisma, 'classes', deletedClass.id).catch(err => {
+          console.error(`[REALTIME-PUSH-FAIL] for deleted classes #${deletedClass.id}: ${err.message}`);
+        });
+      }
+    });
+
+    return deletedClass;
   });
   // #endregion
 
@@ -310,6 +365,7 @@ function setupDatabaseIPC(prismaClient) {
       return {
         ...s,
         className: s.registrations[0]?.class.name,
+        classId: s.registrations[0]?.class_id, // Ajout de l'ID de la classe
         classLevel: s.registrations[0]?.class.level,
         parentInfo: { father, mother },
       };
@@ -377,7 +433,7 @@ function setupDatabaseIPC(prismaClient) {
 
 ipcMain.handle('db:students:create', async (event, { studentData, parentsData }) => {
   console.log("[DEBUG] Création d'un étudiant avec les données:", studentData);
-  return prisma.$transaction(async (tx) => {
+  const newStudentWithDetails = await prisma.$transaction(async (tx) => {
     // Génération du matricule
     const year = new Date().getFullYear().toString().slice(-2);
     const prefix = `STU-${year}-`;
@@ -471,11 +527,22 @@ ipcMain.handle('db:students:create', async (event, { studentData, parentsData })
       parentInfo: { father, mother },
     };
   });
+
+  isOnline().then(online => {
+    if (online) {
+      console.log(`[REALTIME] Internet connection detected, pushing item students #${newStudentWithDetails.id}`);
+      pushSingleItem(prisma, 'students', newStudentWithDetails.id).catch(err => {
+        console.error(`[REALTIME-PUSH-FAIL] for students #${newStudentWithDetails.id}: ${err.message}`);
+      });
+    }
+  });
+
+  return newStudentWithDetails;
 });
 
 ipcMain.handle('db:students:update', async (event, { id, studentData, parentsData }) => {
   console.log(`[DEBUG] Mise à jour de l'étudiant #${id} avec les données:`, studentData);
-  return prisma.$transaction(async (tx) => {
+  const result = await prisma.$transaction(async (tx) => {
     await tx.students.update({
       where: { id },
       data: {
@@ -517,10 +584,21 @@ ipcMain.handle('db:students:update', async (event, { id, studentData, parentsDat
     }
     return { id };
   });
+
+  isOnline().then(online => {
+    if (online) {
+      console.log(`[REALTIME] Internet connection detected, pushing item students #${id}`);
+      pushSingleItem(prisma, 'students', id).catch(err => {
+        console.error(`[REALTIME-PUSH-FAIL] for students #${id}: ${err.message}`);
+      });
+    }
+  });
+
+  return result;
 });
 
   ipcMain.handle('db:students:delete', async (event, id) => {
-    return prisma.$transaction(async (tx) => {
+    const result = await prisma.$transaction(async (tx) => {
       await tx.students.update({
         where: { id },
         data: { 
@@ -539,6 +617,17 @@ ipcMain.handle('db:students:update', async (event, { id, studentData, parentsDat
       });
       return { id };
     });
+
+    isOnline().then(online => {
+      if (online) {
+        console.log(`[REALTIME] Internet connection detected, pushing deleted item students #${id}`);
+        pushSingleItem(prisma, 'students', id).catch(err => {
+          console.error(`[REALTIME-PUSH-FAIL] for deleted students #${id}: ${err.message}`);
+        });
+      }
+    });
+
+    return result;
   });
 
   ipcMain.handle('db:students:getRecent', async () => {
@@ -595,25 +684,25 @@ ipcMain.handle('db:teachers:create', async (event, teacherData) => {
 
   const lastTeacher = await prisma.teachers.findFirst({
     where: {
-      matricul: {
+      matricule: {
         startsWith: prefix,
       },
     },
     orderBy: {
-      matricul: 'desc',
+      matricule: 'desc',
     },
   });
 
   let nextIdNumber = 1;
   if (lastTeacher) {
-    const lastId = parseInt(lastTeacher.matricul.replace(prefix, ''), 10);
+    const lastId = parseInt(lastTeacher.matricule.replace(prefix, ''), 10);
     nextIdNumber = lastId + 1;
   }
 
   const nextId = nextIdNumber.toString().padStart(4, '0');
   const matricule = `${prefix}${nextId}`;
 
-  return prisma.teachers.create({
+  const newTeacher = await prisma.teachers.create({
     data: {
       name,
       first_name,
@@ -629,6 +718,17 @@ ipcMain.handle('db:teachers:create', async (event, teacherData) => {
       last_modified: new Date(),
     },
   });
+
+  isOnline().then(online => {
+    if (online) {
+      console.log(`[REALTIME] Internet connection detected, pushing item teachers #${newTeacher.id}`);
+      pushSingleItem(prisma, 'teachers', newTeacher.id).catch(err => {
+        console.error(`[REALTIME-PUSH-FAIL] for teachers #${newTeacher.id}: ${err.message}`);
+      });
+    }
+  });
+
+  return newTeacher;
 });
 
 // De même pour update
@@ -641,7 +741,7 @@ ipcMain.handle('db:teachers:update', async (event, { id, data }) => {
   }
 
   const { name, first_name, email, phone, speciality, adress, hourlyRate } = data;
-  return prisma.teachers.update({
+  const updatedTeacher = await prisma.teachers.update({
     where: { id },
     data: {
       name,
@@ -655,6 +755,17 @@ ipcMain.handle('db:teachers:update', async (event, { id, data }) => {
       last_modified: new Date(),
     },
   });
+
+  isOnline().then(online => {
+    if (online) {
+      console.log(`[REALTIME] Internet connection detected, pushing item teachers #${updatedTeacher.id}`);
+      pushSingleItem(prisma, 'teachers', updatedTeacher.id).catch(err => {
+        console.error(`[REALTIME-PUSH-FAIL] for teachers #${updatedTeacher.id}: ${err.message}`);
+      });
+    }
+  });
+
+  return updatedTeacher;
 });
 
   ipcMain.handle('db:teachers:delete', async (event, id) => {
@@ -665,7 +776,7 @@ ipcMain.handle('db:teachers:update', async (event, { id, data }) => {
       throw new Error("Accès non autorisé ou professeur non trouvé.");
     }
 
-    return prisma.teachers.update({
+    const deletedTeacher = await prisma.teachers.update({
       where: { id },
       data: { 
         is_deleted: true, 
@@ -673,6 +784,17 @@ ipcMain.handle('db:teachers:update', async (event, { id, data }) => {
         last_modified: new Date(),
       },
     });
+
+    isOnline().then(online => {
+      if (online) {
+        console.log(`[REALTIME] Internet connection detected, pushing deleted item teachers #${deletedTeacher.id}`);
+        pushSingleItem(prisma, 'teachers', deletedTeacher.id).catch(err => {
+          console.error(`[REALTIME-PUSH-FAIL] for deleted teachers #${deletedTeacher.id}: ${err.message}`);
+        });
+      }
+    });
+
+    return deletedTeacher;
   });
 
   // #region TeacherWorkHours
@@ -710,7 +832,7 @@ ipcMain.handle('db:teachers:update', async (event, { id, data }) => {
 
     const amount = hours * (teacher.hourlyRate || 0);
 
-    return prisma.$transaction(async (tx) => {
+    const newWorkHour = await prisma.$transaction(async (tx) => {
       const workHour = await tx.teacherWorkHours.create({
         data: {
           teacher_id,
@@ -758,6 +880,17 @@ ipcMain.handle('db:teachers:update', async (event, { id, data }) => {
 
       return workHour;
     });
+
+    isOnline().then(online => {
+      if (online) {
+        console.log(`[REALTIME] Internet connection detected, pushing item teacherWorkHours #${newWorkHour.id}`);
+        pushSingleItem(prisma, 'teacherWorkHours', newWorkHour.id).catch(err => {
+          console.error(`[REALTIME-PUSH-FAIL] for teacherWorkHours #${newWorkHour.id}: ${err.message}`);
+        });
+      }
+    });
+
+    return newWorkHour;
   });
 
   ipcMain.handle('db:teacherWorkHours:getStats', async (event, teacherId) => {
@@ -827,7 +960,7 @@ ipcMain.handle('db:teachers:update', async (event, { id, data }) => {
       throw new Error("L'heure de fin doit être après l'heure de début.");
     }
 
-    return prisma.teacherWorkHours.update({
+    const updatedWorkHour = await prisma.teacherWorkHours.update({
       where: { id },
       data: {
         teacher_id,
@@ -841,6 +974,17 @@ ipcMain.handle('db:teachers:update', async (event, { id, data }) => {
         last_modified: new Date(),
       },
     });
+
+    isOnline().then(online => {
+      if (online) {
+        console.log(`[REALTIME] Internet connection detected, pushing item teacherWorkHours #${updatedWorkHour.id}`);
+        pushSingleItem(prisma, 'teacherWorkHours', updatedWorkHour.id).catch(err => {
+          console.error(`[REALTIME-PUSH-FAIL] for teacherWorkHours #${updatedWorkHour.id}: ${err.message}`);
+        });
+      }
+    });
+
+    return updatedWorkHour;
   });
 
   ipcMain.handle('db:teacherWorkHours:delete', async (event, id) => {
@@ -854,7 +998,7 @@ ipcMain.handle('db:teachers:update', async (event, { id, data }) => {
       throw new Error("Accès non autorisé ou enregistrement non trouvé.");
     }
 
-    return prisma.teacherWorkHours.update({
+    const deletedWorkHour = await prisma.teacherWorkHours.update({
       where: { id },
       data: {
         is_deleted: true,
@@ -862,6 +1006,17 @@ ipcMain.handle('db:teachers:update', async (event, { id, data }) => {
         last_modified: new Date(),
       },
     });
+
+    isOnline().then(online => {
+      if (online) {
+        console.log(`[REALTIME] Internet connection detected, pushing deleted item teacherWorkHours #${deletedWorkHour.id}`);
+        pushSingleItem(prisma, 'teacherWorkHours', deletedWorkHour.id).catch(err => {
+          console.error(`[REALTIME-PUSH-FAIL] for deleted teacherWorkHours #${deletedWorkHour.id}: ${err.message}`);
+        });
+      }
+    });
+
+    return deletedWorkHour;
   });
   // #endregion
 
@@ -910,7 +1065,11 @@ ipcMain.handle('db:teachers:update', async (event, { id, data }) => {
         ...p,
         type: 'Étudiant',
         person_name: `${p.registration.student.first_name} ${p.registration.student.name}`,
-        details: p.fee?.name || p.registration.class.name, // Prioriser le nom du frais
+        details: p.fee?.name || p.registration.class.name,
+        // Explicitly add student and class info for the receipt
+        student_name: p.registration.student.name,
+        student_first_name: p.registration.student.first_name,
+        class_name: p.registration.class.name,
       }));
 
     // 4. Mapper les paiements de salaires dans le même format
@@ -1044,7 +1203,7 @@ ipcMain.handle('db:teachers:update', async (event, { id, data }) => {
         throw new Error("Accès non autorisé: l'inscription spécifiée n'appartient pas à votre école.");
     }
 
-    return prisma.$transaction(async (tx) => {
+    const newPayment = await prisma.$transaction(async (tx) => {
       const payment = await tx.payments.create({
         data: { registration_id, fee_id, amount, date, method, reference, needs_sync: true, last_modified: new Date() },
         include: { fee: true, registration: { include: { student: true } } },
@@ -1054,6 +1213,17 @@ ipcMain.handle('db:teachers:update', async (event, { id, data }) => {
   
       return payment;
     });
+
+    isOnline().then(online => {
+      if (online) {
+        console.log(`[REALTIME] Internet connection detected, pushing item payments #${newPayment.id}`);
+        pushSingleItem(prisma, 'payments', newPayment.id).catch(err => {
+          console.error(`[REALTIME-PUSH-FAIL] for payments #${newPayment.id}: ${err.message}`);
+        });
+      }
+    });
+
+    return newPayment;
   });
 
 // De même pour update
@@ -1080,7 +1250,7 @@ ipcMain.handle('db:payments:update', async (event, { id, data }) => {
     }
   }
 
-  return prisma.payments.update({
+  const updatedPayment = await prisma.payments.update({
     where: { id },
     data: {
       registration_id,
@@ -1092,6 +1262,17 @@ ipcMain.handle('db:payments:update', async (event, { id, data }) => {
       last_modified: new Date(),
     },
   });
+
+  isOnline().then(online => {
+    if (online) {
+      console.log(`[REALTIME] Internet connection detected, pushing item payments #${updatedPayment.id}`);
+      pushSingleItem(prisma, 'payments', updatedPayment.id).catch(err => {
+        console.error(`[REALTIME-PUSH-FAIL] for payments #${updatedPayment.id}: ${err.message}`);
+      });
+    }
+  });
+
+  return updatedPayment;
 });
 
 // Supprimer ou adapter la fonction getAvailableMonths qui n'a plus de sens
@@ -1110,7 +1291,7 @@ ipcMain.handle('db:payments:getAvailableMonths', async () => {
       throw new Error("Accès non autorisé ou paiement non trouvé.");
     }
 
-    return prisma.payments.update({
+    const deletedPayment = await prisma.payments.update({
       where: { id },
       data: { 
         is_deleted: true, 
@@ -1118,6 +1299,17 @@ ipcMain.handle('db:payments:getAvailableMonths', async () => {
         last_modified: new Date(),
       },
     });
+
+    isOnline().then(online => {
+      if (online) {
+        console.log(`[REALTIME] Internet connection detected, pushing deleted item payments #${deletedPayment.id}`);
+        pushSingleItem(prisma, 'payments', deletedPayment.id).catch(err => {
+          console.error(`[REALTIME-PUSH-FAIL] for deleted payments #${deletedPayment.id}: ${err.message}`);
+        });
+      }
+    });
+
+    return deletedPayment;
   });
   // #endregion
 
@@ -1145,9 +1337,9 @@ ipcMain.handle('db:payments:getAvailableMonths', async () => {
   }
 
   // Utiliser une transaction pour garantir que la matière et la leçon sont créées ensemble
-  return prisma.$transaction(async (tx) => {
+  const newSubject = await prisma.$transaction(async (tx) => {
     // 1. Créer la matière (Subject)
-    const newSubject = await tx.subjects.create({
+    const subject = await tx.subjects.create({
       data: {
         name,
         coefficient,
@@ -1171,15 +1363,26 @@ ipcMain.handle('db:payments:getAvailableMonths', async () => {
       data: {
         teacher_id: numeric_teacher_id,
         class_id: numeric_class_id,
-        subject_id: newSubject.id,
+        subject_id: subject.id,
         school_year,
         needs_sync: true,
         last_modified: new Date(),
       },
     });
 
-    return newSubject;
+    return subject;
   });
+
+  isOnline().then(online => {
+    if (online) {
+      console.log(`[REALTIME] Internet connection detected, pushing item subjects #${newSubject.id}`);
+      pushSingleItem(prisma, 'subjects', newSubject.id).catch(err => {
+        console.error(`[REALTIME-PUSH-FAIL] for subjects #${newSubject.id}: ${err.message}`);
+      });
+    }
+  });
+
+  return newSubject;
 });
 
   ipcMain.handle('db:subjects:update', async (event, { id, data }) => {
@@ -1203,7 +1406,7 @@ ipcMain.handle('db:payments:getAvailableMonths', async () => {
         }
     }
 
-    return prisma.subjects.update({
+    const updatedSubject = await prisma.subjects.update({
       where: { id },
       data: {
         name,
@@ -1214,6 +1417,17 @@ ipcMain.handle('db:payments:getAvailableMonths', async () => {
         last_modified: new Date(),
       },
     });
+
+    isOnline().then(online => {
+      if (online) {
+        console.log(`[REALTIME] Internet connection detected, pushing item subjects #${updatedSubject.id}`);
+        pushSingleItem(prisma, 'subjects', updatedSubject.id).catch(err => {
+          console.error(`[REALTIME-PUSH-FAIL] for subjects #${updatedSubject.id}: ${err.message}`);
+        });
+      }
+    });
+
+    return updatedSubject;
   });
 
   ipcMain.handle('db:subjects:delete', async (event, id) => {
@@ -1236,7 +1450,7 @@ ipcMain.handle('db:payments:getAvailableMonths', async () => {
       throw new Error('Impossible de supprimer une matière enseignée dans des leçons.');
     }
 
-    return prisma.subjects.update({
+    const deletedSubject = await prisma.subjects.update({
       where: { id },
       data: { 
         is_deleted: true, 
@@ -1244,6 +1458,17 @@ ipcMain.handle('db:payments:getAvailableMonths', async () => {
         last_modified: new Date(),
       },
     });
+
+    isOnline().then(online => {
+      if (online) {
+        console.log(`[REALTIME] Internet connection detected, pushing deleted item subjects #${deletedSubject.id}`);
+        pushSingleItem(prisma, 'subjects', deletedSubject.id).catch(err => {
+          console.error(`[REALTIME-PUSH-FAIL] for deleted subjects #${deletedSubject.id}: ${err.message}`);
+        });
+      }
+    });
+
+    return deletedSubject;
   });
 
   ipcMain.handle('db:classSubjects:getAll', async (event, classId) => {
@@ -1339,7 +1564,7 @@ ipcMain.handle('db:payments:getAvailableMonths', async () => {
         throw new Error("Accès non autorisé: l'étudiant spécifié n'appartient pas à votre école.");
     }
 
-    return prisma.attendances.create({
+    const newAttendance = await prisma.attendances.create({
       data: {
         student_id,
         date,
@@ -1349,6 +1574,17 @@ ipcMain.handle('db:payments:getAvailableMonths', async () => {
         last_modified: new Date(),
       },
     });
+
+    isOnline().then(online => {
+      if (online) {
+        console.log(`[REALTIME] Internet connection detected, pushing item attendances #${newAttendance.id}`);
+        pushSingleItem(prisma, 'attendances', newAttendance.id).catch(err => {
+          console.error(`[REALTIME-PUSH-FAIL] for attendances #${newAttendance.id}: ${err.message}`);
+        });
+      }
+    });
+
+    return newAttendance;
   });
 
   ipcMain.handle('db:attendances:update', async (event, { id, data }) => {
@@ -1364,7 +1600,7 @@ ipcMain.handle('db:payments:getAvailableMonths', async () => {
       throw new Error("Accès non autorisé ou présence non trouvée.");
     }
 
-    return prisma.attendances.update({
+    const updatedAttendance = await prisma.attendances.update({
       where: { id },
       data: {
         student_id,
@@ -1375,6 +1611,17 @@ ipcMain.handle('db:payments:getAvailableMonths', async () => {
         last_modified: new Date(),
       },
     });
+
+    isOnline().then(online => {
+      if (online) {
+        console.log(`[REALTIME] Internet connection detected, pushing item attendances #${updatedAttendance.id}`);
+        pushSingleItem(prisma, 'attendances', updatedAttendance.id).catch(err => {
+          console.error(`[REALTIME-PUSH-FAIL] for attendances #${updatedAttendance.id}: ${err.message}`);
+        });
+      }
+    });
+
+    return updatedAttendance;
   });
 
   ipcMain.handle('db:attendances:delete', async (event, id) => {
@@ -1388,7 +1635,7 @@ ipcMain.handle('db:payments:getAvailableMonths', async () => {
       throw new Error("Accès non autorisé ou présence non trouvée.");
     }
 
-    return prisma.attendances.update({
+    const deletedAttendance = await prisma.attendances.update({
       where: { id },
       data: { 
         is_deleted: true, 
@@ -1396,6 +1643,17 @@ ipcMain.handle('db:payments:getAvailableMonths', async () => {
         last_modified: new Date(),
       },
     });
+
+    isOnline().then(online => {
+      if (online) {
+        console.log(`[REALTIME] Internet connection detected, pushing deleted item attendances #${deletedAttendance.id}`);
+        pushSingleItem(prisma, 'attendances', deletedAttendance.id).catch(err => {
+          console.error(`[REALTIME-PUSH-FAIL] for deleted attendances #${deletedAttendance.id}: ${err.message}`);
+        });
+      }
+    });
+
+    return deletedAttendance;
   });
 
   ipcMain.handle('db:attendances:getByStudentId', async (event, studentId) => {
@@ -1427,7 +1685,7 @@ ipcMain.handle('db:payments:getAvailableMonths', async () => {
 ipcMain.handle('db:parents:create', async (event, parentData) => {
   const schoolId = await getUserSchoolId(event);
   const { name, first_name, phone, email, adress, gender, profession } = parentData;
-  return prisma.parents.create({
+  const newParent = await prisma.parents.create({
     data: {
       name,
       first_name,
@@ -1441,6 +1699,17 @@ ipcMain.handle('db:parents:create', async (event, parentData) => {
       last_modified: new Date(),
     },
   });
+
+  isOnline().then(online => {
+    if (online) {
+      console.log(`[REALTIME] Internet connection detected, pushing item parents #${newParent.id}`);
+      pushSingleItem(prisma, 'parents', newParent.id).catch(err => {
+        console.error(`[REALTIME-PUSH-FAIL] for parents #${newParent.id}: ${err.message}`);
+      });
+    }
+  });
+
+  return newParent;
 });
 
 ipcMain.handle('db:parents:update', async (event, { id, data }) => {
@@ -1452,7 +1721,7 @@ ipcMain.handle('db:parents:update', async (event, { id, data }) => {
   }
 
   const { name, first_name, phone, email, adress, gender, profession } = data;
-  return prisma.parents.update({
+  const updatedParent = await prisma.parents.update({
     where: { id },
     data: {
       name,
@@ -1466,6 +1735,17 @@ ipcMain.handle('db:parents:update', async (event, { id, data }) => {
       last_modified: new Date(),
     },
   });
+
+  isOnline().then(online => {
+    if (online) {
+      console.log(`[REALTIME] Internet connection detected, pushing item parents #${updatedParent.id}`);
+      pushSingleItem(prisma, 'parents', updatedParent.id).catch(err => {
+        console.error(`[REALTIME-PUSH-FAIL] for parents #${updatedParent.id}: ${err.message}`);
+      });
+    }
+  });
+
+  return updatedParent;
 });
 
   ipcMain.handle('db:parents:delete', async (event, id) => {
@@ -1484,7 +1764,7 @@ ipcMain.handle('db:parents:update', async (event, { id, data }) => {
       throw new Error('Ce parent est lié à un ou plusieurs étudiants et ne peut pas être supprimé.');
     }
 
-    return prisma.parents.update({
+    const deletedParent = await prisma.parents.update({
       where: { id },
       data: { 
         is_deleted: true, 
@@ -1492,6 +1772,17 @@ ipcMain.handle('db:parents:update', async (event, { id, data }) => {
         last_modified: new Date(),
       },
     });
+
+    isOnline().then(online => {
+      if (online) {
+        console.log(`[REALTIME] Internet connection detected, pushing deleted item parents #${deletedParent.id}`);
+        pushSingleItem(prisma, 'parents', deletedParent.id).catch(err => {
+          console.error(`[REALTIME-PUSH-FAIL] for deleted parents #${deletedParent.id}: ${err.message}`);
+        });
+      }
+    });
+
+    return deletedParent;
   });
 
   ipcMain.handle('db:parents:findByPhone', async (event, phone) => {
@@ -1535,7 +1826,7 @@ ipcMain.handle('db:parents:update', async (event, { id, data }) => {
         throw new Error("Accès non autorisé: la classe spécifiée n'appartient pas à votre école.");
     }
 
-    return prisma.registrations.create({
+    const newRegistration = await prisma.registrations.create({
       data: {
         student_id,
         class_id,
@@ -1546,6 +1837,17 @@ ipcMain.handle('db:parents:update', async (event, { id, data }) => {
         last_modified: new Date(),
       },
     });
+
+    isOnline().then(online => {
+      if (online) {
+        console.log(`[REALTIME] Internet connection detected, pushing item registrations #${newRegistration.id}`);
+        pushSingleItem(prisma, 'registrations', newRegistration.id).catch(err => {
+          console.error(`[REALTIME-PUSH-FAIL] for registrations #${newRegistration.id}: ${err.message}`);
+        });
+      }
+    });
+
+    return newRegistration;
   });
 
   ipcMain.handle('db:registrations:update', async (event, { id, data }) => {
@@ -1568,7 +1870,7 @@ ipcMain.handle('db:parents:update', async (event, { id, data }) => {
       }
     }
 
-    return prisma.registrations.update({
+    const updatedRegistration = await prisma.registrations.update({
       where: { id },
       data: {
         student_id,
@@ -1580,6 +1882,17 @@ ipcMain.handle('db:parents:update', async (event, { id, data }) => {
         last_modified: new Date(),
       },
     });
+
+    isOnline().then(online => {
+      if (online) {
+        console.log(`[REALTIME] Internet connection detected, pushing item registrations #${updatedRegistration.id}`);
+        pushSingleItem(prisma, 'registrations', updatedRegistration.id).catch(err => {
+          console.error(`[REALTIME-PUSH-FAIL] for registrations #${updatedRegistration.id}: ${err.message}`);
+        });
+      }
+    });
+
+    return updatedRegistration;
   });
 
   ipcMain.handle('db:registrations:delete', async (event, id) => {
@@ -1601,7 +1914,7 @@ ipcMain.handle('db:parents:update', async (event, { id, data }) => {
       throw new Error('Cette inscription est liée à des paiements et ne peut pas être supprimée.');
     }
 
-    return prisma.registrations.update({
+    const deletedRegistration = await prisma.registrations.update({
       where: { id },
       data: { 
         is_deleted: true, 
@@ -1609,6 +1922,17 @@ ipcMain.handle('db:parents:update', async (event, { id, data }) => {
         last_modified: new Date(),
       },
     });
+
+    isOnline().then(online => {
+      if (online) {
+        console.log(`[REALTIME] Internet connection detected, pushing deleted item registrations #${deletedRegistration.id}`);
+        pushSingleItem(prisma, 'registrations', deletedRegistration.id).catch(err => {
+          console.error(`[REALTIME-PUSH-FAIL] for deleted registrations #${deletedRegistration.id}: ${err.message}`);
+        });
+      }
+    });
+
+    return deletedRegistration;
   });
 
   ipcMain.handle('db:registrations:getLatestForStudent', async (event, { studentId }) => {
@@ -1676,7 +2000,7 @@ ipcMain.handle('db:parents:update', async (event, { id, data }) => {
         throw new Error("Accès non autorisé: le parent spécifié n'appartient pas à votre école.");
     }
 
-    return prisma.studentParents.create({
+    const newLink = await prisma.studentParents.create({
       data: {
         student_id: studentId,
         parent_id: parentId,
@@ -1685,6 +2009,17 @@ ipcMain.handle('db:parents:update', async (event, { id, data }) => {
         last_modified: new Date(),
       },
     });
+
+    isOnline().then(online => {
+      if (online) {
+        console.log(`[REALTIME] Internet connection detected, pushing item studentParents #${newLink.id}`);
+        pushSingleItem(prisma, 'studentParents', newLink.id).catch(err => {
+          console.error(`[REALTIME-PUSH-FAIL] for studentParents #${newLink.id}: ${err.message}`);
+        });
+      }
+    });
+
+    return newLink;
   });
 
   ipcMain.handle('db:studentParents:unlink', async (event, { studentId, parentId }) => {
@@ -1699,7 +2034,15 @@ ipcMain.handle('db:parents:update', async (event, { id, data }) => {
         throw new Error("Accès non autorisé: l'étudiant spécifié n'appartient pas à votre école.");
     }
 
-    return prisma.studentParents.updateMany({
+    const linkToUnlink = await prisma.studentParents.findFirst({
+        where: {
+            student_id: studentId,
+            parent_id: parentId,
+            is_deleted: false
+        }
+    });
+
+    const result = await prisma.studentParents.updateMany({
       where: { 
         student_id: studentId,
         parent_id: parentId,
@@ -1710,6 +2053,19 @@ ipcMain.handle('db:parents:update', async (event, { id, data }) => {
         last_modified: new Date(),
       },
     });
+
+    if (linkToUnlink) {
+        isOnline().then(online => {
+            if (online) {
+                console.log(`[REALTIME] Internet connection detected, pushing unlinked item studentParents #${linkToUnlink.id}`);
+                pushSingleItem(prisma, 'studentParents', linkToUnlink.id).catch(err => {
+                    console.error(`[REALTIME-PUSH-FAIL] for unlinked studentParents #${linkToUnlink.id}: ${err.message}`);
+                });
+            }
+        });
+    }
+
+    return result;
   });
   // #endregion
 
@@ -1748,7 +2104,7 @@ ipcMain.handle('db:parents:update', async (event, { id, data }) => {
       throw new Error("Accès non autorisé: la classe spécifiée n'appartient pas à votre école.");
     }
 
-    return prisma.lessons.create({
+    const newLesson = await prisma.lessons.create({
       data: {
         subject_id,
         teacher_id,
@@ -1758,6 +2114,17 @@ ipcMain.handle('db:parents:update', async (event, { id, data }) => {
         last_modified: new Date(),
       },
     });
+
+    isOnline().then(online => {
+      if (online) {
+        console.log(`[REALTIME] Internet connection detected, pushing item lessons #${newLesson.id}`);
+        pushSingleItem(prisma, 'lessons', newLesson.id).catch(err => {
+          console.error(`[REALTIME-PUSH-FAIL] for lessons #${newLesson.id}: ${err.message}`);
+        });
+      }
+    });
+
+    return newLesson;
   });
 
   ipcMain.handle('db:lessons:update', async (event, { id, data }) => {
@@ -1780,7 +2147,7 @@ ipcMain.handle('db:parents:update', async (event, { id, data }) => {
       }
     }
 
-    return prisma.lessons.update({
+    const updatedLesson = await prisma.lessons.update({
       where: { id },
       data: {
         subject_id,
@@ -1791,6 +2158,17 @@ ipcMain.handle('db:parents:update', async (event, { id, data }) => {
         last_modified: new Date(),
       },
     });
+
+    isOnline().then(online => {
+      if (online) {
+        console.log(`[REALTIME] Internet connection detected, pushing item lessons #${updatedLesson.id}`);
+        pushSingleItem(prisma, 'lessons', updatedLesson.id).catch(err => {
+          console.error(`[REALTIME-PUSH-FAIL] for lessons #${updatedLesson.id}: ${err.message}`);
+        });
+      }
+    });
+
+    return updatedLesson;
   });
 
   ipcMain.handle('db:lessons:delete', async (event, id) => {
@@ -1812,7 +2190,7 @@ ipcMain.handle('db:parents:update', async (event, { id, data }) => {
       throw new Error('Cette leçon est liée à des notes et ne peut pas être supprimée.');
     }
 
-    return prisma.lessons.update({
+    const deletedLesson = await prisma.lessons.update({
       where: { id },
       data: { 
         is_deleted: true, 
@@ -1820,6 +2198,17 @@ ipcMain.handle('db:parents:update', async (event, { id, data }) => {
         last_modified: new Date(),
       },
     });
+
+    isOnline().then(online => {
+      if (online) {
+        console.log(`[REALTIME] Internet connection detected, pushing deleted item lessons #${deletedLesson.id}`);
+        pushSingleItem(prisma, 'lessons', deletedLesson.id).catch(err => {
+          console.error(`[REALTIME-PUSH-FAIL] for deleted lessons #${deletedLesson.id}: ${err.message}`);
+        });
+      }
+    });
+
+    return deletedLesson;
   });
   // #endregion
 
@@ -2059,7 +2448,7 @@ ipcMain.handle('db:parents:update', async (event, { id, data }) => {
   ipcMain.handle('db:financial-categories:create', async (event, categoryData) => {
     const schoolId = await getUserSchoolId(event);
     const { name, type } = categoryData;
-    return prisma.financialCategory.create({
+    const newCategory = await prisma.financialCategory.create({
       data: {
         name,
         type,
@@ -2068,6 +2457,13 @@ ipcMain.handle('db:parents:update', async (event, { id, data }) => {
         last_modified: new Date(),
       },
     });
+    isOnline().then(online => {
+      if (online) {
+        console.log(`[REALTIME] Pushing financialCategory #${newCategory.id}`);
+        pushSingleItem(prisma, 'financialCategory', newCategory.id).catch(err => console.error(err));
+      }
+    });
+    return newCategory;
   });
 
   ipcMain.handle('db:financial-transactions:getAll', async (event, filters) => {
@@ -2108,7 +2504,7 @@ ipcMain.handle('db:parents:update', async (event, { id, data }) => {
   ipcMain.handle('db:financial-transactions:create', async (event, transactionData) => {
     const schoolId = await getUserSchoolId(event);
     const { date, description, amount, type, category_id } = transactionData;
-    return prisma.financialTransaction.create({
+    const newTransaction = await prisma.financialTransaction.create({
       data: {
         date,
         description,
@@ -2120,6 +2516,12 @@ ipcMain.handle('db:parents:update', async (event, { id, data }) => {
         last_modified: new Date(),
       },
     });
+    isOnline().then(online => {
+      if (online) {
+        pushSingleItem(prisma, 'financialTransaction', newTransaction.id).catch(err => console.error(err));
+      }
+    });
+    return newTransaction;
   });
 
   ipcMain.handle('db:financial-transactions:update', async (event, { id, data }) => {
@@ -2131,7 +2533,7 @@ ipcMain.handle('db:parents:update', async (event, { id, data }) => {
     }
 
     const { date, description, amount, type, category_id } = data;
-    return prisma.financialTransaction.update({
+    const updatedTransaction = await prisma.financialTransaction.update({
       where: { id },
       data: {
         date,
@@ -2143,6 +2545,12 @@ ipcMain.handle('db:parents:update', async (event, { id, data }) => {
         last_modified: new Date(),
       },
     });
+    isOnline().then(online => {
+      if (online) {
+        pushSingleItem(prisma, 'financialTransaction', updatedTransaction.id).catch(err => console.error(err));
+      }
+    });
+    return updatedTransaction;
   });
 
   ipcMain.handle('db:financial-transactions:delete', async (event, id) => {
@@ -2153,7 +2561,7 @@ ipcMain.handle('db:parents:update', async (event, { id, data }) => {
       throw new Error("Accès non autorisé ou transaction non trouvée.");
     }
 
-    return prisma.financialTransaction.update({
+    const deletedTransaction = await prisma.financialTransaction.update({
       where: { id },
       data: {
         is_deleted: true,
@@ -2161,6 +2569,12 @@ ipcMain.handle('db:parents:update', async (event, { id, data }) => {
         last_modified: new Date(),
       },
     });
+    isOnline().then(online => {
+      if (online) {
+        pushSingleItem(prisma, 'financialTransaction', deletedTransaction.id).catch(err => console.error(err));
+      }
+    });
+    return deletedTransaction;
   });
 
   ipcMain.handle('db:migrate:salaries-to-expenses', async () => {
@@ -2380,7 +2794,7 @@ ipcMain.handle('db:schedules:create', async (event, scheduleData) => {
     throw new Error("Accès non autorisé: la leçon spécifiée n'appartient pas à votre école.");
   }
 
-  return prisma.schedules.create({
+  const newSchedule = await prisma.schedules.create({
     data: {
       lesson_id,
       day_of_week,
@@ -2390,6 +2804,17 @@ ipcMain.handle('db:schedules:create', async (event, scheduleData) => {
       last_modified: new Date(),
     },
   });
+
+  isOnline().then(online => {
+    if (online) {
+      console.log(`[REALTIME] Internet connection detected, pushing item schedules #${newSchedule.id}`);
+      pushSingleItem(prisma, 'schedules', newSchedule.id).catch(err => {
+        console.error(`[REALTIME-PUSH-FAIL] for schedules #${newSchedule.id}: ${err.message}`);
+      });
+    }
+  });
+
+  return newSchedule;
 });
 
   ipcMain.handle('db:schedules:update', async (event, { id, data }) => {
@@ -2415,7 +2840,7 @@ ipcMain.handle('db:schedules:create', async (event, scheduleData) => {
       }
     }
 
-    return prisma.schedules.update({
+    const updatedSchedule = await prisma.schedules.update({
       where: { id },
       data: {
         lesson_id,
@@ -2426,6 +2851,17 @@ ipcMain.handle('db:schedules:create', async (event, scheduleData) => {
         last_modified: new Date(),
       },
     });
+
+    isOnline().then(online => {
+      if (online) {
+        console.log(`[REALTIME] Internet connection detected, pushing item schedules #${updatedSchedule.id}`);
+        pushSingleItem(prisma, 'schedules', updatedSchedule.id).catch(err => {
+          console.error(`[REALTIME-PUSH-FAIL] for schedules #${updatedSchedule.id}: ${err.message}`);
+        });
+      }
+    });
+
+    return updatedSchedule;
   });
 
   ipcMain.handle('db:schedules:delete', async (event, id) => {
@@ -2439,7 +2875,7 @@ ipcMain.handle('db:schedules:create', async (event, scheduleData) => {
       throw new Error("Accès non autorisé ou emploi du temps non trouvé.");
     }
 
-    return prisma.schedules.update({
+    const deletedSchedule = await prisma.schedules.update({
       where: { id },
       data: { 
         is_deleted: true, 
@@ -2447,6 +2883,17 @@ ipcMain.handle('db:schedules:create', async (event, scheduleData) => {
         last_modified: new Date(),
       },
     });
+
+    isOnline().then(online => {
+      if (online) {
+        console.log(`[REALTIME] Internet connection detected, pushing deleted item schedules #${deletedSchedule.id}`);
+        pushSingleItem(prisma, 'schedules', deletedSchedule.id).catch(err => {
+          console.error(`[REALTIME-PUSH-FAIL] for deleted schedules #${deletedSchedule.id}: ${err.message}`);
+        });
+      }
+    });
+
+    return deletedSchedule;
   });
 
   ipcMain.handle('db:schedules:getForClass', async (event, classId) => {
@@ -2525,7 +2972,7 @@ ipcMain.handle('db:notes:create', async (event, noteData) => {
       throw new Error("Accès non autorisé: la leçon spécifiée n'appartient pas à votre école.");
   }
 
-  return prisma.notes.create({
+  const newNote = await prisma.notes.create({
     data: {
       student_id,
       lesson_id,
@@ -2536,6 +2983,17 @@ ipcMain.handle('db:notes:create', async (event, noteData) => {
       last_modified: new Date(),
     },
   });
+
+  isOnline().then(online => {
+    if (online) {
+      console.log(`[REALTIME] Internet connection detected, pushing item notes #${newNote.id}`);
+      pushSingleItem(prisma, 'notes', newNote.id).catch(err => {
+        console.error(`[REALTIME-PUSH-FAIL] for notes #${newNote.id}: ${err.message}`);
+      });
+    }
+  });
+
+  return newNote;
 });
 
   ipcMain.handle('db:notes:update', async (event, { id, data }) => {
@@ -2561,7 +3019,7 @@ ipcMain.handle('db:notes:create', async (event, noteData) => {
       }
     }
 
-    return prisma.notes.update({
+    const updatedNote = await prisma.notes.update({
       where: { id },
       data: {
         student_id,
@@ -2573,6 +3031,17 @@ ipcMain.handle('db:notes:create', async (event, noteData) => {
         last_modified: new Date(),
       },
     });
+
+    isOnline().then(online => {
+      if (online) {
+        console.log(`[REALTIME] Internet connection detected, pushing item notes #${updatedNote.id}`);
+        pushSingleItem(prisma, 'notes', updatedNote.id).catch(err => {
+          console.error(`[REALTIME-PUSH-FAIL] for notes #${updatedNote.id}: ${err.message}`);
+        });
+      }
+    });
+
+    return updatedNote;
   });
 
   ipcMain.handle('db:notes:delete', async (event, id) => {
@@ -2586,7 +3055,7 @@ ipcMain.handle('db:notes:create', async (event, noteData) => {
       throw new Error("Accès non autorisé ou note non trouvée.");
     }
 
-    return prisma.notes.update({
+    const deletedNote = await prisma.notes.update({
       where: { id },
       data: { 
         is_deleted: true, 
@@ -2594,6 +3063,17 @@ ipcMain.handle('db:notes:create', async (event, noteData) => {
         last_modified: new Date(),
       },
     });
+
+    isOnline().then(online => {
+      if (online) {
+        console.log(`[REALTIME] Internet connection detected, pushing deleted item notes #${deletedNote.id}`);
+        pushSingleItem(prisma, 'notes', deletedNote.id).catch(err => {
+          console.error(`[REALTIME-PUSH-FAIL] for deleted notes #${deletedNote.id}: ${err.message}`);
+        });
+      }
+    });
+
+    return deletedNote;
   });
   // #endregion
 
@@ -2618,7 +3098,7 @@ ipcMain.handle('db:employees:create', async (event, employeeData) => {
     password_hash = bcrypt.hashSync(password, 10);
   }
 
-  return prisma.employees.create({
+  const newEmployee = await prisma.employees.create({
     data: {
       name,
       first_name,
@@ -2635,6 +3115,17 @@ ipcMain.handle('db:employees:create', async (event, employeeData) => {
       last_modified: new Date(),
     },
   });
+
+  isOnline().then(online => {
+    if (online) {
+      console.log(`[REALTIME] Internet connection detected, pushing item employees #${newEmployee.id}`);
+      pushSingleItem(prisma, 'employees', newEmployee.id).catch(err => {
+        console.error(`[REALTIME-PUSH-FAIL] for employees #${newEmployee.id}: ${err.message}`);
+      });
+    }
+  });
+
+  return newEmployee;
 });
 
 ipcMain.handle('db:employees:update', async (event, { id, data }) => {
@@ -2646,7 +3137,7 @@ ipcMain.handle('db:employees:update', async (event, { id, data }) => {
   }
 
   const { name, first_name, phone, email, adress, gender, job_title, salary, matricule } = data;
-  return prisma.employees.update({
+  const updatedEmployee = await prisma.employees.update({
     where: { id },
     data: {
       name,
@@ -2662,6 +3153,17 @@ ipcMain.handle('db:employees:update', async (event, { id, data }) => {
       last_modified: new Date(),
     },
   });
+
+  isOnline().then(online => {
+    if (online) {
+      console.log(`[REALTIME] Internet connection detected, pushing item employees #${updatedEmployee.id}`);
+      pushSingleItem(prisma, 'employees', updatedEmployee.id).catch(err => {
+        console.error(`[REALTIME-PUSH-FAIL] for employees #${updatedEmployee.id}: ${err.message}`);
+      });
+    }
+  });
+
+  return updatedEmployee;
 });
 
 ipcMain.handle('db:employees:delete', async (event, id) => {
@@ -2672,7 +3174,7 @@ ipcMain.handle('db:employees:delete', async (event, id) => {
     throw new Error("Accès non autorisé ou employé non trouvé.");
   }
 
-  return prisma.employees.update({
+  const deletedEmployee = await prisma.employees.update({
       where: { id },
       data: { 
         is_deleted: true, 
@@ -2680,6 +3182,17 @@ ipcMain.handle('db:employees:delete', async (event, id) => {
         last_modified: new Date(),
       },
     });
+
+  isOnline().then(online => {
+    if (online) {
+      console.log(`[REALTIME] Internet connection detected, pushing deleted item employees #${deletedEmployee.id}`);
+      pushSingleItem(prisma, 'employees', deletedEmployee.id).catch(err => {
+        console.error(`[REALTIME-PUSH-FAIL] for deleted employees #${deletedEmployee.id}: ${err.message}`);
+      });
+    }
+  });
+
+  return deletedEmployee;
 });
 
 ipcMain.handle('db:employees:paySalary', async (event, { employee_id, base_salary, bonus_amount, payment_date, notes }) => {
@@ -2692,8 +3205,7 @@ ipcMain.handle('db:employees:paySalary', async (event, { employee_id, base_salar
 
   const total_amount = base_salary + bonus_amount;
 
-  return prisma.$transaction(async (tx) => {
-    // Étape 1: Créer l'enregistrement du paiement de salaire (fonctionnalité existante)
+  const newSalaryPayment = await prisma.$transaction(async (tx) => {
     const salaryPayment = await tx.salaryPayments.create({
       data: {
         employee_id,
@@ -2706,11 +3218,10 @@ ipcMain.handle('db:employees:paySalary', async (event, { employee_id, base_salar
         last_modified: new Date(),
       },
       include: {
-        employee: true, // Inclure l'employé pour obtenir son nom
+        employee: true,
       }
     });
 
-    // Étape 2: Trouver ou créer la catégorie "Salaires"
     let salaryCategory = await tx.financialCategory.findFirst({
       where: { name: 'Salaires', type: 'expense', school_id: schoolId },
     });
@@ -2727,7 +3238,6 @@ ipcMain.handle('db:employees:paySalary', async (event, { employee_id, base_salar
       });
     }
 
-    // Étape 3: Créer la transaction financière correspondante
     await tx.financialTransaction.create({
       data: {
         date: new Date(payment_date),
@@ -2743,6 +3253,17 @@ ipcMain.handle('db:employees:paySalary', async (event, { employee_id, base_salar
 
     return salaryPayment;
   });
+
+  isOnline().then(online => {
+    if (online) {
+      console.log(`[REALTIME] Internet connection detected, pushing item salaryPayments #${newSalaryPayment.id}`);
+      pushSingleItem(prisma, 'salaryPayments', newSalaryPayment.id).catch(err => {
+        console.error(`[REALTIME-PUSH-FAIL] for salaryPayments #${newSalaryPayment.id}: ${err.message}`);
+      });
+    }
+  });
+
+  return newSalaryPayment;
 });
 
 ipcMain.handle('db:employees:getSalaryHistory', async (event, employeeId) => {
@@ -2797,7 +3318,7 @@ ipcMain.handle('db:employees:getStats', async () => {
 ipcMain.handle('db:fees:create', async (event, feeData) => {
   const schoolId = await getUserSchoolId(event);
   const { name, amount, due_date, school_year, level } = feeData;
-  return prisma.fees.create({
+  const newFee = await prisma.fees.create({
     data: {
       name,
       amount,
@@ -2809,6 +3330,17 @@ ipcMain.handle('db:fees:create', async (event, feeData) => {
       last_modified: new Date(),
     },
   });
+
+  isOnline().then(online => {
+    if (online) {
+      console.log(`[REALTIME] Internet connection detected, pushing item fees #${newFee.id}`);
+      pushSingleItem(prisma, 'fees', newFee.id).catch(err => {
+        console.error(`[REALTIME-PUSH-FAIL] for fees #${newFee.id}: ${err.message}`);
+      });
+    }
+  });
+
+  return newFee;
 });
 
 ipcMain.handle('db:fees:update', async (event, { id, data }) => {
@@ -2820,7 +3352,7 @@ ipcMain.handle('db:fees:update', async (event, { id, data }) => {
   }
 
   const { name, amount, due_date, school_year, level } = data;
-  return prisma.fees.update({
+  const updatedFee = await prisma.fees.update({
     where: { id },
     data: {
       name,
@@ -2832,6 +3364,17 @@ ipcMain.handle('db:fees:update', async (event, { id, data }) => {
       last_modified: new Date(),
     },
   });
+
+  isOnline().then(online => {
+    if (online) {
+      console.log(`[REALTIME] Internet connection detected, pushing item fees #${updatedFee.id}`);
+      pushSingleItem(prisma, 'fees', updatedFee.id).catch(err => {
+        console.error(`[REALTIME-PUSH-FAIL] for fees #${updatedFee.id}: ${err.message}`);
+      });
+    }
+  });
+
+  return updatedFee;
 });
 
 ipcMain.handle('db:fees:delete', async (event, id) => {
@@ -2842,7 +3385,7 @@ ipcMain.handle('db:fees:delete', async (event, id) => {
     throw new Error("Accès non autorisé ou frais non trouvé.");
   }
 
-  return prisma.fees.update({
+  const deletedFee = await prisma.fees.update({
     where: { id },
     data: { 
       is_deleted: true, 
@@ -2850,6 +3393,17 @@ ipcMain.handle('db:fees:delete', async (event, id) => {
       last_modified: new Date(),
     },
   });
+
+  isOnline().then(online => {
+    if (online) {
+      console.log(`[REALTIME] Internet connection detected, pushing deleted item fees #${deletedFee.id}`);
+      pushSingleItem(prisma, 'fees', deletedFee.id).catch(err => {
+        console.error(`[REALTIME-PUSH-FAIL] for deleted fees #${deletedFee.id}: ${err.message}`);
+      });
+    }
+  });
+
+  return deletedFee;
 });
 
   ipcMain.handle('db:fees:getStudentFeeStatus', async (event, { registrationId, level }) => {
@@ -2925,36 +3479,7 @@ ipcMain.handle('db:fees:delete', async (event, id) => {
 
   // #endregion
 
-  // #region Printer
-  ipcMain.handle('printers:get-list', async (event) => {
-    const win = BrowserWindow.fromWebContents(event.sender);
-    return win.webContents.getPrinters();
-  });
-
-  ipcMain.handle('printers:print-receipt', async (event, { htmlContent, printerName }) => {
-    const printWindow = new BrowserWindow({ show: false });
-    
-    await printWindow.loadURL(`data:text/html;charset=utf-8,${encodeURI(htmlContent)}`);
-    
-    return new Promise((resolve, reject) => {
-      printWindow.webContents.on('did-finish-load', () => {
-        printWindow.webContents.print({
-          silent: true,
-          deviceName: printerName,
-          printBackground: true,
-        }, (success, errorType) => {
-          if (!success) {
-            console.error('Printing failed:', errorType);
-            reject(new Error(errorType));
-          } else {
-            resolve({ success: true });
-          }
-          printWindow.close();
-        });
-      });
-    });
-  });
-  // #endregion
+  
 
   // #region Dispatch Rules
   ipcMain.handle('db:dispatch-rules:getAll', async (event) => {
@@ -2981,7 +3506,7 @@ ipcMain.handle('db:fees:delete', async (event, id) => {
       throw new Error("Accès non autorisé: le type de frais spécifié n'appartient pas à votre école.");
     }
 
-    return prisma.$transaction(async (tx) => {
+    const newRule = await prisma.$transaction(async (tx) => {
       const rule = await tx.dispatchRule.upsert({
         where: { source_fee_id },
         update: {
@@ -3016,6 +3541,14 @@ ipcMain.handle('db:fees:delete', async (event, id) => {
       }
       return rule;
     });
+
+    isOnline().then(online => {
+      if (online) {
+        pushSingleItem(prisma, 'dispatchRule', newRule.id).catch(err => console.error(err));
+      }
+    });
+
+    return newRule;
   });
 
   
@@ -3028,7 +3561,7 @@ ipcMain.handle('db:fees:delete', async (event, id) => {
       throw new Error("Accès non autorisé ou règle non trouvée.");
     }
 
-    return prisma.dispatchRule.update({
+    const deletedRule = await prisma.dispatchRule.update({
       where: { id },
       data: {
         is_deleted: true,
@@ -3036,6 +3569,14 @@ ipcMain.handle('db:fees:delete', async (event, id) => {
         last_modified: new Date(),
       },
     });
+
+    isOnline().then(online => {
+      if (online) {
+        pushSingleItem(prisma, 'dispatchRule', deletedRule.id).catch(err => console.error(err));
+      }
+    });
+
+    return deletedRule;
   });
 
   ipcMain.handle('db:dispatch-rules:update', async (event, { id, data }) => {
@@ -3047,8 +3588,8 @@ ipcMain.handle('db:fees:delete', async (event, id) => {
       throw new Error("Accès non autorisé ou règle non trouvée.");
     }
 
-    return prisma.$transaction(async (tx) => {
-      const updatedRule = await tx.dispatchRule.update({
+    const updatedRule = await prisma.$transaction(async (tx) => {
+      const rule = await tx.dispatchRule.update({
         where: { id },
         data: {
           name,
@@ -3065,7 +3606,7 @@ ipcMain.handle('db:fees:delete', async (event, id) => {
       for (const detail of details) {
         await tx.dispatchRuleDetail.create({
           data: {
-            dispatch_rule_id: updatedRule.id,
+            dispatch_rule_id: rule.id,
             destination_category_id: detail.destination_category_id,
             percentage: detail.percentage,
             needs_sync: true,
@@ -3073,8 +3614,16 @@ ipcMain.handle('db:fees:delete', async (event, id) => {
           },
         });
       }
-      return updatedRule;
+      return rule;
     });
+
+    isOnline().then(online => {
+      if (online) {
+        pushSingleItem(prisma, 'dispatchRule', updatedRule.id).catch(err => console.error(err));
+      }
+    });
+
+    return updatedRule;
   });
   // #endregion
 

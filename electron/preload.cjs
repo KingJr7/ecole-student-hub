@@ -8,6 +8,8 @@ const validInvokeChannels = [
   'sync:run',
   // Images
   'images:process-student-photo',
+  // Debug
+  'debug:get-web-contents-methods',
   // Database
   'db:settings:get', 'db:settings:update',
   'db:classes:getAll', 'db:classes:create', 'db:classes:update', 'db:classes:delete',

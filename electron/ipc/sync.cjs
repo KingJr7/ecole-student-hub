@@ -17,18 +17,29 @@ if (!supabaseUrl || !supabaseAnonKey) {
 }
 
 // --- Helper function to send logs to renderer ---
-function sendSyncLog(level, message, details) {
+function sendSyncLog(level, message, details, progress = null) {
     const win = BrowserWindow.getAllWindows()[0];
-    const allowedMessages = [
-        'Démarrage du processus de synchronisation complet.',
-        'Synchronisation terminée avec succès.',
-        'Le processus de synchronisation a échoué.'
-    ];
-
-    if (win && allowedMessages.includes(message)) {
-        win.webContents.send('sync:log', { level, message, details });
+    if (win) {
+        win.webContents.send('sync:log', { level, message, details, progress });
     }
     console.log(`[SYNC:${level.toUpperCase()}] ${message}`, details || '');
+}
+
+// --- Retry mechanism ---
+async function withRetry(fn, retries = 3, delay = 1000) {
+    for (let i = 0; i < retries; i++) {
+        try {
+            return await fn();
+        } catch (error) {
+            if (i < retries - 1) {
+                sendSyncLog('warn', `Tentative échouée, nouvelle tentative dans ${delay / 1000}s...`, { attempt: i + 1, error: error.message });
+                await new Promise(resolve => setTimeout(resolve, delay));
+                delay *= 2; // Exponential backoff
+            } else {
+                throw error; // Last attempt failed
+            }
+        }
+    }
 }
 
 async function getLocalId(prisma, modelName, supabaseId) {
@@ -215,18 +226,35 @@ const tableConfigs = {
                 }
                 userIdToLink = row.user_supabase_id;
             } else {
-                // Sinon, on crée un nouvel utilisateur
-                // On ajoute le mot de passe seulement à la création
-                const { data: userCreated, error: createUserError } = await supabase
+                // SINON, on cherche si un utilisateur avec cet email existe déjà
+                const { data: existingUser, error: findError } = await supabase
                     .from('users')
-                    .insert({ ...userData, password_hash: row.password_hash })
-                    .select('id');
+                    .select('id')
+                    .eq('email', row.email)
+                    .single();
 
-                if (createUserError || !userCreated || !userCreated[0]?.id) {
-                    sendSyncLog('error', `  -> ❌ Erreur lors de la création du user Supabase pour le prof #${row.id}`, { error: createUserError?.message });
-                    return null; // Échec, on ignore
+                if (existingUser) {
+                    // Si oui, on le met à jour
+                    userIdToLink = existingUser.id;
+                    const { error: updateUserError } = await supabase.from('users').update(userData).eq('id', userIdToLink);
+                    if (updateUserError) {
+                        sendSyncLog('error', `  -> ❌ Erreur MàJ user existant par email pour prof #${row.id}`, { error: updateUserError.message });
+                        return null;
+                    }
+                } else {
+                    // Si non, on le crée
+                    const { data: userCreated, error: createUserError } = await supabase
+                        .from('users')
+                        .insert({ ...userData, password_hash: row.password_hash })
+                        .select('id')
+                        .single();
+
+                    if (createUserError || !userCreated?.id) {
+                        sendSyncLog('error', `  -> ❌ Erreur lors de la création du user Supabase pour le prof #${row.id}`, { error: createUserError?.message });
+                        return null; // Échec, on ignore
+                    }
+                    userIdToLink = userCreated.id;
                 }
-                userIdToLink = userCreated[0].id;
             }
 
             // On retourne les données du teacher à créer/mettre à jour
@@ -533,23 +561,36 @@ const tableConfigs = {
             };
 
             let userIdToLink;
-            const existingUser = await prisma.employees.findUnique({ where: { id: row.id }, select: { user_supabase_id: true } });
 
-            if (existingUser && existingUser.user_supabase_id) {
-                const { error: updateUserError } = await supabase.from('users').update(userData).eq('id', existingUser.user_supabase_id);
+            if (row.user_supabase_id) {
+                const { error: updateUserError } = await supabase.from('users').update(userData).eq('id', row.user_supabase_id);
                 if (updateUserError) {
                     sendSyncLog('error', `  -> ❌ Erreur MàJ user pour employé #${row.id}`, { error: updateUserError.message });
                     return null;
                 }
-                userIdToLink = existingUser.user_supabase_id;
+                userIdToLink = row.user_supabase_id;
             } else {
-                const { data: userCreated, error: createUserError } = await supabase.from('users').insert({ ...userData, password_hash: row.password_hash || bcrypt.hashSync('admin123', 10) }).select('id');
-                if (createUserError || !userCreated || !userCreated[0]?.id) {
-                    sendSyncLog('error', `  -> ❌ Erreur création user pour employé #${row.id}`, { error: createUserError?.message });
-                    return null;
+                const { data: existingUser } = await supabase
+                    .from('users')
+                    .select('id')
+                    .eq('email', row.email)
+                    .single();
+
+                if (existingUser) {
+                    userIdToLink = existingUser.id;
+                    const { error: updateUserError } = await supabase.from('users').update(userData).eq('id', userIdToLink);
+                    if (updateUserError) {
+                        sendSyncLog('error', `  -> ❌ Erreur MàJ user existant par email pour employé #${row.id}`, { error: updateUserError.message });
+                        return null;
+                    }
+                } else {
+                    const { data: userCreated, error: createUserError } = await supabase.from('users').insert({ ...userData, password_hash: row.password_hash || bcrypt.hashSync('admin123', 10) }).select('id').single();
+                    if (createUserError || !userCreated?.id) {
+                        sendSyncLog('error', `  -> ❌ Erreur création user pour employé #${row.id}`, { error: createUserError?.message });
+                        return null;
+                    }
+                    userIdToLink = userCreated.id;
                 }
-                userIdToLink = userCreated[0].id;
-                // Mettre à jour le user_supabase_id localement pour les futures MàJ
                 await prisma.employees.update({ where: { id: row.id }, data: { user_supabase_id: userIdToLink } });
             }
 
@@ -1003,6 +1044,55 @@ async function runSync(prisma, schoolId, token) {
     }
 }
 
+async function pushSingleItem(prisma, modelName, localId) {
+    const settings = await prisma.settings.findUnique({ where: { id: 1 } });
+    if (!settings?.schoolId) return;
+
+    const { schoolId, userToken } = settings;
+    const supabase = createClient(supabaseUrl, supabaseAnonKey, {
+        global: { headers: { Authorization: `Bearer ${userToken || supabaseAnonKey}` } }
+    });
+
+    const row = await prisma[modelName].findUnique({ where: { id: localId } });
+    if (!row) return;
+
+    const config = Object.values(tableConfigs).find(c => c.model === modelName);
+    if (!config) return;
+
+    sendSyncLog('info', `[REALTIME-PUSH] Synchronisation de ${config.name} #${row.id}...`);
+
+    try {
+        if (row.is_deleted) {
+            if (row.supabase_id) {
+                const { error } = await supabase.from(config.name).delete().match({ id: row.supabase_id });
+                if (error) throw error;
+                await prisma[modelName].delete({ where: { id: row.id } });
+            }
+        } else {
+            const mappedData = await config.supabaseMap(row, schoolId, prisma, supabase);
+            if (!mappedData) throw new Error("Le mapping des données a échoué");
+
+            let supabase_id = row.supabase_id;
+            if (supabase_id) { // Update
+                const { error } = await supabase.from(config.name).update(mappedData).match({ id: supabase_id });
+                if (error) throw error;
+            } else { // Insert
+                const { data, error } = await supabase.from(config.name).insert(mappedData).select('id');
+                if (error) throw error;
+                supabase_id = data[0].id;
+            }
+            await prisma[modelName].update({
+                where: { id: row.id },
+                data: { needs_sync: false, supabase_id: supabase_id, last_modified: new Date() },
+            });
+        }
+        sendSyncLog('success', `[REALTIME-PUSH] Succès pour ${config.name} #${row.id}.`);
+    } catch (error) {
+        sendSyncLog('error', `[REALTIME-PUSH] Échec pour ${config.name} #${row.id}.`, { error: error.message });
+        await prisma[modelName].update({ where: { id: row.id }, data: { needs_sync: true } });
+    }
+}
+
 function setupSyncIPC(prisma, imagesDir) {
   if (isSyncIpcSetup) {
     return;
@@ -1019,4 +1109,4 @@ function setupSyncIPC(prisma, imagesDir) {
     });
 }
 
-module.exports = { setupSyncIPC, runSync };
+module.exports = { setupSyncIPC, runSync, pushSingleItem };

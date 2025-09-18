@@ -214,7 +214,7 @@ const Students = () => {
       } else {
         const savedStudent = await createStudent(studentData, parentsData);
         if (!savedStudent || !savedStudent.id) throw new Error("La création de l´étudiant a échoué.");
-        const registrationData = { student_id: savedStudent.id, class_id: currentStudent.classId, school_year: "2024-2025", state: "inscrit", registration_date: currentStudent.registrationDate || new Date().toISOString().split('T')[0] };
+        const registrationData = { student_id: savedStudent.id, class_id: currentStudent.classId, school_year: "2025-2026", state: "inscrit", registration_date: currentStudent.registrationDate || new Date().toISOString().split('T')[0] };
         await createRegistration(registrationData);
         toast({ description: "Étudiant créé et inscrit avec succès." });
       }
@@ -256,7 +256,20 @@ const Students = () => {
       <div className="space-y-8 p-4 pt-6 md:p-8">
         <div className="flex justify-between items-center">
           <h2 className="text-4xl font-extrabold tracking-tight">Gestion des Élèves</h2>
-          <Button onClick={handleOpenAddDialog} className="bg-accent-hot hover:bg-accent-hot/90 text-accent-hot-foreground">Ajouter un élève</Button>
+          <div className="flex gap-2">
+            <Button variant="outline" onClick={async () => {
+              try {
+                const methods = await window.api.invoke('debug:get-web-contents-methods');
+                console.log('--- DEBUG PRINTERS ---');
+                console.log('Méthodes disponibles contenant "printer":', methods.printerRelatedMethods);
+                alert('Résultat du débogage dans la console (Ctrl+Shift+I).');
+              } catch (e) {
+                console.error("Erreur du debug:", e);
+                alert("Erreur lors du lancement du débogage.");
+              }
+            }}>Debug Imprimantes</Button>
+            <Button onClick={handleOpenAddDialog} className="bg-accent-hot hover:bg-accent-hot/90 text-accent-hot-foreground">Ajouter un élève</Button>
+          </div>
         </div>
 
         <div className="flex flex-col sm:flex-row gap-4">

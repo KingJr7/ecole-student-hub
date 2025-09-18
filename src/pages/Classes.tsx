@@ -166,7 +166,7 @@ export default function Classes() {
         class_id: currentClass.id || '',
         coefficient: currentSubject.coefficient || 1,
         teacher_id: currentSubject.teacherId,
-        school_year: '2024-2025',
+        school_year: '2025-2026',
       });
       toast({ title: "Succès", description: "La matière a été ajoutée." });
       handleCloseSubjectDialog();

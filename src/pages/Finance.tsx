@@ -99,7 +99,7 @@ const FinancePage = () => {
   const categoryMutation = useMutation({
     mutationFn: createFinancialCategory,
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['financialCategories'] });
+      queryClient.refetchQueries({ queryKey: ['financialCategories'] });
       setIsCategoryDialogOpen(false);
       categoryForm.reset();
     }
