@@ -50,7 +50,8 @@ const FinancePage = () => {
     getAllFinancialTransactions, 
     getAllFinancialCategories, 
     createFinancialTransaction,
-    createFinancialCategory
+    createFinancialCategory,
+    getDispatchSummary
   } = useDatabase();
 
   const { data: summary, isLoading: isLoadingSummary } = useQuery({
@@ -66,6 +67,11 @@ const FinancePage = () => {
   const { data: categories, isLoading: isLoadingCategories } = useQuery({
     queryKey: ['financialCategories'],
     queryFn: getAllFinancialCategories,
+  });
+
+  const { data: dispatchSummary, isLoading: isLoadingDispatch } = useQuery({
+    queryKey: ['dispatchSummary'],
+    queryFn: getDispatchSummary,
   });
 
   const transactionForm = useForm<z.infer<typeof transactionSchema>>({
@@ -91,6 +97,7 @@ const FinancePage = () => {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['financialSummary'] });
       queryClient.invalidateQueries({ queryKey: ['financialTransactions', filters] });
+      queryClient.invalidateQueries({ queryKey: ['dispatchSummary'] });
       setIsTransactionDialogOpen(false);
       transactionForm.reset();
     }
@@ -127,7 +134,7 @@ const FinancePage = () => {
     });
   };
 
-  const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042'];
+  const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#AF19FF'];
 
   return (
     <MainLayout>
@@ -506,20 +513,26 @@ const FinancePage = () => {
             <div className="grid gap-4 md:grid-cols-2">
               <Card className="col-span-1">
                 <CardHeader>
-                  <CardTitle>Visualisation de la Répartition</CardTitle>
+                  <CardTitle>Rapport de Répartition des Revenus</CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <ResponsiveContainer width="100%" height={300}>
-                    <PieChart>
-                      <Pie data={summary?.incomeByCategory} dataKey="amount" nameKey="name" cx="50%" cy="50%" outerRadius={100} fill="#8884d8" label>
-                        {summary?.incomeByCategory?.map((entry, index) => (
-                          <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-                        ))}
-                      </Pie>
-                      <Tooltip formatter={(value: number) => `${value.toLocaleString('fr-FR')} FCFA`} />
-                      <Legend />
-                    </PieChart>
-                  </ResponsiveContainer>
+                  {isLoadingDispatch ? (
+                    <p>Chargement...</p>
+                  ) : (dispatchSummary && dispatchSummary.length > 0) ? (
+                    <ResponsiveContainer width="100%" height={300}>
+                      <PieChart>
+                        <Pie data={dispatchSummary} dataKey="value" nameKey="name" cx="50%" cy="50%" outerRadius={100} fill="#8884d8" label={(entry) => entry.name}>
+                          {dispatchSummary.map((entry, index) => (
+                            <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                          ))}
+                        </Pie>
+                        <Tooltip formatter={(value: number) => `${value.toLocaleString('fr-FR')} FCFA`} />
+                        <Legend />
+                      </PieChart>
+                    </ResponsiveContainer>
+                  ) : (
+                    <p className="text-center text-muted-foreground py-12">Aucune donnée de répartition à afficher.</p>
+                  )}
                 </CardContent>
               </Card>
               <div className="col-span-1">

@@ -32,7 +32,8 @@ const validInvokeChannels = [
   'db:financial-transactions:getAll', 'db:financial-transactions:create', 'db:financial-transactions:update', 'db:financial-transactions:delete', 'db:financial-transactions:get-paged',
   'db:budgets:get', 'db:budgets:create', 'db:budgets:update', 'db:budgets:delete',
   'db:financial-reports:get', 'db:financial-reports:create', 'db:financial-reports:update', 'db:financial-reports:delete', 'db:financial-reports:getSummary',
-  'db:dispatch-rules:getAll', 'db:dispatch-rules:create', 'db:dispatch-rules:update', 'db:dispatch-rules:delete',
+  'db:dispatch-rules:getAll',   'db:dispatch-rules:create', 'db:dispatch-rules:update', 'db:dispatch-rules:delete',
+  'db:finance:get-dispatch-summary',
   'db:dashboard:getStats', 'db:reports:getClassResults', 'db:reports:getAllClassesPerformance', 'db:reports:getClassTrend', 'db:reports:getFrequentLatePayers',
   'printers:get-list', 'printers:print-receipt'
 ];

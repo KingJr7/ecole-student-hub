@@ -147,6 +147,7 @@ export function useDatabase() {
   // #region Dispatch Rules
   const getAllDispatchRules = useCallback(() => invoke('db:dispatch-rules:getAll'), []);
   const createDispatchRule = useCallback((data: any) => invoke('db:dispatch-rules:create', data), []);
+  const getDispatchSummary = useCallback(() => invoke('db:finance:get-dispatch-summary'), []);
   
   const deleteDispatchRule = useCallback((id: number) => invoke('db:dispatch-rules:delete', id), []);
   const updateDispatchRule = useCallback((id: number, data: any) => invoke('db:dispatch-rules:update', { id, data }), []);
@@ -177,7 +178,7 @@ export function useDatabase() {
     getAllEmployees, createEmployee, updateEmployee, deleteEmployee,
     getAllFees, createFee, updateFee, deleteFee, getStudentFeeStatus, 
     getPrinters, printReceipt,
-    getAllDispatchRules, createDispatchRule, updateDispatchRule, deleteDispatchRule,
+    getAllDispatchRules, createDispatchRule, updateDispatchRule, deleteDispatchRule, getDispatchSummary,
     processStudentPhoto: () => invoke('images:process-student-photo'),
   }), []);
 }

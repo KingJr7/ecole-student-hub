@@ -7,12 +7,14 @@ import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useDatabase } from "@/hooks/useDatabase";
+import { useToast } from "@/components/ui/use-toast";
 import { TrashIcon } from "lucide-react";
 import { useEffect } from "react";
 
+// 1. Le schéma de validation accepte maintenant des nombres de 1 à 100
 const dispatchRuleDetailSchema = z.object({
   destination_category_id: z.coerce.number(),
-  percentage: z.coerce.number().min(0.01, "Doit être > 0").max(1, "Doit être <= 1"),
+  percentage: z.coerce.number().min(1, "Doit être > 0").max(100, "Doit être <= 100"),
 });
 
 const dispatchRuleSchema = z.object({
@@ -21,7 +23,7 @@ const dispatchRuleSchema = z.object({
   details: z.array(dispatchRuleDetailSchema).min(1, "Au moins une règle de répartition est requise."),
 }).refine(data => {
   const total = data.details.reduce((acc, detail) => acc + detail.percentage, 0);
-  return total <= 1.001;
+  return total <= 100.001;
 }, {
   message: "Le total des pourcentages ne peut pas dépasser 100%.",
   path: ["details"],
@@ -30,15 +32,17 @@ const dispatchRuleSchema = z.object({
 export function DispatchRuleForm({ fees, categories, setDialogOpen, initialData = null }) {
   const queryClient = useQueryClient();
   const { createDispatchRule, updateDispatchRule } = useDatabase();
+  const { toast } = useToast();
   const isEditMode = !!initialData;
 
   const form = useForm<z.infer<typeof dispatchRuleSchema>>({
     resolver: zodResolver(dispatchRuleSchema),
+    // 2. On multiplie par 100 à l'initialisation pour l'affichage
     defaultValues: isEditMode 
       ? {
           name: initialData.name,
           source_fee_id: initialData.source_fee_id,
-          details: initialData.details.map(d => ({ destination_category_id: d.destination_category_id, percentage: d.percentage }))
+          details: initialData.details.map(d => ({ ...d, percentage: d.percentage * 100 }))
         }
       : {
           name: "",
@@ -51,7 +55,7 @@ export function DispatchRuleForm({ fees, categories, setDialogOpen, initialData 
       ? {
           name: initialData.name,
           source_fee_id: initialData.source_fee_id,
-          details: initialData.details.map(d => ({ destination_category_id: d.destination_category_id, percentage: d.percentage }))
+          details: initialData.details.map(d => ({ ...d, percentage: d.percentage * 100 }))
         }
       : {
           name: "",
@@ -67,13 +71,33 @@ export function DispatchRuleForm({ fees, categories, setDialogOpen, initialData 
   const mutation = useMutation({ 
     mutationFn: isEditMode ? (data) => updateDispatchRule(initialData.id, data) : createDispatchRule, 
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['dispatchRules'] });
+      queryClient.refetchQueries({ queryKey: ['dispatchRules'] });
+      queryClient.refetchQueries({ queryKey: ['dispatchSummary'] });
       setDialogOpen(false);
+    },
+    // 3. Le message d'erreur est personnalisé
+    onError: (error: Error) => {
+      const isDuplicateError = error.message.includes("Une règle de répartition existe déjà");
+      toast({
+        title: isDuplicateError ? "Règle dupliquée" : "Erreur",
+        description: isDuplicateError 
+          ? "Il n'est pas possible d'avoir deux règles pour le même type de frais. Veuillez modifier la règle existante."
+          : error.message,
+        variant: isDuplicateError ? "default" : "destructive",
+      });
     }
   });
 
   const onSubmit = (values: z.infer<typeof dispatchRuleSchema>) => {
-    mutation.mutate(values);
+    // 4. On divise par 100 avant d'envoyer les données
+    const transformedValues = {
+      ...values,
+      details: values.details.map(detail => ({
+        ...detail,
+        percentage: detail.percentage / 100,
+      })),
+    };
+    mutation.mutate(transformedValues);
   };
 
   return (
@@ -150,7 +174,7 @@ export function DispatchRuleForm({ fees, categories, setDialogOpen, initialData 
                     <FormItem>
                       <FormLabel>%</FormLabel>
                       <FormControl>
-                        <Input type="number" step="0.01" placeholder="0.4" {...field} />
+                        <Input type="number" step="1" placeholder="40" {...field} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
