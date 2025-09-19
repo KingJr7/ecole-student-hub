@@ -155,6 +155,25 @@ function setupTeachersIPC(prisma) {
     return { totalHoursThisMonth, totalEarningsThisMonth, subjectHours };
   });
 
+  ipcMain.handle('db:teacherWorkHours:getTodayByTeacherId', async (event, teacherId, dateString) => {
+    const schoolId = await getUserSchoolId(prisma, event);
+    const teacher = await prisma.teachers.findUnique({ where: { id: teacherId } });
+    if (!teacher || teacher.school_id !== schoolId) throw new Error("Accès non autorisé");
+
+    const todayWorkHours = await prisma.teacherWorkHours.findMany({
+      where: {
+        teacher_id: teacherId,
+        date: dateString,
+        is_deleted: false,
+      },
+    });
+
+    const totalHoursToday = todayWorkHours.reduce((acc, record) => acc + record.hours, 0);
+    const amountOwedToday = totalHoursToday * (teacher?.hourlyRate || 0);
+
+    return { totalHoursToday, amountOwedToday };
+  });
+
   ipcMain.handle('db:teacherWorkHours:update', async (event, { id, data }) => {
     const schoolId = await getUserSchoolId(prisma, event);
     const { teacher_id, subject_id, date, start_time, end_time, notes } = data;

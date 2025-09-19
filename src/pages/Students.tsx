@@ -257,17 +257,7 @@ const Students = () => {
         <div className="flex justify-between items-center">
           <h2 className="text-4xl font-extrabold tracking-tight">Gestion des Élèves</h2>
           <div className="flex gap-2">
-            <Button variant="outline" onClick={async () => {
-              try {
-                const methods = await window.api.invoke('debug:get-web-contents-methods');
-                console.log('--- DEBUG PRINTERS ---');
-                console.log('Méthodes disponibles contenant "printer":', methods.printerRelatedMethods);
-                alert('Résultat du débogage dans la console (Ctrl+Shift+I).');
-              } catch (e) {
-                console.error("Erreur du debug:", e);
-                alert("Erreur lors du lancement du débogage.");
-              }
-            }}>Debug Imprimantes</Button>
+            
             <Button onClick={handleOpenAddDialog} className="bg-accent-hot hover:bg-accent-hot/90 text-accent-hot-foreground">Ajouter un élève</Button>
           </div>
         </div>

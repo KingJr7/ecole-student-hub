@@ -25,7 +25,7 @@ const validInvokeChannels = [
   'db:fees:getAll', 'db:fees:create', 'db:fees:update', 'db:fees:delete', 'db:fees:getStudentFeeStatus',
   'db:schedules:getAll', 'db:schedules:create', 'db:schedules:update', 'db:schedules:delete', 'db:schedules:getForClass',
   'db:attendances:getAll', 'db:attendances:create', 'db:attendances:update', 'db:attendances:delete', 'db:attendances:getByStudentId',
-  'db:teacher-work-hours:get', 'db:teacher-work-hours:create', 'db:teacher-work-hours:update', 'db:teacher-work-hours:delete', 'db:teacher-work-hours:getStats', 'db:teacherWorkHours:getByTeacherId', 'db:teacherWorkHours:create', 'db:teacherWorkHours:update', 'db:teacherWorkHours:delete', 'db:teacherWorkHours:getStats',
+  'db:teacher-work-hours:get', 'db:teacher-work-hours:create', 'db:teacher-work-hours:update', 'db:teacher-work-hours:delete', 'db:teacher-work-hours:getStats', 'db:teacherWorkHours:getByTeacherId', 'db:teacherWorkHours:create', 'db:teacherWorkHours:update', 'db:teacherWorkHours:delete', 'db:teacherWorkHours:getStats', 'db:teacherWorkHours:getTodayByTeacherId',
   'db:salary-payments:get', 'db:salary-payments:create', 'db:salary-payments:update', 'db:salary-payments:delete',
   'db:studentParents:getByStudent', 'db:studentParents:link', 'db:studentParents:unlink',
   'db:financial-categories:getAll', 'db:financial-categories:create', 'db:financial-categories:update', 'db:financial-categories:delete',

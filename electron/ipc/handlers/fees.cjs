@@ -20,7 +20,21 @@ function setupFeesIPC(prisma) {
 
   ipcMain.handle('db:fees:create', async (event, feeData) => {
     const schoolId = await getUserSchoolId(prisma, event);
-    const { name, amount, due_date, school_year, level } = feeData;
+    let { name, amount, due_date, school_year, level } = feeData;
+
+    // Calculate school_year if not provided or empty
+    if (!school_year) {
+      const today = new Date();
+      const currentMonth = today.getMonth(); // 0-indexed (0 for January)
+      const currentYear = today.getFullYear();
+
+      if (currentMonth >= 8) { // September (8) to December (11)
+        school_year = `${currentYear}-${currentYear + 1}`;
+      } else { // January (0) to August (7)
+        school_year = `${currentYear - 1}-${currentYear}`;
+      }
+    }
+
     const newFee = await prisma.fees.create({
       data: { name, amount, due_date, school_year, level, school_id: schoolId, needs_sync: true, last_modified: new Date() },
     });

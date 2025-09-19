@@ -10,7 +10,21 @@ function setupSubjectsIPC(prisma) {
 
   ipcMain.handle('db:subjects:create', async (event, subjectData) => {
     const schoolId = await getUserSchoolId(prisma, event);
-    const { name, coefficient, class_id, school_year, teacher_id } = subjectData;
+    let { name, coefficient, class_id, school_year, teacher_id } = subjectData;
+
+    // Calculate school_year if not provided or empty
+    if (!school_year) {
+      const today = new Date();
+      const currentMonth = today.getMonth(); // 0-indexed (0 for January)
+      const currentYear = today.getFullYear();
+
+      if (currentMonth >= 8) { // September (8) to December (11)
+        school_year = `${currentYear}-${currentYear + 1}`;
+      } else { // January (0) to August (7)
+        school_year = `${currentYear - 1}-${currentYear}`;
+      }
+    }
+
     const classToLink = await prisma.classes.findUnique({ where: { id: class_id } });
     if (!classToLink || classToLink.school_id !== schoolId) throw new Error("Accès non autorisé");
     const newSubject = await prisma.$transaction(async (tx) => {

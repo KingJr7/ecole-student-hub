@@ -307,6 +307,21 @@ export const getTeacherWorkHours = async (teacherId: number) => {
   }
 };
 
+export const getTeacherWorkHoursToday = async (teacherId: number) => {
+  if (isBrowser) {
+    try {
+      const today = new Date();
+      const dateString = `${today.getFullYear()}-${(today.getMonth() + 1).toString().padStart(2, '0')}-${today.getDate().toString().padStart(2, '0')}`;
+      return await window.api.invoke('db:teacherWorkHours:getTodayByTeacherId', teacherId, dateString);
+    } catch (error) {
+      console.error(`Erreur lors de la récupération des heures de travail du professeur pour aujourd'hui id=${teacherId}:`, error);
+      return [];
+    }
+  } else {
+    return Promise.resolve([]);
+  }
+};
+
 export const addTeacherWorkHours = async (workHours: Omit<TeacherWorkHours, "id">) => {
   if (isBrowser) {
     

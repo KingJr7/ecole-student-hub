@@ -1,4 +1,5 @@
 const { ipcMain } = require('electron');
+const fetch = require('node-fetch').default;
 const { pushSingleItem } = require('../sync.cjs');
 const { isOnline, getUserSchoolId, handlePaymentDispatch } = require('./helpers.cjs');
 
@@ -93,14 +94,41 @@ function setupPaymentsIPC(prisma) {
     const newPayment = await prisma.$transaction(async (tx) => {
       const payment = await tx.payments.create({
         data: { registration_id, fee_id, amount, date, method, reference, needs_sync: true, last_modified: new Date() },
-        include: { fee: true, registration: { include: { student: true } } },
+        include: { fee: true, registration: { include: { student: true, class: true } } },
       });
       await handlePaymentDispatch(tx, payment, schoolId);
       return payment;
     });
     isOnline().then(online => {
       if (online) {
-        pushSingleItem(prisma, 'payments', newPayment.id).catch(err => console.error(err));
+        pushSingleItem(prisma, 'payments', newPayment.id)
+          .then(() => {
+            // After successful push to Supabase, send webhook
+            const webhookUrl = "https://ntik-server.onrender.com/api/payments/webhook";
+            const payload = {
+              school_id: schoolId,
+              amount: newPayment.amount,
+              student_name: `${newPayment.registration.student.first_name} ${newPayment.registration.student.name}`,
+              class_name: newPayment.registration.class.name
+            };
+
+            fetch(webhookUrl, {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+              },
+              body: JSON.stringify(payload),
+            })
+            .then(response => {
+              if (!response.ok) {
+                console.error(`Webhook failed with status: ${response.status}`);
+              }
+              return response.json();
+            })
+            .then(data => console.log('Webhook success:', data))
+            .catch(error => console.error('Error sending webhook:', error));
+          })
+          .catch(err => console.error(err));
       }
     });
     return newPayment;

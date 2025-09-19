@@ -15,7 +15,21 @@ function setupLessonsIPC(prisma) {
 
   ipcMain.handle('db:lessons:create', async (event, lessonData) => {
     const schoolId = await getUserSchoolId(prisma, event);
-    const { subject_id, teacher_id, class_id, school_year } = lessonData;
+    let { subject_id, teacher_id, class_id, school_year } = lessonData;
+
+    // Calculate school_year if not provided or empty
+    if (!school_year) {
+      const today = new Date();
+      const currentMonth = today.getMonth(); // 0-indexed (0 for January)
+      const currentYear = today.getFullYear();
+
+      if (currentMonth >= 8) { // September (8) to December (11)
+        school_year = `${currentYear}-${currentYear + 1}`;
+      } else { // January (0) to August (7)
+        school_year = `${currentYear - 1}-${currentYear}`;
+      }
+    }
+
     const classToLink = await prisma.classes.findUnique({ where: { id: class_id } });
     if (!classToLink || classToLink.school_id !== schoolId) throw new Error("Accès non autorisé");
     const newLesson = await prisma.lessons.create({ data: { subject_id, teacher_id, class_id, school_year, needs_sync: true, last_modified: new Date() } });

@@ -105,6 +105,7 @@ app.whenReady().then(async () => {
   const { initializePrisma, setupDatabaseIPC } = require('./ipc/database.cjs');
   const { setupAuthIPC } = require('./ipc/auth.cjs');
   const { setupSyncIPC, runSync } = require('./ipc/sync.cjs');
+  const { setupTeachersIPC } = require('./ipc/handlers/teachers.cjs');
 
   if (isDev) {
       await runMigration();
