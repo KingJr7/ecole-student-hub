@@ -13,7 +13,7 @@ const validInvokeChannels = [
   // Database
   'db:settings:get', 'db:settings:update',
   'db:classes:getAll', 'db:classes:create', 'db:classes:update', 'db:classes:delete',
-  'db:students:getAll', 'db:students:create', 'db:students:update', 'db:students:delete', 'db:students:getRecent', 'db:students:search',
+  'db:students:getAll', 'db:students:create', 'db:students:update', 'db:students:delete', 'db:students:getRecent', 'db:students:getDetails', 'db:students:search',
   'db:teachers:getAll', 'db:teachers:getById', 'db:teachers:create', 'db:teachers:update', 'db:teachers:delete', 'db:teachers:getSubjects', 'db:teachers:calculateSalary',
   'db:parents:getAll', 'db:parents:create', 'db:parents:update', 'db:parents:delete', 'db:parents:findByPhone',
   'db:employees:getAll', 'db:employees:create', 'db:employees:update', 'db:employees:delete', 'db:employees:paySalary', 'db:employees:getSalaryHistory', 'db:employees:getStats',

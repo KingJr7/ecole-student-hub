@@ -60,6 +60,14 @@ function setupParentsIPC(prisma) {
     if (!phone) return null;
     return prisma.parents.findFirst({ where: { phone, is_deleted: false } });
   });
+
+  ipcMain.handle('db:studentParents:getByStudent', async (event, studentId) => {
+    if (!studentId) return [];
+    return prisma.studentParents.findMany({
+      where: { student_id: studentId, is_deleted: false },
+      include: { parent: true }, // Include parent details
+    });
+  });
 }
 
 module.exports = { setupParentsIPC };

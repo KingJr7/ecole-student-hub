@@ -83,22 +83,29 @@ const StudentDetails = () => {
 
       setLoading(true);
       try {
-        const students = await db.getAllStudents();
-        const currentStudent = students.find(s => s.id === id);
-        setStudent(currentStudent || null);
+        const fetchedStudent = await window.api.invoke('db:students:getDetails', id);
+        setStudent(fetchedStudent || null);
 
-        if (currentStudent) {
-          const [studentParents, studentAttendances, registration] = await Promise.all([
-            db.getStudentParents(id),
+        if (fetchedStudent) {
+          // Extract parents from the fetched student object
+          const studentParentsArray = [];
+          if (fetchedStudent.parentInfo?.father) {
+            studentParentsArray.push({ ...fetchedStudent.parentInfo.father, relation: 'père' });
+          }
+          if (fetchedStudent.parentInfo?.mother) {
+            studentParentsArray.push({ ...fetchedStudent.parentInfo.mother, relation: 'mère' });
+          }
+          setParents(studentParentsArray);
+
+          const [studentAttendances, registration] = await Promise.all([
             db.getAttendancesByStudentId(id),
             db.getLatestRegistrationForStudent({ studentId: id })
           ]);
           
-          setParents(studentParents);
           setAttendances(studentAttendances);
 
           if (registration) {
-            const studentLevel = currentStudent.classLevel; // Utiliser le niveau directement
+            const studentLevel = fetchedStudent.classLevel;
             const status = await db.getStudentFeeStatus({ registrationId: registration.id, level: studentLevel });
             setFeeStatus(status);
           }

@@ -60,7 +60,10 @@ function setupAttendancesIPC(prisma) {
   ipcMain.handle('db:attendances:getByStudentId', async (event, studentId) => {
     const schoolId = await getUserSchoolId(prisma, event);
     const registration = await prisma.registrations.findFirst({ where: { student_id: studentId, is_deleted: false }, orderBy: { id: 'desc' }, include: { class: true } });
-    if (!registration || registration.class.school_id !== schoolId) throw new Error("Accès non autorisé");
+    if (!registration || registration.class.school_id !== schoolId) {
+      console.warn(`Accès non autorisé ou aucune inscription trouvée pour l'étudiant ${studentId} dans l'école ${schoolId}. Retourne une liste de présences vide.`);
+      return [];
+    }
     return prisma.attendances.findMany({ where: { student_id: studentId, is_deleted: false }, orderBy: { date: 'desc' }, take: 5 });
   });
 }

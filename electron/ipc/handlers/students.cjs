@@ -229,6 +229,30 @@ function setupStudentsIPC(prisma) {
       }))
     );
   });
+
+  ipcMain.handle('db:students:getDetails', async (event, studentId) => {
+    const student = await prisma.students.findUnique({
+      where: { id: studentId },
+      include: {
+        registrations: { where: { is_deleted: false }, orderBy: { id: 'desc' }, take: 1, include: { class: true } },
+        student_parents: { where: { is_deleted: false }, include: { parent: true } },
+      },
+    });
+
+    if (!student) {
+      return null;
+    }
+
+    const father = student.student_parents.find(sp => sp.relation === 'père')?.parent;
+    const mother = student.student_parents.find(sp => sp.relation === 'mère' && sp.parent)?.parent;
+
+    return {
+      ...student,
+      className: student.registrations[0]?.class.name,
+      classLevel: student.registrations[0]?.class.level,
+      parentInfo: { father, mother },
+    };
+  });
 }
 
 module.exports = { setupStudentsIPC };
