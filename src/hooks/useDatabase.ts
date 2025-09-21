@@ -29,6 +29,7 @@ export function useDatabase() {
   const updateStudent = useCallback((id: number, studentData: any, parentsData: any) => invoke('db:students:update', { id, studentData, parentsData }), []);
   const deleteStudent = useCallback((id: number) => invoke('db:students:delete', id), []);
   const getRecentStudents = useCallback(() => invoke('db:students:getRecent'), []);
+  const getStudentDetails = useCallback((id: number) => invoke('db:students:getDetails', id), []);
   // #endregion
 
   // #region Teachers
@@ -123,6 +124,7 @@ export function useDatabase() {
   const updateNote = useCallback((id: number, data: any) => invoke('db:notes:update', { id, data }), []);
   const deleteNote = useCallback((id: number) => invoke('db:notes:delete', id), []);
   const createManyNotes = useCallback((data: any) => invoke('db:notes:createMany', data), []);
+  const getNotesByStudentId = useCallback((studentId: number) => invoke('db:notes:getByStudentId', studentId), []);
   // #endregion
 
   // #region Employees
@@ -164,7 +166,7 @@ export function useDatabase() {
   return useMemo(() => ({
     getSettings, updateSettings,
     getAllClasses, createClass, updateClass, deleteClass,
-    getAllStudents, createStudent, updateStudent, deleteStudent, getRecentStudents,
+    getAllStudents, createStudent, updateStudent, deleteStudent, getRecentStudents, getStudentDetails,
     getAllTeachers, createTeacher, updateTeacher, deleteTeacher,
     getAllPayments, createPayment, updatePayment, deletePayment, getLatePayments,
     getAllSubjects, createSubject, updateSubject, deleteSubject, getClassSubjects,
@@ -182,7 +184,7 @@ export function useDatabase() {
     updateFinancialTransaction,
     deleteFinancialTransaction,
     getAllSchedules, createSchedule, updateSchedule, deleteSchedule, getSchedulesForClass,
-    getAllNotes, createNote, updateNote, deleteNote, createManyNotes,
+    getAllNotes, createNote, updateNote, deleteNote, createManyNotes, getNotesByStudentId,
     getAllEmployees, createEmployee, updateEmployee, deleteEmployee,
     getAllFees, createFee, updateFee, deleteFee, getStudentFeeStatus, 
     getPrinters, printReceipt,

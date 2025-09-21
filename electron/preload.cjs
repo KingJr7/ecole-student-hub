@@ -20,7 +20,7 @@ const validInvokeChannels = [
   'db:subjects:getAll', 'db:subjects:create', 'db:subjects:update', 'db:subjects:delete', 'db:classSubjects:getAll', 'db:subjects:getByTeacherId', 'db:subjects:getAllDetailed',
   'db:lessons:getAll', 'db:lessons:create', 'db:lessons:update', 'db:lessons:delete',
   'db:registrations:getAll', 'db:registrations:create', 'db:registrations:update', 'db:registrations:delete', 'db:registrations:getLatestForStudent',
-  'db:notes:getAll', 'db:notes:create', 'db:notes:update', 'db:notes:delete', 'db:notes:get-for-student', 'db:notes:createMany',
+  'db:notes:getAll', 'db:notes:create', 'db:notes:update', 'db:notes:delete', 'db:notes:get-for-student', 'db:notes:createMany', 'db:notes:getByStudentId',
   'db:payments:getAll', 'db:payments:getLatePayments', 'db:payments:create', 'db:payments:update', 'db:payments:delete', 'db:payments:get-for-registration',
   'db:fees:getAll', 'db:fees:create', 'db:fees:update', 'db:fees:delete', 'db:fees:getStudentFeeStatus',
   'db:fee-templates:getAll', 'db:fee-templates:create', 'db:fee-templates:update', 'db:fee-templates:delete',

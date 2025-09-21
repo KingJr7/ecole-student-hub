@@ -249,6 +249,7 @@ function setupStudentsIPC(prisma) {
     return {
       ...student,
       className: student.registrations[0]?.class.name,
+      classId: student.registrations[0]?.class_id,
       classLevel: student.registrations[0]?.class.level,
       parentInfo: { father, mother },
     };

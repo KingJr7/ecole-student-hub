@@ -1,12 +1,15 @@
-import { useState, useEffect } from "react";
-import { useParams, Link } from "react-router-dom";
+import { useState, useEffect, useMemo } from "react";
+import { useParams } from "react-router-dom";
 import MainLayout from "@/components/Layout/MainLayout";
 import { useDatabase } from "@/hooks/useDatabase";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { User, Phone, Briefcase, CalendarCheck2 } from "lucide-react";
+import { User, Phone, Briefcase, CalendarCheck2, FileText } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 // Interfaces
 interface Student {
@@ -21,32 +24,114 @@ interface Student {
   classLevel?: string;
 }
 
-interface Parent {
-  id: number;
-  name: string;
-  first_name: string;
-  phone?: string;
-  email?: string;
-  profession?: string;
-  relation?: string;
+interface Parent { id: number; name: string; first_name: string; phone?: string; email?: string; profession?: string; relation?: string; }
+interface Attendance { id: number; date: string; state: string; }
+interface FeeStatus { id: string; name: string; amount: number; due_date: string; total_paid: number; balance: number; status: 'Payé' | 'En retard' | 'À venir'; type: 'unique' | 'recurrent'; }
+interface ClassResult {
+  studentId: number;
+  studentName: string;
+  studentPicture: string | null;
+  studentMatricul: string | null;
+  average: number;
+  rank: number;
+  status: string;
+  subjects: { 
+    [subjectName: string]: { 
+      average: number | null; 
+      coefficient: number; 
+      notes: { type: string; value: number | null; }[];
+    } 
+  };
 }
 
-interface Attendance {
-  id: number;
-  date: string;
-  state: string;
-}
+const BulletinModal = ({ studentId, classId, db }) => {
+  const [studentResult, setStudentResult] = useState<ClassResult | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [selectedQuarter, setSelectedQuarter] = useState('1');
 
-interface FeeStatus {
-  id: string; // Can be 'single-1' or 'template-1-oct'
-  name: string;
-  amount: number;
-  due_date: string;
-  total_paid: number;
-  balance: number;
-  status: 'Payé' | 'En retard' | 'À venir';
-  type: 'unique' | 'recurrent';
-}
+  useEffect(() => {
+    const fetchResults = async () => {
+      if (!studentId || !classId) return;
+      setLoading(true);
+      try {
+        const results = await db.getClassResults(classId, parseInt(selectedQuarter, 10));
+        const currentStudentResult = results.find(r => r.studentId === studentId) || null;
+        setStudentResult(currentStudentResult);
+      } catch (error) {
+        console.error("Failed to fetch student results:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchResults();
+  }, [studentId, classId, selectedQuarter, db]);
+
+  return (
+    <DialogContent className="max-w-4xl">
+      <DialogHeader>
+        <DialogTitle>Bulletin de notes - Trimestre {selectedQuarter}</DialogTitle>
+      </DialogHeader>
+      <div className="py-4">
+        <div className="flex justify-end mb-4">
+          <Select value={selectedQuarter} onValueChange={setSelectedQuarter}>
+            <SelectTrigger className="w-[200px]">
+              <SelectValue placeholder="Filtrer par trimestre" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="1">Trimestre 1</SelectItem>
+              <SelectItem value="2">Trimestre 2</SelectItem>
+              <SelectItem value="3">Trimestre 3</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+        <div className="max-h-[70vh] overflow-y-auto p-1">
+          {loading ? (
+            <p>Chargement du bulletin...</p>
+          ) : studentResult ? (
+            <div className="space-y-6">
+              <Card>
+                <CardHeader>
+                  <CardTitle>Résultats du trimestre</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="grid grid-cols-3 gap-4 text-center">
+                    <div><p className="text-sm text-muted-foreground">Moyenne Générale</p><p className="text-2xl font-bold">{studentResult.average.toFixed(2)}/20</p></div>
+                    <div><p className="text-sm text-muted-foreground">Rang</p><p className="text-2xl font-bold">{studentResult.rank}</p></div>
+                    <div><p className="text-sm text-muted-foreground">Décision</p><p className={`text-2xl font-bold ${studentResult.status === 'Admis' ? 'text-green-600' : 'text-red-600'}`}>{studentResult.status}</p></div>
+                  </div>
+                </CardContent>
+              </Card>
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Matière</TableHead>
+                    <TableHead className="text-center">Devoir 1</TableHead>
+                    <TableHead className="text-center">Devoir 2</TableHead>
+                    <TableHead className="text-center">Compo</TableHead>
+                    <TableHead className="text-center font-bold">Moyenne</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {Object.entries(studentResult.subjects).map(([subjectName, subjectData]) => (
+                    <TableRow key={subjectName}>
+                      <TableCell className="font-medium">{subjectName}</TableCell>
+                      <TableCell className="text-center">{subjectData.notes.find(n => n.type === 'Devoir 1')?.value ?? '-'}</TableCell>
+                      <TableCell className="text-center">{subjectData.notes.find(n => n.type === 'Devoir 2')?.value ?? '-'}</TableCell>
+                      <TableCell className="text-center">{subjectData.notes.find(n => n.type === 'Composition')?.value ?? '-'}</TableCell>
+                      <TableCell className="text-center font-bold">{subjectData.average?.toFixed(2) ?? '-'}</TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </div>
+          ) : (
+            <p className="text-center text-muted-foreground py-8">Aucun résultat trouvé pour ce trimestre.</p>
+          )}
+        </div>
+      </div>
+    </DialogContent>
+  );
+};
 
 const StudentDetailsSkeleton = () => (
   <MainLayout>
@@ -74,6 +159,7 @@ const StudentDetails = () => {
   const [attendances, setAttendances] = useState<Attendance[]>([]);
   const [feeStatus, setFeeStatus] = useState<FeeStatus[]>([]);
   const [loading, setLoading] = useState(true);
+  const [isBulletinOpen, setIsBulletinOpen] = useState(false);
   const db = useDatabase();
 
   useEffect(() => {
@@ -84,11 +170,10 @@ const StudentDetails = () => {
 
       setLoading(true);
       try {
-        const fetchedStudent = await window.api.invoke('db:students:getDetails', id);
+        const fetchedStudent = await db.getStudentDetails(id);
         setStudent(fetchedStudent || null);
 
         if (fetchedStudent) {
-          // Extract parents from the fetched student object
           const studentParentsArray = [];
           if (fetchedStudent.parentInfo?.father) {
             studentParentsArray.push({ ...fetchedStudent.parentInfo.father, relation: 'père' });
@@ -146,9 +231,6 @@ const StudentDetails = () => {
     return <MainLayout><div className="text-center py-10">Étudiant non trouvé.</div></MainLayout>;
   }
 
-  console.log("[DEBUG] Affichage de la page de détails pour l'étudiant:", student);
-  console.log("[DEBUG] URL de l'image reçue par le composant:", student.picture_url);
-
   return (
     <MainLayout>
       <div className="space-y-8 p-4 pt-6 md:p-8">
@@ -169,6 +251,12 @@ const StudentDetails = () => {
             <div className="md:col-span-2">
                 <h1 className="text-4xl font-extrabold tracking-tight">{student.first_name} {student.name}</h1>
                 <p className="text-muted-foreground text-lg mt-2">{student.className} | {student.genre} | {new Date(student.birth_date).toLocaleDateString()}</p>
+                <Dialog open={isBulletinOpen} onOpenChange={setIsBulletinOpen}>
+                  <DialogTrigger asChild>
+                    <Button variant="outline" className="mt-4" disabled={!student.classId}><FileText className="mr-2 h-4 w-4"/>Voir le bulletin</Button>
+                  </DialogTrigger>
+                  {isBulletinOpen && <BulletinModal studentId={student.id} classId={student.classId} db={db} />}
+                </Dialog>
             </div>
         </div>
 

@@ -116,6 +116,37 @@ function setupNotesIPC(prisma) {
     });
     return deletedNote;
   });
+
+  ipcMain.handle('db:notes:getByStudentId', async (event, studentId) => {
+    const schoolId = await getUserSchoolId(prisma, event);
+    // Security check: ensure the student belongs to the user's school
+    const student = await prisma.students.findUnique({
+      where: { id: studentId },
+      include: { registrations: { include: { class: true }, take: 1, where: { is_deleted: false }, orderBy: { id: 'desc' } } }
+    });
+
+    if (!student || !student.registrations.length || student.registrations[0].class.school_id !== schoolId) {
+      throw new Error("Accès non autorisé ou étudiant non trouvé.");
+    }
+
+    return prisma.notes.findMany({
+      where: {
+        student_id: studentId,
+        is_deleted: false,
+      },
+      include: {
+        lesson: {
+          include: {
+            subject: true,
+          },
+        },
+      },
+      orderBy: [
+        { quarter: 'asc' },
+        { lesson: { subject: { name: 'asc' } } },
+      ],
+    });
+  });
 }
 
 module.exports = { setupNotesIPC };
