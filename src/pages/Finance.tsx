@@ -20,6 +20,7 @@ import { CalendarIcon } from "lucide-react";
 import { format } from "date-fns";
 import { DispatchRuleManager } from "@/components/DispatchRuleManager";
 import { FeeManager } from "@/components/FeeManager";
+import { FeeTemplateManager } from "@/components/FeeTemplateManager";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 const transactionSchema = z.object({
@@ -141,10 +142,11 @@ const FinancePage = () => {
     <MainLayout>
       <div className="p-4 space-y-4">
         <Tabs defaultValue="overview" className="space-y-4">
-          <TabsList className="grid w-full grid-cols-4">
+          <TabsList className="grid w-full grid-cols-5">
             <TabsTrigger value="overview">Vue d'ensemble</TabsTrigger>
             <TabsTrigger value="transactions">Transactions</TabsTrigger>
-            <TabsTrigger value="fees">Frais Scolaires</TabsTrigger>
+            <TabsTrigger value="single_fees">Frais Uniques</TabsTrigger>
+            <TabsTrigger value="recurring_fees">Frais Récurrents</TabsTrigger>
             <TabsTrigger value="dispatch">Répartition</TabsTrigger>
           </TabsList>
 
@@ -511,8 +513,12 @@ const FinancePage = () => {
             </div>
           </TabsContent>
 
-          <TabsContent value="fees" className="space-y-4">
+          <TabsContent value="single_fees" className="space-y-4">
             <FeeManager />
+          </TabsContent>
+
+          <TabsContent value="recurring_fees" className="space-y-4">
+            <FeeTemplateManager />
           </TabsContent>
 
           <TabsContent value="dispatch" className="space-y-4">

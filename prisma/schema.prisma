@@ -21,23 +21,25 @@ model Settings {
   activeSchoolYear String?
   roleId           String?
   permissions      Json?
+  schoolYearStartDate DateTime?
 
   @@map("settings")
 }
 
 model Classes {
-  id            Int             @id @default(autoincrement())
-  name          String
-  level         String?
-  school_id     String?
-  supabase_id   String?         @unique
-  last_modified DateTime        @default(now())
-  needs_sync    Boolean         @default(false)
-  is_deleted    Boolean         @default(false)
-  lessons       Lessons[]
-  registrations Registrations[]
-  subjects      Subjects[]
-  fees          Fees[]
+  id                  Int             @id @default(autoincrement())
+  name                String
+  level               String?
+  school_id           String?
+  supabase_id         String?         @unique
+  last_modified       DateTime        @default(now())
+  needs_sync          Boolean         @default(false)
+  is_deleted          Boolean         @default(false)
+  lessons             Lessons[]
+  registrations       Registrations[]
+  subjects            Subjects[]
+  single_fees         SingleFee[]
+  fee_templates       FeeTemplate[]
 
   @@map("classes")
 }
@@ -179,6 +181,7 @@ model Notes {
   lesson        Lessons  @relation(fields: [lesson_id], references: [id], onDelete: Cascade)
   student       Students @relation(fields: [student_id], references: [id], onDelete: Cascade)
 
+  @@unique([student_id, lesson_id, quarter, type])
   @@index([student_id, lesson_id, quarter])
   @@map("notes")
 }
@@ -220,26 +223,31 @@ model StudentParents {
 }
 
 model Payments {
-  id              Int            @id @default(autoincrement())
-  registration_id Int?
-  fee_id          Int?
-  amount          Float?
-  method          String?
-  date            String?
-  reference       String?
-  emitter_id      String?
-  supabase_id     String?        @unique
-  last_modified   DateTime       @default(now())
-  needs_sync      Boolean        @default(false)
-  is_deleted      Boolean        @default(false)
-  fee             Fees?          @relation(fields: [fee_id], references: [id])
-  registration    Registrations? @relation(fields: [registration_id], references: [id])
+  id                Int            @id @default(autoincrement())
+  registration_id   Int?
+  amount            Float?
+  method            String?
+  date              String?
+  reference         String?
+  emitter_id        String?
+  supabase_id       String?        @unique
+  last_modified     DateTime       @default(now())
+  needs_sync        Boolean        @default(false)
+  is_deleted        Boolean        @default(false)
+  registration      Registrations? @relation(fields: [registration_id], references: [id])
 
-  @@index([registration_id, fee_id])
+  single_fee_id     Int?            @map("single_fee_id")
+  single_fee        SingleFee?      @relation(fields: [single_fee_id], references: [id])
+
+  fee_template_id   Int?            @map("fee_template_id")
+  fee_template      FeeTemplate?    @relation(fields: [fee_template_id], references: [id])
+  period_identifier String?         // e.g., "oct" or "W42-2024"
+
+  @@index([registration_id, single_fee_id, fee_template_id])
   @@map("payments")
 }
 
-model Fees {
+model SingleFee {
   id               Int        @id @default(autoincrement())
   name             String?
   amount           Float?
@@ -256,7 +264,23 @@ model Fees {
   payments         Payments[]
   dispatch_rules   DispatchRule[]
 
-  @@map("fees")
+  @@map("single_fees")
+}
+
+model FeeTemplate {
+  id                  Int      @id @default(autoincrement())
+  name                String
+  amount              Float
+  frequency           String   // monthly, weekly, unique
+  due_day             Int?     // Day of month (1-31) or week (1-7)
+  applicable_months   Json?    // e.g., ["oct", "nov", ...]
+  school_id           String
+  applies_to_level    String?
+  applies_to_class_id Int?
+  class               Classes? @relation(fields: [applies_to_class_id], references: [id])
+  payments            Payments[]
+
+  @@map("fee_templates")
 }
 
 model Attendances {
@@ -402,15 +426,15 @@ model FinancialReport {
 }
 
 model DispatchRule {
-  id              Int                  @id @default(autoincrement())
-  name            String
-  source_fee_id   Int                  @unique
-  school_id       String
-  last_modified   DateTime             @default(now())
-  needs_sync      Boolean              @default(false)
-  is_deleted      Boolean              @default(false)
-  source_fee      Fees                 @relation(fields: [source_fee_id], references: [id])
-  details         DispatchRuleDetail[]
+  id                      Int                  @id @default(autoincrement())
+  name                    String
+  source_single_fee_id    Int                  @unique @map("source_fee_id")
+  school_id               String
+  last_modified           DateTime             @default(now())
+  needs_sync              Boolean              @default(false)
+  is_deleted              Boolean              @default(false)
+  source_single_fee       SingleFee            @relation(fields: [source_single_fee_id], references: [id])
+  details                 DispatchRuleDetail[]
 
   @@index([school_id])
   @@map("dispatch_rules")

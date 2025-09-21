@@ -105,7 +105,6 @@ app.whenReady().then(async () => {
   const { initializePrisma, setupDatabaseIPC } = require('./ipc/database.cjs');
   const { setupAuthIPC } = require('./ipc/auth.cjs');
   const { setupSyncIPC, runSync } = require('./ipc/sync.cjs');
-  const { setupTeachersIPC } = require('./ipc/handlers/teachers.cjs');
 
   if (isDev) {
       await runMigration();
@@ -128,6 +127,22 @@ app.whenReady().then(async () => {
     const url = request.url.replace('ntik-fs://', '');
     const imagePath = path.join(imagesDir, url);
     callback({ path: imagePath });
+  });
+
+  ipcMain.handle('images:get-base64', async (event, fileName) => {
+    if (!fileName) return null;
+    const imagePath = path.join(imagesDir, fileName);
+    try {
+      if (fs.existsSync(imagePath)) {
+        const data = fs.readFileSync(imagePath);
+        const base64 = data.toString('base64');
+        // Assuming webp, adjust if other formats are stored
+        return `data:image/webp;base64,${base64}`;
+      }
+    } catch (error) {
+      console.error(`Failed to read image ${fileName}:`, error);
+    }
+    return null;
   });
 
   ipcMain.handle('images:process-student-photo', async () => {

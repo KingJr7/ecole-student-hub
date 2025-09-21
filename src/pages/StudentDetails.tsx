@@ -38,13 +38,14 @@ interface Attendance {
 }
 
 interface FeeStatus {
-  id: number;
+  id: string; // Can be 'single-1' or 'template-1-oct'
   name: string;
   amount: number;
   due_date: string;
   total_paid: number;
   balance: number;
   status: 'Payé' | 'En retard' | 'À venir';
+  type: 'unique' | 'recurrent';
 }
 
 const StudentDetailsSkeleton = () => (

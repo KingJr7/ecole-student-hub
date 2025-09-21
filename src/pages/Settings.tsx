@@ -18,7 +18,11 @@ import {
   DialogFooter,
 } from "@/components/ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Phone, MessageSquare, Printer } from "lucide-react";
+import { Phone, MessageSquare, Printer, Calendar as CalendarIcon } from "lucide-react";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Calendar } from "@/components/ui/calendar";
+import { format } from "date-fns";
+import { fr } from "date-fns/locale";
 import { ThemeToggle } from "@/components/ui/ThemeToggle";
 
 interface PrinterInfo {
@@ -35,6 +39,7 @@ const Settings: React.FC = () => {
     schoolName: "", 
     schoolAddress: "",
     printerName: "",
+    schoolYearStartDate: null as Date | null,
   });
   const [printers, setPrinters] = useState<PrinterInfo[]>([]);
   const [loading, setLoading] = useState(true);
@@ -51,6 +56,7 @@ const Settings: React.FC = () => {
             schoolName: settings.schoolName || "",
             schoolAddress: settings.schoolAddress || "",
             printerName: settings.printerName || "",
+            schoolYearStartDate: settings.schoolYearStartDate ? new Date(settings.schoolYearStartDate) : null,
           });
         }
         const availablePrinters = await getPrinters();
@@ -68,6 +74,10 @@ const Settings: React.FC = () => {
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { id, value } = e.target;
     setFormData(prev => ({ ...prev, [id]: value }));
+  };
+
+  const handleDateChange = (date: Date | undefined) => {
+    setFormData(prev => ({ ...prev, schoolYearStartDate: date || null }));
   };
 
   const handlePrinterChange = (value: string) => {
@@ -132,6 +142,8 @@ const Settings: React.FC = () => {
                     onChange={handleInputChange}
                   />
                 </div>
+
+                <div className="space-y-2"><Label htmlFor="schoolYearStartDate">Date de la rentrée scolaire</Label><Popover><PopoverTrigger asChild><Button variant={"outline"} className={`w-full justify-start text-left font-normal ${!formData.schoolYearStartDate && "text-muted-foreground"}`}><CalendarIcon className="mr-2 h-4 w-4" />{formData.schoolYearStartDate ? (format(formData.schoolYearStartDate, "PPP", { locale: fr })) : (<span>Choisir une date</span>)}</Button></PopoverTrigger><PopoverContent className="w-auto p-0"><Calendar mode="single" selected={formData.schoolYearStartDate} onSelect={handleDateChange} initialFocus /></PopoverContent></Popover><p className="text-xs text-gray-500">Cette date sera utilisée comme point de départ pour le calcul des frais hebdomadaires.</p></div>
 
                 <Separator className="my-4" />
 

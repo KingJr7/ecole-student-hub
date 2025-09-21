@@ -58,13 +58,17 @@ interface Payment {
   person_name: string;
   details: string;
   registration?: Registration & { student: Student };
+  student_first_name?: string;
+  student_name?: string;
+  class_name?: string;
 }
 
-interface Fee {
-  id: number;
+interface PayableFee {
+  id: string; // Composite key e.g., 'single-1' or 'template-1-oct-2023'
   name: string;
   amount: number;
-  level: string;
+  balance: number;
+  type: 'unique' | 'recurrent';
 }
 
 interface LatePayment {
@@ -83,16 +87,14 @@ const Payments = () => {
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [isReceiptDialogOpen, setIsReceiptDialogOpen] = useState(false);
   
-  const [currentPayment, setCurrentPayment] = useState<Partial<Payment> & { student_id?: number; fee_id?: number; }>({
-    date: new Date().toISOString().split('T')[0],
-    method: "espèces",
-  });
+  const [currentPayment, setCurrentPayment] = useState<Partial<Payment> & { student_id?: number; fee_id?: string; }>({});
+  const [selectedFee, setSelectedFee] = useState<PayableFee | null>(null);
   const [paymentToDelete, setPaymentToDelete] = useState<number | null>(null);
 
   const [payments, setPayments] = useState<Payment[]>([]);
   const [latePayments, setLatePayments] = useState<LatePayment[]>([]);
   const [students, setStudents] = useState<Student[]>([]);
-  const [fees, setFees] = useState<Fee[]>([]);
+  const [payableFees, setPayableFees] = useState<PayableFee[]>([]);
   
   const [loading, setLoading] = useState(true);
   const { toast } = useToast();
@@ -108,7 +110,7 @@ const Payments = () => {
     getSettings,
     createPayment,
     deletePayment,
-    getAllFees,
+    getStudentFeeStatus,
     getLatestRegistrationForStudent,
     printReceipt,
   } = db;
@@ -124,7 +126,7 @@ const Payments = () => {
       ]);
       setPayments(paymentsData || []);
       setStudents(studentsData || []);
-      setSchoolName(settingsData?.schoolName || "Nom de l\'cole");
+      setSchoolName(settingsData?.schoolName || "Nom de l\'école");
       setLatePayments(latePaymentsData || []);
     } catch (error) {
       console.error('Erreur lors du chargement des données:', error);
@@ -143,6 +145,8 @@ const Payments = () => {
       date: new Date().toISOString().split('T')[0],
       method: "espèces",
     });
+    setSelectedFee(null);
+    setPayableFees([]);
     setIsDialogOpen(true);
   };
 
@@ -158,14 +162,9 @@ const Payments = () => {
 
   const handlePrintReceipt = async () => {
        if (!receiptPayment) return;
-   
-       // Utilise directement les nouvelles propriétés de l'objet paiement
-       const studentFullName = `${receiptPayment.student_first_name || ''} ${receiptPayment.student_name || ''}`
-   .trim();
-   
+       const studentFullName = `${receiptPayment.student_first_name || ''} ${receiptPayment.student_name || ''}`.trim();
        if (!studentFullName) {
-         toast({ description: "Impossible de trouver le nom de l'élève pour ce paiement.", variant:
-   "destructive" });
+         toast({ description: "Impossible de trouver le nom de l'élève pour ce paiement.", variant: "destructive" });
          return;
        }
    
@@ -178,51 +177,21 @@ const Payments = () => {
    
          const htmlContent = `
            <html>
-             <head>
-               <style>
-                 body { font-family: sans-serif; margin: 0; padding: 10px; width: 300px; }
-                 .header { text-align: center; }
-                 .header h2 { margin: 0; font-size: 1.2em; }
-                 .header p { margin: 2px 0; font-size: 0.8em; }
-                 hr { border: none; border-top: 1px dashed #000; margin: 10px 0; }
-                 .content p { margin: 2px 0; font-size: 0.9em; }
-                 table { width: 100%; border-collapse: collapse; font-size: 0.9em; }
-                 th, td { padding: 4px 0; }
-                 .total { text-align: right; font-weight: bold; font-size: 1em; }
-                 .footer { text-align: center; margin-top: 15px; font-size: 0.8em; }
-               </style>
-             </head>
+             <head><style>body{font-family:sans-serif;margin:0;padding:10px;width:300px}.header{text-align:center}.header h2{margin:0;font-size:1.2em}.header p{margin:2px 0;font-size:.8em}hr{border:none;border-top:1px dashed #000;margin:10px 0}.content p{margin:2px 0;font-size:.9em}table{width:100%;border-collapse:collapse;font-size:.9em}th,td{padding:4px 0}.total{text-align:right;font-weight:bold;font-size:1em}.footer{text-align:center;margin-top:15px;font-size:.8em}</style></head>
              <body>
-               <div class="header">
-                 <h2>${schoolName}</h2>
-               </div>
-               <hr />
+               <div class="header"><h2>${schoolName}</h2></div><hr />
                <div class="content">
                  <p><strong>Reçu N°:</strong> ${receiptPayment.id}</p>
                  <p><strong>Date:</strong> ${new Date(receiptPayment.date).toLocaleDateString()}</p>
                  <p><strong>Élève:</strong> ${studentFullName}</p>
                  <p><strong>Classe:</strong> ${receiptPayment.class_name || 'Non spécifiée'}</p>
-               </div>
-               <hr />
+               </div><hr />
                <table>
-                 <thead>
-                   <tr>
-                     <th style="text-align: left;">Description</th>
-                     <th style="text-align: right;">Montant</th>
-                   </tr>
-                 </thead>
-                 <tbody>
-                   <tr>
-                     <td>${receiptPayment.details}</td>
-                     <td style="text-align: right;">${receiptPayment.amount.toLocaleString()} FCFA</td>
-                   </tr>
-                 </tbody>
-               </table>
-               <hr />
+                 <thead><tr><th style="text-align:left;">Description</th><th style="text-align:right;">Montant</th></tr></thead>
+                 <tbody><tr><td>${receiptPayment.details}</td><td style="text-align:right;">${receiptPayment.amount.toLocaleString()} FCFA</td></tr></tbody>
+               </table><hr />
                <p class="total">Total: ${receiptPayment.amount.toLocaleString()} FCFA</p>
-               <div class="footer">
-                 <p>Merci de votre confiance !</p>
-               </div>
+               <div class="footer"><p>Merci de votre confiance !</p></div>
              </body>
            </html>
          `;
@@ -235,47 +204,62 @@ const Payments = () => {
        }
      };
 
-
-
   const handleStudentChange = async (studentId: number) => {
     setCurrentPayment(prev => ({ ...prev, student_id: studentId, fee_id: undefined, amount: 0 }));
-    const student = students.find(s => s.id === studentId);
-    if (student && student.classLevel) { // Use student.classLevel directly
-      const feesForLevel = await getAllFees({ level: student.classLevel });
-      setFees(feesForLevel);
-      console.log('Fees loaded for student level:', student.classLevel, feesForLevel); // Added log
+    setSelectedFee(null);
+    setPayableFees([]);
+    if (!studentId) return;
+
+    const registration = await getLatestRegistrationForStudent({ studentId });
+    if (registration) {
+      const feeStatuses = await getStudentFeeStatus({ registrationId: registration.id });
+      const feesToPay = feeStatuses.filter(fee => fee.balance > 0);
+      setPayableFees(feesToPay);
     } else {
-      // If no student or no classLevel, fetch general fees (null or 'all')
-      const feesForLevel = await getAllFees({ level: null }); // Pass null to get general fees
-      setFees(feesForLevel);
-      console.log('Fees loaded for general:', feesForLevel); // Added log
+      toast({ description: "Cet étudiant n'a pas d'inscription valide.", variant: "destructive" });
     }
   };
 
-  const handleFeeChange = (feeIdStr: string) => {
-    const feeId = parseInt(feeIdStr, 10);
-    const selectedFee = fees.find(f => f.id === feeId);
-    if (selectedFee) {
-      setCurrentPayment(prev => ({ ...prev, fee_id: feeId, amount: selectedFee.amount }));
+  const handleFeeChange = (feeId: string) => {
+    const fee = payableFees.find(f => f.id === feeId);
+    if (fee) {
+      setSelectedFee(fee);
+      setCurrentPayment(prev => ({ ...prev, fee_id: feeId, amount: fee.balance }));
     }
   };
 
   const handleSavePayment = async () => {
-    const { student_id, fee_id, amount, date, method, reference } = currentPayment;
+    const { student_id, amount, date, method, reference } = currentPayment;
 
-    if (!student_id || !fee_id || !amount || !date || !method) {
+    if (!student_id || !selectedFee || !amount || !date || !method) {
       toast({ title: "Erreur", description: "Veuillez remplir tous les champs obligatoires.", variant: "destructive" });
       return;
     }
 
     const registration = await getLatestRegistrationForStudent({ studentId: student_id });
     if (!registration) {
-      toast({ title: "Erreur", description: "Cet étudiant n\'a aucune inscription valide.", variant: "destructive" });
+      toast({ title: "Erreur", description: "Cet étudiant n'a aucune inscription valide.", variant: "destructive" });
       return;
     }
 
+    let paymentData: any = {
+      registration_id: registration.id,
+      amount,
+      date,
+      method,
+      reference,
+    };
+
+    if (selectedFee.type === 'unique') {
+      paymentData.single_fee_id = parseInt(selectedFee.id.replace('single-', ''), 10);
+    } else if (selectedFee.type === 'recurrent') {
+      const [_, templateId, ...periodParts] = selectedFee.id.split('-');
+      paymentData.fee_template_id = parseInt(templateId, 10);
+      paymentData.period_identifier = periodParts.join('-');
+    }
+
     try {
-      await createPayment({ registration_id: registration.id, fee_id, amount, date, method, reference });
+      await createPayment(paymentData);
       toast({ description: "Paiement créé." });
       setIsDialogOpen(false);
       loadData();
@@ -436,7 +420,8 @@ const Payments = () => {
         </Tabs>
 
         {/* Dialogs... */}
-        <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}><DialogContent><DialogHeader><DialogTitle>Ajouter un paiement</DialogTitle></DialogHeader><div className="space-y-4 py-4"><div className="space-y-2"><Label>Étudiant</Label><StudentSearchSelect value={currentPayment.student_id} onValueChange={handleStudentChange} students={students.map(s => ({ id: s.id, firstName: s.first_name, lastName: s.name, className: s.className }))}/></div>{currentPayment.student_id && (<div className="space-y-2"><Label>Frais à payer</Label><Select value={currentPayment.fee_id?.toString()} onValueChange={handleFeeChange}><SelectTrigger><SelectValue placeholder="Sélectionner un frais" /></SelectTrigger><SelectContent>{console.log('Rendering fees:', fees.length, fees)}{fees.map(fee => (<SelectItem key={fee.id} value={fee.id.toString()}>{fee.name} - {fee.amount.toLocaleString()} FCFA</SelectItem>))}</SelectContent></Select></div>)}<div className="grid grid-cols-2 gap-4"><div className="space-y-2"><Label htmlFor="amount">Montant à payer</Label><Input id="amount" type="number" value={currentPayment.amount || ""} onChange={(e) => setCurrentPayment(prev => ({ ...prev, amount: parseFloat(e.target.value) || 0 }))} /></div><div className="space-y-2"><Label htmlFor="date">Date</Label><Input id="date" type="date" value={currentPayment.date || ""} onChange={(e) => setCurrentPayment(prev => ({ ...prev, date: e.target.value }))} /></div></div><div className="space-y-2"><Label htmlFor="method">Méthode de paiement</Label><Select value={currentPayment.method || "espèces"} onValueChange={(value) => setCurrentPayment(prev => ({ ...prev, method: value }))}><SelectTrigger><SelectValue /></SelectTrigger><SelectContent><SelectItem value="espèces">Espèces</SelectItem><SelectItem value="mobile money">Mobile Money</SelectItem><SelectItem value="chèque">Chèque</SelectItem></SelectContent></Select></div><div className="space-y-2"><Label htmlFor="reference">Référence (optionnel)</Label><Textarea id="reference" value={currentPayment.reference || ""} onChange={(e) => setCurrentPayment(prev => ({ ...prev, reference: e.target.value }))} /></div></div><DialogFooter><Button variant="outline" onClick={() => setIsDialogOpen(false)}>Annuler</Button><Button onClick={handleSavePayment}>Enregistrer</Button></DialogFooter></DialogContent></Dialog>
+        <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}><DialogContent><DialogHeader><DialogTitle>Ajouter un paiement</DialogTitle></DialogHeader><div className="space-y-4 py-4"><div className="space-y-2"><Label>Étudiant</Label><StudentSearchSelect value={currentPayment.student_id} onValueChange={handleStudentChange} students={students.map(s => ({ id: s.id, firstName: s.first_name, lastName: s.name, className: s.className }))}/></div>{currentPayment.student_id && (<div className="space-y-2"><Label>Frais à payer</Label><Select value={currentPayment.fee_id} onValueChange={handleFeeChange}><SelectTrigger><SelectValue placeholder="Sélectionner un frais" /></SelectTrigger><SelectContent>{payableFees.map(fee => (<SelectItem key={fee.id} value={fee.id}>{fee.name} - {fee.balance.toLocaleString()} FCFA restant</SelectItem>))}</SelectContent></Select></div>)}<div className="grid grid-cols-2 gap-4"><div className="space-y-2"><Label htmlFor="amount">Montant à payer</Label><Input id="amount" type="number" value={currentPayment.amount || ""} onChange={(e) => setCurrentPayment(prev => ({ ...prev, amount: parseFloat(e.target.value) || 0 }))} /></div><div className="space-y-2"><Label htmlFor="date">Date</Label><Input id="date" type="date" value={currentPayment.date || ""} onChange={(e) => setCurrentPayment(prev => ({ ...prev, date: e.target.value }))} /></div></div><div className="space-y-2"><Label htmlFor="method">Méthode de paiement</Label><Select value={currentPayment.method || "espèces"} onValueChange={(value) => setCurrentPayment(prev => ({ ...prev, method: value }))}><SelectTrigger><SelectValue /></SelectTrigger><SelectContent><SelectItem value="espèces">Espèces</SelectItem><SelectItem value="mobile money">Mobile Money</SelectItem><SelectItem value="chèque">Chèque</SelectItem></SelectContent></Select></div><div className="space-y-2"><Label htmlFor="reference">Référence (optionnel)</Label><Textarea id="reference" value={currentPayment.reference || ""} onChange={(e) => setCurrentPayment(prev => ({ ...prev, reference: e.target.value }))} /></div></div><DialogFooter><Button variant="outline" onClick={() => setIsDialogOpen(false)}>Annuler</Button><Button onClick={handleSavePayment}>Enregistrer le paiement</Button></DialogFooter></DialogContent></Dialog>
+
         <Dialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}><DialogContent><DialogHeader><DialogTitle>Confirmer la suppression</DialogTitle><DialogDescription>Cette action est irréversible.</DialogDescription></DialogHeader><DialogFooter><Button variant="outline" onClick={() => setIsDeleteDialogOpen(false)}>Annuler</Button><Button variant="destructive" onClick={handleDeletePayment}>Supprimer</Button></DialogFooter></DialogContent></Dialog>
         <Dialog open={isReceiptDialogOpen} onOpenChange={setIsReceiptDialogOpen}><DialogContent className="min-w-[400px]"><DialogHeader><DialogTitle>Reçu de paiement</DialogTitle></DialogHeader><div className="border p-4 rounded-md">{receiptPayment && receiptPayment.registration && (
             <PaymentReceipt 
@@ -449,7 +434,7 @@ const Payments = () => {
               }} 
               schoolName={schoolName} 
             />
-          )}</div><DialogFooter><Button variant="outline" onClick={() => setIsReceiptDialogOpen(false)}>Fermer</Button><Button onClick={handlePrintReceipt}><Printer className="mr-2 h-4 w-4" /> Imprimer</Button></DialogFooter></DialogContent></Dialog>
+          )}</div><DialogFooter><Button variant="outline" onClick={() => setIsDialogOpen(false)}>Fermer</Button><Button onClick={handlePrintReceipt}><Printer className="mr-2 h-4 w-4" /> Imprimer</Button></DialogFooter></DialogContent></Dialog>
       </div>
     </MainLayout>
   );

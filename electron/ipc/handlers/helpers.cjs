@@ -149,13 +149,19 @@ async function calculateClassResults(prisma, classId, quarter) {
         totalPoints += avg * (subject.coefficient || 1);
         totalCoef += subject.coefficient || 1;
       }
-      subjectResults[subject.name] = { average: avg, coefficient: subject.coefficient || 1 };
+      subjectResults[subject.name] = { 
+        average: avg, 
+        coefficient: subject.coefficient || 1, 
+        notes: subjectNotes.map(n => ({ type: n.type, value: n.value }))
+      };
     });
 
     const generalAverage = totalCoef > 0 ? totalPoints / totalCoef : 0;
     return {
       studentId: student.id,
       studentName: `${student.first_name} ${student.name}`,
+      studentPicture: student.picture_url,
+      studentMatricul: student.matricul,
       average: generalAverage,
       rank: 0,
       subjects: subjectResults,

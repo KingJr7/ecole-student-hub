@@ -456,28 +456,9 @@ const tableConfigs = {
             };
         }
     },
-    fees: {
-        name: 'fees', model: 'fees',
-        pullSelect: '*',
-        pullFilterColumn: 'school_id',
-        supabaseMap: (row, schoolId) => ({ 
-            name: row.name, 
-            amount: row.amount, 
-            due_date: row.due_date, 
-            school_year: row.school_year, 
-            level: row.level 
-        }),
-        localMap: (row) => ({ 
-            name: row.name, 
-            amount: row.amount, 
-            due_date: row.due_date, 
-            school_year: row.school_year, 
-            level: row.level 
-        })
-    },
     financial_categories: {
         name: 'financial_categories',
-        model: 'FinancialCategory',
+        model: 'financialCategory',
         pullSelect: '*',
         pullFilterColumn: 'school_id',
         supabaseMap: (row, schoolId) => ({
@@ -493,11 +474,11 @@ const tableConfigs = {
     },
     financial_transactions: {
         name: 'financial_transactions',
-        model: 'FinancialTransaction',
+        model: 'financialTransaction',
         pullSelect: '*',
         pullFilterColumn: 'school_id',
         supabaseMap: async (row, schoolId, prisma) => {
-            const categorySupabaseId = await getSupabaseId(prisma, 'FinancialCategory', row.category_id, schoolId);
+            const categorySupabaseId = await getSupabaseId(prisma, 'financialCategory', row.category_id, schoolId);
             if (!categorySupabaseId) return null;
             return {
                 date: row.date,
@@ -509,7 +490,7 @@ const tableConfigs = {
             };
         },
         localMap: async (row, prisma) => {
-            const categoryLocalId = await getLocalId(prisma, 'FinancialCategory', row.category_id);
+            const categoryLocalId = await getLocalId(prisma, 'financialCategory', row.category_id);
             if (!categoryLocalId) return null;
             return {
                 date: row.date,
@@ -765,7 +746,6 @@ const syncOrder = [
     'parents', 
     'teachers', 
     'employees', 
-    'fees',
     'financial_categories',
     
     // Entités dépendant des entités de base
@@ -783,7 +763,7 @@ const syncOrder = [
     // Entités dépendant du niveau 2
     'notes',           // Dépend de 'students' et 'lessons'
     'schedules',       // Dépend de 'lessons'
-    'payments'         // Dépend de 'registrations' et 'fees'
+    'payments'         // Dépend de 'registrations'
 ];
 
 async function pushChanges(prisma, schoolId, supabase) {

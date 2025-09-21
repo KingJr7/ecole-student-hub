@@ -17,9 +17,11 @@ const { setupFinanceIPC } = require('./handlers/finance.cjs');
 const { setupReportsIPC } = require('./handlers/reports.cjs');
 const { setupSettingsIPC } = require('./handlers/settings.cjs');
 const { setupFeesIPC } = require('./handlers/fees.cjs');
+const { setupFeeTemplatesIPC } = require('./handlers/fee-templates.cjs');
+const { setupStudentParentsIPC } = require('./handlers/studentParents.cjs');
+
 
 let prisma;
-let isDatabaseIpcSetup = false;
 
 function initializePrisma() {
   if (!prisma) {
@@ -29,10 +31,6 @@ function initializePrisma() {
 }
 
 function setupDatabaseIPC(prismaClient) {
-  if (isDatabaseIpcSetup) {
-    return;
-  }
-  isDatabaseIpcSetup = true;
   prisma = prismaClient;
 
   // Appeler TOUTES les fonctions de configuration
@@ -51,7 +49,9 @@ function setupDatabaseIPC(prismaClient) {
   setupSchedulesIPC(prisma);
   setupFinanceIPC(prisma);
   setupReportsIPC(prisma);
+  setupStudentParentsIPC(prisma);
   setupFeesIPC(prisma);
+  setupFeeTemplatesIPC(prisma);
   
   console.log("All database IPC handlers have been set up from modular files.");
 }

@@ -3,6 +3,7 @@ const { pushSingleItem } = require('../sync.cjs');
 const { isOnline, getUserSchoolId, calculateClassResults } = require('./helpers.cjs');
 
 function setupReportsIPC(prisma) {
+  ipcMain.removeHandler('db:dashboard:getStats');
   ipcMain.handle('db:dashboard:getStats', async () => {
     const totalStudents = await prisma.students.count({ where: { is_deleted: false } });
     const totalTeachers = await prisma.teachers.count({ where: { is_deleted: false } });
@@ -30,10 +31,12 @@ function setupReportsIPC(prisma) {
     return { totalStudents, totalTeachers, totalClasses, attendanceToday: { present, absent, late }, genderDistribution, monthlyPayments, studentsPerClass };
   });
 
+  ipcMain.removeHandler('db:reports:getClassResults');
   ipcMain.handle('db:reports:getClassResults', async (event, { classId, quarter }) => {
     return calculateClassResults(prisma, classId, quarter);
   });
 
+  ipcMain.removeHandler('db:reports:getAllClassesPerformance');
   ipcMain.handle('db:reports:getAllClassesPerformance', async (event, { quarter }) => {
     const classes = await prisma.classes.findMany({ where: { is_deleted: false } });
     const performancePromises = classes.map(async (c) => {
@@ -51,6 +54,7 @@ function setupReportsIPC(prisma) {
     return data;
   });
 
+  ipcMain.removeHandler('db:reports:getClassTrend');
   ipcMain.handle('db:reports:getClassTrend', async (event, { classId }) => {
     const trend = [];
     for (const quarter of [1, 2, 3]) {
@@ -65,6 +69,7 @@ function setupReportsIPC(prisma) {
     return trend;
   });
 
+  ipcMain.removeHandler('db:reports:getFrequentLatePayers');
   ipcMain.handle('db:reports:getFrequentLatePayers', async (event) => {
     const schoolId = await getUserSchoolId(prisma, event);
     const latePaymentThreshold = 2;
@@ -72,7 +77,7 @@ function setupReportsIPC(prisma) {
       where: { is_deleted: false, registrations: { some: { is_deleted: false, class: { school_id: schoolId } } } },
       include: { registrations: { where: { is_deleted: false }, orderBy: { id: 'desc' }, take: 1, include: { class: true } } },
     });
-    const allFees = await prisma.fees.findMany({ where: { is_deleted: false, school_id: schoolId } });
+    const allFees = await prisma.singleFee.findMany({ where: { is_deleted: false, school_id: schoolId } });
     const allPayments = await prisma.payments.findMany({ where: { is_deleted: false, registration: { class: { school_id: schoolId } } } });
     const frequentLatePayers = [];
     for (const student of allStudents) {
@@ -88,7 +93,7 @@ function setupReportsIPC(prisma) {
       const paymentsForStudent = allPayments.filter(p => p.registration_id === registration.id);
       let latePaymentCount = 0;
       for (const fee of applicableFeesForStudent) {
-        const totalPaidForFee = paymentsForStudent.filter(p => p.fee_id === fee.id).reduce((sum, p) => sum + (p.amount || 0), 0);
+        const totalPaidForFee = paymentsForStudent.filter(p => p.single_fee_id === fee.id).reduce((sum, p) => sum + (p.amount || 0), 0);
         const balance = (fee.amount || 0) - totalPaidForFee;
         if (balance > 0 && fee.due_date) {
           const today = new Date();
@@ -115,6 +120,7 @@ function setupReportsIPC(prisma) {
     return frequentLatePayers;
   });
 
+  ipcMain.removeHandler('db:financial-reports:getSummary');
   ipcMain.handle('db:financial-reports:getSummary', async (event) => {
     const schoolId = await getUserSchoolId(prisma, event);
     const income = await prisma.financialTransaction.aggregate({ _sum: { amount: true }, where: { type: 'income', is_deleted: false, school_id: schoolId } });

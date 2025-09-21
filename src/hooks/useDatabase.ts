@@ -122,6 +122,7 @@ export function useDatabase() {
   const createNote = useCallback((data: any) => invoke('db:notes:create', data), []);
   const updateNote = useCallback((id: number, data: any) => invoke('db:notes:update', { id, data }), []);
   const deleteNote = useCallback((id: number) => invoke('db:notes:delete', id), []);
+  const createManyNotes = useCallback((data: any) => invoke('db:notes:createMany', data), []);
   // #endregion
 
   // #region Employees
@@ -137,6 +138,12 @@ export function useDatabase() {
   const updateFee = useCallback((id: number, data: any) => invoke('db:fees:update', { id, data }), []);
   const deleteFee = useCallback((id: number) => invoke('db:fees:delete', id), []);
   const getStudentFeeStatus = useCallback((args: any) => invoke('db:fees:getStudentFeeStatus', args), []);
+
+  // #region Fee Templates
+  const getAllFeeTemplates = useCallback(() => invoke('db:fee-templates:getAll'), []);
+  const createFeeTemplate = useCallback((data: any) => invoke('db:fee-templates:create', data), []);
+  const updateFeeTemplate = useCallback((id: number, data: any) => invoke('db:fee-templates:update', { id, data }), []);
+  const deleteFeeTemplate = useCallback((id: number) => invoke('db:fee-templates:delete', id), []);
   // #endregion
 
   // #region Printer
@@ -148,6 +155,7 @@ export function useDatabase() {
   const getAllDispatchRules = useCallback(() => invoke('db:dispatch-rules:getAll'), []);
   const createDispatchRule = useCallback((data: any) => invoke('db:dispatch-rules:create', data), []);
   const getDispatchSummary = useCallback(() => invoke('db:finance:get-dispatch-summary'), []);
+  const getBase64Image = useCallback((fileName: string) => invoke('images:get-base64', fileName), []);
   
   const deleteDispatchRule = useCallback((id: number) => invoke('db:dispatch-rules:delete', id), []);
   const updateDispatchRule = useCallback((id: number, data: any) => invoke('db:dispatch-rules:update', { id, data }), []);
@@ -174,11 +182,12 @@ export function useDatabase() {
     updateFinancialTransaction,
     deleteFinancialTransaction,
     getAllSchedules, createSchedule, updateSchedule, deleteSchedule, getSchedulesForClass,
-    getAllNotes, createNote, updateNote, deleteNote,
+    getAllNotes, createNote, updateNote, deleteNote, createManyNotes,
     getAllEmployees, createEmployee, updateEmployee, deleteEmployee,
     getAllFees, createFee, updateFee, deleteFee, getStudentFeeStatus, 
     getPrinters, printReceipt,
-    getAllDispatchRules, createDispatchRule, updateDispatchRule, deleteDispatchRule, getDispatchSummary,
+    getAllDispatchRules, createDispatchRule, updateDispatchRule, deleteDispatchRule, getDispatchSummary, getBase64Image,
+    getAllFeeTemplates, createFeeTemplate, updateFeeTemplate, deleteFeeTemplate,
     processStudentPhoto: () => invoke('images:process-student-photo'),
   }), []);
 }

@@ -7,7 +7,7 @@ const validInvokeChannels = [
   // Sync
   'sync:run',
   // Images
-  'images:process-student-photo',
+  'images:process-student-photo', 'images:get-base64',
   // Debug
   'debug:get-web-contents-methods',
   // Database
@@ -20,9 +20,10 @@ const validInvokeChannels = [
   'db:subjects:getAll', 'db:subjects:create', 'db:subjects:update', 'db:subjects:delete', 'db:classSubjects:getAll', 'db:subjects:getByTeacherId', 'db:subjects:getAllDetailed',
   'db:lessons:getAll', 'db:lessons:create', 'db:lessons:update', 'db:lessons:delete',
   'db:registrations:getAll', 'db:registrations:create', 'db:registrations:update', 'db:registrations:delete', 'db:registrations:getLatestForStudent',
-  'db:notes:getAll', 'db:notes:create', 'db:notes:update', 'db:notes:delete', 'db:notes:get-for-student',
+  'db:notes:getAll', 'db:notes:create', 'db:notes:update', 'db:notes:delete', 'db:notes:get-for-student', 'db:notes:createMany',
   'db:payments:getAll', 'db:payments:getLatePayments', 'db:payments:create', 'db:payments:update', 'db:payments:delete', 'db:payments:get-for-registration',
   'db:fees:getAll', 'db:fees:create', 'db:fees:update', 'db:fees:delete', 'db:fees:getStudentFeeStatus',
+  'db:fee-templates:getAll', 'db:fee-templates:create', 'db:fee-templates:update', 'db:fee-templates:delete',
   'db:schedules:getAll', 'db:schedules:create', 'db:schedules:update', 'db:schedules:delete', 'db:schedules:getForClass',
   'db:attendances:getAll', 'db:attendances:create', 'db:attendances:update', 'db:attendances:delete', 'db:attendances:getByStudentId',
   'db:teacher-work-hours:get', 'db:teacher-work-hours:create', 'db:teacher-work-hours:update', 'db:teacher-work-hours:delete', 'db:teacher-work-hours:getStats', 'db:teacherWorkHours:getByTeacherId', 'db:teacherWorkHours:create', 'db:teacherWorkHours:update', 'db:teacherWorkHours:delete', 'db:teacherWorkHours:getStats', 'db:teacherWorkHours:getTodayByTeacherId',

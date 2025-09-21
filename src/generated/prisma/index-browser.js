@@ -128,7 +128,8 @@ exports.Prisma.SettingsScalarFieldEnum = {
   last_sync: 'last_sync',
   activeSchoolYear: 'activeSchoolYear',
   roleId: 'roleId',
-  permissions: 'permissions'
+  permissions: 'permissions',
+  schoolYearStartDate: 'schoolYearStartDate'
 };
 
 exports.Prisma.ClassesScalarFieldEnum = {
@@ -271,7 +272,6 @@ exports.Prisma.StudentParentsScalarFieldEnum = {
 exports.Prisma.PaymentsScalarFieldEnum = {
   id: 'id',
   registration_id: 'registration_id',
-  fee_id: 'fee_id',
   amount: 'amount',
   method: 'method',
   date: 'date',
@@ -280,10 +280,13 @@ exports.Prisma.PaymentsScalarFieldEnum = {
   supabase_id: 'supabase_id',
   last_modified: 'last_modified',
   needs_sync: 'needs_sync',
-  is_deleted: 'is_deleted'
+  is_deleted: 'is_deleted',
+  single_fee_id: 'single_fee_id',
+  fee_template_id: 'fee_template_id',
+  period_identifier: 'period_identifier'
 };
 
-exports.Prisma.FeesScalarFieldEnum = {
+exports.Prisma.SingleFeeScalarFieldEnum = {
   id: 'id',
   name: 'name',
   amount: 'amount',
@@ -296,6 +299,18 @@ exports.Prisma.FeesScalarFieldEnum = {
   last_modified: 'last_modified',
   needs_sync: 'needs_sync',
   is_deleted: 'is_deleted'
+};
+
+exports.Prisma.FeeTemplateScalarFieldEnum = {
+  id: 'id',
+  name: 'name',
+  amount: 'amount',
+  frequency: 'frequency',
+  due_day: 'due_day',
+  applicable_months: 'applicable_months',
+  school_id: 'school_id',
+  applies_to_level: 'applies_to_level',
+  applies_to_class_id: 'applies_to_class_id'
 };
 
 exports.Prisma.AttendancesScalarFieldEnum = {
@@ -411,7 +426,7 @@ exports.Prisma.FinancialReportScalarFieldEnum = {
 exports.Prisma.DispatchRuleScalarFieldEnum = {
   id: 'id',
   name: 'name',
-  source_fee_id: 'source_fee_id',
+  source_single_fee_id: 'source_single_fee_id',
   school_id: 'school_id',
   last_modified: 'last_modified',
   needs_sync: 'needs_sync',
@@ -468,7 +483,8 @@ exports.Prisma.ModelName = {
   Parents: 'Parents',
   StudentParents: 'StudentParents',
   Payments: 'Payments',
-  Fees: 'Fees',
+  SingleFee: 'SingleFee',
+  FeeTemplate: 'FeeTemplate',
   Attendances: 'Attendances',
   Employees: 'Employees',
   SalaryPayments: 'SalaryPayments',
