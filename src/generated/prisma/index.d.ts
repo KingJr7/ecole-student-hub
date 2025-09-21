@@ -2861,12 +2861,14 @@ export namespace Prisma {
     lessons: number
     registrations: number
     subjects: number
+    fees: number
   }
 
   export type ClassesCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     lessons?: boolean | ClassesCountOutputTypeCountLessonsArgs
     registrations?: boolean | ClassesCountOutputTypeCountRegistrationsArgs
     subjects?: boolean | ClassesCountOutputTypeCountSubjectsArgs
+    fees?: boolean | ClassesCountOutputTypeCountFeesArgs
   }
 
   // Custom InputTypes
@@ -2899,6 +2901,13 @@ export namespace Prisma {
    */
   export type ClassesCountOutputTypeCountSubjectsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     where?: SubjectsWhereInput
+  }
+
+  /**
+   * ClassesCountOutputType without action
+   */
+  export type ClassesCountOutputTypeCountFeesArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: FeesWhereInput
   }
 
 
@@ -3319,6 +3328,8 @@ export namespace Prisma {
     schoolId: string | null
     userToken: string | null
     last_sync: Date | null
+    activeSchoolYear: string | null
+    roleId: string | null
   }
 
   export type SettingsMaxAggregateOutputType = {
@@ -3330,6 +3341,8 @@ export namespace Prisma {
     schoolId: string | null
     userToken: string | null
     last_sync: Date | null
+    activeSchoolYear: string | null
+    roleId: string | null
   }
 
   export type SettingsCountAggregateOutputType = {
@@ -3341,6 +3354,9 @@ export namespace Prisma {
     schoolId: number
     userToken: number
     last_sync: number
+    activeSchoolYear: number
+    roleId: number
+    permissions: number
     _all: number
   }
 
@@ -3364,6 +3380,8 @@ export namespace Prisma {
     schoolId?: true
     userToken?: true
     last_sync?: true
+    activeSchoolYear?: true
+    roleId?: true
   }
 
   export type SettingsMaxAggregateInputType = {
@@ -3375,6 +3393,8 @@ export namespace Prisma {
     schoolId?: true
     userToken?: true
     last_sync?: true
+    activeSchoolYear?: true
+    roleId?: true
   }
 
   export type SettingsCountAggregateInputType = {
@@ -3386,6 +3406,9 @@ export namespace Prisma {
     schoolId?: true
     userToken?: true
     last_sync?: true
+    activeSchoolYear?: true
+    roleId?: true
+    permissions?: true
     _all?: true
   }
 
@@ -3484,6 +3507,9 @@ export namespace Prisma {
     schoolId: string | null
     userToken: string | null
     last_sync: Date | null
+    activeSchoolYear: string | null
+    roleId: string | null
+    permissions: JsonValue | null
     _count: SettingsCountAggregateOutputType | null
     _avg: SettingsAvgAggregateOutputType | null
     _sum: SettingsSumAggregateOutputType | null
@@ -3514,6 +3540,9 @@ export namespace Prisma {
     schoolId?: boolean
     userToken?: boolean
     last_sync?: boolean
+    activeSchoolYear?: boolean
+    roleId?: boolean
+    permissions?: boolean
   }, ExtArgs["result"]["settings"]>
 
   export type SettingsSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
@@ -3525,6 +3554,9 @@ export namespace Prisma {
     schoolId?: boolean
     userToken?: boolean
     last_sync?: boolean
+    activeSchoolYear?: boolean
+    roleId?: boolean
+    permissions?: boolean
   }, ExtArgs["result"]["settings"]>
 
   export type SettingsSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
@@ -3536,6 +3568,9 @@ export namespace Prisma {
     schoolId?: boolean
     userToken?: boolean
     last_sync?: boolean
+    activeSchoolYear?: boolean
+    roleId?: boolean
+    permissions?: boolean
   }, ExtArgs["result"]["settings"]>
 
   export type SettingsSelectScalar = {
@@ -3547,9 +3582,12 @@ export namespace Prisma {
     schoolId?: boolean
     userToken?: boolean
     last_sync?: boolean
+    activeSchoolYear?: boolean
+    roleId?: boolean
+    permissions?: boolean
   }
 
-  export type SettingsOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "schoolName" | "schoolAddress" | "loggedIn" | "userRole" | "schoolId" | "userToken" | "last_sync", ExtArgs["result"]["settings"]>
+  export type SettingsOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "schoolName" | "schoolAddress" | "loggedIn" | "userRole" | "schoolId" | "userToken" | "last_sync" | "activeSchoolYear" | "roleId" | "permissions", ExtArgs["result"]["settings"]>
 
   export type $SettingsPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     name: "Settings"
@@ -3563,6 +3601,9 @@ export namespace Prisma {
       schoolId: string | null
       userToken: string | null
       last_sync: Date | null
+      activeSchoolYear: string | null
+      roleId: string | null
+      permissions: Prisma.JsonValue | null
     }, ExtArgs["result"]["settings"]>
     composites: {}
   }
@@ -3994,6 +4035,9 @@ export namespace Prisma {
     readonly schoolId: FieldRef<"Settings", 'String'>
     readonly userToken: FieldRef<"Settings", 'String'>
     readonly last_sync: FieldRef<"Settings", 'DateTime'>
+    readonly activeSchoolYear: FieldRef<"Settings", 'String'>
+    readonly roleId: FieldRef<"Settings", 'String'>
+    readonly permissions: FieldRef<"Settings", 'Json'>
   }
     
 
@@ -4583,6 +4627,7 @@ export namespace Prisma {
     lessons?: boolean | Classes$lessonsArgs<ExtArgs>
     registrations?: boolean | Classes$registrationsArgs<ExtArgs>
     subjects?: boolean | Classes$subjectsArgs<ExtArgs>
+    fees?: boolean | Classes$feesArgs<ExtArgs>
     _count?: boolean | ClassesCountOutputTypeDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["classes"]>
 
@@ -4624,6 +4669,7 @@ export namespace Prisma {
     lessons?: boolean | Classes$lessonsArgs<ExtArgs>
     registrations?: boolean | Classes$registrationsArgs<ExtArgs>
     subjects?: boolean | Classes$subjectsArgs<ExtArgs>
+    fees?: boolean | Classes$feesArgs<ExtArgs>
     _count?: boolean | ClassesCountOutputTypeDefaultArgs<ExtArgs>
   }
   export type ClassesIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {}
@@ -4635,6 +4681,7 @@ export namespace Prisma {
       lessons: Prisma.$LessonsPayload<ExtArgs>[]
       registrations: Prisma.$RegistrationsPayload<ExtArgs>[]
       subjects: Prisma.$SubjectsPayload<ExtArgs>[]
+      fees: Prisma.$FeesPayload<ExtArgs>[]
     }
     scalars: $Extensions.GetPayloadResult<{
       id: number
@@ -5042,6 +5089,7 @@ export namespace Prisma {
     lessons<T extends Classes$lessonsArgs<ExtArgs> = {}>(args?: Subset<T, Classes$lessonsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$LessonsPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     registrations<T extends Classes$registrationsArgs<ExtArgs> = {}>(args?: Subset<T, Classes$registrationsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$RegistrationsPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     subjects<T extends Classes$subjectsArgs<ExtArgs> = {}>(args?: Subset<T, Classes$subjectsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$SubjectsPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    fees<T extends Classes$feesArgs<ExtArgs> = {}>(args?: Subset<T, Classes$feesArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$FeesPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
      * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -5534,6 +5582,30 @@ export namespace Prisma {
     take?: number
     skip?: number
     distinct?: SubjectsScalarFieldEnum | SubjectsScalarFieldEnum[]
+  }
+
+  /**
+   * Classes.fees
+   */
+  export type Classes$feesArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Fees
+     */
+    select?: FeesSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Fees
+     */
+    omit?: FeesOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: FeesInclude<ExtArgs> | null
+    where?: FeesWhereInput
+    orderBy?: FeesOrderByWithRelationInput | FeesOrderByWithRelationInput[]
+    cursor?: FeesWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: FeesScalarFieldEnum | FeesScalarFieldEnum[]
   }
 
   /**
@@ -17769,11 +17841,13 @@ export namespace Prisma {
   export type FeesAvgAggregateOutputType = {
     id: number | null
     amount: number | null
+    class_id: number | null
   }
 
   export type FeesSumAggregateOutputType = {
     id: number | null
     amount: number | null
+    class_id: number | null
   }
 
   export type FeesMinAggregateOutputType = {
@@ -17783,6 +17857,7 @@ export namespace Prisma {
     due_date: string | null
     school_year: string | null
     level: string | null
+    class_id: number | null
     school_id: string | null
     supabase_id: string | null
     last_modified: Date | null
@@ -17797,6 +17872,7 @@ export namespace Prisma {
     due_date: string | null
     school_year: string | null
     level: string | null
+    class_id: number | null
     school_id: string | null
     supabase_id: string | null
     last_modified: Date | null
@@ -17811,6 +17887,7 @@ export namespace Prisma {
     due_date: number
     school_year: number
     level: number
+    class_id: number
     school_id: number
     supabase_id: number
     last_modified: number
@@ -17823,11 +17900,13 @@ export namespace Prisma {
   export type FeesAvgAggregateInputType = {
     id?: true
     amount?: true
+    class_id?: true
   }
 
   export type FeesSumAggregateInputType = {
     id?: true
     amount?: true
+    class_id?: true
   }
 
   export type FeesMinAggregateInputType = {
@@ -17837,6 +17916,7 @@ export namespace Prisma {
     due_date?: true
     school_year?: true
     level?: true
+    class_id?: true
     school_id?: true
     supabase_id?: true
     last_modified?: true
@@ -17851,6 +17931,7 @@ export namespace Prisma {
     due_date?: true
     school_year?: true
     level?: true
+    class_id?: true
     school_id?: true
     supabase_id?: true
     last_modified?: true
@@ -17865,6 +17946,7 @@ export namespace Prisma {
     due_date?: true
     school_year?: true
     level?: true
+    class_id?: true
     school_id?: true
     supabase_id?: true
     last_modified?: true
@@ -17966,6 +18048,7 @@ export namespace Prisma {
     due_date: string | null
     school_year: string | null
     level: string | null
+    class_id: number | null
     school_id: string | null
     supabase_id: string | null
     last_modified: Date
@@ -17999,11 +18082,13 @@ export namespace Prisma {
     due_date?: boolean
     school_year?: boolean
     level?: boolean
+    class_id?: boolean
     school_id?: boolean
     supabase_id?: boolean
     last_modified?: boolean
     needs_sync?: boolean
     is_deleted?: boolean
+    class?: boolean | Fees$classArgs<ExtArgs>
     payments?: boolean | Fees$paymentsArgs<ExtArgs>
     dispatch_rules?: boolean | Fees$dispatch_rulesArgs<ExtArgs>
     _count?: boolean | FeesCountOutputTypeDefaultArgs<ExtArgs>
@@ -18016,11 +18101,13 @@ export namespace Prisma {
     due_date?: boolean
     school_year?: boolean
     level?: boolean
+    class_id?: boolean
     school_id?: boolean
     supabase_id?: boolean
     last_modified?: boolean
     needs_sync?: boolean
     is_deleted?: boolean
+    class?: boolean | Fees$classArgs<ExtArgs>
   }, ExtArgs["result"]["fees"]>
 
   export type FeesSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
@@ -18030,11 +18117,13 @@ export namespace Prisma {
     due_date?: boolean
     school_year?: boolean
     level?: boolean
+    class_id?: boolean
     school_id?: boolean
     supabase_id?: boolean
     last_modified?: boolean
     needs_sync?: boolean
     is_deleted?: boolean
+    class?: boolean | Fees$classArgs<ExtArgs>
   }, ExtArgs["result"]["fees"]>
 
   export type FeesSelectScalar = {
@@ -18044,6 +18133,7 @@ export namespace Prisma {
     due_date?: boolean
     school_year?: boolean
     level?: boolean
+    class_id?: boolean
     school_id?: boolean
     supabase_id?: boolean
     last_modified?: boolean
@@ -18051,18 +18141,24 @@ export namespace Prisma {
     is_deleted?: boolean
   }
 
-  export type FeesOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "name" | "amount" | "due_date" | "school_year" | "level" | "school_id" | "supabase_id" | "last_modified" | "needs_sync" | "is_deleted", ExtArgs["result"]["fees"]>
+  export type FeesOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "name" | "amount" | "due_date" | "school_year" | "level" | "class_id" | "school_id" | "supabase_id" | "last_modified" | "needs_sync" | "is_deleted", ExtArgs["result"]["fees"]>
   export type FeesInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    class?: boolean | Fees$classArgs<ExtArgs>
     payments?: boolean | Fees$paymentsArgs<ExtArgs>
     dispatch_rules?: boolean | Fees$dispatch_rulesArgs<ExtArgs>
     _count?: boolean | FeesCountOutputTypeDefaultArgs<ExtArgs>
   }
-  export type FeesIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {}
-  export type FeesIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {}
+  export type FeesIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    class?: boolean | Fees$classArgs<ExtArgs>
+  }
+  export type FeesIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    class?: boolean | Fees$classArgs<ExtArgs>
+  }
 
   export type $FeesPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     name: "Fees"
     objects: {
+      class: Prisma.$ClassesPayload<ExtArgs> | null
       payments: Prisma.$PaymentsPayload<ExtArgs>[]
       dispatch_rules: Prisma.$DispatchRulePayload<ExtArgs>[]
     }
@@ -18073,6 +18169,7 @@ export namespace Prisma {
       due_date: string | null
       school_year: string | null
       level: string | null
+      class_id: number | null
       school_id: string | null
       supabase_id: string | null
       last_modified: Date
@@ -18472,6 +18569,7 @@ export namespace Prisma {
    */
   export interface Prisma__FeesClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
     readonly [Symbol.toStringTag]: "PrismaPromise"
+    class<T extends Fees$classArgs<ExtArgs> = {}>(args?: Subset<T, Fees$classArgs<ExtArgs>>): Prisma__ClassesClient<$Result.GetResult<Prisma.$ClassesPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
     payments<T extends Fees$paymentsArgs<ExtArgs> = {}>(args?: Subset<T, Fees$paymentsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$PaymentsPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     dispatch_rules<T extends Fees$dispatch_rulesArgs<ExtArgs> = {}>(args?: Subset<T, Fees$dispatch_rulesArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$DispatchRulePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     /**
@@ -18509,6 +18607,7 @@ export namespace Prisma {
     readonly due_date: FieldRef<"Fees", 'String'>
     readonly school_year: FieldRef<"Fees", 'String'>
     readonly level: FieldRef<"Fees", 'String'>
+    readonly class_id: FieldRef<"Fees", 'Int'>
     readonly school_id: FieldRef<"Fees", 'String'>
     readonly supabase_id: FieldRef<"Fees", 'String'>
     readonly last_modified: FieldRef<"Fees", 'DateTime'>
@@ -18761,6 +18860,10 @@ export namespace Prisma {
      * The data used to create many Fees.
      */
     data: FeesCreateManyInput | FeesCreateManyInput[]
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: FeesIncludeCreateManyAndReturn<ExtArgs> | null
   }
 
   /**
@@ -18831,6 +18934,10 @@ export namespace Prisma {
      * Limit how many Fees to update.
      */
     limit?: number
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: FeesIncludeUpdateManyAndReturn<ExtArgs> | null
   }
 
   /**
@@ -18897,6 +19004,25 @@ export namespace Prisma {
      * Limit how many Fees to delete.
      */
     limit?: number
+  }
+
+  /**
+   * Fees.class
+   */
+  export type Fees$classArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Classes
+     */
+    select?: ClassesSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Classes
+     */
+    omit?: ClassesOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ClassesInclude<ExtArgs> | null
+    where?: ClassesWhereInput
   }
 
   /**
@@ -30555,7 +30681,10 @@ export namespace Prisma {
     userRole: 'userRole',
     schoolId: 'schoolId',
     userToken: 'userToken',
-    last_sync: 'last_sync'
+    last_sync: 'last_sync',
+    activeSchoolYear: 'activeSchoolYear',
+    roleId: 'roleId',
+    permissions: 'permissions'
   };
 
   export type SettingsScalarFieldEnum = (typeof SettingsScalarFieldEnum)[keyof typeof SettingsScalarFieldEnum]
@@ -30753,6 +30882,7 @@ export namespace Prisma {
     due_date: 'due_date',
     school_year: 'school_year',
     level: 'level',
+    class_id: 'class_id',
     school_id: 'school_id',
     supabase_id: 'supabase_id',
     last_modified: 'last_modified',
@@ -30931,6 +31061,31 @@ export namespace Prisma {
   export type SortOrder = (typeof SortOrder)[keyof typeof SortOrder]
 
 
+  export const NullableJsonNullValueInput: {
+    DbNull: typeof DbNull,
+    JsonNull: typeof JsonNull
+  };
+
+  export type NullableJsonNullValueInput = (typeof NullableJsonNullValueInput)[keyof typeof NullableJsonNullValueInput]
+
+
+  export const JsonNullValueFilter: {
+    DbNull: typeof DbNull,
+    JsonNull: typeof JsonNull,
+    AnyNull: typeof AnyNull
+  };
+
+  export type JsonNullValueFilter = (typeof JsonNullValueFilter)[keyof typeof JsonNullValueFilter]
+
+
+  export const QueryMode: {
+    default: 'default',
+    insensitive: 'insensitive'
+  };
+
+  export type QueryMode = (typeof QueryMode)[keyof typeof QueryMode]
+
+
   export const NullsOrder: {
     first: 'first',
     last: 'last'
@@ -30966,6 +31121,20 @@ export namespace Prisma {
 
 
   /**
+   * Reference to a field of type 'Json'
+   */
+  export type JsonFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Json'>
+    
+
+
+  /**
+   * Reference to a field of type 'QueryMode'
+   */
+  export type EnumQueryModeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'QueryMode'>
+    
+
+
+  /**
    * Reference to a field of type 'Boolean'
    */
   export type BooleanFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Boolean'>
@@ -30994,6 +31163,9 @@ export namespace Prisma {
     schoolId?: StringNullableFilter<"Settings"> | string | null
     userToken?: StringNullableFilter<"Settings"> | string | null
     last_sync?: DateTimeNullableFilter<"Settings"> | Date | string | null
+    activeSchoolYear?: StringNullableFilter<"Settings"> | string | null
+    roleId?: StringNullableFilter<"Settings"> | string | null
+    permissions?: JsonNullableFilter<"Settings">
   }
 
   export type SettingsOrderByWithRelationInput = {
@@ -31005,6 +31177,9 @@ export namespace Prisma {
     schoolId?: SortOrderInput | SortOrder
     userToken?: SortOrderInput | SortOrder
     last_sync?: SortOrderInput | SortOrder
+    activeSchoolYear?: SortOrderInput | SortOrder
+    roleId?: SortOrderInput | SortOrder
+    permissions?: SortOrderInput | SortOrder
   }
 
   export type SettingsWhereUniqueInput = Prisma.AtLeast<{
@@ -31019,6 +31194,9 @@ export namespace Prisma {
     schoolId?: StringNullableFilter<"Settings"> | string | null
     userToken?: StringNullableFilter<"Settings"> | string | null
     last_sync?: DateTimeNullableFilter<"Settings"> | Date | string | null
+    activeSchoolYear?: StringNullableFilter<"Settings"> | string | null
+    roleId?: StringNullableFilter<"Settings"> | string | null
+    permissions?: JsonNullableFilter<"Settings">
   }, "id">
 
   export type SettingsOrderByWithAggregationInput = {
@@ -31030,6 +31208,9 @@ export namespace Prisma {
     schoolId?: SortOrderInput | SortOrder
     userToken?: SortOrderInput | SortOrder
     last_sync?: SortOrderInput | SortOrder
+    activeSchoolYear?: SortOrderInput | SortOrder
+    roleId?: SortOrderInput | SortOrder
+    permissions?: SortOrderInput | SortOrder
     _count?: SettingsCountOrderByAggregateInput
     _avg?: SettingsAvgOrderByAggregateInput
     _max?: SettingsMaxOrderByAggregateInput
@@ -31049,6 +31230,9 @@ export namespace Prisma {
     schoolId?: StringNullableWithAggregatesFilter<"Settings"> | string | null
     userToken?: StringNullableWithAggregatesFilter<"Settings"> | string | null
     last_sync?: DateTimeNullableWithAggregatesFilter<"Settings"> | Date | string | null
+    activeSchoolYear?: StringNullableWithAggregatesFilter<"Settings"> | string | null
+    roleId?: StringNullableWithAggregatesFilter<"Settings"> | string | null
+    permissions?: JsonNullableWithAggregatesFilter<"Settings">
   }
 
   export type ClassesWhereInput = {
@@ -31066,6 +31250,7 @@ export namespace Prisma {
     lessons?: LessonsListRelationFilter
     registrations?: RegistrationsListRelationFilter
     subjects?: SubjectsListRelationFilter
+    fees?: FeesListRelationFilter
   }
 
   export type ClassesOrderByWithRelationInput = {
@@ -31080,6 +31265,7 @@ export namespace Prisma {
     lessons?: LessonsOrderByRelationAggregateInput
     registrations?: RegistrationsOrderByRelationAggregateInput
     subjects?: SubjectsOrderByRelationAggregateInput
+    fees?: FeesOrderByRelationAggregateInput
   }
 
   export type ClassesWhereUniqueInput = Prisma.AtLeast<{
@@ -31097,6 +31283,7 @@ export namespace Prisma {
     lessons?: LessonsListRelationFilter
     registrations?: RegistrationsListRelationFilter
     subjects?: SubjectsListRelationFilter
+    fees?: FeesListRelationFilter
   }, "id" | "supabase_id">
 
   export type ClassesOrderByWithAggregationInput = {
@@ -32063,11 +32250,13 @@ export namespace Prisma {
     due_date?: StringNullableFilter<"Fees"> | string | null
     school_year?: StringNullableFilter<"Fees"> | string | null
     level?: StringNullableFilter<"Fees"> | string | null
+    class_id?: IntNullableFilter<"Fees"> | number | null
     school_id?: StringNullableFilter<"Fees"> | string | null
     supabase_id?: StringNullableFilter<"Fees"> | string | null
     last_modified?: DateTimeFilter<"Fees"> | Date | string
     needs_sync?: BoolFilter<"Fees"> | boolean
     is_deleted?: BoolFilter<"Fees"> | boolean
+    class?: XOR<ClassesNullableScalarRelationFilter, ClassesWhereInput> | null
     payments?: PaymentsListRelationFilter
     dispatch_rules?: DispatchRuleListRelationFilter
   }
@@ -32079,11 +32268,13 @@ export namespace Prisma {
     due_date?: SortOrderInput | SortOrder
     school_year?: SortOrderInput | SortOrder
     level?: SortOrderInput | SortOrder
+    class_id?: SortOrderInput | SortOrder
     school_id?: SortOrderInput | SortOrder
     supabase_id?: SortOrderInput | SortOrder
     last_modified?: SortOrder
     needs_sync?: SortOrder
     is_deleted?: SortOrder
+    class?: ClassesOrderByWithRelationInput
     payments?: PaymentsOrderByRelationAggregateInput
     dispatch_rules?: DispatchRuleOrderByRelationAggregateInput
   }
@@ -32099,10 +32290,12 @@ export namespace Prisma {
     due_date?: StringNullableFilter<"Fees"> | string | null
     school_year?: StringNullableFilter<"Fees"> | string | null
     level?: StringNullableFilter<"Fees"> | string | null
+    class_id?: IntNullableFilter<"Fees"> | number | null
     school_id?: StringNullableFilter<"Fees"> | string | null
     last_modified?: DateTimeFilter<"Fees"> | Date | string
     needs_sync?: BoolFilter<"Fees"> | boolean
     is_deleted?: BoolFilter<"Fees"> | boolean
+    class?: XOR<ClassesNullableScalarRelationFilter, ClassesWhereInput> | null
     payments?: PaymentsListRelationFilter
     dispatch_rules?: DispatchRuleListRelationFilter
   }, "id" | "supabase_id">
@@ -32114,6 +32307,7 @@ export namespace Prisma {
     due_date?: SortOrderInput | SortOrder
     school_year?: SortOrderInput | SortOrder
     level?: SortOrderInput | SortOrder
+    class_id?: SortOrderInput | SortOrder
     school_id?: SortOrderInput | SortOrder
     supabase_id?: SortOrderInput | SortOrder
     last_modified?: SortOrder
@@ -32136,6 +32330,7 @@ export namespace Prisma {
     due_date?: StringNullableWithAggregatesFilter<"Fees"> | string | null
     school_year?: StringNullableWithAggregatesFilter<"Fees"> | string | null
     level?: StringNullableWithAggregatesFilter<"Fees"> | string | null
+    class_id?: IntNullableWithAggregatesFilter<"Fees"> | number | null
     school_id?: StringNullableWithAggregatesFilter<"Fees"> | string | null
     supabase_id?: StringNullableWithAggregatesFilter<"Fees"> | string | null
     last_modified?: DateTimeWithAggregatesFilter<"Fees"> | Date | string
@@ -32974,6 +33169,9 @@ export namespace Prisma {
     schoolId?: string | null
     userToken?: string | null
     last_sync?: Date | string | null
+    activeSchoolYear?: string | null
+    roleId?: string | null
+    permissions?: NullableJsonNullValueInput | InputJsonValue
   }
 
   export type SettingsUncheckedCreateInput = {
@@ -32985,6 +33183,9 @@ export namespace Prisma {
     schoolId?: string | null
     userToken?: string | null
     last_sync?: Date | string | null
+    activeSchoolYear?: string | null
+    roleId?: string | null
+    permissions?: NullableJsonNullValueInput | InputJsonValue
   }
 
   export type SettingsUpdateInput = {
@@ -32995,6 +33196,9 @@ export namespace Prisma {
     schoolId?: NullableStringFieldUpdateOperationsInput | string | null
     userToken?: NullableStringFieldUpdateOperationsInput | string | null
     last_sync?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    activeSchoolYear?: NullableStringFieldUpdateOperationsInput | string | null
+    roleId?: NullableStringFieldUpdateOperationsInput | string | null
+    permissions?: NullableJsonNullValueInput | InputJsonValue
   }
 
   export type SettingsUncheckedUpdateInput = {
@@ -33006,6 +33210,9 @@ export namespace Prisma {
     schoolId?: NullableStringFieldUpdateOperationsInput | string | null
     userToken?: NullableStringFieldUpdateOperationsInput | string | null
     last_sync?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    activeSchoolYear?: NullableStringFieldUpdateOperationsInput | string | null
+    roleId?: NullableStringFieldUpdateOperationsInput | string | null
+    permissions?: NullableJsonNullValueInput | InputJsonValue
   }
 
   export type SettingsCreateManyInput = {
@@ -33017,6 +33224,9 @@ export namespace Prisma {
     schoolId?: string | null
     userToken?: string | null
     last_sync?: Date | string | null
+    activeSchoolYear?: string | null
+    roleId?: string | null
+    permissions?: NullableJsonNullValueInput | InputJsonValue
   }
 
   export type SettingsUpdateManyMutationInput = {
@@ -33027,6 +33237,9 @@ export namespace Prisma {
     schoolId?: NullableStringFieldUpdateOperationsInput | string | null
     userToken?: NullableStringFieldUpdateOperationsInput | string | null
     last_sync?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    activeSchoolYear?: NullableStringFieldUpdateOperationsInput | string | null
+    roleId?: NullableStringFieldUpdateOperationsInput | string | null
+    permissions?: NullableJsonNullValueInput | InputJsonValue
   }
 
   export type SettingsUncheckedUpdateManyInput = {
@@ -33038,6 +33251,9 @@ export namespace Prisma {
     schoolId?: NullableStringFieldUpdateOperationsInput | string | null
     userToken?: NullableStringFieldUpdateOperationsInput | string | null
     last_sync?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    activeSchoolYear?: NullableStringFieldUpdateOperationsInput | string | null
+    roleId?: NullableStringFieldUpdateOperationsInput | string | null
+    permissions?: NullableJsonNullValueInput | InputJsonValue
   }
 
   export type ClassesCreateInput = {
@@ -33051,6 +33267,7 @@ export namespace Prisma {
     lessons?: LessonsCreateNestedManyWithoutClassInput
     registrations?: RegistrationsCreateNestedManyWithoutClassInput
     subjects?: SubjectsCreateNestedManyWithoutClassInput
+    fees?: FeesCreateNestedManyWithoutClassInput
   }
 
   export type ClassesUncheckedCreateInput = {
@@ -33065,6 +33282,7 @@ export namespace Prisma {
     lessons?: LessonsUncheckedCreateNestedManyWithoutClassInput
     registrations?: RegistrationsUncheckedCreateNestedManyWithoutClassInput
     subjects?: SubjectsUncheckedCreateNestedManyWithoutClassInput
+    fees?: FeesUncheckedCreateNestedManyWithoutClassInput
   }
 
   export type ClassesUpdateInput = {
@@ -33078,6 +33296,7 @@ export namespace Prisma {
     lessons?: LessonsUpdateManyWithoutClassNestedInput
     registrations?: RegistrationsUpdateManyWithoutClassNestedInput
     subjects?: SubjectsUpdateManyWithoutClassNestedInput
+    fees?: FeesUpdateManyWithoutClassNestedInput
   }
 
   export type ClassesUncheckedUpdateInput = {
@@ -33092,6 +33311,7 @@ export namespace Prisma {
     lessons?: LessonsUncheckedUpdateManyWithoutClassNestedInput
     registrations?: RegistrationsUncheckedUpdateManyWithoutClassNestedInput
     subjects?: SubjectsUncheckedUpdateManyWithoutClassNestedInput
+    fees?: FeesUncheckedUpdateManyWithoutClassNestedInput
   }
 
   export type ClassesCreateManyInput = {
@@ -34128,6 +34348,7 @@ export namespace Prisma {
     last_modified?: Date | string
     needs_sync?: boolean
     is_deleted?: boolean
+    class?: ClassesCreateNestedOneWithoutFeesInput
     payments?: PaymentsCreateNestedManyWithoutFeeInput
     dispatch_rules?: DispatchRuleCreateNestedManyWithoutSource_feeInput
   }
@@ -34139,6 +34360,7 @@ export namespace Prisma {
     due_date?: string | null
     school_year?: string | null
     level?: string | null
+    class_id?: number | null
     school_id?: string | null
     supabase_id?: string | null
     last_modified?: Date | string
@@ -34159,6 +34381,7 @@ export namespace Prisma {
     last_modified?: DateTimeFieldUpdateOperationsInput | Date | string
     needs_sync?: BoolFieldUpdateOperationsInput | boolean
     is_deleted?: BoolFieldUpdateOperationsInput | boolean
+    class?: ClassesUpdateOneWithoutFeesNestedInput
     payments?: PaymentsUpdateManyWithoutFeeNestedInput
     dispatch_rules?: DispatchRuleUpdateManyWithoutSource_feeNestedInput
   }
@@ -34170,6 +34393,7 @@ export namespace Prisma {
     due_date?: NullableStringFieldUpdateOperationsInput | string | null
     school_year?: NullableStringFieldUpdateOperationsInput | string | null
     level?: NullableStringFieldUpdateOperationsInput | string | null
+    class_id?: NullableIntFieldUpdateOperationsInput | number | null
     school_id?: NullableStringFieldUpdateOperationsInput | string | null
     supabase_id?: NullableStringFieldUpdateOperationsInput | string | null
     last_modified?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -34186,6 +34410,7 @@ export namespace Prisma {
     due_date?: string | null
     school_year?: string | null
     level?: string | null
+    class_id?: number | null
     school_id?: string | null
     supabase_id?: string | null
     last_modified?: Date | string
@@ -34213,6 +34438,7 @@ export namespace Prisma {
     due_date?: NullableStringFieldUpdateOperationsInput | string | null
     school_year?: NullableStringFieldUpdateOperationsInput | string | null
     level?: NullableStringFieldUpdateOperationsInput | string | null
+    class_id?: NullableIntFieldUpdateOperationsInput | number | null
     school_id?: NullableStringFieldUpdateOperationsInput | string | null
     supabase_id?: NullableStringFieldUpdateOperationsInput | string | null
     last_modified?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -35155,6 +35381,24 @@ export namespace Prisma {
     gte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
     not?: NestedDateTimeNullableFilter<$PrismaModel> | Date | string | null
   }
+  export type JsonNullableFilter<$PrismaModel = never> =
+    | PatchUndefined<
+        Either<Required<JsonNullableFilterBase<$PrismaModel>>, Exclude<keyof Required<JsonNullableFilterBase<$PrismaModel>>, 'path'>>,
+        Required<JsonNullableFilterBase<$PrismaModel>>
+      >
+    | OptionalFlat<Omit<Required<JsonNullableFilterBase<$PrismaModel>>, 'path'>>
+
+  export type JsonNullableFilterBase<$PrismaModel = never> = {
+    equals?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
+    path?: string
+    mode?: QueryMode | EnumQueryModeFieldRefInput<$PrismaModel>
+    string_contains?: string | StringFieldRefInput<$PrismaModel>
+    string_starts_with?: string | StringFieldRefInput<$PrismaModel>
+    string_ends_with?: string | StringFieldRefInput<$PrismaModel>
+    array_starts_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    array_ends_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    not?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
+  }
 
   export type SortOrderInput = {
     sort: SortOrder
@@ -35170,6 +35414,9 @@ export namespace Prisma {
     schoolId?: SortOrder
     userToken?: SortOrder
     last_sync?: SortOrder
+    activeSchoolYear?: SortOrder
+    roleId?: SortOrder
+    permissions?: SortOrder
   }
 
   export type SettingsAvgOrderByAggregateInput = {
@@ -35186,6 +35433,8 @@ export namespace Prisma {
     schoolId?: SortOrder
     userToken?: SortOrder
     last_sync?: SortOrder
+    activeSchoolYear?: SortOrder
+    roleId?: SortOrder
   }
 
   export type SettingsMinOrderByAggregateInput = {
@@ -35197,6 +35446,8 @@ export namespace Prisma {
     schoolId?: SortOrder
     userToken?: SortOrder
     last_sync?: SortOrder
+    activeSchoolYear?: SortOrder
+    roleId?: SortOrder
   }
 
   export type SettingsSumOrderByAggregateInput = {
@@ -35266,6 +35517,27 @@ export namespace Prisma {
     _min?: NestedDateTimeNullableFilter<$PrismaModel>
     _max?: NestedDateTimeNullableFilter<$PrismaModel>
   }
+  export type JsonNullableWithAggregatesFilter<$PrismaModel = never> =
+    | PatchUndefined<
+        Either<Required<JsonNullableWithAggregatesFilterBase<$PrismaModel>>, Exclude<keyof Required<JsonNullableWithAggregatesFilterBase<$PrismaModel>>, 'path'>>,
+        Required<JsonNullableWithAggregatesFilterBase<$PrismaModel>>
+      >
+    | OptionalFlat<Omit<Required<JsonNullableWithAggregatesFilterBase<$PrismaModel>>, 'path'>>
+
+  export type JsonNullableWithAggregatesFilterBase<$PrismaModel = never> = {
+    equals?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
+    path?: string
+    mode?: QueryMode | EnumQueryModeFieldRefInput<$PrismaModel>
+    string_contains?: string | StringFieldRefInput<$PrismaModel>
+    string_starts_with?: string | StringFieldRefInput<$PrismaModel>
+    string_ends_with?: string | StringFieldRefInput<$PrismaModel>
+    array_starts_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    array_ends_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    not?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
+    _count?: NestedIntNullableFilter<$PrismaModel>
+    _min?: NestedJsonNullableFilter<$PrismaModel>
+    _max?: NestedJsonNullableFilter<$PrismaModel>
+  }
 
   export type StringFilter<$PrismaModel = never> = {
     equals?: string | StringFieldRefInput<$PrismaModel>
@@ -35315,6 +35587,12 @@ export namespace Prisma {
     none?: SubjectsWhereInput
   }
 
+  export type FeesListRelationFilter = {
+    every?: FeesWhereInput
+    some?: FeesWhereInput
+    none?: FeesWhereInput
+  }
+
   export type LessonsOrderByRelationAggregateInput = {
     _count?: SortOrder
   }
@@ -35324,6 +35602,10 @@ export namespace Prisma {
   }
 
   export type SubjectsOrderByRelationAggregateInput = {
+    _count?: SortOrder
+  }
+
+  export type FeesOrderByRelationAggregateInput = {
     _count?: SortOrder
   }
 
@@ -36119,6 +36401,11 @@ export namespace Prisma {
     amount?: SortOrder
   }
 
+  export type ClassesNullableScalarRelationFilter = {
+    is?: ClassesWhereInput | null
+    isNot?: ClassesWhereInput | null
+  }
+
   export type DispatchRuleListRelationFilter = {
     every?: DispatchRuleWhereInput
     some?: DispatchRuleWhereInput
@@ -36136,6 +36423,7 @@ export namespace Prisma {
     due_date?: SortOrder
     school_year?: SortOrder
     level?: SortOrder
+    class_id?: SortOrder
     school_id?: SortOrder
     supabase_id?: SortOrder
     last_modified?: SortOrder
@@ -36146,6 +36434,7 @@ export namespace Prisma {
   export type FeesAvgOrderByAggregateInput = {
     id?: SortOrder
     amount?: SortOrder
+    class_id?: SortOrder
   }
 
   export type FeesMaxOrderByAggregateInput = {
@@ -36155,6 +36444,7 @@ export namespace Prisma {
     due_date?: SortOrder
     school_year?: SortOrder
     level?: SortOrder
+    class_id?: SortOrder
     school_id?: SortOrder
     supabase_id?: SortOrder
     last_modified?: SortOrder
@@ -36169,6 +36459,7 @@ export namespace Prisma {
     due_date?: SortOrder
     school_year?: SortOrder
     level?: SortOrder
+    class_id?: SortOrder
     school_id?: SortOrder
     supabase_id?: SortOrder
     last_modified?: SortOrder
@@ -36179,6 +36470,7 @@ export namespace Prisma {
   export type FeesSumOrderByAggregateInput = {
     id?: SortOrder
     amount?: SortOrder
+    class_id?: SortOrder
   }
 
   export type AttendancesCountOrderByAggregateInput = {
@@ -36774,6 +37066,13 @@ export namespace Prisma {
     connect?: SubjectsWhereUniqueInput | SubjectsWhereUniqueInput[]
   }
 
+  export type FeesCreateNestedManyWithoutClassInput = {
+    create?: XOR<FeesCreateWithoutClassInput, FeesUncheckedCreateWithoutClassInput> | FeesCreateWithoutClassInput[] | FeesUncheckedCreateWithoutClassInput[]
+    connectOrCreate?: FeesCreateOrConnectWithoutClassInput | FeesCreateOrConnectWithoutClassInput[]
+    createMany?: FeesCreateManyClassInputEnvelope
+    connect?: FeesWhereUniqueInput | FeesWhereUniqueInput[]
+  }
+
   export type LessonsUncheckedCreateNestedManyWithoutClassInput = {
     create?: XOR<LessonsCreateWithoutClassInput, LessonsUncheckedCreateWithoutClassInput> | LessonsCreateWithoutClassInput[] | LessonsUncheckedCreateWithoutClassInput[]
     connectOrCreate?: LessonsCreateOrConnectWithoutClassInput | LessonsCreateOrConnectWithoutClassInput[]
@@ -36793,6 +37092,13 @@ export namespace Prisma {
     connectOrCreate?: SubjectsCreateOrConnectWithoutClassInput | SubjectsCreateOrConnectWithoutClassInput[]
     createMany?: SubjectsCreateManyClassInputEnvelope
     connect?: SubjectsWhereUniqueInput | SubjectsWhereUniqueInput[]
+  }
+
+  export type FeesUncheckedCreateNestedManyWithoutClassInput = {
+    create?: XOR<FeesCreateWithoutClassInput, FeesUncheckedCreateWithoutClassInput> | FeesCreateWithoutClassInput[] | FeesUncheckedCreateWithoutClassInput[]
+    connectOrCreate?: FeesCreateOrConnectWithoutClassInput | FeesCreateOrConnectWithoutClassInput[]
+    createMany?: FeesCreateManyClassInputEnvelope
+    connect?: FeesWhereUniqueInput | FeesWhereUniqueInput[]
   }
 
   export type StringFieldUpdateOperationsInput = {
@@ -36849,6 +37155,20 @@ export namespace Prisma {
     deleteMany?: SubjectsScalarWhereInput | SubjectsScalarWhereInput[]
   }
 
+  export type FeesUpdateManyWithoutClassNestedInput = {
+    create?: XOR<FeesCreateWithoutClassInput, FeesUncheckedCreateWithoutClassInput> | FeesCreateWithoutClassInput[] | FeesUncheckedCreateWithoutClassInput[]
+    connectOrCreate?: FeesCreateOrConnectWithoutClassInput | FeesCreateOrConnectWithoutClassInput[]
+    upsert?: FeesUpsertWithWhereUniqueWithoutClassInput | FeesUpsertWithWhereUniqueWithoutClassInput[]
+    createMany?: FeesCreateManyClassInputEnvelope
+    set?: FeesWhereUniqueInput | FeesWhereUniqueInput[]
+    disconnect?: FeesWhereUniqueInput | FeesWhereUniqueInput[]
+    delete?: FeesWhereUniqueInput | FeesWhereUniqueInput[]
+    connect?: FeesWhereUniqueInput | FeesWhereUniqueInput[]
+    update?: FeesUpdateWithWhereUniqueWithoutClassInput | FeesUpdateWithWhereUniqueWithoutClassInput[]
+    updateMany?: FeesUpdateManyWithWhereWithoutClassInput | FeesUpdateManyWithWhereWithoutClassInput[]
+    deleteMany?: FeesScalarWhereInput | FeesScalarWhereInput[]
+  }
+
   export type LessonsUncheckedUpdateManyWithoutClassNestedInput = {
     create?: XOR<LessonsCreateWithoutClassInput, LessonsUncheckedCreateWithoutClassInput> | LessonsCreateWithoutClassInput[] | LessonsUncheckedCreateWithoutClassInput[]
     connectOrCreate?: LessonsCreateOrConnectWithoutClassInput | LessonsCreateOrConnectWithoutClassInput[]
@@ -36889,6 +37209,20 @@ export namespace Prisma {
     update?: SubjectsUpdateWithWhereUniqueWithoutClassInput | SubjectsUpdateWithWhereUniqueWithoutClassInput[]
     updateMany?: SubjectsUpdateManyWithWhereWithoutClassInput | SubjectsUpdateManyWithWhereWithoutClassInput[]
     deleteMany?: SubjectsScalarWhereInput | SubjectsScalarWhereInput[]
+  }
+
+  export type FeesUncheckedUpdateManyWithoutClassNestedInput = {
+    create?: XOR<FeesCreateWithoutClassInput, FeesUncheckedCreateWithoutClassInput> | FeesCreateWithoutClassInput[] | FeesUncheckedCreateWithoutClassInput[]
+    connectOrCreate?: FeesCreateOrConnectWithoutClassInput | FeesCreateOrConnectWithoutClassInput[]
+    upsert?: FeesUpsertWithWhereUniqueWithoutClassInput | FeesUpsertWithWhereUniqueWithoutClassInput[]
+    createMany?: FeesCreateManyClassInputEnvelope
+    set?: FeesWhereUniqueInput | FeesWhereUniqueInput[]
+    disconnect?: FeesWhereUniqueInput | FeesWhereUniqueInput[]
+    delete?: FeesWhereUniqueInput | FeesWhereUniqueInput[]
+    connect?: FeesWhereUniqueInput | FeesWhereUniqueInput[]
+    update?: FeesUpdateWithWhereUniqueWithoutClassInput | FeesUpdateWithWhereUniqueWithoutClassInput[]
+    updateMany?: FeesUpdateManyWithWhereWithoutClassInput | FeesUpdateManyWithWhereWithoutClassInput[]
+    deleteMany?: FeesScalarWhereInput | FeesScalarWhereInput[]
   }
 
   export type AttendancesCreateNestedManyWithoutStudentInput = {
@@ -37615,6 +37949,12 @@ export namespace Prisma {
     update?: XOR<XOR<RegistrationsUpdateToOneWithWhereWithoutPaymentsInput, RegistrationsUpdateWithoutPaymentsInput>, RegistrationsUncheckedUpdateWithoutPaymentsInput>
   }
 
+  export type ClassesCreateNestedOneWithoutFeesInput = {
+    create?: XOR<ClassesCreateWithoutFeesInput, ClassesUncheckedCreateWithoutFeesInput>
+    connectOrCreate?: ClassesCreateOrConnectWithoutFeesInput
+    connect?: ClassesWhereUniqueInput
+  }
+
   export type PaymentsCreateNestedManyWithoutFeeInput = {
     create?: XOR<PaymentsCreateWithoutFeeInput, PaymentsUncheckedCreateWithoutFeeInput> | PaymentsCreateWithoutFeeInput[] | PaymentsUncheckedCreateWithoutFeeInput[]
     connectOrCreate?: PaymentsCreateOrConnectWithoutFeeInput | PaymentsCreateOrConnectWithoutFeeInput[]
@@ -37641,6 +37981,16 @@ export namespace Prisma {
     connectOrCreate?: DispatchRuleCreateOrConnectWithoutSource_feeInput | DispatchRuleCreateOrConnectWithoutSource_feeInput[]
     createMany?: DispatchRuleCreateManySource_feeInputEnvelope
     connect?: DispatchRuleWhereUniqueInput | DispatchRuleWhereUniqueInput[]
+  }
+
+  export type ClassesUpdateOneWithoutFeesNestedInput = {
+    create?: XOR<ClassesCreateWithoutFeesInput, ClassesUncheckedCreateWithoutFeesInput>
+    connectOrCreate?: ClassesCreateOrConnectWithoutFeesInput
+    upsert?: ClassesUpsertWithoutFeesInput
+    disconnect?: ClassesWhereInput | boolean
+    delete?: ClassesWhereInput | boolean
+    connect?: ClassesWhereUniqueInput
+    update?: XOR<XOR<ClassesUpdateToOneWithWhereWithoutFeesInput, ClassesUpdateWithoutFeesInput>, ClassesUncheckedUpdateWithoutFeesInput>
   }
 
   export type PaymentsUpdateManyWithoutFeeNestedInput = {
@@ -38096,6 +38446,24 @@ export namespace Prisma {
     _min?: NestedDateTimeNullableFilter<$PrismaModel>
     _max?: NestedDateTimeNullableFilter<$PrismaModel>
   }
+  export type NestedJsonNullableFilter<$PrismaModel = never> =
+    | PatchUndefined<
+        Either<Required<NestedJsonNullableFilterBase<$PrismaModel>>, Exclude<keyof Required<NestedJsonNullableFilterBase<$PrismaModel>>, 'path'>>,
+        Required<NestedJsonNullableFilterBase<$PrismaModel>>
+      >
+    | OptionalFlat<Omit<Required<NestedJsonNullableFilterBase<$PrismaModel>>, 'path'>>
+
+  export type NestedJsonNullableFilterBase<$PrismaModel = never> = {
+    equals?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
+    path?: string
+    mode?: QueryMode | EnumQueryModeFieldRefInput<$PrismaModel>
+    string_contains?: string | StringFieldRefInput<$PrismaModel>
+    string_starts_with?: string | StringFieldRefInput<$PrismaModel>
+    string_ends_with?: string | StringFieldRefInput<$PrismaModel>
+    array_starts_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    array_ends_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    not?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
+  }
 
   export type NestedStringFilter<$PrismaModel = never> = {
     equals?: string | StringFieldRefInput<$PrismaModel>
@@ -38300,6 +38668,46 @@ export namespace Prisma {
     data: SubjectsCreateManyClassInput | SubjectsCreateManyClassInput[]
   }
 
+  export type FeesCreateWithoutClassInput = {
+    name?: string | null
+    amount?: number | null
+    due_date?: string | null
+    school_year?: string | null
+    level?: string | null
+    school_id?: string | null
+    supabase_id?: string | null
+    last_modified?: Date | string
+    needs_sync?: boolean
+    is_deleted?: boolean
+    payments?: PaymentsCreateNestedManyWithoutFeeInput
+    dispatch_rules?: DispatchRuleCreateNestedManyWithoutSource_feeInput
+  }
+
+  export type FeesUncheckedCreateWithoutClassInput = {
+    id?: number
+    name?: string | null
+    amount?: number | null
+    due_date?: string | null
+    school_year?: string | null
+    level?: string | null
+    school_id?: string | null
+    supabase_id?: string | null
+    last_modified?: Date | string
+    needs_sync?: boolean
+    is_deleted?: boolean
+    payments?: PaymentsUncheckedCreateNestedManyWithoutFeeInput
+    dispatch_rules?: DispatchRuleUncheckedCreateNestedManyWithoutSource_feeInput
+  }
+
+  export type FeesCreateOrConnectWithoutClassInput = {
+    where: FeesWhereUniqueInput
+    create: XOR<FeesCreateWithoutClassInput, FeesUncheckedCreateWithoutClassInput>
+  }
+
+  export type FeesCreateManyClassInputEnvelope = {
+    data: FeesCreateManyClassInput | FeesCreateManyClassInput[]
+  }
+
   export type LessonsUpsertWithWhereUniqueWithoutClassInput = {
     where: LessonsWhereUniqueInput
     update: XOR<LessonsUpdateWithoutClassInput, LessonsUncheckedUpdateWithoutClassInput>
@@ -38392,6 +38800,40 @@ export namespace Prisma {
     last_modified?: DateTimeFilter<"Subjects"> | Date | string
     needs_sync?: BoolFilter<"Subjects"> | boolean
     is_deleted?: BoolFilter<"Subjects"> | boolean
+  }
+
+  export type FeesUpsertWithWhereUniqueWithoutClassInput = {
+    where: FeesWhereUniqueInput
+    update: XOR<FeesUpdateWithoutClassInput, FeesUncheckedUpdateWithoutClassInput>
+    create: XOR<FeesCreateWithoutClassInput, FeesUncheckedCreateWithoutClassInput>
+  }
+
+  export type FeesUpdateWithWhereUniqueWithoutClassInput = {
+    where: FeesWhereUniqueInput
+    data: XOR<FeesUpdateWithoutClassInput, FeesUncheckedUpdateWithoutClassInput>
+  }
+
+  export type FeesUpdateManyWithWhereWithoutClassInput = {
+    where: FeesScalarWhereInput
+    data: XOR<FeesUpdateManyMutationInput, FeesUncheckedUpdateManyWithoutClassInput>
+  }
+
+  export type FeesScalarWhereInput = {
+    AND?: FeesScalarWhereInput | FeesScalarWhereInput[]
+    OR?: FeesScalarWhereInput[]
+    NOT?: FeesScalarWhereInput | FeesScalarWhereInput[]
+    id?: IntFilter<"Fees"> | number
+    name?: StringNullableFilter<"Fees"> | string | null
+    amount?: FloatNullableFilter<"Fees"> | number | null
+    due_date?: StringNullableFilter<"Fees"> | string | null
+    school_year?: StringNullableFilter<"Fees"> | string | null
+    level?: StringNullableFilter<"Fees"> | string | null
+    class_id?: IntNullableFilter<"Fees"> | number | null
+    school_id?: StringNullableFilter<"Fees"> | string | null
+    supabase_id?: StringNullableFilter<"Fees"> | string | null
+    last_modified?: DateTimeFilter<"Fees"> | Date | string
+    needs_sync?: BoolFilter<"Fees"> | boolean
+    is_deleted?: BoolFilter<"Fees"> | boolean
   }
 
   export type AttendancesCreateWithoutStudentInput = {
@@ -38673,6 +39115,7 @@ export namespace Prisma {
     is_deleted?: boolean
     lessons?: LessonsCreateNestedManyWithoutClassInput
     subjects?: SubjectsCreateNestedManyWithoutClassInput
+    fees?: FeesCreateNestedManyWithoutClassInput
   }
 
   export type ClassesUncheckedCreateWithoutRegistrationsInput = {
@@ -38686,6 +39129,7 @@ export namespace Prisma {
     is_deleted?: boolean
     lessons?: LessonsUncheckedCreateNestedManyWithoutClassInput
     subjects?: SubjectsUncheckedCreateNestedManyWithoutClassInput
+    fees?: FeesUncheckedCreateNestedManyWithoutClassInput
   }
 
   export type ClassesCreateOrConnectWithoutRegistrationsInput = {
@@ -38786,6 +39230,7 @@ export namespace Prisma {
     is_deleted?: BoolFieldUpdateOperationsInput | boolean
     lessons?: LessonsUpdateManyWithoutClassNestedInput
     subjects?: SubjectsUpdateManyWithoutClassNestedInput
+    fees?: FeesUpdateManyWithoutClassNestedInput
   }
 
   export type ClassesUncheckedUpdateWithoutRegistrationsInput = {
@@ -38799,6 +39244,7 @@ export namespace Prisma {
     is_deleted?: BoolFieldUpdateOperationsInput | boolean
     lessons?: LessonsUncheckedUpdateManyWithoutClassNestedInput
     subjects?: SubjectsUncheckedUpdateManyWithoutClassNestedInput
+    fees?: FeesUncheckedUpdateManyWithoutClassNestedInput
   }
 
   export type StudentsUpsertWithoutRegistrationsInput = {
@@ -39169,6 +39615,7 @@ export namespace Prisma {
     is_deleted?: boolean
     registrations?: RegistrationsCreateNestedManyWithoutClassInput
     subjects?: SubjectsCreateNestedManyWithoutClassInput
+    fees?: FeesCreateNestedManyWithoutClassInput
   }
 
   export type ClassesUncheckedCreateWithoutLessonsInput = {
@@ -39182,6 +39629,7 @@ export namespace Prisma {
     is_deleted?: boolean
     registrations?: RegistrationsUncheckedCreateNestedManyWithoutClassInput
     subjects?: SubjectsUncheckedCreateNestedManyWithoutClassInput
+    fees?: FeesUncheckedCreateNestedManyWithoutClassInput
   }
 
   export type ClassesCreateOrConnectWithoutLessonsInput = {
@@ -39354,6 +39802,7 @@ export namespace Prisma {
     is_deleted?: BoolFieldUpdateOperationsInput | boolean
     registrations?: RegistrationsUpdateManyWithoutClassNestedInput
     subjects?: SubjectsUpdateManyWithoutClassNestedInput
+    fees?: FeesUpdateManyWithoutClassNestedInput
   }
 
   export type ClassesUncheckedUpdateWithoutLessonsInput = {
@@ -39367,6 +39816,7 @@ export namespace Prisma {
     is_deleted?: BoolFieldUpdateOperationsInput | boolean
     registrations?: RegistrationsUncheckedUpdateManyWithoutClassNestedInput
     subjects?: SubjectsUncheckedUpdateManyWithoutClassNestedInput
+    fees?: FeesUncheckedUpdateManyWithoutClassNestedInput
   }
 
   export type TeachersUpsertWithoutLessonsInput = {
@@ -39512,6 +39962,7 @@ export namespace Prisma {
     is_deleted?: boolean
     lessons?: LessonsCreateNestedManyWithoutClassInput
     registrations?: RegistrationsCreateNestedManyWithoutClassInput
+    fees?: FeesCreateNestedManyWithoutClassInput
   }
 
   export type ClassesUncheckedCreateWithoutSubjectsInput = {
@@ -39525,6 +39976,7 @@ export namespace Prisma {
     is_deleted?: boolean
     lessons?: LessonsUncheckedCreateNestedManyWithoutClassInput
     registrations?: RegistrationsUncheckedCreateNestedManyWithoutClassInput
+    fees?: FeesUncheckedCreateNestedManyWithoutClassInput
   }
 
   export type ClassesCreateOrConnectWithoutSubjectsInput = {
@@ -39605,6 +40057,7 @@ export namespace Prisma {
     is_deleted?: BoolFieldUpdateOperationsInput | boolean
     lessons?: LessonsUpdateManyWithoutClassNestedInput
     registrations?: RegistrationsUpdateManyWithoutClassNestedInput
+    fees?: FeesUpdateManyWithoutClassNestedInput
   }
 
   export type ClassesUncheckedUpdateWithoutSubjectsInput = {
@@ -39618,6 +40071,7 @@ export namespace Prisma {
     is_deleted?: BoolFieldUpdateOperationsInput | boolean
     lessons?: LessonsUncheckedUpdateManyWithoutClassNestedInput
     registrations?: RegistrationsUncheckedUpdateManyWithoutClassNestedInput
+    fees?: FeesUncheckedUpdateManyWithoutClassNestedInput
   }
 
   export type TeacherWorkHoursUpsertWithWhereUniqueWithoutSubjectInput = {
@@ -39999,6 +40453,7 @@ export namespace Prisma {
     last_modified?: Date | string
     needs_sync?: boolean
     is_deleted?: boolean
+    class?: ClassesCreateNestedOneWithoutFeesInput
     dispatch_rules?: DispatchRuleCreateNestedManyWithoutSource_feeInput
   }
 
@@ -40009,6 +40464,7 @@ export namespace Prisma {
     due_date?: string | null
     school_year?: string | null
     level?: string | null
+    class_id?: number | null
     school_id?: string | null
     supabase_id?: string | null
     last_modified?: Date | string
@@ -40074,6 +40530,7 @@ export namespace Prisma {
     last_modified?: DateTimeFieldUpdateOperationsInput | Date | string
     needs_sync?: BoolFieldUpdateOperationsInput | boolean
     is_deleted?: BoolFieldUpdateOperationsInput | boolean
+    class?: ClassesUpdateOneWithoutFeesNestedInput
     dispatch_rules?: DispatchRuleUpdateManyWithoutSource_feeNestedInput
   }
 
@@ -40084,6 +40541,7 @@ export namespace Prisma {
     due_date?: NullableStringFieldUpdateOperationsInput | string | null
     school_year?: NullableStringFieldUpdateOperationsInput | string | null
     level?: NullableStringFieldUpdateOperationsInput | string | null
+    class_id?: NullableIntFieldUpdateOperationsInput | number | null
     school_id?: NullableStringFieldUpdateOperationsInput | string | null
     supabase_id?: NullableStringFieldUpdateOperationsInput | string | null
     last_modified?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -40126,6 +40584,38 @@ export namespace Prisma {
     last_modified?: DateTimeFieldUpdateOperationsInput | Date | string
     needs_sync?: BoolFieldUpdateOperationsInput | boolean
     is_deleted?: BoolFieldUpdateOperationsInput | boolean
+  }
+
+  export type ClassesCreateWithoutFeesInput = {
+    name: string
+    level?: string | null
+    school_id?: string | null
+    supabase_id?: string | null
+    last_modified?: Date | string
+    needs_sync?: boolean
+    is_deleted?: boolean
+    lessons?: LessonsCreateNestedManyWithoutClassInput
+    registrations?: RegistrationsCreateNestedManyWithoutClassInput
+    subjects?: SubjectsCreateNestedManyWithoutClassInput
+  }
+
+  export type ClassesUncheckedCreateWithoutFeesInput = {
+    id?: number
+    name: string
+    level?: string | null
+    school_id?: string | null
+    supabase_id?: string | null
+    last_modified?: Date | string
+    needs_sync?: boolean
+    is_deleted?: boolean
+    lessons?: LessonsUncheckedCreateNestedManyWithoutClassInput
+    registrations?: RegistrationsUncheckedCreateNestedManyWithoutClassInput
+    subjects?: SubjectsUncheckedCreateNestedManyWithoutClassInput
+  }
+
+  export type ClassesCreateOrConnectWithoutFeesInput = {
+    where: ClassesWhereUniqueInput
+    create: XOR<ClassesCreateWithoutFeesInput, ClassesUncheckedCreateWithoutFeesInput>
   }
 
   export type PaymentsCreateWithoutFeeInput = {
@@ -40190,6 +40680,44 @@ export namespace Prisma {
 
   export type DispatchRuleCreateManySource_feeInputEnvelope = {
     data: DispatchRuleCreateManySource_feeInput | DispatchRuleCreateManySource_feeInput[]
+  }
+
+  export type ClassesUpsertWithoutFeesInput = {
+    update: XOR<ClassesUpdateWithoutFeesInput, ClassesUncheckedUpdateWithoutFeesInput>
+    create: XOR<ClassesCreateWithoutFeesInput, ClassesUncheckedCreateWithoutFeesInput>
+    where?: ClassesWhereInput
+  }
+
+  export type ClassesUpdateToOneWithWhereWithoutFeesInput = {
+    where?: ClassesWhereInput
+    data: XOR<ClassesUpdateWithoutFeesInput, ClassesUncheckedUpdateWithoutFeesInput>
+  }
+
+  export type ClassesUpdateWithoutFeesInput = {
+    name?: StringFieldUpdateOperationsInput | string
+    level?: NullableStringFieldUpdateOperationsInput | string | null
+    school_id?: NullableStringFieldUpdateOperationsInput | string | null
+    supabase_id?: NullableStringFieldUpdateOperationsInput | string | null
+    last_modified?: DateTimeFieldUpdateOperationsInput | Date | string
+    needs_sync?: BoolFieldUpdateOperationsInput | boolean
+    is_deleted?: BoolFieldUpdateOperationsInput | boolean
+    lessons?: LessonsUpdateManyWithoutClassNestedInput
+    registrations?: RegistrationsUpdateManyWithoutClassNestedInput
+    subjects?: SubjectsUpdateManyWithoutClassNestedInput
+  }
+
+  export type ClassesUncheckedUpdateWithoutFeesInput = {
+    id?: IntFieldUpdateOperationsInput | number
+    name?: StringFieldUpdateOperationsInput | string
+    level?: NullableStringFieldUpdateOperationsInput | string | null
+    school_id?: NullableStringFieldUpdateOperationsInput | string | null
+    supabase_id?: NullableStringFieldUpdateOperationsInput | string | null
+    last_modified?: DateTimeFieldUpdateOperationsInput | Date | string
+    needs_sync?: BoolFieldUpdateOperationsInput | boolean
+    is_deleted?: BoolFieldUpdateOperationsInput | boolean
+    lessons?: LessonsUncheckedUpdateManyWithoutClassNestedInput
+    registrations?: RegistrationsUncheckedUpdateManyWithoutClassNestedInput
+    subjects?: SubjectsUncheckedUpdateManyWithoutClassNestedInput
   }
 
   export type PaymentsUpsertWithWhereUniqueWithoutFeeInput = {
@@ -40741,6 +41269,7 @@ export namespace Prisma {
     last_modified?: Date | string
     needs_sync?: boolean
     is_deleted?: boolean
+    class?: ClassesCreateNestedOneWithoutFeesInput
     payments?: PaymentsCreateNestedManyWithoutFeeInput
   }
 
@@ -40751,6 +41280,7 @@ export namespace Prisma {
     due_date?: string | null
     school_year?: string | null
     level?: string | null
+    class_id?: number | null
     school_id?: string | null
     supabase_id?: string | null
     last_modified?: Date | string
@@ -40812,6 +41342,7 @@ export namespace Prisma {
     last_modified?: DateTimeFieldUpdateOperationsInput | Date | string
     needs_sync?: BoolFieldUpdateOperationsInput | boolean
     is_deleted?: BoolFieldUpdateOperationsInput | boolean
+    class?: ClassesUpdateOneWithoutFeesNestedInput
     payments?: PaymentsUpdateManyWithoutFeeNestedInput
   }
 
@@ -40822,6 +41353,7 @@ export namespace Prisma {
     due_date?: NullableStringFieldUpdateOperationsInput | string | null
     school_year?: NullableStringFieldUpdateOperationsInput | string | null
     level?: NullableStringFieldUpdateOperationsInput | string | null
+    class_id?: NullableIntFieldUpdateOperationsInput | number | null
     school_id?: NullableStringFieldUpdateOperationsInput | string | null
     supabase_id?: NullableStringFieldUpdateOperationsInput | string | null
     last_modified?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -40996,6 +41528,20 @@ export namespace Prisma {
     is_deleted?: boolean
   }
 
+  export type FeesCreateManyClassInput = {
+    id?: number
+    name?: string | null
+    amount?: number | null
+    due_date?: string | null
+    school_year?: string | null
+    level?: string | null
+    school_id?: string | null
+    supabase_id?: string | null
+    last_modified?: Date | string
+    needs_sync?: boolean
+    is_deleted?: boolean
+  }
+
   export type LessonsUpdateWithoutClassInput = {
     school_year?: NullableStringFieldUpdateOperationsInput | string | null
     supabase_id?: NullableStringFieldUpdateOperationsInput | string | null
@@ -41099,6 +41645,51 @@ export namespace Prisma {
     name?: StringFieldUpdateOperationsInput | string
     school_year?: NullableStringFieldUpdateOperationsInput | string | null
     coefficient?: NullableIntFieldUpdateOperationsInput | number | null
+    supabase_id?: NullableStringFieldUpdateOperationsInput | string | null
+    last_modified?: DateTimeFieldUpdateOperationsInput | Date | string
+    needs_sync?: BoolFieldUpdateOperationsInput | boolean
+    is_deleted?: BoolFieldUpdateOperationsInput | boolean
+  }
+
+  export type FeesUpdateWithoutClassInput = {
+    name?: NullableStringFieldUpdateOperationsInput | string | null
+    amount?: NullableFloatFieldUpdateOperationsInput | number | null
+    due_date?: NullableStringFieldUpdateOperationsInput | string | null
+    school_year?: NullableStringFieldUpdateOperationsInput | string | null
+    level?: NullableStringFieldUpdateOperationsInput | string | null
+    school_id?: NullableStringFieldUpdateOperationsInput | string | null
+    supabase_id?: NullableStringFieldUpdateOperationsInput | string | null
+    last_modified?: DateTimeFieldUpdateOperationsInput | Date | string
+    needs_sync?: BoolFieldUpdateOperationsInput | boolean
+    is_deleted?: BoolFieldUpdateOperationsInput | boolean
+    payments?: PaymentsUpdateManyWithoutFeeNestedInput
+    dispatch_rules?: DispatchRuleUpdateManyWithoutSource_feeNestedInput
+  }
+
+  export type FeesUncheckedUpdateWithoutClassInput = {
+    id?: IntFieldUpdateOperationsInput | number
+    name?: NullableStringFieldUpdateOperationsInput | string | null
+    amount?: NullableFloatFieldUpdateOperationsInput | number | null
+    due_date?: NullableStringFieldUpdateOperationsInput | string | null
+    school_year?: NullableStringFieldUpdateOperationsInput | string | null
+    level?: NullableStringFieldUpdateOperationsInput | string | null
+    school_id?: NullableStringFieldUpdateOperationsInput | string | null
+    supabase_id?: NullableStringFieldUpdateOperationsInput | string | null
+    last_modified?: DateTimeFieldUpdateOperationsInput | Date | string
+    needs_sync?: BoolFieldUpdateOperationsInput | boolean
+    is_deleted?: BoolFieldUpdateOperationsInput | boolean
+    payments?: PaymentsUncheckedUpdateManyWithoutFeeNestedInput
+    dispatch_rules?: DispatchRuleUncheckedUpdateManyWithoutSource_feeNestedInput
+  }
+
+  export type FeesUncheckedUpdateManyWithoutClassInput = {
+    id?: IntFieldUpdateOperationsInput | number
+    name?: NullableStringFieldUpdateOperationsInput | string | null
+    amount?: NullableFloatFieldUpdateOperationsInput | number | null
+    due_date?: NullableStringFieldUpdateOperationsInput | string | null
+    school_year?: NullableStringFieldUpdateOperationsInput | string | null
+    level?: NullableStringFieldUpdateOperationsInput | string | null
+    school_id?: NullableStringFieldUpdateOperationsInput | string | null
     supabase_id?: NullableStringFieldUpdateOperationsInput | string | null
     last_modified?: DateTimeFieldUpdateOperationsInput | Date | string
     needs_sync?: BoolFieldUpdateOperationsInput | boolean

@@ -79,17 +79,29 @@ function setupFeesIPC(prisma) {
     return deletedFee;
   });
 
-  ipcMain.handle('db:fees:getStudentFeeStatus', async (event, { registrationId, level }) => {
+  ipcMain.handle('db:fees:getStudentFeeStatus', async (event, { registrationId }) => {
     const schoolId = await getUserSchoolId(prisma, event);
     const registration = await prisma.registrations.findUnique({ where: { id: registrationId }, include: { class: true } });
     if (!registration || registration.class.school_id !== schoolId) throw new Error("Accès non autorisé");
-    const allFees = await prisma.fees.findMany({ where: { is_deleted: false, school_id: schoolId } });
-    const applicableFees = allFees.filter(fee => {
-      if (fee.level === null || fee.level.toLowerCase() === 'all') return true;
-      if (level && fee.level.toLowerCase() === level.toLowerCase()) return true;
-      return false;
+
+    const studentLevel = registration.class.level;
+    const studentClassId = registration.class.id;
+
+    const applicableFees = await prisma.fees.findMany({
+      where: {
+        is_deleted: false,
+        school_id: schoolId,
+        OR: [
+          { level: 'all' },
+          { level: null },
+          { level: studentLevel },
+          { class_id: studentClassId }
+        ]
+      }
     });
+
     const payments = await prisma.payments.findMany({ where: { registration_id: registrationId, is_deleted: false } });
+
     return applicableFees.map(fee => {
       const totalPaidForFee = payments.filter(p => p.fee_id === fee.id).reduce((sum, p) => sum + (p.amount || 0), 0);
       const balance = (fee.amount || 0) - totalPaidForFee;

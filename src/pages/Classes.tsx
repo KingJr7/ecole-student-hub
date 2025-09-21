@@ -284,7 +284,7 @@ export default function Classes() {
             <DialogHeader><DialogTitle>Nouvelle Classe</DialogTitle></DialogHeader>
             <div className="grid gap-4 py-4">
               <div className="grid gap-2"><Label htmlFor="name">Nom de la classe</Label><Input id="name" value={currentClass.name || ''} onChange={(e) => setCurrentClass({ ...currentClass, name: e.target.value })}/></div>
-              <div className="grid gap-2"><Label htmlFor="level">Niveau</Label><Select value={currentClass.level || ''} onValueChange={(value) => setCurrentClass({ ...currentClass, level: value })}><SelectTrigger><SelectValue placeholder="Sélectionner un niveau" /></SelectTrigger><SelectContent><SelectItem value="primaire">Primaire</SelectItem><SelectItem value="college">Collège</SelectItem><SelectItem value="lycee">Lycée</SelectItem></SelectContent></Select></div>
+              <div className="grid gap-2"><Label htmlFor="level">Niveau</Label><Select value={currentClass.level || ''} onValueChange={(value) => setCurrentClass({ ...currentClass, level: value })}><SelectTrigger><SelectValue placeholder="Sélectionner un niveau" /></SelectTrigger><SelectContent><SelectItem value="garderie">Garderie</SelectItem><SelectItem value="maternelle">Maternelle</SelectItem><SelectItem value="primaire">Primaire</SelectItem><SelectItem value="college">Collège</SelectItem><SelectItem value="lycee">Lycée</SelectItem></SelectContent></Select></div>
             </div>
             <DialogFooter><Button onClick={handleSaveClass}>Créer la classe</Button><Button variant="outline" onClick={handleCloseDialog}>Annuler</Button></DialogFooter>
           </DialogContent>

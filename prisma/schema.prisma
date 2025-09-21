@@ -10,14 +10,17 @@ datasource db {
 }
 
 model Settings {
-  id            Int       @id @default(autoincrement())
-  schoolName    String?
-  schoolAddress String?
-  loggedIn      Int?      @default(0)
-  userRole      String?
-  schoolId      String?
-  userToken     String?
-  last_sync     DateTime?
+  id               Int       @id @default(autoincrement())
+  schoolName       String?
+  schoolAddress    String?
+  loggedIn         Int?      @default(0)
+  userRole         String?
+  schoolId         String?
+  userToken        String?
+  last_sync        DateTime?
+  activeSchoolYear String?
+  roleId           String?
+  permissions      Json?
 
   @@map("settings")
 }
@@ -34,6 +37,7 @@ model Classes {
   lessons       Lessons[]
   registrations Registrations[]
   subjects      Subjects[]
+  fees          Fees[]
 
   @@map("classes")
 }
@@ -236,19 +240,21 @@ model Payments {
 }
 
 model Fees {
-  id            Int        @id @default(autoincrement())
-  name          String?
-  amount        Float?
-  due_date      String?
-  school_year   String?
-  level         String?
-  school_id     String?
-  supabase_id   String?    @unique
-  last_modified DateTime   @default(now())
-  needs_sync    Boolean    @default(false)
-  is_deleted    Boolean    @default(false)
-  payments      Payments[]
-  dispatch_rules DispatchRule[]
+  id               Int        @id @default(autoincrement())
+  name             String?
+  amount           Float?
+  due_date         String?
+  school_year      String?
+  level            String?
+  class_id         Int?       @map("class_id")
+  school_id        String?
+  supabase_id      String?    @unique
+  last_modified    DateTime   @default(now())
+  needs_sync       Boolean    @default(false)
+  is_deleted       Boolean    @default(false)
+  class            Classes?   @relation(fields: [class_id], references: [id])
+  payments         Payments[]
+  dispatch_rules   DispatchRule[]
 
   @@map("fees")
 }

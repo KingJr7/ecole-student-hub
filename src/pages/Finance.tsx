@@ -19,6 +19,7 @@ import { cn } from "@/lib/utils";
 import { CalendarIcon } from "lucide-react";
 import { format } from "date-fns";
 import { DispatchRuleManager } from "@/components/DispatchRuleManager";
+import { FeeManager } from "@/components/FeeManager";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 const transactionSchema = z.object({
@@ -140,9 +141,10 @@ const FinancePage = () => {
     <MainLayout>
       <div className="p-4 space-y-4">
         <Tabs defaultValue="overview" className="space-y-4">
-          <TabsList>
+          <TabsList className="grid w-full grid-cols-4">
             <TabsTrigger value="overview">Vue d'ensemble</TabsTrigger>
             <TabsTrigger value="transactions">Transactions</TabsTrigger>
+            <TabsTrigger value="fees">Frais Scolaires</TabsTrigger>
             <TabsTrigger value="dispatch">Répartition</TabsTrigger>
           </TabsList>
 
@@ -507,6 +509,10 @@ const FinancePage = () => {
                 </CardContent>
               </Card>
             </div>
+          </TabsContent>
+
+          <TabsContent value="fees" className="space-y-4">
+            <FeeManager />
           </TabsContent>
 
           <TabsContent value="dispatch" className="space-y-4">

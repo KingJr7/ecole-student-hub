@@ -125,7 +125,10 @@ exports.Prisma.SettingsScalarFieldEnum = {
   userRole: 'userRole',
   schoolId: 'schoolId',
   userToken: 'userToken',
-  last_sync: 'last_sync'
+  last_sync: 'last_sync',
+  activeSchoolYear: 'activeSchoolYear',
+  roleId: 'roleId',
+  permissions: 'permissions'
 };
 
 exports.Prisma.ClassesScalarFieldEnum = {
@@ -287,6 +290,7 @@ exports.Prisma.FeesScalarFieldEnum = {
   due_date: 'due_date',
   school_year: 'school_year',
   level: 'level',
+  class_id: 'class_id',
   school_id: 'school_id',
   supabase_id: 'supabase_id',
   last_modified: 'last_modified',
@@ -427,6 +431,22 @@ exports.Prisma.DispatchRuleDetailScalarFieldEnum = {
 exports.Prisma.SortOrder = {
   asc: 'asc',
   desc: 'desc'
+};
+
+exports.Prisma.NullableJsonNullValueInput = {
+  DbNull: Prisma.DbNull,
+  JsonNull: Prisma.JsonNull
+};
+
+exports.Prisma.JsonNullValueFilter = {
+  DbNull: Prisma.DbNull,
+  JsonNull: Prisma.JsonNull,
+  AnyNull: Prisma.AnyNull
+};
+
+exports.Prisma.QueryMode = {
+  default: 'default',
+  insensitive: 'insensitive'
 };
 
 exports.Prisma.NullsOrder = {
