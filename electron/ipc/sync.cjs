@@ -197,6 +197,68 @@ const tableConfigs = {
             };
         }
     },
+    single_fees: {
+        name: 'fees', // Supabase table is named 'fees'
+        model: 'singleFee',
+        pullSelect: '*',
+        pullFilterColumn: 'school_id',
+        supabaseMap: async (row, schoolId, prisma) => {
+            const classSupabaseId = row.class_id ? await getSupabaseId(prisma, 'classes', row.class_id, schoolId) : null;
+            return {
+                name: row.name,
+                amount: row.amount,
+                due_date: row.due_date,
+                school_year: row.school_year,
+                level: row.level,
+                class_id: classSupabaseId,
+                school_id: schoolId
+            };
+        },
+        localMap: async (row, prisma) => {
+            const classLocalId = row.class_id ? await getLocalId(prisma, 'classes', row.class_id) : null;
+            return {
+                name: row.name,
+                amount: row.amount,
+                due_date: row.due_date,
+                school_year: row.school_year,
+                level: row.level,
+                class_id: classLocalId,
+                school_id: row.school_id
+            };
+        }
+    },
+    fee_templates: {
+        name: 'fee_templates',
+        model: 'feeTemplate',
+        pullSelect: '*',
+        pullFilterColumn: 'school_id',
+        supabaseMap: async (row, schoolId, prisma) => {
+            const classSupabaseId = row.applies_to_class_id ? await getSupabaseId(prisma, 'classes', row.applies_to_class_id, schoolId) : null;
+            return {
+                name: row.name,
+                amount: row.amount,
+                frequency: row.frequency,
+                due_day: row.due_day,
+                applicable_months: row.applicable_months,
+                school_id: schoolId,
+                applies_to_level: row.applies_to_level,
+                applies_to_class_id: classSupabaseId
+            };
+        },
+        localMap: async (row, prisma) => {
+            const classLocalId = row.applies_to_class_id ? await getLocalId(prisma, 'classes', row.applies_to_class_id) : null;
+            return {
+                name: row.name,
+                amount: row.amount,
+                frequency: row.frequency,
+                due_day: row.due_day,
+                applicable_months: row.applicable_months,
+                school_id: row.school_id,
+                applies_to_level: row.applies_to_level,
+                applies_to_class_id: classLocalId
+            };
+        }
+    },
     teachers: {
         name: 'teachers', model: 'teachers',
         pullSelect: '*, users(*)', // On récupère le teacher et le user associé
@@ -436,23 +498,37 @@ const tableConfigs = {
         supabaseMap: async (row, schoolId, prisma, supabase) => {
             const registrationSupabaseId = await getSupabaseId(prisma, 'registrations', row.registration_id, schoolId, supabase);
             if (!registrationSupabaseId) return null;
+
+            const singleFeeSupabaseId = row.single_fee_id ? await getSupabaseId(prisma, 'singleFee', row.single_fee_id, schoolId, supabase) : null;
+            const feeTemplateSupabaseId = row.fee_template_id ? await getSupabaseId(prisma, 'feeTemplate', row.fee_template_id, schoolId, supabase) : null;
+
             return { 
                 registration_id: registrationSupabaseId, 
                 amount: row.amount, 
                 method: row.method, 
                 date: row.date, 
-                reference: row.reference 
+                reference: row.reference,
+                single_fee_id: singleFeeSupabaseId,
+                fee_template_id: feeTemplateSupabaseId,
+                period_identifier: row.period_identifier
             };
         },
         localMap: async (row, prisma) => {
             const registrationLocalId = await getLocalId(prisma, 'registrations', row.registration_id);
             if (!registrationLocalId) return null;
+
+            const singleFeeLocalId = row.single_fee_id ? await getLocalId(prisma, 'singleFee', row.single_fee_id) : null;
+            const feeTemplateLocalId = row.fee_template_id ? await getLocalId(prisma, 'feeTemplate', row.fee_template_id) : null;
+
             return { 
-                registrationId: registrationLocalId, 
+                registration_id: registrationLocalId, 
                 amount: row.amount, 
                 method: row.method, 
                 date: row.date, 
-                reference: row.reference 
+                reference: row.reference,
+                single_fee_id: singleFeeLocalId,
+                fee_template_id: feeTemplateLocalId,
+                period_identifier: row.period_identifier
             };
         }
     },
@@ -501,6 +577,98 @@ const tableConfigs = {
                 school_id: row.school_id
             };
         }
+    },
+    dispatch_rules: {
+        name: 'dispatch_rules',
+        model: 'dispatchRule',
+        pullSelect: '*',
+        pullFilterColumn: 'school_id',
+        supabaseMap: async (row, schoolId, prisma) => {
+            const singleFeeSupabaseId = await getSupabaseId(prisma, 'singleFee', row.source_single_fee_id, schoolId);
+            if (!singleFeeSupabaseId) return null;
+            return {
+                name: row.name,
+                source_fee_id: singleFeeSupabaseId,
+                school_id: schoolId
+            };
+        },
+        localMap: async (row, prisma) => {
+            const singleFeeLocalId = await getLocalId(prisma, 'singleFee', row.source_fee_id);
+            if (!singleFeeLocalId) return null;
+            return {
+                name: row.name,
+                source_single_fee_id: singleFeeLocalId,
+                school_id: row.school_id
+            };
+        }
+    },
+    dispatch_rule_details: {
+        name: 'dispatch_rule_details',
+        model: 'dispatchRuleDetail',
+        pullSelect: '*, dispatch_rules!inner(*)', // Join to filter by school_id
+        pullFilterColumn: 'dispatch_rules.school_id',
+        supabaseMap: async (row, schoolId, prisma) => {
+            const dispatchRuleSupabaseId = await getSupabaseId(prisma, 'dispatchRule', row.dispatch_rule_id, schoolId);
+            const categorySupabaseId = await getSupabaseId(prisma, 'financialCategory', row.destination_category_id, schoolId);
+            if (!dispatchRuleSupabaseId || !categorySupabaseId) return null;
+            return {
+                dispatch_rule_id: dispatchRuleSupabaseId,
+                destination_category_id: categorySupabaseId,
+                percentage: row.percentage
+            };
+        },
+        localMap: async (row, prisma) => {
+            const dispatchRuleLocalId = await getLocalId(prisma, 'dispatchRule', row.dispatch_rule_id);
+            const categoryLocalId = await getLocalId(prisma, 'financialCategory', row.destination_category_id);
+            if (!dispatchRuleLocalId || !categoryLocalId) return null;
+            return {
+                dispatch_rule_id: dispatchRuleLocalId,
+                destination_category_id: categoryLocalId,
+                percentage: row.percentage
+            };
+        }
+    },
+    budgets: {
+        name: 'budgets',
+        model: 'budget',
+        pullSelect: '*',
+        pullFilterColumn: 'school_id',
+        supabaseMap: (row, schoolId) => ({
+            category: row.category,
+            amount: row.amount,
+            period_start: row.period_start,
+            period_end: row.period_end,
+            school_id: schoolId
+        }),
+        localMap: (row) => ({
+            category: row.category,
+            amount: row.amount,
+            period_start: row.period_start,
+            period_end: row.period_end,
+            school_id: row.school_id
+        })
+    },
+    financial_reports: {
+        name: 'financial_reports',
+        model: 'financialReport',
+        pullSelect: '*',
+        pullFilterColumn: 'school_id',
+        supabaseMap: (row, schoolId) => ({
+            title: row.title,
+            generated_at: row.generated_at,
+            start_date: row.start_date,
+            end_date: row.end_date,
+            content: row.content,
+            school_id: schoolId
+        }),
+        localMap: (row) => ({
+            title: row.title,
+            generated_at: row.generated_at,
+            start_date: row.start_date,
+            end_date: row.end_date,
+            content: row.content,
+            school_id: row.school_id
+        })
     },
     attendances: {
         name: 'attendances', model: 'attendances',
@@ -740,7 +908,7 @@ async function getSupabaseId(prisma, modelName, localId, schoolId, supabase) {
 }
 
 const syncOrder = [
-    // Entités de base sans dépendances externes majeures
+    // Entités de base
     'classes', 
     'students', 
     'parents', 
@@ -749,21 +917,27 @@ const syncOrder = [
     'financial_categories',
     
     // Entités dépendant des entités de base
-    'subjects',        // Dépend de 'classes'
-    'registrations',   // Dépend de 'students' et 'classes'
-    'student_parents', // Dépend de 'students' et 'parents'
-    'attendances',     // Dépend de 'students'
-    'salary_payments', // Dépend de 'employees'
-    'teacher_work_hours', // Dépend de 'teachers' et 'subjects'
-    'financial_transactions',
-    
+    'single_fees',          // Dépend de 'classes'
+    'fee_templates',        // Dépend de 'classes'
+    'subjects',             // Dépend de 'classes'
+    'registrations',        // Dépend de 'students' et 'classes'
+    'student_parents',      // Dépend de 'students' et 'parents'
+    'attendances',          // Dépend de 'students'
+    'salary_payments',      // Dépend de 'employees'
+    'teacher_work_hours',   // Dépend de 'teachers' et 'subjects'
+    'financial_transactions',// Dépend de 'financial_categories'
+    'budgets',              // Dépend de 'financial_categories'
+
     // Entités dépendant du niveau précédent
-    'lessons',         // Dépend de 'teachers', 'classes', 'subjects'
+    'dispatch_rules',       // Dépend de 'single_fees'
+    'lessons',              // Dépend de 'teachers', 'classes', 'subjects'
     
     // Entités dépendant du niveau 2
-    'notes',           // Dépend de 'students' et 'lessons'
-    'schedules',       // Dépend de 'lessons'
-    'payments'         // Dépend de 'registrations'
+    'dispatch_rule_details',// Dépend de 'dispatch_rules' et 'financial_categories'
+    'notes',                // Dépend de 'students' et 'lessons'
+    'schedules',            // Dépend de 'lessons'
+    'payments',             // Dépend de 'registrations', 'single_fees', 'fee_templates'
+    'financial_reports'     // Indépendant, mais logiquement à la fin
 ];
 
 async function pushChanges(prisma, schoolId, supabase) {
@@ -835,20 +1009,20 @@ async function pullChanges(prisma, schoolId, supabase) {
     const transformDataForPrisma = (data, modelName) => {
         const prismaData = { ...data };
         
-        // Mappe explicite des relations pour chaque modèle
-        // Clé: nom du champ dans mappedData, Valeur: nom de la relation dans Prisma
         const relationsMap = {
             registrations: { studentId: 'student', classId: 'class' },
             subjects: { classId: 'class' },
             lessons: { teacherId: 'teacher', classId: 'class', subjectId: 'subject' },
             notes: { studentId: 'student', lessonId: 'lesson' },
             studentParents: { studentId: 'student', parentId: 'parent' },
-            payments: { registrationId: 'registration', feeId: 'fee' },
+            payments: { registrationId: 'registration', single_fee_id: 'single_fee', fee_template_id: 'fee_template' },
             attendances: { studentId: 'student' },
             schedules: { lessonId: 'lesson' },
             salary_payments: { employee_id: 'employee' },
             teacherWorkHours: { teacherId: 'teacher', subjectId: 'subject' },
-            financial_transactions: { categoryId: 'category' }
+            financial_transactions: { categoryId: 'category' },
+            dispatch_rules: { source_single_fee_id: 'source_single_fee' },
+            dispatch_rule_details: { dispatch_rule_id: 'dispatch_rule', destination_category_id: 'destination_category' }
         };
 
         const modelRelations = relationsMap[modelName];
@@ -868,14 +1042,13 @@ async function pullChanges(prisma, schoolId, supabase) {
         return prismaData;
     };
 
-    // On ne fait PLUS .reverse() pour respecter l'ordre des dépendances
     for (const tableName of syncOrder) {
         const config = tableConfigs[tableName];
         if (!config.model) continue;
         
         const modelName = config.model;
         
-        const lastRecord = await prisma[modelName].findFirst({ orderBy: { last_modified: 'desc' } });
+        const lastRecord = await prisma[modelName].findFirst({ where: { is_deleted: false }, orderBy: { last_modified: 'desc' } });
         const lastSyncTime = lastRecord ? lastRecord.last_modified.toISOString() : '1970-01-01T00:00:00Z';
         
         sendSyncLog('info', `[PULL] Table '${config.name}': Recherche des modifications depuis ${lastSyncTime}`);
@@ -905,23 +1078,18 @@ async function pullChanges(prisma, schoolId, supabase) {
 
         for (const row of supabaseRows) {
             try {
-                if (config.name === 'students') {
-                    sendSyncLog('info', `[PULL-DEBUG] Données brutes de l\'étudiant reçues de Supabase (ID: ${row.id}):`, { picture_url: row.picture_url });
-                }
-
                 const localRow = await prisma[modelName].findUnique({ where: { supabase_id: row.id } });
 
                 if (row.is_deleted) {
                     if (localRow) {
                         sendSyncLog('info', `    -> 🗑️  [DELETE] Suppression de ${config.name} #${localRow.id} (depuis supabase_id: ${row.id})`);
-                        await prisma[modelName].delete({ where: { id: localRow.id } });
+                        await prisma[modelName].update({ where: { id: localRow.id }, data: { is_deleted: true, needs_sync: true } });
                     }
                     continue;
                 }
 
                 const mappedData = await config.localMap(row, prisma);
 
-                // Gérer les enregistrements à ignorer
                 if (mappedData?._ignore) {
                     sendSyncLog('info', `    -> ⏩ [IGNORE] Ignoré ${config.name} (supabase_id: ${row.id}). Raison: ${mappedData.reason}`);
                     continue;
@@ -936,50 +1104,37 @@ async function pullChanges(prisma, schoolId, supabase) {
 
                 if (localRow) { // Update
                     if (new Date(row.last_modified) > new Date(localRow.last_modified)) {
-                        sendSyncLog('info', `    -> 🔄  [UPDATE] Mise à jour de ${config.name} #${localRow.id} depuis Supabase...`, { data: prismaData });
+                        sendSyncLog('info', `    -> 🔄  [UPDATE] Mise à jour de ${config.name} #${localRow.id} depuis Supabase...`);
                         await prisma[modelName].update({
                             where: { id: localRow.id },
                             data: { ...prismaData, last_modified: new Date(row.last_modified), needs_sync: false },
                         });
                         sendSyncLog('success', `       ✅ Mise à jour locale réussie.`);
                     }
-                } else { // Insert
+                } else { // Insert or Upsert for specific models
+                    const createPayload = {
+                        ...prismaData,
+                        supabase_id: row.id,
+                        last_modified: new Date(row.last_modified),
+                        needs_sync: false,
+                    };
+
                     if (modelName === 'studentParents') {
-                        sendSyncLog('info', `    -> 🔀  [UPSERT] Mise à jour ou création de ${config.name} (supabase_id: ${row.id}) localement...`, { data: prismaData });
-                        // Special handling for student_parents due to its unique constraint
                         await prisma.studentParents.upsert({
-                            where: {
-                                student_id_parent_id_unique: {
-                                    student_id: prismaData.student.connect.id,
-                                    parent_id: prismaData.parent.connect.id,
-                                }
-                            },
-                            update: {
-                                supabase_id: row.id,
-                                last_modified: new Date(row.last_modified),
-                                is_deleted: false,
-                                needs_sync: false
-                            },
-                            create: {
-                                ...prismaData,
-                                supabase_id: row.id,
-                                last_modified: new Date(row.last_modified),
-                                needs_sync: false,
-                            }
+                            where: { student_id_parent_id_unique: { student_id: prismaData.student.connect.id, parent_id: prismaData.parent.connect.id } },
+                            update: createPayload,
+                            create: createPayload
                         });
-                        sendSyncLog('success', `       ✅ Upsert local réussi.`);
+                    } else if (modelName === 'notes') {
+                        await prisma.notes.upsert({
+                            where: { student_id_lesson_id_quarter_type: { student_id: prismaData.student.connect.id, lesson_id: prismaData.lesson.connect.id, quarter: mappedData.quarter, type: mappedData.type } },
+                            update: createPayload,
+                            create: createPayload
+                        });
                     } else {
-                        sendSyncLog('info', `    -> ✨  [CREATE] Création de ${config.name} (supabase_id: ${row.id}) localement...`, { data: prismaData });
-                        await prisma[modelName].create({
-                            data: {
-                                ...prismaData,
-                                supabase_id: row.id,
-                                last_modified: new Date(row.last_modified),
-                                needs_sync: false,
-                            },
-                        });
-                        sendSyncLog('success', `       ✅ Création locale réussie.`);
+                        await prisma[modelName].create({ data: createPayload });
                     }
+                    sendSyncLog('success', `       ✅ Création/Upsert local réussi.`);
                 }
             } catch (error) {
                 sendSyncLog('error', `  -> ❌  [ERREUR PULL] Échec pour la ligne supabase_id: ${row.id} de la table ${config.name}:`, { error: error.message });

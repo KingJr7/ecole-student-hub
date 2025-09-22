@@ -21,15 +21,26 @@ function setupPaymentsIPC(prisma) {
     });
     const mappedStudentPayments = studentPayments
       .filter(p => p.registration && p.registration.student)
-      .map(p => ({
-        ...p,
-        type: 'Étudiant',
-        person_name: `${p.registration.student.first_name} ${p.registration.student.name}`,
-        details: p.single_fee?.name || p.fee_template?.name || p.registration.class.name,
-        student_name: p.registration.student.name,
-        student_first_name: p.registration.student.first_name,
-        class_name: p.registration.class.name,
-      }));
+      .map(p => {
+        let details = 'Paiement scolaire';
+        if (p.single_fee) {
+          details = p.single_fee.name;
+        } else if (p.fee_template) {
+          details = `${p.fee_template.name} (${p.period_identifier || 'N/A'})`;
+        } else if (p.registration?.class?.name) {
+          details = `Frais pour la classe de ${p.registration.class.name}`;
+        }
+
+        return {
+          ...p,
+          type: 'Étudiant',
+          person_name: `${p.registration.student.first_name} ${p.registration.student.name}`,
+          details: details,
+          student_name: p.registration.student.name,
+          student_first_name: p.registration.student.first_name,
+          class_name: p.registration.class.name,
+        };
+      });
     const mappedSalaryPayments = salaryPayments
       .filter(p => p.employee)
       .map(p => ({

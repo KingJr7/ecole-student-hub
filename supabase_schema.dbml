@@ -233,6 +233,9 @@ Table payments {
   sync_timestamp timestamptz
   is_deleted boolean [default: false]
   last_modified timestamptz [default: `now()`]
+  single_fee_id uuid
+  fee_template_id uuid
+  period_identifier text
 }
 
 Table attendances {
@@ -349,6 +352,46 @@ Table expo_push_tokens {
   last_modified timestamptz [not null, default: `now()`]
 }
 
+Table fee_templates {
+  id uuid [pk, default: `gen_random_uuid()`]
+  name text [not null]
+  amount float8 [not null]
+  frequency text [not null]
+  due_day integer
+  applicable_months jsonb
+  school_id uuid [not null]
+  applies_to_level text
+  applies_to_class_id uuid
+  last_modified timestamptz [default: `now()`]
+  is_deleted boolean [default: false]
+  local_id integer
+}
+
+Table budgets {
+  id uuid [pk, default: `gen_random_uuid()`]
+  category text [not null]
+  amount float8 [not null]
+  period_start timestamptz [not null]
+  period_end timestamptz [not null]
+  school_id uuid
+  last_modified timestamptz [default: `now()`]
+  is_deleted boolean [default: false]
+  local_id integer
+}
+
+Table financial_reports {
+  id uuid [pk, default: `gen_random_uuid()`]
+  title text [not null]
+  generated_at timestamptz [not null]
+  start_date timestamptz [not null]
+  end_date timestamptz [not null]
+  content jsonb
+  school_id uuid
+  last_modified timestamptz [default: `now()`]
+  is_deleted boolean [default: false]
+  local_id integer
+}
+
 
 //// RELATIONS
 Ref: users.role_id > roles.id
@@ -376,6 +419,8 @@ Ref: fees.school_id > schools.id
 Ref: fees.class_id > classes.id
 Ref: payments.registration_id > registrations.id
 Ref: payments.emitter_id > users.id
+Ref: payments.single_fee_id > fees.id
+Ref: payments.fee_template_id > fee_templates.id
 Ref: attendances.student_id > students.id
 Ref: schedules.lesson_id > lessons.id
 Ref: salary_payments.employee_id > employees.id
@@ -390,3 +435,7 @@ Ref: dispatch_rule_details.dispatch_rule_id > dispatch_rules.id
 Ref: dispatch_rule_details.destination_category_id > financial_categories.id
 Ref: activity_logs.user_id > users.id
 Ref: expo_push_tokens.user_id > users.id
+Ref: fee_templates.school_id > schools.id
+Ref: fee_templates.applies_to_class_id > classes.id
+Ref: budgets.school_id > schools.id
+Ref: financial_reports.school_id > schools.id

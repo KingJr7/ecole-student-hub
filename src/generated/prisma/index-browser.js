@@ -310,7 +310,11 @@ exports.Prisma.FeeTemplateScalarFieldEnum = {
   applicable_months: 'applicable_months',
   school_id: 'school_id',
   applies_to_level: 'applies_to_level',
-  applies_to_class_id: 'applies_to_class_id'
+  applies_to_class_id: 'applies_to_class_id',
+  supabase_id: 'supabase_id',
+  last_modified: 'last_modified',
+  needs_sync: 'needs_sync',
+  is_deleted: 'is_deleted'
 };
 
 exports.Prisma.AttendancesScalarFieldEnum = {
@@ -428,6 +432,7 @@ exports.Prisma.DispatchRuleScalarFieldEnum = {
   name: 'name',
   source_single_fee_id: 'source_single_fee_id',
   school_id: 'school_id',
+  supabase_id: 'supabase_id',
   last_modified: 'last_modified',
   needs_sync: 'needs_sync',
   is_deleted: 'is_deleted'
@@ -438,6 +443,7 @@ exports.Prisma.DispatchRuleDetailScalarFieldEnum = {
   dispatch_rule_id: 'dispatch_rule_id',
   destination_category_id: 'destination_category_id',
   percentage: 'percentage',
+  supabase_id: 'supabase_id',
   last_modified: 'last_modified',
   needs_sync: 'needs_sync',
   is_deleted: 'is_deleted'

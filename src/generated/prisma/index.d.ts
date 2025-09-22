@@ -19356,6 +19356,10 @@ export namespace Prisma {
     school_id: string | null
     applies_to_level: string | null
     applies_to_class_id: number | null
+    supabase_id: string | null
+    last_modified: Date | null
+    needs_sync: boolean | null
+    is_deleted: boolean | null
   }
 
   export type FeeTemplateMaxAggregateOutputType = {
@@ -19367,6 +19371,10 @@ export namespace Prisma {
     school_id: string | null
     applies_to_level: string | null
     applies_to_class_id: number | null
+    supabase_id: string | null
+    last_modified: Date | null
+    needs_sync: boolean | null
+    is_deleted: boolean | null
   }
 
   export type FeeTemplateCountAggregateOutputType = {
@@ -19379,6 +19387,10 @@ export namespace Prisma {
     school_id: number
     applies_to_level: number
     applies_to_class_id: number
+    supabase_id: number
+    last_modified: number
+    needs_sync: number
+    is_deleted: number
     _all: number
   }
 
@@ -19406,6 +19418,10 @@ export namespace Prisma {
     school_id?: true
     applies_to_level?: true
     applies_to_class_id?: true
+    supabase_id?: true
+    last_modified?: true
+    needs_sync?: true
+    is_deleted?: true
   }
 
   export type FeeTemplateMaxAggregateInputType = {
@@ -19417,6 +19433,10 @@ export namespace Prisma {
     school_id?: true
     applies_to_level?: true
     applies_to_class_id?: true
+    supabase_id?: true
+    last_modified?: true
+    needs_sync?: true
+    is_deleted?: true
   }
 
   export type FeeTemplateCountAggregateInputType = {
@@ -19429,6 +19449,10 @@ export namespace Prisma {
     school_id?: true
     applies_to_level?: true
     applies_to_class_id?: true
+    supabase_id?: true
+    last_modified?: true
+    needs_sync?: true
+    is_deleted?: true
     _all?: true
   }
 
@@ -19528,6 +19552,10 @@ export namespace Prisma {
     school_id: string
     applies_to_level: string | null
     applies_to_class_id: number | null
+    supabase_id: string | null
+    last_modified: Date
+    needs_sync: boolean
+    is_deleted: boolean
     _count: FeeTemplateCountAggregateOutputType | null
     _avg: FeeTemplateAvgAggregateOutputType | null
     _sum: FeeTemplateSumAggregateOutputType | null
@@ -19559,6 +19587,10 @@ export namespace Prisma {
     school_id?: boolean
     applies_to_level?: boolean
     applies_to_class_id?: boolean
+    supabase_id?: boolean
+    last_modified?: boolean
+    needs_sync?: boolean
+    is_deleted?: boolean
     class?: boolean | FeeTemplate$classArgs<ExtArgs>
     payments?: boolean | FeeTemplate$paymentsArgs<ExtArgs>
     _count?: boolean | FeeTemplateCountOutputTypeDefaultArgs<ExtArgs>
@@ -19574,6 +19606,10 @@ export namespace Prisma {
     school_id?: boolean
     applies_to_level?: boolean
     applies_to_class_id?: boolean
+    supabase_id?: boolean
+    last_modified?: boolean
+    needs_sync?: boolean
+    is_deleted?: boolean
     class?: boolean | FeeTemplate$classArgs<ExtArgs>
   }, ExtArgs["result"]["feeTemplate"]>
 
@@ -19587,6 +19623,10 @@ export namespace Prisma {
     school_id?: boolean
     applies_to_level?: boolean
     applies_to_class_id?: boolean
+    supabase_id?: boolean
+    last_modified?: boolean
+    needs_sync?: boolean
+    is_deleted?: boolean
     class?: boolean | FeeTemplate$classArgs<ExtArgs>
   }, ExtArgs["result"]["feeTemplate"]>
 
@@ -19600,9 +19640,13 @@ export namespace Prisma {
     school_id?: boolean
     applies_to_level?: boolean
     applies_to_class_id?: boolean
+    supabase_id?: boolean
+    last_modified?: boolean
+    needs_sync?: boolean
+    is_deleted?: boolean
   }
 
-  export type FeeTemplateOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "name" | "amount" | "frequency" | "due_day" | "applicable_months" | "school_id" | "applies_to_level" | "applies_to_class_id", ExtArgs["result"]["feeTemplate"]>
+  export type FeeTemplateOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "name" | "amount" | "frequency" | "due_day" | "applicable_months" | "school_id" | "applies_to_level" | "applies_to_class_id" | "supabase_id" | "last_modified" | "needs_sync" | "is_deleted", ExtArgs["result"]["feeTemplate"]>
   export type FeeTemplateInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     class?: boolean | FeeTemplate$classArgs<ExtArgs>
     payments?: boolean | FeeTemplate$paymentsArgs<ExtArgs>
@@ -19631,6 +19675,10 @@ export namespace Prisma {
       school_id: string
       applies_to_level: string | null
       applies_to_class_id: number | null
+      supabase_id: string | null
+      last_modified: Date
+      needs_sync: boolean
+      is_deleted: boolean
     }, ExtArgs["result"]["feeTemplate"]>
     composites: {}
   }
@@ -20065,6 +20113,10 @@ export namespace Prisma {
     readonly school_id: FieldRef<"FeeTemplate", 'String'>
     readonly applies_to_level: FieldRef<"FeeTemplate", 'String'>
     readonly applies_to_class_id: FieldRef<"FeeTemplate", 'Int'>
+    readonly supabase_id: FieldRef<"FeeTemplate", 'String'>
+    readonly last_modified: FieldRef<"FeeTemplate", 'DateTime'>
+    readonly needs_sync: FieldRef<"FeeTemplate", 'Boolean'>
+    readonly is_deleted: FieldRef<"FeeTemplate", 'Boolean'>
   }
     
 
@@ -29831,6 +29883,7 @@ export namespace Prisma {
     name: string | null
     source_single_fee_id: number | null
     school_id: string | null
+    supabase_id: string | null
     last_modified: Date | null
     needs_sync: boolean | null
     is_deleted: boolean | null
@@ -29841,6 +29894,7 @@ export namespace Prisma {
     name: string | null
     source_single_fee_id: number | null
     school_id: string | null
+    supabase_id: string | null
     last_modified: Date | null
     needs_sync: boolean | null
     is_deleted: boolean | null
@@ -29851,6 +29905,7 @@ export namespace Prisma {
     name: number
     source_single_fee_id: number
     school_id: number
+    supabase_id: number
     last_modified: number
     needs_sync: number
     is_deleted: number
@@ -29873,6 +29928,7 @@ export namespace Prisma {
     name?: true
     source_single_fee_id?: true
     school_id?: true
+    supabase_id?: true
     last_modified?: true
     needs_sync?: true
     is_deleted?: true
@@ -29883,6 +29939,7 @@ export namespace Prisma {
     name?: true
     source_single_fee_id?: true
     school_id?: true
+    supabase_id?: true
     last_modified?: true
     needs_sync?: true
     is_deleted?: true
@@ -29893,6 +29950,7 @@ export namespace Prisma {
     name?: true
     source_single_fee_id?: true
     school_id?: true
+    supabase_id?: true
     last_modified?: true
     needs_sync?: true
     is_deleted?: true
@@ -29990,6 +30048,7 @@ export namespace Prisma {
     name: string
     source_single_fee_id: number
     school_id: string
+    supabase_id: string | null
     last_modified: Date
     needs_sync: boolean
     is_deleted: boolean
@@ -30019,6 +30078,7 @@ export namespace Prisma {
     name?: boolean
     source_single_fee_id?: boolean
     school_id?: boolean
+    supabase_id?: boolean
     last_modified?: boolean
     needs_sync?: boolean
     is_deleted?: boolean
@@ -30032,6 +30092,7 @@ export namespace Prisma {
     name?: boolean
     source_single_fee_id?: boolean
     school_id?: boolean
+    supabase_id?: boolean
     last_modified?: boolean
     needs_sync?: boolean
     is_deleted?: boolean
@@ -30043,6 +30104,7 @@ export namespace Prisma {
     name?: boolean
     source_single_fee_id?: boolean
     school_id?: boolean
+    supabase_id?: boolean
     last_modified?: boolean
     needs_sync?: boolean
     is_deleted?: boolean
@@ -30054,12 +30116,13 @@ export namespace Prisma {
     name?: boolean
     source_single_fee_id?: boolean
     school_id?: boolean
+    supabase_id?: boolean
     last_modified?: boolean
     needs_sync?: boolean
     is_deleted?: boolean
   }
 
-  export type DispatchRuleOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "name" | "source_single_fee_id" | "school_id" | "last_modified" | "needs_sync" | "is_deleted", ExtArgs["result"]["dispatchRule"]>
+  export type DispatchRuleOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "name" | "source_single_fee_id" | "school_id" | "supabase_id" | "last_modified" | "needs_sync" | "is_deleted", ExtArgs["result"]["dispatchRule"]>
   export type DispatchRuleInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     source_single_fee?: boolean | SingleFeeDefaultArgs<ExtArgs>
     details?: boolean | DispatchRule$detailsArgs<ExtArgs>
@@ -30083,6 +30146,7 @@ export namespace Prisma {
       name: string
       source_single_fee_id: number
       school_id: string
+      supabase_id: string | null
       last_modified: Date
       needs_sync: boolean
       is_deleted: boolean
@@ -30515,6 +30579,7 @@ export namespace Prisma {
     readonly name: FieldRef<"DispatchRule", 'String'>
     readonly source_single_fee_id: FieldRef<"DispatchRule", 'Int'>
     readonly school_id: FieldRef<"DispatchRule", 'String'>
+    readonly supabase_id: FieldRef<"DispatchRule", 'String'>
     readonly last_modified: FieldRef<"DispatchRule", 'DateTime'>
     readonly needs_sync: FieldRef<"DispatchRule", 'Boolean'>
     readonly is_deleted: FieldRef<"DispatchRule", 'Boolean'>
@@ -30985,6 +31050,7 @@ export namespace Prisma {
     dispatch_rule_id: number | null
     destination_category_id: number | null
     percentage: number | null
+    supabase_id: string | null
     last_modified: Date | null
     needs_sync: boolean | null
     is_deleted: boolean | null
@@ -30995,6 +31061,7 @@ export namespace Prisma {
     dispatch_rule_id: number | null
     destination_category_id: number | null
     percentage: number | null
+    supabase_id: string | null
     last_modified: Date | null
     needs_sync: boolean | null
     is_deleted: boolean | null
@@ -31005,6 +31072,7 @@ export namespace Prisma {
     dispatch_rule_id: number
     destination_category_id: number
     percentage: number
+    supabase_id: number
     last_modified: number
     needs_sync: number
     is_deleted: number
@@ -31031,6 +31099,7 @@ export namespace Prisma {
     dispatch_rule_id?: true
     destination_category_id?: true
     percentage?: true
+    supabase_id?: true
     last_modified?: true
     needs_sync?: true
     is_deleted?: true
@@ -31041,6 +31110,7 @@ export namespace Prisma {
     dispatch_rule_id?: true
     destination_category_id?: true
     percentage?: true
+    supabase_id?: true
     last_modified?: true
     needs_sync?: true
     is_deleted?: true
@@ -31051,6 +31121,7 @@ export namespace Prisma {
     dispatch_rule_id?: true
     destination_category_id?: true
     percentage?: true
+    supabase_id?: true
     last_modified?: true
     needs_sync?: true
     is_deleted?: true
@@ -31148,6 +31219,7 @@ export namespace Prisma {
     dispatch_rule_id: number
     destination_category_id: number
     percentage: number
+    supabase_id: string | null
     last_modified: Date
     needs_sync: boolean
     is_deleted: boolean
@@ -31177,6 +31249,7 @@ export namespace Prisma {
     dispatch_rule_id?: boolean
     destination_category_id?: boolean
     percentage?: boolean
+    supabase_id?: boolean
     last_modified?: boolean
     needs_sync?: boolean
     is_deleted?: boolean
@@ -31189,6 +31262,7 @@ export namespace Prisma {
     dispatch_rule_id?: boolean
     destination_category_id?: boolean
     percentage?: boolean
+    supabase_id?: boolean
     last_modified?: boolean
     needs_sync?: boolean
     is_deleted?: boolean
@@ -31201,6 +31275,7 @@ export namespace Prisma {
     dispatch_rule_id?: boolean
     destination_category_id?: boolean
     percentage?: boolean
+    supabase_id?: boolean
     last_modified?: boolean
     needs_sync?: boolean
     is_deleted?: boolean
@@ -31213,12 +31288,13 @@ export namespace Prisma {
     dispatch_rule_id?: boolean
     destination_category_id?: boolean
     percentage?: boolean
+    supabase_id?: boolean
     last_modified?: boolean
     needs_sync?: boolean
     is_deleted?: boolean
   }
 
-  export type DispatchRuleDetailOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "dispatch_rule_id" | "destination_category_id" | "percentage" | "last_modified" | "needs_sync" | "is_deleted", ExtArgs["result"]["dispatchRuleDetail"]>
+  export type DispatchRuleDetailOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "dispatch_rule_id" | "destination_category_id" | "percentage" | "supabase_id" | "last_modified" | "needs_sync" | "is_deleted", ExtArgs["result"]["dispatchRuleDetail"]>
   export type DispatchRuleDetailInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     dispatch_rule?: boolean | DispatchRuleDefaultArgs<ExtArgs>
     destination_category?: boolean | FinancialCategoryDefaultArgs<ExtArgs>
@@ -31243,6 +31319,7 @@ export namespace Prisma {
       dispatch_rule_id: number
       destination_category_id: number
       percentage: number
+      supabase_id: string | null
       last_modified: Date
       needs_sync: boolean
       is_deleted: boolean
@@ -31675,6 +31752,7 @@ export namespace Prisma {
     readonly dispatch_rule_id: FieldRef<"DispatchRuleDetail", 'Int'>
     readonly destination_category_id: FieldRef<"DispatchRuleDetail", 'Int'>
     readonly percentage: FieldRef<"DispatchRuleDetail", 'Float'>
+    readonly supabase_id: FieldRef<"DispatchRuleDetail", 'String'>
     readonly last_modified: FieldRef<"DispatchRuleDetail", 'DateTime'>
     readonly needs_sync: FieldRef<"DispatchRuleDetail", 'Boolean'>
     readonly is_deleted: FieldRef<"DispatchRuleDetail", 'Boolean'>
@@ -32333,7 +32411,11 @@ export namespace Prisma {
     applicable_months: 'applicable_months',
     school_id: 'school_id',
     applies_to_level: 'applies_to_level',
-    applies_to_class_id: 'applies_to_class_id'
+    applies_to_class_id: 'applies_to_class_id',
+    supabase_id: 'supabase_id',
+    last_modified: 'last_modified',
+    needs_sync: 'needs_sync',
+    is_deleted: 'is_deleted'
   };
 
   export type FeeTemplateScalarFieldEnum = (typeof FeeTemplateScalarFieldEnum)[keyof typeof FeeTemplateScalarFieldEnum]
@@ -32478,6 +32560,7 @@ export namespace Prisma {
     name: 'name',
     source_single_fee_id: 'source_single_fee_id',
     school_id: 'school_id',
+    supabase_id: 'supabase_id',
     last_modified: 'last_modified',
     needs_sync: 'needs_sync',
     is_deleted: 'is_deleted'
@@ -32491,6 +32574,7 @@ export namespace Prisma {
     dispatch_rule_id: 'dispatch_rule_id',
     destination_category_id: 'destination_category_id',
     percentage: 'percentage',
+    supabase_id: 'supabase_id',
     last_modified: 'last_modified',
     needs_sync: 'needs_sync',
     is_deleted: 'is_deleted'
@@ -33377,6 +33461,7 @@ export namespace Prisma {
   export type NotesWhereUniqueInput = Prisma.AtLeast<{
     id?: number
     supabase_id?: string
+    student_id_lesson_id_quarter_type?: NotesStudent_idLesson_idQuarterTypeCompoundUniqueInput
     AND?: NotesWhereInput | NotesWhereInput[]
     OR?: NotesWhereInput[]
     NOT?: NotesWhereInput | NotesWhereInput[]
@@ -33390,7 +33475,7 @@ export namespace Prisma {
     is_deleted?: BoolFilter<"Notes"> | boolean
     lesson?: XOR<LessonsScalarRelationFilter, LessonsWhereInput>
     student?: XOR<StudentsScalarRelationFilter, StudentsWhereInput>
-  }, "id" | "supabase_id">
+  }, "id" | "supabase_id" | "student_id_lesson_id_quarter_type">
 
   export type NotesOrderByWithAggregationInput = {
     id?: SortOrder
@@ -33818,6 +33903,10 @@ export namespace Prisma {
     school_id?: StringFilter<"FeeTemplate"> | string
     applies_to_level?: StringNullableFilter<"FeeTemplate"> | string | null
     applies_to_class_id?: IntNullableFilter<"FeeTemplate"> | number | null
+    supabase_id?: StringNullableFilter<"FeeTemplate"> | string | null
+    last_modified?: DateTimeFilter<"FeeTemplate"> | Date | string
+    needs_sync?: BoolFilter<"FeeTemplate"> | boolean
+    is_deleted?: BoolFilter<"FeeTemplate"> | boolean
     class?: XOR<ClassesNullableScalarRelationFilter, ClassesWhereInput> | null
     payments?: PaymentsListRelationFilter
   }
@@ -33832,12 +33921,17 @@ export namespace Prisma {
     school_id?: SortOrder
     applies_to_level?: SortOrderInput | SortOrder
     applies_to_class_id?: SortOrderInput | SortOrder
+    supabase_id?: SortOrderInput | SortOrder
+    last_modified?: SortOrder
+    needs_sync?: SortOrder
+    is_deleted?: SortOrder
     class?: ClassesOrderByWithRelationInput
     payments?: PaymentsOrderByRelationAggregateInput
   }
 
   export type FeeTemplateWhereUniqueInput = Prisma.AtLeast<{
     id?: number
+    supabase_id?: string
     AND?: FeeTemplateWhereInput | FeeTemplateWhereInput[]
     OR?: FeeTemplateWhereInput[]
     NOT?: FeeTemplateWhereInput | FeeTemplateWhereInput[]
@@ -33849,9 +33943,12 @@ export namespace Prisma {
     school_id?: StringFilter<"FeeTemplate"> | string
     applies_to_level?: StringNullableFilter<"FeeTemplate"> | string | null
     applies_to_class_id?: IntNullableFilter<"FeeTemplate"> | number | null
+    last_modified?: DateTimeFilter<"FeeTemplate"> | Date | string
+    needs_sync?: BoolFilter<"FeeTemplate"> | boolean
+    is_deleted?: BoolFilter<"FeeTemplate"> | boolean
     class?: XOR<ClassesNullableScalarRelationFilter, ClassesWhereInput> | null
     payments?: PaymentsListRelationFilter
-  }, "id">
+  }, "id" | "supabase_id">
 
   export type FeeTemplateOrderByWithAggregationInput = {
     id?: SortOrder
@@ -33863,6 +33960,10 @@ export namespace Prisma {
     school_id?: SortOrder
     applies_to_level?: SortOrderInput | SortOrder
     applies_to_class_id?: SortOrderInput | SortOrder
+    supabase_id?: SortOrderInput | SortOrder
+    last_modified?: SortOrder
+    needs_sync?: SortOrder
+    is_deleted?: SortOrder
     _count?: FeeTemplateCountOrderByAggregateInput
     _avg?: FeeTemplateAvgOrderByAggregateInput
     _max?: FeeTemplateMaxOrderByAggregateInput
@@ -33883,6 +33984,10 @@ export namespace Prisma {
     school_id?: StringWithAggregatesFilter<"FeeTemplate"> | string
     applies_to_level?: StringNullableWithAggregatesFilter<"FeeTemplate"> | string | null
     applies_to_class_id?: IntNullableWithAggregatesFilter<"FeeTemplate"> | number | null
+    supabase_id?: StringNullableWithAggregatesFilter<"FeeTemplate"> | string | null
+    last_modified?: DateTimeWithAggregatesFilter<"FeeTemplate"> | Date | string
+    needs_sync?: BoolWithAggregatesFilter<"FeeTemplate"> | boolean
+    is_deleted?: BoolWithAggregatesFilter<"FeeTemplate"> | boolean
   }
 
   export type AttendancesWhereInput = {
@@ -34576,6 +34681,7 @@ export namespace Prisma {
     name?: StringFilter<"DispatchRule"> | string
     source_single_fee_id?: IntFilter<"DispatchRule"> | number
     school_id?: StringFilter<"DispatchRule"> | string
+    supabase_id?: StringNullableFilter<"DispatchRule"> | string | null
     last_modified?: DateTimeFilter<"DispatchRule"> | Date | string
     needs_sync?: BoolFilter<"DispatchRule"> | boolean
     is_deleted?: BoolFilter<"DispatchRule"> | boolean
@@ -34588,6 +34694,7 @@ export namespace Prisma {
     name?: SortOrder
     source_single_fee_id?: SortOrder
     school_id?: SortOrder
+    supabase_id?: SortOrderInput | SortOrder
     last_modified?: SortOrder
     needs_sync?: SortOrder
     is_deleted?: SortOrder
@@ -34598,6 +34705,7 @@ export namespace Prisma {
   export type DispatchRuleWhereUniqueInput = Prisma.AtLeast<{
     id?: number
     source_single_fee_id?: number
+    supabase_id?: string
     AND?: DispatchRuleWhereInput | DispatchRuleWhereInput[]
     OR?: DispatchRuleWhereInput[]
     NOT?: DispatchRuleWhereInput | DispatchRuleWhereInput[]
@@ -34608,13 +34716,14 @@ export namespace Prisma {
     is_deleted?: BoolFilter<"DispatchRule"> | boolean
     source_single_fee?: XOR<SingleFeeScalarRelationFilter, SingleFeeWhereInput>
     details?: DispatchRuleDetailListRelationFilter
-  }, "id" | "source_single_fee_id">
+  }, "id" | "source_single_fee_id" | "supabase_id">
 
   export type DispatchRuleOrderByWithAggregationInput = {
     id?: SortOrder
     name?: SortOrder
     source_single_fee_id?: SortOrder
     school_id?: SortOrder
+    supabase_id?: SortOrderInput | SortOrder
     last_modified?: SortOrder
     needs_sync?: SortOrder
     is_deleted?: SortOrder
@@ -34633,6 +34742,7 @@ export namespace Prisma {
     name?: StringWithAggregatesFilter<"DispatchRule"> | string
     source_single_fee_id?: IntWithAggregatesFilter<"DispatchRule"> | number
     school_id?: StringWithAggregatesFilter<"DispatchRule"> | string
+    supabase_id?: StringNullableWithAggregatesFilter<"DispatchRule"> | string | null
     last_modified?: DateTimeWithAggregatesFilter<"DispatchRule"> | Date | string
     needs_sync?: BoolWithAggregatesFilter<"DispatchRule"> | boolean
     is_deleted?: BoolWithAggregatesFilter<"DispatchRule"> | boolean
@@ -34646,6 +34756,7 @@ export namespace Prisma {
     dispatch_rule_id?: IntFilter<"DispatchRuleDetail"> | number
     destination_category_id?: IntFilter<"DispatchRuleDetail"> | number
     percentage?: FloatFilter<"DispatchRuleDetail"> | number
+    supabase_id?: StringNullableFilter<"DispatchRuleDetail"> | string | null
     last_modified?: DateTimeFilter<"DispatchRuleDetail"> | Date | string
     needs_sync?: BoolFilter<"DispatchRuleDetail"> | boolean
     is_deleted?: BoolFilter<"DispatchRuleDetail"> | boolean
@@ -34658,6 +34769,7 @@ export namespace Prisma {
     dispatch_rule_id?: SortOrder
     destination_category_id?: SortOrder
     percentage?: SortOrder
+    supabase_id?: SortOrderInput | SortOrder
     last_modified?: SortOrder
     needs_sync?: SortOrder
     is_deleted?: SortOrder
@@ -34667,6 +34779,7 @@ export namespace Prisma {
 
   export type DispatchRuleDetailWhereUniqueInput = Prisma.AtLeast<{
     id?: number
+    supabase_id?: string
     AND?: DispatchRuleDetailWhereInput | DispatchRuleDetailWhereInput[]
     OR?: DispatchRuleDetailWhereInput[]
     NOT?: DispatchRuleDetailWhereInput | DispatchRuleDetailWhereInput[]
@@ -34678,13 +34791,14 @@ export namespace Prisma {
     is_deleted?: BoolFilter<"DispatchRuleDetail"> | boolean
     dispatch_rule?: XOR<DispatchRuleScalarRelationFilter, DispatchRuleWhereInput>
     destination_category?: XOR<FinancialCategoryScalarRelationFilter, FinancialCategoryWhereInput>
-  }, "id">
+  }, "id" | "supabase_id">
 
   export type DispatchRuleDetailOrderByWithAggregationInput = {
     id?: SortOrder
     dispatch_rule_id?: SortOrder
     destination_category_id?: SortOrder
     percentage?: SortOrder
+    supabase_id?: SortOrderInput | SortOrder
     last_modified?: SortOrder
     needs_sync?: SortOrder
     is_deleted?: SortOrder
@@ -34703,6 +34817,7 @@ export namespace Prisma {
     dispatch_rule_id?: IntWithAggregatesFilter<"DispatchRuleDetail"> | number
     destination_category_id?: IntWithAggregatesFilter<"DispatchRuleDetail"> | number
     percentage?: FloatWithAggregatesFilter<"DispatchRuleDetail"> | number
+    supabase_id?: StringNullableWithAggregatesFilter<"DispatchRuleDetail"> | string | null
     last_modified?: DateTimeWithAggregatesFilter<"DispatchRuleDetail"> | Date | string
     needs_sync?: BoolWithAggregatesFilter<"DispatchRuleDetail"> | boolean
     is_deleted?: BoolWithAggregatesFilter<"DispatchRuleDetail"> | boolean
@@ -36025,6 +36140,10 @@ export namespace Prisma {
     applicable_months?: NullableJsonNullValueInput | InputJsonValue
     school_id: string
     applies_to_level?: string | null
+    supabase_id?: string | null
+    last_modified?: Date | string
+    needs_sync?: boolean
+    is_deleted?: boolean
     class?: ClassesCreateNestedOneWithoutFee_templatesInput
     payments?: PaymentsCreateNestedManyWithoutFee_templateInput
   }
@@ -36039,6 +36158,10 @@ export namespace Prisma {
     school_id: string
     applies_to_level?: string | null
     applies_to_class_id?: number | null
+    supabase_id?: string | null
+    last_modified?: Date | string
+    needs_sync?: boolean
+    is_deleted?: boolean
     payments?: PaymentsUncheckedCreateNestedManyWithoutFee_templateInput
   }
 
@@ -36050,6 +36173,10 @@ export namespace Prisma {
     applicable_months?: NullableJsonNullValueInput | InputJsonValue
     school_id?: StringFieldUpdateOperationsInput | string
     applies_to_level?: NullableStringFieldUpdateOperationsInput | string | null
+    supabase_id?: NullableStringFieldUpdateOperationsInput | string | null
+    last_modified?: DateTimeFieldUpdateOperationsInput | Date | string
+    needs_sync?: BoolFieldUpdateOperationsInput | boolean
+    is_deleted?: BoolFieldUpdateOperationsInput | boolean
     class?: ClassesUpdateOneWithoutFee_templatesNestedInput
     payments?: PaymentsUpdateManyWithoutFee_templateNestedInput
   }
@@ -36064,6 +36191,10 @@ export namespace Prisma {
     school_id?: StringFieldUpdateOperationsInput | string
     applies_to_level?: NullableStringFieldUpdateOperationsInput | string | null
     applies_to_class_id?: NullableIntFieldUpdateOperationsInput | number | null
+    supabase_id?: NullableStringFieldUpdateOperationsInput | string | null
+    last_modified?: DateTimeFieldUpdateOperationsInput | Date | string
+    needs_sync?: BoolFieldUpdateOperationsInput | boolean
+    is_deleted?: BoolFieldUpdateOperationsInput | boolean
     payments?: PaymentsUncheckedUpdateManyWithoutFee_templateNestedInput
   }
 
@@ -36077,6 +36208,10 @@ export namespace Prisma {
     school_id: string
     applies_to_level?: string | null
     applies_to_class_id?: number | null
+    supabase_id?: string | null
+    last_modified?: Date | string
+    needs_sync?: boolean
+    is_deleted?: boolean
   }
 
   export type FeeTemplateUpdateManyMutationInput = {
@@ -36087,6 +36222,10 @@ export namespace Prisma {
     applicable_months?: NullableJsonNullValueInput | InputJsonValue
     school_id?: StringFieldUpdateOperationsInput | string
     applies_to_level?: NullableStringFieldUpdateOperationsInput | string | null
+    supabase_id?: NullableStringFieldUpdateOperationsInput | string | null
+    last_modified?: DateTimeFieldUpdateOperationsInput | Date | string
+    needs_sync?: BoolFieldUpdateOperationsInput | boolean
+    is_deleted?: BoolFieldUpdateOperationsInput | boolean
   }
 
   export type FeeTemplateUncheckedUpdateManyInput = {
@@ -36099,6 +36238,10 @@ export namespace Prisma {
     school_id?: StringFieldUpdateOperationsInput | string
     applies_to_level?: NullableStringFieldUpdateOperationsInput | string | null
     applies_to_class_id?: NullableIntFieldUpdateOperationsInput | number | null
+    supabase_id?: NullableStringFieldUpdateOperationsInput | string | null
+    last_modified?: DateTimeFieldUpdateOperationsInput | Date | string
+    needs_sync?: BoolFieldUpdateOperationsInput | boolean
+    is_deleted?: BoolFieldUpdateOperationsInput | boolean
   }
 
   export type AttendancesCreateInput = {
@@ -36858,6 +37001,7 @@ export namespace Prisma {
   export type DispatchRuleCreateInput = {
     name: string
     school_id: string
+    supabase_id?: string | null
     last_modified?: Date | string
     needs_sync?: boolean
     is_deleted?: boolean
@@ -36870,6 +37014,7 @@ export namespace Prisma {
     name: string
     source_single_fee_id: number
     school_id: string
+    supabase_id?: string | null
     last_modified?: Date | string
     needs_sync?: boolean
     is_deleted?: boolean
@@ -36879,6 +37024,7 @@ export namespace Prisma {
   export type DispatchRuleUpdateInput = {
     name?: StringFieldUpdateOperationsInput | string
     school_id?: StringFieldUpdateOperationsInput | string
+    supabase_id?: NullableStringFieldUpdateOperationsInput | string | null
     last_modified?: DateTimeFieldUpdateOperationsInput | Date | string
     needs_sync?: BoolFieldUpdateOperationsInput | boolean
     is_deleted?: BoolFieldUpdateOperationsInput | boolean
@@ -36891,6 +37037,7 @@ export namespace Prisma {
     name?: StringFieldUpdateOperationsInput | string
     source_single_fee_id?: IntFieldUpdateOperationsInput | number
     school_id?: StringFieldUpdateOperationsInput | string
+    supabase_id?: NullableStringFieldUpdateOperationsInput | string | null
     last_modified?: DateTimeFieldUpdateOperationsInput | Date | string
     needs_sync?: BoolFieldUpdateOperationsInput | boolean
     is_deleted?: BoolFieldUpdateOperationsInput | boolean
@@ -36902,6 +37049,7 @@ export namespace Prisma {
     name: string
     source_single_fee_id: number
     school_id: string
+    supabase_id?: string | null
     last_modified?: Date | string
     needs_sync?: boolean
     is_deleted?: boolean
@@ -36910,6 +37058,7 @@ export namespace Prisma {
   export type DispatchRuleUpdateManyMutationInput = {
     name?: StringFieldUpdateOperationsInput | string
     school_id?: StringFieldUpdateOperationsInput | string
+    supabase_id?: NullableStringFieldUpdateOperationsInput | string | null
     last_modified?: DateTimeFieldUpdateOperationsInput | Date | string
     needs_sync?: BoolFieldUpdateOperationsInput | boolean
     is_deleted?: BoolFieldUpdateOperationsInput | boolean
@@ -36920,6 +37069,7 @@ export namespace Prisma {
     name?: StringFieldUpdateOperationsInput | string
     source_single_fee_id?: IntFieldUpdateOperationsInput | number
     school_id?: StringFieldUpdateOperationsInput | string
+    supabase_id?: NullableStringFieldUpdateOperationsInput | string | null
     last_modified?: DateTimeFieldUpdateOperationsInput | Date | string
     needs_sync?: BoolFieldUpdateOperationsInput | boolean
     is_deleted?: BoolFieldUpdateOperationsInput | boolean
@@ -36927,6 +37077,7 @@ export namespace Prisma {
 
   export type DispatchRuleDetailCreateInput = {
     percentage: number
+    supabase_id?: string | null
     last_modified?: Date | string
     needs_sync?: boolean
     is_deleted?: boolean
@@ -36939,6 +37090,7 @@ export namespace Prisma {
     dispatch_rule_id: number
     destination_category_id: number
     percentage: number
+    supabase_id?: string | null
     last_modified?: Date | string
     needs_sync?: boolean
     is_deleted?: boolean
@@ -36946,6 +37098,7 @@ export namespace Prisma {
 
   export type DispatchRuleDetailUpdateInput = {
     percentage?: FloatFieldUpdateOperationsInput | number
+    supabase_id?: NullableStringFieldUpdateOperationsInput | string | null
     last_modified?: DateTimeFieldUpdateOperationsInput | Date | string
     needs_sync?: BoolFieldUpdateOperationsInput | boolean
     is_deleted?: BoolFieldUpdateOperationsInput | boolean
@@ -36958,6 +37111,7 @@ export namespace Prisma {
     dispatch_rule_id?: IntFieldUpdateOperationsInput | number
     destination_category_id?: IntFieldUpdateOperationsInput | number
     percentage?: FloatFieldUpdateOperationsInput | number
+    supabase_id?: NullableStringFieldUpdateOperationsInput | string | null
     last_modified?: DateTimeFieldUpdateOperationsInput | Date | string
     needs_sync?: BoolFieldUpdateOperationsInput | boolean
     is_deleted?: BoolFieldUpdateOperationsInput | boolean
@@ -36968,6 +37122,7 @@ export namespace Prisma {
     dispatch_rule_id: number
     destination_category_id: number
     percentage: number
+    supabase_id?: string | null
     last_modified?: Date | string
     needs_sync?: boolean
     is_deleted?: boolean
@@ -36975,6 +37130,7 @@ export namespace Prisma {
 
   export type DispatchRuleDetailUpdateManyMutationInput = {
     percentage?: FloatFieldUpdateOperationsInput | number
+    supabase_id?: NullableStringFieldUpdateOperationsInput | string | null
     last_modified?: DateTimeFieldUpdateOperationsInput | Date | string
     needs_sync?: BoolFieldUpdateOperationsInput | boolean
     is_deleted?: BoolFieldUpdateOperationsInput | boolean
@@ -36985,6 +37141,7 @@ export namespace Prisma {
     dispatch_rule_id?: IntFieldUpdateOperationsInput | number
     destination_category_id?: IntFieldUpdateOperationsInput | number
     percentage?: FloatFieldUpdateOperationsInput | number
+    supabase_id?: NullableStringFieldUpdateOperationsInput | string | null
     last_modified?: DateTimeFieldUpdateOperationsInput | Date | string
     needs_sync?: BoolFieldUpdateOperationsInput | boolean
     is_deleted?: BoolFieldUpdateOperationsInput | boolean
@@ -37834,6 +37991,13 @@ export namespace Prisma {
     isNot?: LessonsWhereInput
   }
 
+  export type NotesStudent_idLesson_idQuarterTypeCompoundUniqueInput = {
+    student_id: number
+    lesson_id: number
+    quarter: number
+    type: string
+  }
+
   export type NotesCountOrderByAggregateInput = {
     id?: SortOrder
     student_id?: SortOrder
@@ -38164,6 +38328,10 @@ export namespace Prisma {
     school_id?: SortOrder
     applies_to_level?: SortOrder
     applies_to_class_id?: SortOrder
+    supabase_id?: SortOrder
+    last_modified?: SortOrder
+    needs_sync?: SortOrder
+    is_deleted?: SortOrder
   }
 
   export type FeeTemplateAvgOrderByAggregateInput = {
@@ -38182,6 +38350,10 @@ export namespace Prisma {
     school_id?: SortOrder
     applies_to_level?: SortOrder
     applies_to_class_id?: SortOrder
+    supabase_id?: SortOrder
+    last_modified?: SortOrder
+    needs_sync?: SortOrder
+    is_deleted?: SortOrder
   }
 
   export type FeeTemplateMinOrderByAggregateInput = {
@@ -38193,6 +38365,10 @@ export namespace Prisma {
     school_id?: SortOrder
     applies_to_level?: SortOrder
     applies_to_class_id?: SortOrder
+    supabase_id?: SortOrder
+    last_modified?: SortOrder
+    needs_sync?: SortOrder
+    is_deleted?: SortOrder
   }
 
   export type FeeTemplateSumOrderByAggregateInput = {
@@ -38666,6 +38842,7 @@ export namespace Prisma {
     name?: SortOrder
     source_single_fee_id?: SortOrder
     school_id?: SortOrder
+    supabase_id?: SortOrder
     last_modified?: SortOrder
     needs_sync?: SortOrder
     is_deleted?: SortOrder
@@ -38681,6 +38858,7 @@ export namespace Prisma {
     name?: SortOrder
     source_single_fee_id?: SortOrder
     school_id?: SortOrder
+    supabase_id?: SortOrder
     last_modified?: SortOrder
     needs_sync?: SortOrder
     is_deleted?: SortOrder
@@ -38691,6 +38869,7 @@ export namespace Prisma {
     name?: SortOrder
     source_single_fee_id?: SortOrder
     school_id?: SortOrder
+    supabase_id?: SortOrder
     last_modified?: SortOrder
     needs_sync?: SortOrder
     is_deleted?: SortOrder
@@ -38711,6 +38890,7 @@ export namespace Prisma {
     dispatch_rule_id?: SortOrder
     destination_category_id?: SortOrder
     percentage?: SortOrder
+    supabase_id?: SortOrder
     last_modified?: SortOrder
     needs_sync?: SortOrder
     is_deleted?: SortOrder
@@ -38728,6 +38908,7 @@ export namespace Prisma {
     dispatch_rule_id?: SortOrder
     destination_category_id?: SortOrder
     percentage?: SortOrder
+    supabase_id?: SortOrder
     last_modified?: SortOrder
     needs_sync?: SortOrder
     is_deleted?: SortOrder
@@ -38738,6 +38919,7 @@ export namespace Prisma {
     dispatch_rule_id?: SortOrder
     destination_category_id?: SortOrder
     percentage?: SortOrder
+    supabase_id?: SortOrder
     last_modified?: SortOrder
     needs_sync?: SortOrder
     is_deleted?: SortOrder
@@ -40561,6 +40743,10 @@ export namespace Prisma {
     applicable_months?: NullableJsonNullValueInput | InputJsonValue
     school_id: string
     applies_to_level?: string | null
+    supabase_id?: string | null
+    last_modified?: Date | string
+    needs_sync?: boolean
+    is_deleted?: boolean
     payments?: PaymentsCreateNestedManyWithoutFee_templateInput
   }
 
@@ -40573,6 +40759,10 @@ export namespace Prisma {
     applicable_months?: NullableJsonNullValueInput | InputJsonValue
     school_id: string
     applies_to_level?: string | null
+    supabase_id?: string | null
+    last_modified?: Date | string
+    needs_sync?: boolean
+    is_deleted?: boolean
     payments?: PaymentsUncheckedCreateNestedManyWithoutFee_templateInput
   }
 
@@ -40742,6 +40932,10 @@ export namespace Prisma {
     school_id?: StringFilter<"FeeTemplate"> | string
     applies_to_level?: StringNullableFilter<"FeeTemplate"> | string | null
     applies_to_class_id?: IntNullableFilter<"FeeTemplate"> | number | null
+    supabase_id?: StringNullableFilter<"FeeTemplate"> | string | null
+    last_modified?: DateTimeFilter<"FeeTemplate"> | Date | string
+    needs_sync?: BoolFilter<"FeeTemplate"> | boolean
+    is_deleted?: BoolFilter<"FeeTemplate"> | boolean
   }
 
   export type AttendancesCreateWithoutStudentInput = {
@@ -42442,6 +42636,10 @@ export namespace Prisma {
     applicable_months?: NullableJsonNullValueInput | InputJsonValue
     school_id: string
     applies_to_level?: string | null
+    supabase_id?: string | null
+    last_modified?: Date | string
+    needs_sync?: boolean
+    is_deleted?: boolean
     class?: ClassesCreateNestedOneWithoutFee_templatesInput
   }
 
@@ -42455,6 +42653,10 @@ export namespace Prisma {
     school_id: string
     applies_to_level?: string | null
     applies_to_class_id?: number | null
+    supabase_id?: string | null
+    last_modified?: Date | string
+    needs_sync?: boolean
+    is_deleted?: boolean
   }
 
   export type FeeTemplateCreateOrConnectWithoutPaymentsInput = {
@@ -42559,6 +42761,10 @@ export namespace Prisma {
     applicable_months?: NullableJsonNullValueInput | InputJsonValue
     school_id?: StringFieldUpdateOperationsInput | string
     applies_to_level?: NullableStringFieldUpdateOperationsInput | string | null
+    supabase_id?: NullableStringFieldUpdateOperationsInput | string | null
+    last_modified?: DateTimeFieldUpdateOperationsInput | Date | string
+    needs_sync?: BoolFieldUpdateOperationsInput | boolean
+    is_deleted?: BoolFieldUpdateOperationsInput | boolean
     class?: ClassesUpdateOneWithoutFee_templatesNestedInput
   }
 
@@ -42572,6 +42778,10 @@ export namespace Prisma {
     school_id?: StringFieldUpdateOperationsInput | string
     applies_to_level?: NullableStringFieldUpdateOperationsInput | string | null
     applies_to_class_id?: NullableIntFieldUpdateOperationsInput | number | null
+    supabase_id?: NullableStringFieldUpdateOperationsInput | string | null
+    last_modified?: DateTimeFieldUpdateOperationsInput | Date | string
+    needs_sync?: BoolFieldUpdateOperationsInput | boolean
+    is_deleted?: BoolFieldUpdateOperationsInput | boolean
   }
 
   export type ClassesCreateWithoutSingle_feesInput = {
@@ -42651,6 +42861,7 @@ export namespace Prisma {
   export type DispatchRuleCreateWithoutSource_single_feeInput = {
     name: string
     school_id: string
+    supabase_id?: string | null
     last_modified?: Date | string
     needs_sync?: boolean
     is_deleted?: boolean
@@ -42661,6 +42872,7 @@ export namespace Prisma {
     id?: number
     name: string
     school_id: string
+    supabase_id?: string | null
     last_modified?: Date | string
     needs_sync?: boolean
     is_deleted?: boolean
@@ -42756,6 +42968,7 @@ export namespace Prisma {
     name?: StringFilter<"DispatchRule"> | string
     source_single_fee_id?: IntFilter<"DispatchRule"> | number
     school_id?: StringFilter<"DispatchRule"> | string
+    supabase_id?: StringNullableFilter<"DispatchRule"> | string | null
     last_modified?: DateTimeFilter<"DispatchRule"> | Date | string
     needs_sync?: BoolFilter<"DispatchRule"> | boolean
     is_deleted?: BoolFilter<"DispatchRule"> | boolean
@@ -43236,6 +43449,7 @@ export namespace Prisma {
 
   export type DispatchRuleDetailCreateWithoutDestination_categoryInput = {
     percentage: number
+    supabase_id?: string | null
     last_modified?: Date | string
     needs_sync?: boolean
     is_deleted?: boolean
@@ -43246,6 +43460,7 @@ export namespace Prisma {
     id?: number
     dispatch_rule_id: number
     percentage: number
+    supabase_id?: string | null
     last_modified?: Date | string
     needs_sync?: boolean
     is_deleted?: boolean
@@ -43317,6 +43532,7 @@ export namespace Prisma {
     dispatch_rule_id?: IntFilter<"DispatchRuleDetail"> | number
     destination_category_id?: IntFilter<"DispatchRuleDetail"> | number
     percentage?: FloatFilter<"DispatchRuleDetail"> | number
+    supabase_id?: StringNullableFilter<"DispatchRuleDetail"> | string | null
     last_modified?: DateTimeFilter<"DispatchRuleDetail"> | Date | string
     needs_sync?: BoolFilter<"DispatchRuleDetail"> | boolean
     is_deleted?: BoolFilter<"DispatchRuleDetail"> | boolean
@@ -43422,6 +43638,7 @@ export namespace Prisma {
 
   export type DispatchRuleDetailCreateWithoutDispatch_ruleInput = {
     percentage: number
+    supabase_id?: string | null
     last_modified?: Date | string
     needs_sync?: boolean
     is_deleted?: boolean
@@ -43432,6 +43649,7 @@ export namespace Prisma {
     id?: number
     destination_category_id: number
     percentage: number
+    supabase_id?: string | null
     last_modified?: Date | string
     needs_sync?: boolean
     is_deleted?: boolean
@@ -43507,6 +43725,7 @@ export namespace Prisma {
   export type DispatchRuleCreateWithoutDetailsInput = {
     name: string
     school_id: string
+    supabase_id?: string | null
     last_modified?: Date | string
     needs_sync?: boolean
     is_deleted?: boolean
@@ -43518,6 +43737,7 @@ export namespace Prisma {
     name: string
     source_single_fee_id: number
     school_id: string
+    supabase_id?: string | null
     last_modified?: Date | string
     needs_sync?: boolean
     is_deleted?: boolean
@@ -43570,6 +43790,7 @@ export namespace Prisma {
   export type DispatchRuleUpdateWithoutDetailsInput = {
     name?: StringFieldUpdateOperationsInput | string
     school_id?: StringFieldUpdateOperationsInput | string
+    supabase_id?: NullableStringFieldUpdateOperationsInput | string | null
     last_modified?: DateTimeFieldUpdateOperationsInput | Date | string
     needs_sync?: BoolFieldUpdateOperationsInput | boolean
     is_deleted?: BoolFieldUpdateOperationsInput | boolean
@@ -43581,6 +43802,7 @@ export namespace Prisma {
     name?: StringFieldUpdateOperationsInput | string
     source_single_fee_id?: IntFieldUpdateOperationsInput | number
     school_id?: StringFieldUpdateOperationsInput | string
+    supabase_id?: NullableStringFieldUpdateOperationsInput | string | null
     last_modified?: DateTimeFieldUpdateOperationsInput | Date | string
     needs_sync?: BoolFieldUpdateOperationsInput | boolean
     is_deleted?: BoolFieldUpdateOperationsInput | boolean
@@ -43677,6 +43899,10 @@ export namespace Prisma {
     applicable_months?: NullableJsonNullValueInput | InputJsonValue
     school_id: string
     applies_to_level?: string | null
+    supabase_id?: string | null
+    last_modified?: Date | string
+    needs_sync?: boolean
+    is_deleted?: boolean
   }
 
   export type LessonsUpdateWithoutClassInput = {
@@ -43841,6 +44067,10 @@ export namespace Prisma {
     applicable_months?: NullableJsonNullValueInput | InputJsonValue
     school_id?: StringFieldUpdateOperationsInput | string
     applies_to_level?: NullableStringFieldUpdateOperationsInput | string | null
+    supabase_id?: NullableStringFieldUpdateOperationsInput | string | null
+    last_modified?: DateTimeFieldUpdateOperationsInput | Date | string
+    needs_sync?: BoolFieldUpdateOperationsInput | boolean
+    is_deleted?: BoolFieldUpdateOperationsInput | boolean
     payments?: PaymentsUpdateManyWithoutFee_templateNestedInput
   }
 
@@ -43853,6 +44083,10 @@ export namespace Prisma {
     applicable_months?: NullableJsonNullValueInput | InputJsonValue
     school_id?: StringFieldUpdateOperationsInput | string
     applies_to_level?: NullableStringFieldUpdateOperationsInput | string | null
+    supabase_id?: NullableStringFieldUpdateOperationsInput | string | null
+    last_modified?: DateTimeFieldUpdateOperationsInput | Date | string
+    needs_sync?: BoolFieldUpdateOperationsInput | boolean
+    is_deleted?: BoolFieldUpdateOperationsInput | boolean
     payments?: PaymentsUncheckedUpdateManyWithoutFee_templateNestedInput
   }
 
@@ -43865,6 +44099,10 @@ export namespace Prisma {
     applicable_months?: NullableJsonNullValueInput | InputJsonValue
     school_id?: StringFieldUpdateOperationsInput | string
     applies_to_level?: NullableStringFieldUpdateOperationsInput | string | null
+    supabase_id?: NullableStringFieldUpdateOperationsInput | string | null
+    last_modified?: DateTimeFieldUpdateOperationsInput | Date | string
+    needs_sync?: BoolFieldUpdateOperationsInput | boolean
+    is_deleted?: BoolFieldUpdateOperationsInput | boolean
   }
 
   export type AttendancesCreateManyStudentInput = {
@@ -44461,6 +44699,7 @@ export namespace Prisma {
     id?: number
     name: string
     school_id: string
+    supabase_id?: string | null
     last_modified?: Date | string
     needs_sync?: boolean
     is_deleted?: boolean
@@ -44516,6 +44755,7 @@ export namespace Prisma {
   export type DispatchRuleUpdateWithoutSource_single_feeInput = {
     name?: StringFieldUpdateOperationsInput | string
     school_id?: StringFieldUpdateOperationsInput | string
+    supabase_id?: NullableStringFieldUpdateOperationsInput | string | null
     last_modified?: DateTimeFieldUpdateOperationsInput | Date | string
     needs_sync?: BoolFieldUpdateOperationsInput | boolean
     is_deleted?: BoolFieldUpdateOperationsInput | boolean
@@ -44526,6 +44766,7 @@ export namespace Prisma {
     id?: IntFieldUpdateOperationsInput | number
     name?: StringFieldUpdateOperationsInput | string
     school_id?: StringFieldUpdateOperationsInput | string
+    supabase_id?: NullableStringFieldUpdateOperationsInput | string | null
     last_modified?: DateTimeFieldUpdateOperationsInput | Date | string
     needs_sync?: BoolFieldUpdateOperationsInput | boolean
     is_deleted?: BoolFieldUpdateOperationsInput | boolean
@@ -44536,6 +44777,7 @@ export namespace Prisma {
     id?: IntFieldUpdateOperationsInput | number
     name?: StringFieldUpdateOperationsInput | string
     school_id?: StringFieldUpdateOperationsInput | string
+    supabase_id?: NullableStringFieldUpdateOperationsInput | string | null
     last_modified?: DateTimeFieldUpdateOperationsInput | Date | string
     needs_sync?: BoolFieldUpdateOperationsInput | boolean
     is_deleted?: BoolFieldUpdateOperationsInput | boolean
@@ -44672,6 +44914,7 @@ export namespace Prisma {
     id?: number
     dispatch_rule_id: number
     percentage: number
+    supabase_id?: string | null
     last_modified?: Date | string
     needs_sync?: boolean
     is_deleted?: boolean
@@ -44717,6 +44960,7 @@ export namespace Prisma {
 
   export type DispatchRuleDetailUpdateWithoutDestination_categoryInput = {
     percentage?: FloatFieldUpdateOperationsInput | number
+    supabase_id?: NullableStringFieldUpdateOperationsInput | string | null
     last_modified?: DateTimeFieldUpdateOperationsInput | Date | string
     needs_sync?: BoolFieldUpdateOperationsInput | boolean
     is_deleted?: BoolFieldUpdateOperationsInput | boolean
@@ -44727,6 +44971,7 @@ export namespace Prisma {
     id?: IntFieldUpdateOperationsInput | number
     dispatch_rule_id?: IntFieldUpdateOperationsInput | number
     percentage?: FloatFieldUpdateOperationsInput | number
+    supabase_id?: NullableStringFieldUpdateOperationsInput | string | null
     last_modified?: DateTimeFieldUpdateOperationsInput | Date | string
     needs_sync?: BoolFieldUpdateOperationsInput | boolean
     is_deleted?: BoolFieldUpdateOperationsInput | boolean
@@ -44736,6 +44981,7 @@ export namespace Prisma {
     id?: IntFieldUpdateOperationsInput | number
     dispatch_rule_id?: IntFieldUpdateOperationsInput | number
     percentage?: FloatFieldUpdateOperationsInput | number
+    supabase_id?: NullableStringFieldUpdateOperationsInput | string | null
     last_modified?: DateTimeFieldUpdateOperationsInput | Date | string
     needs_sync?: BoolFieldUpdateOperationsInput | boolean
     is_deleted?: BoolFieldUpdateOperationsInput | boolean
@@ -44745,6 +44991,7 @@ export namespace Prisma {
     id?: number
     destination_category_id: number
     percentage: number
+    supabase_id?: string | null
     last_modified?: Date | string
     needs_sync?: boolean
     is_deleted?: boolean
@@ -44752,6 +44999,7 @@ export namespace Prisma {
 
   export type DispatchRuleDetailUpdateWithoutDispatch_ruleInput = {
     percentage?: FloatFieldUpdateOperationsInput | number
+    supabase_id?: NullableStringFieldUpdateOperationsInput | string | null
     last_modified?: DateTimeFieldUpdateOperationsInput | Date | string
     needs_sync?: BoolFieldUpdateOperationsInput | boolean
     is_deleted?: BoolFieldUpdateOperationsInput | boolean
@@ -44762,6 +45010,7 @@ export namespace Prisma {
     id?: IntFieldUpdateOperationsInput | number
     destination_category_id?: IntFieldUpdateOperationsInput | number
     percentage?: FloatFieldUpdateOperationsInput | number
+    supabase_id?: NullableStringFieldUpdateOperationsInput | string | null
     last_modified?: DateTimeFieldUpdateOperationsInput | Date | string
     needs_sync?: BoolFieldUpdateOperationsInput | boolean
     is_deleted?: BoolFieldUpdateOperationsInput | boolean
@@ -44771,6 +45020,7 @@ export namespace Prisma {
     id?: IntFieldUpdateOperationsInput | number
     destination_category_id?: IntFieldUpdateOperationsInput | number
     percentage?: FloatFieldUpdateOperationsInput | number
+    supabase_id?: NullableStringFieldUpdateOperationsInput | string | null
     last_modified?: DateTimeFieldUpdateOperationsInput | Date | string
     needs_sync?: BoolFieldUpdateOperationsInput | boolean
     is_deleted?: BoolFieldUpdateOperationsInput | boolean

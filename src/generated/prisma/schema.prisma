@@ -181,6 +181,7 @@ model Notes {
   lesson        Lessons  @relation(fields: [lesson_id], references: [id], onDelete: Cascade)
   student       Students @relation(fields: [student_id], references: [id], onDelete: Cascade)
 
+  @@unique([student_id, lesson_id, quarter, type])
   @@index([student_id, lesson_id, quarter])
   @@map("notes")
 }
@@ -278,6 +279,11 @@ model FeeTemplate {
   applies_to_class_id Int?
   class               Classes?   @relation(fields: [applies_to_class_id], references: [id])
   payments            Payments[]
+
+  supabase_id   String?  @unique
+  last_modified DateTime @default(now())
+  needs_sync    Boolean  @default(false)
+  is_deleted    Boolean  @default(false)
 
   @@map("fee_templates")
 }
@@ -428,6 +434,7 @@ model DispatchRule {
   name                 String
   source_single_fee_id Int                  @unique @map("source_fee_id")
   school_id            String
+  supabase_id          String?              @unique
   last_modified        DateTime             @default(now())
   needs_sync           Boolean              @default(false)
   is_deleted           Boolean              @default(false)
@@ -443,6 +450,7 @@ model DispatchRuleDetail {
   dispatch_rule_id        Int
   destination_category_id Int
   percentage              Float
+  supabase_id             String?           @unique
   last_modified           DateTime          @default(now())
   needs_sync              Boolean           @default(false)
   is_deleted              Boolean           @default(false)
