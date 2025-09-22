@@ -365,6 +365,20 @@ export const deleteTeacherWorkHours = async (id: number) => {
   }
 };
 
+export const getTeacherSchedule = async (teacherId: number): Promise<Schedule[]> => {
+  if (isBrowser) {
+    try {
+      const schedule = await window.api.invoke('db:teachers:getSchedule', teacherId);
+      return schedule;
+    } catch (error) {
+      console.error(`Erreur lors de la récupération de l'emploi du temps du professeur id=${teacherId}:`, error);
+      throw error;
+    }
+  } else {
+    return Promise.resolve([]);
+  }
+};
+
 export const getTeacherStats = async (teacherId: number, month: string, year: string): Promise<TeacherStats> => {
   if (isBrowser) {
     

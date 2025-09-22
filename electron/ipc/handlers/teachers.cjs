@@ -1,6 +1,6 @@
 const { ipcMain } = require('electron');
 const { pushSingleItem } = require('../sync.cjs');
-const { isOnline, getUserSchoolId } = require('./helpers.cjs');
+const { isOnline, getUserSchoolId, getUserContext } = require('./helpers.cjs');
 const bcrypt = require('bcryptjs');
 
 function setupTeachersIPC(prisma) {
@@ -98,11 +98,58 @@ function setupTeachersIPC(prisma) {
     return deletedTeacher;
   });
 
-  // #region TeacherWorkHours
-  ipcMain.handle('db:teacherWorkHours:getByTeacherId', async (event, teacherId) => {
-    const schoolId = await getUserSchoolId(prisma, event);
+  ipcMain.handle('db:teachers:getSchedule', async (event, teacherId) => {
+    const { schoolId, userRole, userSupabaseId } = await getUserContext(prisma, event);
+    if (!schoolId) throw new Error("Contexte utilisateur invalide. Accès refusé.");
+
     const teacher = await prisma.teachers.findUnique({ where: { id: teacherId } });
     if (!teacher || teacher.school_id !== schoolId) throw new Error("Accès non autorisé");
+    if (userRole !== 'admin' && teacher.user_supabase_id !== userSupabaseId) throw new Error("Accès non autorisé");
+
+    const scheduleData = await prisma.schedules.findMany({
+      where: {
+        lesson: {
+          teacher_id: teacherId,
+          is_deleted: false,
+        },
+        is_deleted: false,
+      },
+      include: {
+        lesson: {
+          include: {
+            class: true,
+            subject: true,
+          },
+        },
+      },
+      orderBy: [
+        { day_of_week: 'asc' },
+        { start_time: 'asc' },
+      ],
+    });
+
+    // Convert day_of_week to a number for sorting if it's a string like 'Lundi', 'Mardi'
+    const dayOrder = { 'Lundi': 1, 'Mardi': 2, 'Mercredi': 3, 'Jeudi': 4, 'Vendredi': 5, 'Samedi': 6, 'Dimanche': 7 };
+    scheduleData.sort((a, b) => {
+      const dayA = dayOrder[a.day_of_week] || 8;
+      const dayB = dayOrder[b.day_of_week] || 8;
+      if (dayA !== dayB) return dayA - dayB;
+      return a.start_time.localeCompare(b.start_time);
+    });
+
+    return scheduleData;
+  });
+
+  // #region TeacherWorkHours
+  ipcMain.handle('db:teacherWorkHours:getByTeacherId', async (event, teacherId) => {
+    const { schoolId, userRole, userSupabaseId } = await getUserContext(prisma, event);
+    if (!schoolId) throw new Error("Contexte utilisateur invalide. Accès refusé.");
+
+    const teacher = await prisma.teachers.findUnique({ where: { id: teacherId } });
+
+    if (!teacher || teacher.school_id !== schoolId) throw new Error("Accès non autorisé");
+    if (userRole !== 'admin' && teacher.user_supabase_id !== userSupabaseId) throw new Error("Accès non autorisé");
+
     return prisma.teacherWorkHours.findMany({
       where: { teacher_id: teacherId, is_deleted: false },
       orderBy: { date: 'desc' },
@@ -110,7 +157,7 @@ function setupTeachersIPC(prisma) {
   });
 
   ipcMain.handle('db:teacherWorkHours:create', async (event, workHoursData) => {
-    const schoolId = await getUserSchoolId(prisma, event);
+    const { schoolId } = await getUserContext(prisma, event);
     const { teacher_id, subject_id, date, start_time, end_time, notes } = workHoursData;
     const teacher = await prisma.teachers.findUnique({ where: { id: teacher_id } });
     if (!teacher || teacher.school_id !== schoolId) throw new Error("Accès non autorisé");
@@ -139,9 +186,14 @@ function setupTeachersIPC(prisma) {
   });
 
   ipcMain.handle('db:teacherWorkHours:getStats', async (event, teacherId) => {
-    const schoolId = await getUserSchoolId(prisma, event);
+    const { schoolId, userRole, userSupabaseId } = await getUserContext(prisma, event);
+    if (!schoolId) throw new Error("Contexte utilisateur invalide. Accès refusé.");
+
     const teacher = await prisma.teachers.findUnique({ where: { id: teacherId } });
+
     if (!teacher || teacher.school_id !== schoolId) throw new Error("Accès non autorisé");
+    if (userRole !== 'admin' && teacher.user_supabase_id !== userSupabaseId) throw new Error("Accès non autorisé");
+
     const startOfMonth = new Date(new Date().getFullYear(), new Date().getMonth(), 1).toISOString().split('T')[0];
     const workHours = await prisma.teacherWorkHours.findMany({ where: { teacher_id: teacherId, is_deleted: false, date: { gte: startOfMonth } }, include: { subject: true } });
     const totalHoursThisMonth = workHours.reduce((acc, record) => acc + record.hours, 0);
@@ -156,9 +208,13 @@ function setupTeachersIPC(prisma) {
   });
 
   ipcMain.handle('db:teacherWorkHours:getTodayByTeacherId', async (event, teacherId, dateString) => {
-    const schoolId = await getUserSchoolId(prisma, event);
+    const { schoolId, userRole, userSupabaseId } = await getUserContext(prisma, event);
+    if (!schoolId) throw new Error("Contexte utilisateur invalide. Accès refusé.");
+
     const teacher = await prisma.teachers.findUnique({ where: { id: teacherId } });
+
     if (!teacher || teacher.school_id !== schoolId) throw new Error("Accès non autorisé");
+    if (userRole !== 'admin' && teacher.user_supabase_id !== userSupabaseId) throw new Error("Accès non autorisé");
 
     const todayWorkHours = await prisma.teacherWorkHours.findMany({
       where: {
@@ -207,6 +263,34 @@ function setupTeachersIPC(prisma) {
     return deletedWorkHour;
   });
   // #endregion
+
+  ipcMain.handle('admin:assign-school-to-orphans', async (event) => {
+    const { schoolId, userRole } = await getUserContext(prisma, event);
+
+    if (userRole !== 'admin' || !schoolId) {
+      throw new Error("Accès refusé. Seul un administrateur peut effectuer cette action.");
+    }
+
+    try {
+      const updatedTeachers = await prisma.teachers.updateMany({
+        where: { school_id: null },
+        data: { school_id: schoolId, needs_sync: true, last_modified: new Date() },
+      });
+
+      const updatedEmployees = await prisma.employees.updateMany({
+        where: { school_id: null },
+        data: { school_id: schoolId, needs_sync: true, last_modified: new Date() },
+      });
+
+      return {
+        updatedTeachersCount: updatedTeachers.count,
+        updatedEmployeesCount: updatedEmployees.count,
+      };
+    } catch (error) {
+      console.error("Erreur lors de l'assignation de l'école aux utilisateurs orphelins:", error);
+      throw new Error("L'opération de réparation a échoué.");
+    }
+  });
 }
 
 module.exports = { setupTeachersIPC };

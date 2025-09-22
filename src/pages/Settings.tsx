@@ -18,7 +18,7 @@ import {
   DialogFooter,
 } from "@/components/ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Phone, MessageSquare, Printer, Calendar as CalendarIcon, Image as ImageIcon } from "lucide-react";
+import { Phone, MessageSquare, Printer, Calendar as CalendarIcon, Image as ImageIcon, Wrench } from "lucide-react";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Calendar } from "@/components/ui/calendar";
 import { format } from "date-fns";
@@ -34,7 +34,7 @@ interface PrinterInfo {
 const Settings: React.FC = () => {
   const { toast } = useToast();
   const navigate = useNavigate();
-  const { getSettings, updateSettings, getPrinters, setSchoolLogo, getSchoolLogoBase64 } = useDatabase();
+  const { getSettings, updateSettings, getPrinters, setSchoolLogo, getSchoolLogoBase64, assignSchoolToOrphans } = useDatabase();
 
   const [formData, setFormData] = useState({ 
     schoolName: "", 
@@ -140,6 +140,23 @@ const Settings: React.FC = () => {
       });
     } finally {
       setResetLoading(false);
+    }
+  };
+
+  const handleFixOrphans = async () => {
+    try {
+      const result = await assignSchoolToOrphans();
+      toast({
+        title: "Réparation terminée",
+        description: `${result.updatedTeachersCount} enseignant(s) et ${result.updatedEmployeesCount} employé(s) ont été mis à jour.`,
+      });
+    } catch (error) {
+      console.error("Erreur lors de la réparation des données:", error);
+      toast({
+        variant: "destructive",
+        title: "Erreur de réparation",
+        description: error.message,
+      });
     }
   };
 
@@ -253,6 +270,23 @@ const Settings: React.FC = () => {
                 <Button onClick={handleSave} className="bg-school-600 hover:bg-school-700 mt-4">
                   Enregistrer les paramètres
                 </Button>
+
+                <Separator className="my-4" />
+
+                <div>
+                  <h3 className="text-lg font-medium text-amber-700 mb-2">Maintenance</h3>
+                  <p className="text-sm text-gray-500 mb-4">
+                    Si vous rencontrez des erreurs "Accès non autorisé" en consultant les détails d'un enseignant, cela peut être dû à des données corrompues. Ce bouton assignera l'école actuelle à tous les utilisateurs qui n'en ont pas.
+                  </p>
+                  <Button
+                    variant="outline"
+                    onClick={handleFixOrphans}
+                    className="w-full flex items-center justify-center text-amber-700 border-amber-500 hover:bg-amber-50"
+                  >
+                    <Wrench className="mr-2 h-4 w-4" />
+                    Réparer les données des utilisateurs orphelins
+                  </Button>
+                </div>
 
                 <div className="mt-8 pt-6">
                   <Separator className="my-4" />

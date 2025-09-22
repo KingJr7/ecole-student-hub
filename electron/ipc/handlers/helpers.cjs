@@ -8,14 +8,26 @@ function isOnline() {
   });
 }
 
-async function getUserSchoolId(prisma, event) {
+async function getUserContext(prisma, event) {
   const settings = await prisma.settings.findUnique({ where: { id: 1 } });
-  const schoolId = settings?.schoolId;
+  return {
+    schoolId: settings?.schoolId || null,
+    userRole: settings?.userRole || null,
+    userSupabaseId: settings?.roleId || null, // roleId contient l'ID supabase de l'utilisateur connecté
+  };
+}
 
+// Restore getUserSchoolId for backward compatibility
+async function getUserSchoolId(prisma, event) {
+  const { schoolId } = await getUserContext(prisma, event).catch(() => ({ schoolId: null }));
   if (!schoolId) {
-    throw new Error("Utilisateur non authentifié ou ID d'école non trouvé.");
+     const settings = await prisma.settings.findUnique({ where: { id: 1 } });
+     const fallbackSchoolId = settings?.schoolId;
+     if (!fallbackSchoolId) {
+        throw new Error("Utilisateur non authentifié ou ID d'école non trouvé.");
+     }
+     return fallbackSchoolId;
   }
-  
   return schoolId;
 }
 
@@ -238,7 +250,8 @@ const findOrCreateParent = async (tx, parentData) => {
 module.exports = {
     isOnline,
     getUserSchoolId,
+    getUserContext,
     handlePaymentDispatch,
     calculateClassResults,
     findOrCreateParent
-}
+};

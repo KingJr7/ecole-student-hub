@@ -15,7 +15,7 @@ const validInvokeChannels = [
   'db:settings:get', 'db:settings:update',
   'db:classes:getAll', 'db:classes:create', 'db:classes:update', 'db:classes:delete',
   'db:students:getAll', 'db:students:create', 'db:students:update', 'db:students:delete', 'db:students:getRecent', 'db:students:getDetails', 'db:students:search',
-  'db:teachers:getAll', 'db:teachers:getById', 'db:teachers:create', 'db:teachers:update', 'db:teachers:delete', 'db:teachers:getSubjects', 'db:teachers:calculateSalary',
+  'db:teachers:getAll', 'db:teachers:getById', 'db:teachers:create', 'db:teachers:update',   'db:teachers:delete', 'db:teachers:getSubjects', 'db:teachers:calculateSalary', 'db:teachers:getSchedule',,
   'db:parents:getAll', 'db:parents:create', 'db:parents:update', 'db:parents:delete', 'db:parents:findByPhone',
   'db:employees:getAll', 'db:employees:create', 'db:employees:update', 'db:employees:delete', 'db:employees:paySalary', 'db:employees:getSalaryHistory', 'db:employees:getStats',
   'db:subjects:getAll', 'db:subjects:create', 'db:subjects:update', 'db:subjects:delete', 'db:classSubjects:getAll', 'db:subjects:getByTeacherId', 'db:subjects:getAllDetailed',
@@ -37,7 +37,8 @@ const validInvokeChannels = [
   'db:dispatch-rules:getAll',   'db:dispatch-rules:create', 'db:dispatch-rules:update', 'db:dispatch-rules:delete',
   'db:finance:get-dispatch-summary',
   'db:dashboard:getStats', 'db:reports:getClassResults', 'db:reports:getAllClassesPerformance', 'db:reports:getClassTrend', 'db:reports:getFrequentLatePayers',
-  'printers:get-list', 'printers:print-receipt'
+  'printers:get-list', 'printers:print-receipt',
+  'admin:assign-school-to-orphans'
 ];
 
 const validOnChannels = [

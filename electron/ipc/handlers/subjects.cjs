@@ -1,15 +1,15 @@
 const { ipcMain } = require('electron');
 const { pushSingleItem } = require('../sync.cjs');
-const { isOnline, getUserSchoolId } = require('./helpers.cjs');
+const { isOnline, getUserContext } = require('./helpers.cjs');
 
 function setupSubjectsIPC(prisma) {
   ipcMain.handle('db:subjects:getAll', async (event) => {
-    const schoolId = await getUserSchoolId(prisma, event);
+    const { schoolId } = await getUserContext(prisma, event);
     return prisma.subjects.findMany({ where: { is_deleted: false, class: { school_id: schoolId } }, orderBy: { name: 'asc' } });
   });
 
   ipcMain.handle('db:subjects:create', async (event, subjectData) => {
-    const schoolId = await getUserSchoolId(prisma, event);
+    const { schoolId } = await getUserContext(prisma, event);
     let { name, coefficient, class_id, school_year, teacher_id } = subjectData;
 
     // Calculate school_year if not provided or empty
@@ -41,7 +41,7 @@ function setupSubjectsIPC(prisma) {
   });
 
   ipcMain.handle('db:subjects:update', async (event, { id, data }) => {
-    const schoolId = await getUserSchoolId(prisma, event);
+    const { schoolId } = await getUserContext(prisma, event);
     const subjectToUpdate = await prisma.subjects.findUnique({ where: { id }, include: { class: true } });
     if (!subjectToUpdate || subjectToUpdate.class.school_id !== schoolId) throw new Error("Accès non autorisé");
     const { name, coefficient, class_id, school_year } = data;
@@ -59,7 +59,7 @@ function setupSubjectsIPC(prisma) {
   });
 
   ipcMain.handle('db:subjects:delete', async (event, id) => {
-    const schoolId = await getUserSchoolId(prisma, event);
+    const { schoolId } = await getUserContext(prisma, event);
     const subjectToDelete = await prisma.subjects.findUnique({ where: { id }, include: { class: true } });
     if (!subjectToDelete || subjectToDelete.class.school_id !== schoolId) throw new Error("Accès non autorisé");
     const lessonCount = await prisma.lessons.count({ where: { subject_id: id, is_deleted: false } });
@@ -74,16 +74,38 @@ function setupSubjectsIPC(prisma) {
   });
 
   ipcMain.handle('db:classSubjects:getAll', async (event, classId) => {
-    const schoolId = await getUserSchoolId(prisma, event);
+    const { schoolId } = await getUserContext(prisma, event);
     const classToCheck = await prisma.classes.findUnique({ where: { id: classId } });
     if (!classToCheck || classToCheck.school_id !== schoolId) throw new Error("Accès non autorisé");
     return prisma.lessons.findMany({ where: { class_id: classId, is_deleted: false }, include: { subject: true, teacher: true } });
   });
 
   ipcMain.handle('db:subjects:getByTeacherId', async (event, teacherId) => {
-    const schoolId = await getUserSchoolId(prisma, event);
+    const { schoolId, userRole, userSupabaseId } = await getUserContext(prisma, event);
+    if (!schoolId) throw new Error("Contexte utilisateur invalide. Accès refusé.");
+
     const teacher = await prisma.teachers.findUnique({ where: { id: teacherId } });
-    if (!teacher || teacher.school_id !== schoolId) throw new Error("Accès non autorisé");
+
+    // --- DEBUT DEBUGGING ---
+    console.log('--- DEBUGGING ACCESS CHECK ---');
+    console.log('User Context schoolId:', schoolId);
+    console.log('User Context userRole:', userRole);
+    if (teacher) {
+      console.log('Target Teacher ID:', teacher.id);
+      console.log('Target Teacher school_id:', teacher.school_id);
+      console.log('Comparison (teacher.school_id !== schoolId) is:', teacher.school_id !== schoolId);
+    } else {
+      console.log('Target Teacher not found for id:', teacherId);
+    }
+    console.log('--- FIN DEBUGGING ---');
+    // --- FIN DEBUGGING ---
+
+    // Authorization check
+    if (!teacher || teacher.school_id !== schoolId) throw new Error("Accès non autorisé: Enseignant non trouvé dans cette école.");
+    if (userRole !== 'admin' && teacher.user_supabase_id !== userSupabaseId) {
+      throw new Error("Accès non autorisé: Vous ne pouvez consulter que vos propres matières.");
+    }
+
     return prisma.subjects.findMany({ where: { lessons: { some: { teacher_id: teacherId } }, is_deleted: false, class: { school_id: schoolId } }, include: { class: true } });
   });
 }

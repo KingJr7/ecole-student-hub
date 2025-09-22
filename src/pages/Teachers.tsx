@@ -4,7 +4,7 @@ import { useForm, SubmitHandler } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { format } from "date-fns";
-import { PlusCircle, Edit, Trash, Save, Users, Book, Clock, DollarSign, KeyRound } from "lucide-react";
+import { PlusCircle, Edit, Trash, Save, Users, Book, Clock, DollarSign, KeyRound, CalendarDays } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
 import MainLayout from "@/components/Layout/MainLayout";
@@ -19,8 +19,8 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Textarea } from "@/components/ui/textarea";
 import { Skeleton } from "@/components/ui/skeleton";
 
-import { getTeachers, addTeacher, updateTeacher, deleteTeacher, getTeacherStats, getTeacherWorkHours, addTeacherWorkHours, getSubjects, getTeacherWorkHoursToday } from "@/lib/api";
-import { Teacher, Subject, TeacherWorkHours } from "@/types";
+import { getTeachers, addTeacher, updateTeacher, deleteTeacher, getTeacherStats, getTeacherWorkHours, addTeacherWorkHours, getSubjects, getTeacherWorkHoursToday, getTeacherSchedule } from "@/lib/api";
+import { Teacher, Subject, TeacherWorkHours, Schedule } from "@/types";
 
 const teacherFormSchema = z.object({
   firstName: z.string().min(2, "Le prénom doit contenir au moins 2 caractères"),
@@ -63,6 +63,12 @@ const Teachers = () => {
     queryKey: ["todayWorkStats", selectedTeacher?.id],
     queryFn: () => selectedTeacher ? getTeacherWorkHoursToday(selectedTeacher.id) : Promise.resolve({ totalHoursToday: 0, amountOwedToday: 0 }),
     enabled: !!selectedTeacher,
+  });
+
+  const { data: teacherSchedule = [], isLoading: isLoadingSchedule } = useQuery<Schedule[]>({ 
+    queryKey: ["teacherSchedule", selectedTeacher?.id], 
+    queryFn: () => selectedTeacher ? getTeacherSchedule(selectedTeacher.id) : Promise.resolve([]), 
+    enabled: !!selectedTeacher 
   });
 
   const addTeacherMutation = useMutation({ mutationFn: addTeacher, onSuccess: () => { queryClient.invalidateQueries({ queryKey: ["teachers"] }); toast({ title: "Professeur ajouté" }); setOpenTeacherDialog(false); }, onError: (error) => { toast({ title: "Erreur", description: error.message, variant: "destructive" }); } });
@@ -133,7 +139,7 @@ const Teachers = () => {
           {selectedTeacher ? (
             <CardContent>
               <Tabs defaultValue="overview">
-                <TabsList className="mb-4"><TabsTrigger value="overview">Vue d'ensemble</TabsTrigger><TabsTrigger value="subjects">Matières</TabsTrigger><TabsTrigger value="workhours">Pointage</TabsTrigger></TabsList>
+                <TabsList className="mb-4"><TabsTrigger value="overview">Vue d'ensemble</TabsTrigger><TabsTrigger value="subjects">Matières</TabsTrigger><TabsTrigger value="workhours">Pointage</TabsTrigger><TabsTrigger value="schedule">Emploi du temps</TabsTrigger></TabsList>
                 <TabsContent value="overview">
                   <div className="grid grid-cols-1 gap-4 md:grid-cols-3 mb-6"><Card><CardHeader className="p-4"><CardTitle className="text-base flex items-center"><Clock className="mr-2 h-4 w-4" />Heures ce mois</CardTitle></CardHeader><CardContent className="p-4 pt-0"><p className="text-2xl font-bold">{isLoadingStats ? "..." : (teacherStats?.totalHoursThisMonth || 0).toFixed(1)}h</p></CardContent></Card><Card><CardHeader className="p-4"><CardTitle className="text-base flex items-center"><DollarSign className="mr-2 h-4 w-4" />Rémunération ce mois</CardTitle></CardHeader><CardContent className="p-4 pt-0"><p className="text-2xl font-bold">{isLoadingStats ? "..." : `${Math.round(teacherStats?.totalEarningsThisMonth || 0).toLocaleString()} FCFA`}</p></CardContent></Card><Card><CardHeader className="p-4"><CardTitle className="text-base flex items-center"><Book className="mr-2 h-4 w-4" />Matières enseignées</CardTitle></CardHeader><CardContent className="p-4 pt-0"><p className="text-2xl font-bold">{isLoadingSubjects ? "..." : getTeacherSubjects().length}</p></CardContent></Card><Card><CardHeader className="p-4"><CardTitle className="text-base flex items-center"><DollarSign className="mr-2 h-4 w-4" />Rémunération aujourd'hui</CardTitle></CardHeader><CardContent className="p-4 pt-0"><p className="text-2xl font-bold">{isLoadingTodayWorkStats ? "..." : `${Math.round(todayWorkStats?.amountOwedToday || 0).toLocaleString()} FCFA`}</p></CardContent></Card></div>
                   <div className="mb-6"><h3 className="text-lg font-medium mb-2">Taux horaire</h3><div className="flex items-center"><p className="text-xl font-semibold">{selectedTeacher.hourlyRate?.toLocaleString() || "0"} FCFA / heure</p><Button variant="outline" size="sm" className="ml-2" onClick={() => handleEditTeacher(selectedTeacher)}><Edit className="h-4 w-4 mr-1" /> Modifier</Button></div></div>
@@ -154,6 +160,45 @@ const Teachers = () => {
                     </TableRow>
                   );
                 })}</TableBody></Table>}</TabsContent>
+                <TabsContent value="schedule">
+                  <Card>
+                    <CardHeader>
+                      <CardTitle className="flex items-center"><CalendarDays className="mr-2 h-5 w-5" /> Emploi du temps hebdomadaire</CardTitle>
+                      <CardDescription>Voici les cours assignés à ce professeur pour la semaine.</CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                      {isLoadingSchedule ? (
+                        <p className="text-center py-4">Chargement de l'emploi du temps...</p>
+                      ) : teacherSchedule.length === 0 ? (
+                        <p className="text-center py-4 text-muted-foreground">Aucun cours programmé pour ce professeur.</p>
+                      ) : (
+                        <div className="space-y-4">
+                          {Object.entries(
+                            teacherSchedule.reduce((acc, item) => {
+                              const day = item.day_of_week || 'Non défini';
+                              if (!acc[day]) acc[day] = [];
+                              acc[day].push(item);
+                              return acc;
+                            }, {} as Record<string, Schedule[]>)
+                          ).map(([day, schedules]) => (
+                            <div key={day}>
+                              <h4 className="font-semibold text-lg mb-2 border-b pb-1">{day}</h4>
+                              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                                {schedules.map(schedule => (
+                                  <div key={schedule.id} className="p-3 bg-muted/50 rounded-lg">
+                                    <p className="font-bold text-school-700">{schedule.lesson.subject.name}</p>
+                                    <p className="text-sm">Classe: <span className="font-medium">{schedule.lesson.class.name}</span></p>
+                                    <p className="text-sm text-muted-foreground">Heure: {schedule.start_time} - {schedule.end_time}</p>
+                                  </div>
+                                ))}
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                    </CardContent>
+                  </Card>
+                </TabsContent>
               </Tabs>
             </CardContent>
           ) : (<CardContent><div className="flex flex-col items-center justify-center py-8"><Users className="h-12 w-12 text-muted-foreground mb-4" /><div className="text-muted-foreground text-center">Sélectionnez un professeur dans la liste pour voir ses détails</div></div></CardContent>)}

@@ -521,7 +521,7 @@ const tableConfigs = {
             const feeTemplateLocalId = row.fee_template_id ? await getLocalId(prisma, 'feeTemplate', row.fee_template_id) : null;
 
             return { 
-                registration_id: registrationLocalId, 
+                registrationId: registrationLocalId, // CORRIGÉ: Utiliser le camelCase pour correspondre à la map de transformation
                 amount: row.amount, 
                 method: row.method, 
                 date: row.date, 
@@ -1010,20 +1010,20 @@ async function pullChanges(prisma, schoolId, supabase) {
         const prismaData = { ...data };
         
         const relationsMap = {
-            registrations: { studentId: 'student', classId: 'class' },
-            subjects: { classId: 'class' },
-            lessons: { teacherId: 'teacher', classId: 'class', subjectId: 'subject' },
-            notes: { studentId: 'student', lessonId: 'lesson' },
-            studentParents: { studentId: 'student', parentId: 'parent' },
-            payments: { registrationId: 'registration', single_fee_id: 'single_fee', fee_template_id: 'fee_template' },
-            attendances: { studentId: 'student' },
-            schedules: { lessonId: 'lesson' },
-            salary_payments: { employee_id: 'employee' },
-            teacherWorkHours: { teacherId: 'teacher', subjectId: 'subject' },
-            financial_transactions: { categoryId: 'category' },
-            dispatch_rules: { source_single_fee_id: 'source_single_fee' },
-            dispatch_rule_details: { dispatch_rule_id: 'dispatch_rule', destination_category_id: 'destination_category' }
-        };
+        registrations: { studentId: 'student', classId: 'class' },
+        subjects: { classId: 'class' },
+        lessons: { teacherId: 'teacher', classId: 'class', subjectId: 'subject' },
+        notes: { studentId: 'student', lessonId: 'lesson' },
+        studentParents: { studentId: 'student', parentId: 'parent' },
+        payments: { registrationId: 'registration', single_fee_id: 'single_fee', fee_template_id: 'fee_template' },
+        attendances: { studentId: 'student' },
+        schedules: { lessonId: 'lesson' },
+        salaryPayments: { employee_id: 'employee' },
+        teacherWorkHours: { teacherId: 'teacher', subjectId: 'subject' },
+        financialTransaction: { categoryId: 'category' },
+        dispatchRule: { source_single_fee_id: 'source_single_fee' },
+        dispatchRuleDetail: { dispatch_rule_id: 'dispatch_rule', destination_category_id: 'destination_category' }
+    };
 
         const modelRelations = relationsMap[modelName];
         if (modelRelations) {
@@ -1100,34 +1100,35 @@ async function pullChanges(prisma, schoolId, supabase) {
                     continue;
                 }
 
-                const prismaData = transformDataForPrisma(mappedData, modelName);
-
                 if (localRow) { // Update
                     if (new Date(row.last_modified) > new Date(localRow.last_modified)) {
                         sendSyncLog('info', `    -> 🔄  [UPDATE] Mise à jour de ${config.name} #${localRow.id} depuis Supabase...`);
+                        const updateData = transformDataForPrisma(mappedData, modelName);
                         await prisma[modelName].update({
                             where: { id: localRow.id },
-                            data: { ...prismaData, last_modified: new Date(row.last_modified), needs_sync: false },
+                            data: { ...updateData, last_modified: new Date(row.last_modified), needs_sync: false },
                         });
                         sendSyncLog('success', `       ✅ Mise à jour locale réussie.`);
                     }
-                } else { // Insert or Upsert for specific models
+                } else { // Insert
+                    const createData = transformDataForPrisma(mappedData, modelName);
                     const createPayload = {
-                        ...prismaData,
+                        ...createData,
                         supabase_id: row.id,
                         last_modified: new Date(row.last_modified),
                         needs_sync: false,
                     };
 
+                    // Logique d'upsert pour les tables avec contraintes uniques complexes
                     if (modelName === 'studentParents') {
                         await prisma.studentParents.upsert({
-                            where: { student_id_parent_id_unique: { student_id: prismaData.student.connect.id, parent_id: prismaData.parent.connect.id } },
+                            where: { student_id_parent_id_unique: { student_id: createData.student.connect.id, parent_id: createData.parent.connect.id } },
                             update: createPayload,
                             create: createPayload
                         });
                     } else if (modelName === 'notes') {
                         await prisma.notes.upsert({
-                            where: { student_id_lesson_id_quarter_type: { student_id: prismaData.student.connect.id, lesson_id: prismaData.lesson.connect.id, quarter: mappedData.quarter, type: mappedData.type } },
+                            where: { student_id_lesson_id_quarter_type: { student_id: createData.student.connect.id, lesson_id: createData.lesson.connect.id, quarter: mappedData.quarter, type: mappedData.type } },
                             update: createPayload,
                             create: createPayload
                         });
