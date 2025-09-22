@@ -11,33 +11,44 @@ process.on('unhandledRejection', (reason, promise) => {
   console.error('Unhandled Rejection (Global): ', reason);
 });
 
-// Charger les variables d'environnement
-if (process.env.NODE_ENV !== 'development') {
-  dotenv.config({ path: path.join(process.resourcesPath, '.env') });
-} else {
-  dotenv.config();
-  console.log(`[main.cjs] DATABASE_URL: ${process.env.DATABASE_URL}`);
-}
-
 // Définir l'environnement de manière fiable
 const isDev = !app.isPackaged;
 console.log(`Application démarrée en mode: ${isDev ? 'development' : 'production'}`);
 
-const runMigration = () => {
-  return new Promise((resolve, reject) => {
-    console.log('Vérification et application des migrations de la base de données...');
-    
-    const projectRoot = path.join(__dirname, '..');
-    const dbPath = path.join(projectRoot, 'prisma', 'ntik.sqlite');
+// Définir dynamiquement le chemin de la base de données
+const dbName = 'ntik.sqlite';
+let dbPath;
 
-    const command = fs.existsSync(dbPath) ? 'deploy' : 'reset';
-    const args = ['prisma', 'migrate', command];
-    if (command === 'reset') {
-      args.push('--force');
+if (isDev) {
+  dbPath = path.join(__dirname, '..', 'prisma', dbName);
+} else {
+  const userDataPath = app.getPath('userData');
+  dbPath = path.join(userDataPath, dbName);
+  if (!fs.existsSync(userDataPath)) {
+      fs.mkdirSync(userDataPath, { recursive: true });
+  }
+  // Copy db if it does not exist
+  if (!fs.existsSync(dbPath)) {
+    const bundledDbPath = path.join(process.resourcesPath, 'prisma', dbName);
+    if (fs.existsSync(bundledDbPath)) {
+      fs.copyFileSync(bundledDbPath, dbPath);
+      console.log(`Base de données initiale copiée vers ${dbPath}`);
     }
+  }
+}
 
-    const migrateProcess = spawn('npx', args, { 
-        cwd: projectRoot,
+process.env.DATABASE_URL = `file:${dbPath}`;
+console.log(`[main.cjs] Chemin de la base de données défini à : ${process.env.DATABASE_URL}`);
+dotenv.config();
+
+// --- MIGRATIONS ---
+const { runProductionMigration } = require('./migration.cjs');
+
+const runDevMigration = () => {
+  return new Promise((resolve, reject) => {
+    console.log('Vérification et application des migrations de la base de données (DEV)...');
+    const migrateProcess = spawn('npx', ['prisma', 'migrate', 'dev'], { 
+        cwd: path.join(__dirname, '..'),
         shell: false
     });
 
@@ -47,17 +58,19 @@ const runMigration = () => {
     migrateProcess.stderr.on('data', (data) => {
       console.error(`[MIGRATE] stderr: ${data}`);
     });
+
     migrateProcess.on('close', (code) => {
       if (code === 0) {
-        console.log('Migrations appliquées avec succès.');
+        console.log('Migrations DEV appliquées avec succès.');
         resolve();
       } else {
-        console.error(`Le processus de migration s'est terminé avec le code ${code}`);
-        reject(new Error('L\'application des migrations a échoué.'));
+        console.error(`Le processus de migration DEV s'est terminé avec le code ${code}`);
+        reject(new Error('L\'application des migrations DEV a échoué.'));
       }
     });
   });
 };
+
 
 function createWindow() {
   const win = new BrowserWindow({
@@ -106,11 +119,13 @@ app.whenReady().then(async () => {
   const { setupAuthIPC } = require('./ipc/auth.cjs');
   const { setupSyncIPC, runSync } = require('./ipc/sync.cjs');
 
-  if (isDev) {
-      await runMigration();
-  }
-
   const prisma = initializePrisma();
+
+  if (isDev) {
+    await runDevMigration();
+  } else {
+    await runProductionMigration(prisma);
+  }
 
   await prisma.$connect();
 
@@ -136,7 +151,6 @@ app.whenReady().then(async () => {
       if (fs.existsSync(imagePath)) {
         const data = fs.readFileSync(imagePath);
         const base64 = data.toString('base64');
-        // Assuming webp, adjust if other formats are stored
         return `data:image/webp;base64,${base64}`;
       }
     } catch (error) {
@@ -171,7 +185,6 @@ app.whenReady().then(async () => {
     }
   });
 
-  // #region Printer IPC Handlers
   ipcMain.handle('printers:get-list', async (event) => {
     if (event.sender && typeof event.sender.getPrintersAsync === 'function') {
       return await event.sender.getPrintersAsync();
@@ -181,16 +194,10 @@ app.whenReady().then(async () => {
 
   ipcMain.handle('printers:print-receipt', async (event, { htmlContent, printerName }) => {
     const printWindow = new BrowserWindow({ show: false });
-    
     await printWindow.loadURL(`data:text/html;charset=utf-8,${encodeURI(htmlContent)}`);
-    
     return new Promise((resolve, reject) => {
       printWindow.webContents.on('did-finish-load', () => {
-        printWindow.webContents.print({
-          silent: true,
-          deviceName: printerName,
-          printBackground: true,
-        }, (success, errorType) => {
+        printWindow.webContents.print({ silent: true, deviceName: printerName, printBackground: true }, (success, errorType) => {
           if (!success) {
             console.error('Printing failed:', errorType);
             reject(new Error(errorType));
@@ -202,7 +209,6 @@ app.whenReady().then(async () => {
       });
     });
   });
-  // #endregion
 
   ipcMain.handle('debug:get-web-contents-methods', (event) => {
     try {
@@ -210,10 +216,7 @@ app.whenReady().then(async () => {
       const proto = Object.getPrototypeOf(sender);
       const methods = Object.getOwnPropertyNames(proto);
       const printerMethods = methods.filter(m => m.toLowerCase().includes('printer'));
-      return {
-        totalMethods: methods.length,
-        printerRelatedMethods: printerMethods,
-      };
+      return { totalMethods: methods.length, printerRelatedMethods: printerMethods };
     } catch (e) {
       return { error: e.message };
     }

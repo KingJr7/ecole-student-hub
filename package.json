@@ -1,7 +1,7 @@
 {
   "name": "ntik",
   "private": true,
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Système de gestion scolaire Ntik pour l'administration des élèves, des notes et des paiements",
   "author": {
     "name": "Ntik",
