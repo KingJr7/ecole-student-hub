@@ -3462,6 +3462,9 @@ export namespace Prisma {
     activeSchoolYear: string | null
     roleId: string | null
     schoolYearStartDate: Date | null
+    directorName: string | null
+    directorGender: string | null
+    schoolLogo: string | null
   }
 
   export type SettingsMaxAggregateOutputType = {
@@ -3476,6 +3479,9 @@ export namespace Prisma {
     activeSchoolYear: string | null
     roleId: string | null
     schoolYearStartDate: Date | null
+    directorName: string | null
+    directorGender: string | null
+    schoolLogo: string | null
   }
 
   export type SettingsCountAggregateOutputType = {
@@ -3491,6 +3497,9 @@ export namespace Prisma {
     roleId: number
     permissions: number
     schoolYearStartDate: number
+    directorName: number
+    directorGender: number
+    schoolLogo: number
     _all: number
   }
 
@@ -3517,6 +3526,9 @@ export namespace Prisma {
     activeSchoolYear?: true
     roleId?: true
     schoolYearStartDate?: true
+    directorName?: true
+    directorGender?: true
+    schoolLogo?: true
   }
 
   export type SettingsMaxAggregateInputType = {
@@ -3531,6 +3543,9 @@ export namespace Prisma {
     activeSchoolYear?: true
     roleId?: true
     schoolYearStartDate?: true
+    directorName?: true
+    directorGender?: true
+    schoolLogo?: true
   }
 
   export type SettingsCountAggregateInputType = {
@@ -3546,6 +3561,9 @@ export namespace Prisma {
     roleId?: true
     permissions?: true
     schoolYearStartDate?: true
+    directorName?: true
+    directorGender?: true
+    schoolLogo?: true
     _all?: true
   }
 
@@ -3648,6 +3666,9 @@ export namespace Prisma {
     roleId: string | null
     permissions: JsonValue | null
     schoolYearStartDate: Date | null
+    directorName: string | null
+    directorGender: string | null
+    schoolLogo: string | null
     _count: SettingsCountAggregateOutputType | null
     _avg: SettingsAvgAggregateOutputType | null
     _sum: SettingsSumAggregateOutputType | null
@@ -3682,6 +3703,9 @@ export namespace Prisma {
     roleId?: boolean
     permissions?: boolean
     schoolYearStartDate?: boolean
+    directorName?: boolean
+    directorGender?: boolean
+    schoolLogo?: boolean
   }, ExtArgs["result"]["settings"]>
 
   export type SettingsSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
@@ -3697,6 +3721,9 @@ export namespace Prisma {
     roleId?: boolean
     permissions?: boolean
     schoolYearStartDate?: boolean
+    directorName?: boolean
+    directorGender?: boolean
+    schoolLogo?: boolean
   }, ExtArgs["result"]["settings"]>
 
   export type SettingsSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
@@ -3712,6 +3739,9 @@ export namespace Prisma {
     roleId?: boolean
     permissions?: boolean
     schoolYearStartDate?: boolean
+    directorName?: boolean
+    directorGender?: boolean
+    schoolLogo?: boolean
   }, ExtArgs["result"]["settings"]>
 
   export type SettingsSelectScalar = {
@@ -3727,9 +3757,12 @@ export namespace Prisma {
     roleId?: boolean
     permissions?: boolean
     schoolYearStartDate?: boolean
+    directorName?: boolean
+    directorGender?: boolean
+    schoolLogo?: boolean
   }
 
-  export type SettingsOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "schoolName" | "schoolAddress" | "loggedIn" | "userRole" | "schoolId" | "userToken" | "last_sync" | "activeSchoolYear" | "roleId" | "permissions" | "schoolYearStartDate", ExtArgs["result"]["settings"]>
+  export type SettingsOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "schoolName" | "schoolAddress" | "loggedIn" | "userRole" | "schoolId" | "userToken" | "last_sync" | "activeSchoolYear" | "roleId" | "permissions" | "schoolYearStartDate" | "directorName" | "directorGender" | "schoolLogo", ExtArgs["result"]["settings"]>
 
   export type $SettingsPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     name: "Settings"
@@ -3747,6 +3780,9 @@ export namespace Prisma {
       roleId: string | null
       permissions: Prisma.JsonValue | null
       schoolYearStartDate: Date | null
+      directorName: string | null
+      directorGender: string | null
+      schoolLogo: string | null
     }, ExtArgs["result"]["settings"]>
     composites: {}
   }
@@ -4182,6 +4218,9 @@ export namespace Prisma {
     readonly roleId: FieldRef<"Settings", 'String'>
     readonly permissions: FieldRef<"Settings", 'Json'>
     readonly schoolYearStartDate: FieldRef<"Settings", 'DateTime'>
+    readonly directorName: FieldRef<"Settings", 'String'>
+    readonly directorGender: FieldRef<"Settings", 'String'>
+    readonly schoolLogo: FieldRef<"Settings", 'String'>
   }
     
 
@@ -32191,7 +32230,10 @@ export namespace Prisma {
     activeSchoolYear: 'activeSchoolYear',
     roleId: 'roleId',
     permissions: 'permissions',
-    schoolYearStartDate: 'schoolYearStartDate'
+    schoolYearStartDate: 'schoolYearStartDate',
+    directorName: 'directorName',
+    directorGender: 'directorGender',
+    schoolLogo: 'schoolLogo'
   };
 
   export type SettingsScalarFieldEnum = (typeof SettingsScalarFieldEnum)[keyof typeof SettingsScalarFieldEnum]
@@ -32697,6 +32739,9 @@ export namespace Prisma {
     roleId?: StringNullableFilter<"Settings"> | string | null
     permissions?: JsonNullableFilter<"Settings">
     schoolYearStartDate?: DateTimeNullableFilter<"Settings"> | Date | string | null
+    directorName?: StringNullableFilter<"Settings"> | string | null
+    directorGender?: StringNullableFilter<"Settings"> | string | null
+    schoolLogo?: StringNullableFilter<"Settings"> | string | null
   }
 
   export type SettingsOrderByWithRelationInput = {
@@ -32712,6 +32757,9 @@ export namespace Prisma {
     roleId?: SortOrderInput | SortOrder
     permissions?: SortOrderInput | SortOrder
     schoolYearStartDate?: SortOrderInput | SortOrder
+    directorName?: SortOrderInput | SortOrder
+    directorGender?: SortOrderInput | SortOrder
+    schoolLogo?: SortOrderInput | SortOrder
   }
 
   export type SettingsWhereUniqueInput = Prisma.AtLeast<{
@@ -32730,6 +32778,9 @@ export namespace Prisma {
     roleId?: StringNullableFilter<"Settings"> | string | null
     permissions?: JsonNullableFilter<"Settings">
     schoolYearStartDate?: DateTimeNullableFilter<"Settings"> | Date | string | null
+    directorName?: StringNullableFilter<"Settings"> | string | null
+    directorGender?: StringNullableFilter<"Settings"> | string | null
+    schoolLogo?: StringNullableFilter<"Settings"> | string | null
   }, "id">
 
   export type SettingsOrderByWithAggregationInput = {
@@ -32745,6 +32796,9 @@ export namespace Prisma {
     roleId?: SortOrderInput | SortOrder
     permissions?: SortOrderInput | SortOrder
     schoolYearStartDate?: SortOrderInput | SortOrder
+    directorName?: SortOrderInput | SortOrder
+    directorGender?: SortOrderInput | SortOrder
+    schoolLogo?: SortOrderInput | SortOrder
     _count?: SettingsCountOrderByAggregateInput
     _avg?: SettingsAvgOrderByAggregateInput
     _max?: SettingsMaxOrderByAggregateInput
@@ -32768,6 +32822,9 @@ export namespace Prisma {
     roleId?: StringNullableWithAggregatesFilter<"Settings"> | string | null
     permissions?: JsonNullableWithAggregatesFilter<"Settings">
     schoolYearStartDate?: DateTimeNullableWithAggregatesFilter<"Settings"> | Date | string | null
+    directorName?: StringNullableWithAggregatesFilter<"Settings"> | string | null
+    directorGender?: StringNullableWithAggregatesFilter<"Settings"> | string | null
+    schoolLogo?: StringNullableWithAggregatesFilter<"Settings"> | string | null
   }
 
   export type ClassesWhereInput = {
@@ -34835,6 +34892,9 @@ export namespace Prisma {
     roleId?: string | null
     permissions?: NullableJsonNullValueInput | InputJsonValue
     schoolYearStartDate?: Date | string | null
+    directorName?: string | null
+    directorGender?: string | null
+    schoolLogo?: string | null
   }
 
   export type SettingsUncheckedCreateInput = {
@@ -34850,6 +34910,9 @@ export namespace Prisma {
     roleId?: string | null
     permissions?: NullableJsonNullValueInput | InputJsonValue
     schoolYearStartDate?: Date | string | null
+    directorName?: string | null
+    directorGender?: string | null
+    schoolLogo?: string | null
   }
 
   export type SettingsUpdateInput = {
@@ -34864,6 +34927,9 @@ export namespace Prisma {
     roleId?: NullableStringFieldUpdateOperationsInput | string | null
     permissions?: NullableJsonNullValueInput | InputJsonValue
     schoolYearStartDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    directorName?: NullableStringFieldUpdateOperationsInput | string | null
+    directorGender?: NullableStringFieldUpdateOperationsInput | string | null
+    schoolLogo?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
   export type SettingsUncheckedUpdateInput = {
@@ -34879,6 +34945,9 @@ export namespace Prisma {
     roleId?: NullableStringFieldUpdateOperationsInput | string | null
     permissions?: NullableJsonNullValueInput | InputJsonValue
     schoolYearStartDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    directorName?: NullableStringFieldUpdateOperationsInput | string | null
+    directorGender?: NullableStringFieldUpdateOperationsInput | string | null
+    schoolLogo?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
   export type SettingsCreateManyInput = {
@@ -34894,6 +34963,9 @@ export namespace Prisma {
     roleId?: string | null
     permissions?: NullableJsonNullValueInput | InputJsonValue
     schoolYearStartDate?: Date | string | null
+    directorName?: string | null
+    directorGender?: string | null
+    schoolLogo?: string | null
   }
 
   export type SettingsUpdateManyMutationInput = {
@@ -34908,6 +34980,9 @@ export namespace Prisma {
     roleId?: NullableStringFieldUpdateOperationsInput | string | null
     permissions?: NullableJsonNullValueInput | InputJsonValue
     schoolYearStartDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    directorName?: NullableStringFieldUpdateOperationsInput | string | null
+    directorGender?: NullableStringFieldUpdateOperationsInput | string | null
+    schoolLogo?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
   export type SettingsUncheckedUpdateManyInput = {
@@ -34923,6 +34998,9 @@ export namespace Prisma {
     roleId?: NullableStringFieldUpdateOperationsInput | string | null
     permissions?: NullableJsonNullValueInput | InputJsonValue
     schoolYearStartDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    directorName?: NullableStringFieldUpdateOperationsInput | string | null
+    directorGender?: NullableStringFieldUpdateOperationsInput | string | null
+    schoolLogo?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
   export type ClassesCreateInput = {
@@ -37230,6 +37308,9 @@ export namespace Prisma {
     roleId?: SortOrder
     permissions?: SortOrder
     schoolYearStartDate?: SortOrder
+    directorName?: SortOrder
+    directorGender?: SortOrder
+    schoolLogo?: SortOrder
   }
 
   export type SettingsAvgOrderByAggregateInput = {
@@ -37249,6 +37330,9 @@ export namespace Prisma {
     activeSchoolYear?: SortOrder
     roleId?: SortOrder
     schoolYearStartDate?: SortOrder
+    directorName?: SortOrder
+    directorGender?: SortOrder
+    schoolLogo?: SortOrder
   }
 
   export type SettingsMinOrderByAggregateInput = {
@@ -37263,6 +37347,9 @@ export namespace Prisma {
     activeSchoolYear?: SortOrder
     roleId?: SortOrder
     schoolYearStartDate?: SortOrder
+    directorName?: SortOrder
+    directorGender?: SortOrder
+    schoolLogo?: SortOrder
   }
 
   export type SettingsSumOrderByAggregateInput = {

@@ -129,7 +129,10 @@ exports.Prisma.SettingsScalarFieldEnum = {
   activeSchoolYear: 'activeSchoolYear',
   roleId: 'roleId',
   permissions: 'permissions',
-  schoolYearStartDate: 'schoolYearStartDate'
+  schoolYearStartDate: 'schoolYearStartDate',
+  directorName: 'directorName',
+  directorGender: 'directorGender',
+  schoolLogo: 'schoolLogo'
 };
 
 exports.Prisma.ClassesScalarFieldEnum = {

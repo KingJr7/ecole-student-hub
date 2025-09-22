@@ -39,7 +39,18 @@ if (isDev) {
 
 process.env.DATABASE_URL = `file:${dbPath}`;
 console.log(`[main.cjs] Chemin de la base de données défini à : ${process.env.DATABASE_URL}`);
-dotenv.config();
+
+// Charger les autres variables d'environnement
+if (isDev) {
+  dotenv.config();
+} else {
+  const envPath = path.join(process.resourcesPath, '.env');
+  if (fs.existsSync(envPath)) {
+    dotenv.config({ path: envPath });
+  } else {
+    console.error('Fichier .env de production introuvable!');
+  }
+}
 
 // --- MIGRATIONS ---
 const { runProductionMigration } = require('./migration.cjs');
@@ -129,24 +140,84 @@ app.whenReady().then(async () => {
 
   await prisma.$connect();
 
-  const imagesDir = path.join(app.getPath('userData'), 'images', 'students');
-  if (!fs.existsSync(imagesDir)) {
-    fs.mkdirSync(imagesDir, { recursive: true });
+  const studentImagesDir = path.join(app.getPath('userData'), 'images', 'students');
+  if (!fs.existsSync(studentImagesDir)) {
+    fs.mkdirSync(studentImagesDir, { recursive: true });
+  }
+  const schoolImagesDir = path.join(app.getPath('userData'), 'images', 'school');
+  if (!fs.existsSync(schoolImagesDir)) {
+    fs.mkdirSync(schoolImagesDir, { recursive: true });
   }
 
   setupDatabaseIPC(prisma);
   setupAuthIPC(prisma);
-  setupSyncIPC(prisma, imagesDir);
+  setupSyncIPC(prisma, studentImagesDir);
 
   protocol.registerFileProtocol('ntik-fs', (request, callback) => {
     const url = request.url.replace('ntik-fs://', '');
-    const imagePath = path.join(imagesDir, url);
-    callback({ path: imagePath });
+    // Tente de résoudre d'abord dans le dossier de l'école, puis celui des étudiants
+    const schoolImagePath = path.join(schoolImagesDir, url);
+    if (fs.existsSync(schoolImagePath)) {
+      return callback({ path: schoolImagePath });
+    }
+    const studentImagePath = path.join(studentImagesDir, url);
+    callback({ path: studentImagePath });
+  });
+
+  ipcMain.handle('settings:get-school-logo-base64', async () => {
+    try {
+      const settings = await prisma.settings.findUnique({ where: { id: 1 } });
+      if (settings && settings.schoolLogo) {
+        const imagePath = path.join(schoolImagesDir, settings.schoolLogo);
+        if (fs.existsSync(imagePath)) {
+          const data = fs.readFileSync(imagePath);
+          const base64 = data.toString('base64');
+          return `data:image/webp;base64,${base64}`;
+        }
+      }
+    } catch (error) {
+      console.error(`Failed to read school logo:`, error);
+    }
+    return null;
+  });
+
+  ipcMain.handle('settings:set-school-logo', async () => {
+    const { canceled, filePaths } = await dialog.showOpenDialog({
+      properties: ['openFile'],
+      filters: [{ name: 'Images', extensions: ['jpg', 'jpeg', 'png', 'webp'] }],
+    });
+
+    if (canceled || filePaths.length === 0) {
+      return null;
+    }
+
+    const sourcePath = filePaths[0];
+    const newFileName = `logo-${Date.now()}.webp`;
+    const savePath = path.join(schoolImagesDir, newFileName);
+
+    try {
+      await sharp(sourcePath)
+        .resize(256, 256, { fit: 'inside', withoutEnlargement: true })
+        .webp({ quality: 90 })
+        .toFile(savePath);
+
+      // Mettre à jour le nom du fichier dans la base de données
+      await prisma.settings.upsert({
+        where: { id: 1 },
+        update: { schoolLogo: newFileName },
+        create: { schoolLogo: newFileName, loggedIn: 0 },
+      });
+
+      return newFileName;
+    } catch (error) {
+      console.error("Erreur lors du traitement du logo de l'école:", error);
+      return null;
+    }
   });
 
   ipcMain.handle('images:get-base64', async (event, fileName) => {
     if (!fileName) return null;
-    const imagePath = path.join(imagesDir, fileName);
+    const imagePath = path.join(studentImagesDir, fileName);
     try {
       if (fs.existsSync(imagePath)) {
         const data = fs.readFileSync(imagePath);

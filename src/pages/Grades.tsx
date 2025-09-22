@@ -202,21 +202,24 @@ const Grades = () => {
   const [selectedQuarter, setSelectedQuarter] = useState<string>("1");
   const [loading, setLoading] = useState(true);
   const [settings, setSettings] = useState(null);
+  const [schoolLogo, setSchoolLogo] = useState<string | null>(null);
 
   useEffect(() => {
     const loadData = async () => {
       setLoading(true);
       try {
-        const [classesData, lessonsData, studentsData, settingsData] = await Promise.all([
+        const [classesData, lessonsData, studentsData, settingsData, logoData] = await Promise.all([
           db.getAllClasses(),
           db.getAllLessons(),
           db.getAllStudents(),
           db.getSettings(),
+          db.getSchoolLogoBase64(),
         ]);
         setClasses(classesData || []);
         setLessons(lessonsData || []);
         setStudents(studentsData || []);
         setSettings(settingsData);
+        setSchoolLogo(logoData);
         if (classesData?.length > 0) {
           setSelectedClassId(classesData[0].id.toString());
         }
@@ -250,13 +253,19 @@ const Grades = () => {
     const selectedClass = classes.find(c => c.id === parseInt(selectedClassId, 10));
     const schoolName = settings?.schoolName || "Mon École";
     const schoolAddress = settings?.schoolAddress || "Adresse de l'école";
+    const directorTitle = settings?.directorGender === 'female' ? 'La Directrice' : 'Le Directeur';
+    const directorName = settings?.directorName || "";
 
     // --- HEADER ---
-    doc.setFillColor(240, 240, 240);
-    doc.rect(14, 10, 25, 25, 'F');
-    doc.setTextColor(150, 150, 150);
-    doc.setFontSize(10);
-    doc.text("Logo", 26.5, 24, { align: 'center' });
+    if (schoolLogo) {
+      doc.addImage(schoolLogo, 'WEBP', 14, 10, 25, 25);
+    } else {
+      doc.setFillColor(240, 240, 240);
+      doc.rect(14, 10, 25, 25, 'F');
+      doc.setTextColor(150, 150, 150);
+      doc.setFontSize(10);
+      doc.text("Logo", 26.5, 24, { align: 'center' });
+    }
 
     doc.setTextColor(0, 0, 0);
     doc.setFontSize(18);
@@ -308,9 +317,10 @@ const Grades = () => {
 
     // --- FOOTER ---
     doc.setFontSize(10);
-    doc.text("Le Directeur", 105, finalY, { align: 'center' });
-    doc.setFont("helvetica", "italic");
-    doc.text("(Nom mocké du Directeur)", 105, finalY + 5, { align: 'center' });
+    doc.setFont("helvetica", "normal");
+    doc.text(directorTitle, 105, finalY, { align: 'center' });
+    doc.setFont("helvetica", "bold");
+    doc.text(directorName, 105, finalY + 5, { align: 'center' });
 
     doc.save(`resultats_${selectedClass?.name}_T${selectedQuarter}.pdf`);
   };
@@ -320,16 +330,22 @@ const Grades = () => {
     const selectedClass = classes.find(c => c.id === parseInt(selectedClassId, 10));
     const schoolName = settings?.schoolName || "Mon École";
     const schoolAddress = settings?.schoolAddress || "Adresse de l'école";
+    const directorTitle = settings?.directorGender === 'female' ? 'La Directrice' : 'Le Directeur';
+    const directorName = settings?.directorName || "";
 
     for (const [index, result] of classResults.entries()) {
       if (index > 0) doc.addPage();
 
       // --- HEADER ---
-      doc.setFillColor(240, 240, 240);
-      doc.rect(14, 10, 25, 25, 'F');
-      doc.setTextColor(150, 150, 150);
-      doc.setFontSize(10);
-      doc.text("Logo", 26.5, 24, { align: 'center' });
+      if (schoolLogo) {
+        doc.addImage(schoolLogo, 'WEBP', 14, 10, 25, 25);
+      } else {
+        doc.setFillColor(240, 240, 240);
+        doc.rect(14, 10, 25, 25, 'F');
+        doc.setTextColor(150, 150, 150);
+        doc.setFontSize(10);
+        doc.text("Logo", 26.5, 24, { align: 'center' });
+      }
 
       doc.setTextColor(0, 0, 0);
       doc.setFontSize(18);
@@ -432,9 +448,10 @@ const Grades = () => {
 
       doc.setFontSize(10);
       doc.text("Signature des Parents", 30, finalY, { align: 'center' });
-      doc.text("Le Directeur", 160, finalY, { align: 'center' });
-      doc.setFont("helvetica", "italic");
-      doc.text("(Nom mocké du Directeur)", 160, finalY + 5, { align: 'center' });
+      doc.setFont("helvetica", "normal");
+      doc.text(directorTitle, 160, finalY, { align: 'center' });
+      doc.setFont("helvetica", "bold");
+      doc.text(directorName, 160, finalY + 5, { align: 'center' });
     }
     doc.save(`bulletins_${selectedClass?.name}_T${selectedQuarter}.pdf`);
   };

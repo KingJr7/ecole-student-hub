@@ -22,6 +22,9 @@ model Settings {
   roleId              String?
   permissions         Json?
   schoolYearStartDate DateTime?
+  directorName        String?
+  directorGender      String?
+  schoolLogo          String?
 
   @@map("settings")
 }

@@ -24,7 +24,7 @@
     "build:linux": "vite build && cross-env NODE_ENV=production electron-builder --linux AppImage --linux deb -p always",
     "build:windows": "vite build && cross-env NODE_ENV=production electron-builder --win nsis --publish always",
     "build:windows:local": "vite build && cross-env NODE_ENV=production electron-builder --win nsis",
-    "release": "vite build && electron-builder build --publish always",
+    "build:windows:just": "cross-env NODE_ENV=production electron-builder build --win nsis",
     "postinstall": "electron-builder install-app-deps",
     "rebuild": "electron-rebuild -f",
     "clear-db": "node scripts/clear-db.cjs"

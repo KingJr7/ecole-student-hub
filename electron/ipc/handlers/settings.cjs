@@ -9,11 +9,11 @@ function setupSettingsIPC(prisma) {
   });
 
   ipcMain.handle('db:settings:update', async (event, data) => {
-    const { schoolName, schoolAddress } = data;
+    const { schoolName, schoolAddress, directorName, directorGender } = data;
     const updatedSettings = await prisma.settings.upsert({
       where: { id: 1 },
-      update: { schoolName, schoolAddress },
-      create: { schoolName, schoolAddress },
+      update: { schoolName, schoolAddress, directorName, directorGender },
+      create: { schoolName, schoolAddress, directorName, directorGender, loggedIn: 0 },
     });
 
     isOnline().then(online => {

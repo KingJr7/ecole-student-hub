@@ -18,12 +18,13 @@ import {
   DialogFooter,
 } from "@/components/ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Phone, MessageSquare, Printer, Calendar as CalendarIcon } from "lucide-react";
+import { Phone, MessageSquare, Printer, Calendar as CalendarIcon, Image as ImageIcon } from "lucide-react";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Calendar } from "@/components/ui/calendar";
 import { format } from "date-fns";
 import { fr } from "date-fns/locale";
 import { ThemeToggle } from "@/components/ui/ThemeToggle";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 
 interface PrinterInfo {
   name: string;
@@ -33,14 +34,17 @@ interface PrinterInfo {
 const Settings: React.FC = () => {
   const { toast } = useToast();
   const navigate = useNavigate();
-  const { getSettings, updateSettings, getPrinters } = useDatabase();
+  const { getSettings, updateSettings, getPrinters, setSchoolLogo, getSchoolLogoBase64 } = useDatabase();
 
   const [formData, setFormData] = useState({ 
     schoolName: "", 
     schoolAddress: "",
+    directorName: "",
+    directorGender: "",
     printerName: "",
     schoolYearStartDate: null as Date | null,
   });
+  const [schoolLogoPreview, setSchoolLogoPreview] = useState<string | null>(null);
   const [printers, setPrinters] = useState<PrinterInfo[]>([]);
   const [loading, setLoading] = useState(true);
   const [resetLoading, setResetLoading] = useState(false);
@@ -55,10 +59,15 @@ const Settings: React.FC = () => {
           setFormData({
             schoolName: settings.schoolName || "",
             schoolAddress: settings.schoolAddress || "",
+            directorName: settings.directorName || "",
+            directorGender: settings.directorGender || "",
             printerName: settings.printerName || "",
             schoolYearStartDate: settings.schoolYearStartDate ? new Date(settings.schoolYearStartDate) : null,
           });
         }
+        const logoBase64 = await getSchoolLogoBase64();
+        setSchoolLogoPreview(logoBase64);
+
         const availablePrinters = await getPrinters();
         setPrinters(availablePrinters || []);
       } catch (error) {
@@ -69,11 +78,15 @@ const Settings: React.FC = () => {
       }
     };
     loadInitialData();
-  }, [getSettings, getPrinters, toast]);
+  }, [getSettings, getPrinters, getSchoolLogoBase64, toast]);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { id, value } = e.target;
     setFormData(prev => ({ ...prev, [id]: value }));
+  };
+
+  const handleGenderChange = (value: "male" | "female") => {
+    setFormData(prev => ({ ...prev, directorGender: value }));
   };
 
   const handleDateChange = (date: Date | undefined) => {
@@ -82,6 +95,20 @@ const Settings: React.FC = () => {
 
   const handlePrinterChange = (value: string) => {
     setFormData(prev => ({ ...prev, printerName: value }));
+  };
+
+  const handleLogoChange = async () => {
+    try {
+      const newLogoFile = await setSchoolLogo();
+      if (newLogoFile) {
+        const logoBase64 = await getSchoolLogoBase64();
+        setSchoolLogoPreview(logoBase64);
+        toast({ title: "Succès", description: "Logo de l'école mis à jour." });
+      }
+    } catch (error) {
+      console.error("Failed to set school logo", error);
+      toast({ title: "Erreur", description: "Impossible de mettre à jour le logo.", variant: "destructive" });
+    }
   };
 
   const handleSave = async () => {
@@ -144,6 +171,52 @@ const Settings: React.FC = () => {
                 </div>
 
                 <div className="space-y-2"><Label htmlFor="schoolYearStartDate">Date de la rentrée scolaire</Label><Popover><PopoverTrigger asChild><Button variant={"outline"} className={`w-full justify-start text-left font-normal ${!formData.schoolYearStartDate && "text-muted-foreground"}`}><CalendarIcon className="mr-2 h-4 w-4" />{formData.schoolYearStartDate ? (format(formData.schoolYearStartDate, "PPP", { locale: fr })) : (<span>Choisir une date</span>)}</Button></PopoverTrigger><PopoverContent className="w-auto p-0"><Calendar mode="single" selected={formData.schoolYearStartDate} onSelect={handleDateChange} initialFocus /></PopoverContent></Popover><p className="text-xs text-gray-500">Cette date sera utilisée comme point de départ pour le calcul des frais hebdomadaires.</p></div>
+                
+                <Separator className="my-4" />
+
+                <div>
+                  <h3 className="text-lg font-medium text-school-700 mb-4">Informations pour les bulletins</h3>
+                  <div className="space-y-4">
+                    <div className="space-y-2">
+                      <Label>Logo de l'école</Label>
+                      <div className="flex items-center gap-4">
+                        {schoolLogoPreview ? (
+                          <img src={schoolLogoPreview} alt="Aperçu du logo" className="w-20 h-20 rounded-lg object-cover border" />
+                        ) : (
+                          <div className="w-20 h-20 rounded-lg bg-gray-100 flex items-center justify-center border">
+                            <ImageIcon className="w-8 h-8 text-gray-400" />
+                          </div>
+                        )}
+                        <Button variant="outline" onClick={handleLogoChange}>Changer le logo</Button>
+                      </div>
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="directorName">Nom du directeur/de la directrice</Label>
+                      <Input
+                        id="directorName"
+                        value={formData.directorName}
+                        onChange={handleInputChange}
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label>Sexe du directeur/de la directrice</Label>
+                      <RadioGroup
+                        value={formData.directorGender}
+                        onValueChange={handleGenderChange}
+                        className="flex items-center gap-4"
+                      >
+                        <div className="flex items-center space-x-2">
+                          <RadioGroupItem value="male" id="male" />
+                          <Label htmlFor="male">Homme</Label>
+                        </div>
+                        <div className="flex items-center space-x-2">
+                          <RadioGroupItem value="female" id="female" />
+                          <Label htmlFor="female">Femme</Label>
+                        </div>
+                      </RadioGroup>
+                    </div>
+                  </div>
+                </div>
 
                 <Separator className="my-4" />
 

@@ -14,6 +14,8 @@ export function useDatabase() {
   // #region Settings
   const getSettings = useCallback(() => invoke('db:settings:get'), []);
   const updateSettings = useCallback((data: any) => invoke('db:settings:update', data), []);
+  const setSchoolLogo = useCallback(() => invoke('settings:set-school-logo'), []);
+  const getSchoolLogoBase64 = useCallback(() => invoke('settings:get-school-logo-base64'), []);
   // #endregion
 
   // #region Classes
@@ -164,7 +166,7 @@ export function useDatabase() {
   // #endregion
 
   return useMemo(() => ({
-    getSettings, updateSettings,
+    getSettings, updateSettings, setSchoolLogo, getSchoolLogoBase64,
     getAllClasses, createClass, updateClass, deleteClass,
     getAllStudents, createStudent, updateStudent, deleteStudent, getRecentStudents, getStudentDetails,
     getAllTeachers, createTeacher, updateTeacher, deleteTeacher,
