@@ -6,9 +6,15 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 import { useToast } from "@/components/ui/use-toast";
+import { useAuth } from "@/context/AuthContext";
+import { getAccessLevel, PERMISSIONS } from "@/lib/permissions";
 import { Schedule } from '@/components/Schedule'; // Importer le composant réutilisable
 
 const SchedulesPage = () => {
+  const { user } = useAuth();
+  const accessLevel = getAccessLevel(user?.role, user?.permissions, PERMISSIONS.CAN_MANAGE_SCHEDULES);
+  const isReadOnly = accessLevel === 'read_only';
+
   const { getAllClasses, getClassSubjects, createSchedule, getSchedulesForClass, deleteSchedule } = useDatabase();
   const { toast } = useToast();
   const [classes, setClasses] = useState([]);
@@ -58,13 +64,14 @@ const SchedulesPage = () => {
   }, [selectedClass]);
 
   const handleOpenAddDialog = (day, time) => {
+    if (isReadOnly) return;
     setNewScheduleSlot({ day, time });
     setSelectedLessonId('');
     setIsAddDialogOpen(true);
   };
 
   const handleSaveSchedule = async () => {
-    if (!selectedLessonId || !newScheduleSlot) return;
+    if (isReadOnly || !selectedLessonId || !newScheduleSlot) return;
     const lesson_id = parseInt(selectedLessonId, 10);
     const { day, time } = newScheduleSlot;
     const end_time = `${parseInt(time.split(':')[0]) + 1}:00`;
@@ -80,6 +87,7 @@ const SchedulesPage = () => {
   };
 
   const handleDeleteSchedule = async (scheduleId) => {
+    if (isReadOnly) return;
     try {
       await deleteSchedule(scheduleId);
       toast({ description: "Cours supprimé.", variant: "success" });
@@ -111,6 +119,7 @@ const SchedulesPage = () => {
                 <Schedule 
                     isLoading={isLoadingSchedule}
                     schedules={schedules}
+                    isReadOnly={isReadOnly}
                     handleOpenAddDialog={handleOpenAddDialog}
                     handleDeleteSchedule={handleDeleteSchedule}
                 />
@@ -143,10 +152,10 @@ const SchedulesPage = () => {
               </SelectContent>
             </Select>
           </div>
-          <DialogFooter>
+          {!isReadOnly && <DialogFooter>
             <Button variant="outline" onClick={() => setIsAddDialogOpen(false)}>Annuler</Button>
             <Button onClick={handleSaveSchedule}>Ajouter</Button>
-          </DialogFooter>
+          </DialogFooter>}
         </DialogContent>
       </Dialog>
     </MainLayout>

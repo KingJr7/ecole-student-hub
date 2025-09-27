@@ -7,14 +7,13 @@ Project n_school_hub {
   Note: 'Schéma de la base de données Ntik School Hub sur Supabase'
 }
 
-Table schools {
-  id uuid [pk, default: `gen_random_uuid()`]
-  name text [not null]
-  address text
-  phone text
-  email text
-  registration_code text
-  created_at date [default: `CURRENT_DATE`]
+Table activity_logs {
+  id uuid [pk, not null, default: `gen_random_uuid()`]
+  user_id uuid
+  action text
+  target_table text
+  target_id uuid
+  timestamp timestamp [default: `CURRENT_TIMESTAMP`]
   local_id integer
   is_synced boolean [default: false]
   sync_timestamp timestamptz
@@ -22,9 +21,12 @@ Table schools {
   last_modified timestamptz [default: `now()`]
 }
 
-Table roles {
-  id uuid [pk, default: `gen_random_uuid()`]
-  name text [not null]
+Table attendances {
+  id uuid [pk, not null, default: `gen_random_uuid()`]
+  student_id uuid
+  date date
+  state text
+  justification text
   local_id integer
   is_synced boolean [default: false]
   sync_timestamp timestamptz
@@ -32,42 +34,20 @@ Table roles {
   last_modified timestamptz [default: `now()`]
 }
 
-Table users {
-  id uuid [pk, default: `gen_random_uuid()`]
-  name text [not null]
-  first_name text [not null]
-  phone text
-  email text
-  password_hash text [not null]
-  role_id uuid
+Table budgets {
+  id uuid [pk, not null, default: `gen_random_uuid()`]
+  category text [not null]
+  amount float8 [not null]
+  period_start timestamptz [not null]
+  period_end timestamptz [not null]
   school_id uuid
-  profile_picture_url text
-  local_id integer
-  is_synced boolean [default: false]
-  sync_timestamp timestamptz
-  is_deleted boolean [default: false]
   last_modified timestamptz [default: `now()`]
-}
-
-Table screens {
-  id uuid [pk, default: `gen_random_uuid()`]
-  name text [not null]
-  description text
-  created_at timestamptz [not null, default: `now()`]
-}
-
-Table role_permissions {
-  id uuid [pk, default: `gen_random_uuid()`]
-  role_id uuid [not null]
-  screen_id uuid [not null]
-  school_id uuid [not null]
-  access_level text [not null]
-  created_at timestamptz [not null, default: `now()`]
-  last_modified timestamptz [not null, default: `now()`]
+  is_deleted boolean [default: false]
+  local_id integer
 }
 
 Table classes {
-  id uuid [pk, default: `gen_random_uuid()`]
+  id uuid [pk, not null, default: `gen_random_uuid()`]
   name text [not null]
   level text
   school_id uuid
@@ -78,64 +58,28 @@ Table classes {
   last_modified timestamptz [default: `now()`]
 }
 
-Table students {
-  id uuid [pk, default: `gen_random_uuid()`]
+Table dispatch_rule_details {
+  id uuid [pk, not null, default: `gen_random_uuid()`]
+  dispatch_rule_id uuid [not null]
+  destination_category_id uuid [not null]
+  percentage numeric [not null]
+  created_at timestamptz [not null, default: `now()`]
+  last_modified timestamptz [not null, default: `now()`]
+  is_deleted boolean [not null, default: false]
+}
+
+Table dispatch_rules {
+  id uuid [pk, not null, default: `gen_random_uuid()`]
   name text [not null]
-  first_name text [not null]
-  genre text
-  birth_date date
-  matricul text
-  local_id integer
-  is_synced boolean [default: false]
-  sync_timestamp timestamptz
-  is_deleted boolean [default: false]
-  last_modified timestamptz [default: `now()`]
-  picture_url text
-}
-
-Table parents {
-  id uuid [pk, default: `gen_random_uuid()`]
-  profession text
-  address text
-  name text
-  phone text
-  email text
-  local_id integer
-  is_synced boolean [default: false]
-  sync_timestamp timestamptz
-  is_deleted boolean [default: false]
-  last_modified timestamptz [default: `now()`]
-  school_id uuid
-  first_name text
-}
-
-Table student_parents {
-  id uuid [pk, default: `gen_random_uuid()`]
-  student_id uuid
-  parent_id uuid
-  relation text
-  local_id integer
-  is_synced boolean [default: false]
-  sync_timestamp timestamptz
-  is_deleted boolean [default: false]
-  last_modified timestamptz [default: `now()`]
-}
-
-Table teachers {
-  id uuid [pk, default: `gen_random_uuid()`]
-  user_id uuid
-  speciality text
-  matricule text
-  local_id integer
-  is_synced boolean [default: false]
-  sync_timestamp timestamptz
-  is_deleted boolean [default: false]
-  last_modified timestamptz [default: `now()`]
-  "hourlyRate" real [default: 0]
+  source_fee_id uuid [not null]
+  school_id uuid [not null]
+  created_at timestamptz [not null, default: `now()`]
+  last_modified timestamptz [not null, default: `now()`]
+  is_deleted boolean [not null, default: false]
 }
 
 Table employees {
-  id uuid [pk, default: `gen_random_uuid()`]
+  id uuid [pk, not null, default: `gen_random_uuid()`]
   user_id uuid
   job_title text
   salary float8
@@ -148,64 +92,43 @@ Table employees {
   last_modified timestamptz [default: `now()`]
 }
 
-Table subjects {
-  id uuid [pk, default: `gen_random_uuid()`]
+Table events {
+  id uuid [pk, not null, default: `uuid_generate_v4()`]
+  title text [not null]
+  description text
+  date timestamptz [not null]
+  location text
+  image_url text
+  school_id uuid [not null]
+  created_at timestamptz [default: `now()`]
+  updated_at timestamptz [default: `now()`]
+}
+
+Table expo_push_tokens {
+  id uuid [pk, not null, default: `gen_random_uuid()`]
+  user_id uuid [not null]
+  token text [not null]
+  created_at timestamptz [not null, default: `now()`]
+  last_modified timestamptz [not null, default: `now()`]
+}
+
+Table fee_templates {
+  id uuid [pk, not null, default: `gen_random_uuid()`]
   name text [not null]
-  school_id uuid
-  class_id uuid
-  school_year text
-  coefficient integer
-  local_id integer
-  is_synced boolean [default: false]
-  sync_timestamp timestamptz
-  is_deleted boolean [default: false]
+  amount float8 [not null]
+  frequency text [not null]
+  due_day integer
+  applicable_months jsonb
+  school_id uuid [not null]
+  applies_to_level text
+  applies_to_class_id uuid
   last_modified timestamptz [default: `now()`]
-}
-
-Table lessons {
-  id uuid [pk, default: `gen_random_uuid()`]
-  teacher_id uuid
-  class_id uuid
-  subject_id uuid
-  school_year text
-  local_id integer
-  is_synced boolean [default: false]
-  sync_timestamp timestamptz
   is_deleted boolean [default: false]
-  last_modified timestamptz [default: `now()`]
-}
-
-Table notes {
-  id uuid [pk, default: `gen_random_uuid()`]
-  student_id uuid
-  lesson_id uuid
-  value float8
-  type text
-  quarter integer
   local_id integer
-  is_synced boolean [default: false]
-  sync_timestamp timestamptz
-  is_deleted boolean [default: false]
-  last_modified timestamptz [default: `now()`]
-}
-
-Table registrations {
-  id uuid [pk, default: `gen_random_uuid()`]
-  student_id uuid
-  class_id uuid
-  school_id uuid
-  school_year text
-  state text
-  registration_date date [default: `CURRENT_DATE`]
-  local_id integer
-  is_synced boolean [default: false]
-  sync_timestamp timestamptz
-  is_deleted boolean [default: false]
-  last_modified timestamptz [default: `now()`]
 }
 
 Table fees {
-  id uuid [pk, default: `gen_random_uuid()`]
+  id uuid [pk, not null, default: `gen_random_uuid()`]
   school_id uuid
   name text
   amount float8
@@ -220,8 +143,87 @@ Table fees {
   class_id uuid
 }
 
+Table financial_categories {
+  id uuid [pk, not null, default: `gen_random_uuid()`]
+  name text [not null]
+  type text [not null]
+  last_modified timestamptz [not null, default: `now()`]
+  is_deleted boolean [not null, default: false]
+  local_id integer
+  school_id uuid
+}
+
+Table financial_reports {
+  id uuid [pk, not null, default: `gen_random_uuid()`]
+  title text [not null]
+  generated_at timestamptz [not null]
+  start_date timestamptz [not null]
+  end_date timestamptz [not null]
+  content jsonb
+  school_id uuid
+  last_modified timestamptz [default: `now()`]
+  is_deleted boolean [default: false]
+  local_id integer
+}
+
+Table financial_transactions {
+  id uuid [pk, not null, default: `gen_random_uuid()`]
+  date timestamptz [not null]
+  description text [not null]
+  amount float8 [not null]
+  type text [not null]
+  category_id uuid [not null]
+  last_modified timestamptz [not null, default: `now()`]
+  is_deleted boolean [not null, default: false]
+  local_id integer
+  school_id uuid
+}
+
+Table lessons {
+  id uuid [pk, not null, default: `gen_random_uuid()`]
+  teacher_id uuid
+  class_id uuid
+  subject_id uuid
+  school_year text
+  local_id integer
+  is_synced boolean [default: false]
+  sync_timestamp timestamptz
+  is_deleted boolean [default: false]
+  last_modified timestamptz [default: `now()`]
+}
+
+Table notes {
+  id uuid [pk, not null, default: `gen_random_uuid()`]
+  student_id uuid
+  lesson_id uuid
+  value float8
+  type text
+  quarter integer
+  local_id integer
+  is_synced boolean [default: false]
+  sync_timestamp timestamptz
+  is_deleted boolean [default: false]
+  last_modified timestamptz [default: `now()`]
+}
+
+Table parents {
+  id uuid [pk, not null, default: `gen_random_uuid()`]
+  profession text
+  address text
+  name text
+  phone text
+  email text
+  local_id integer
+  is_synced boolean [default: false]
+  sync_timestamp timestamptz
+  is_deleted boolean [default: false]
+  last_modified timestamptz [default: `now()`]
+  school_id uuid
+  first_name text
+}
+
 Table payments {
-  id uuid [pk, default: `gen_random_uuid()`]
+  id uuid [pk, not null, default: `gen_random_uuid()`]
   registration_id uuid
   amount float8
   method text
@@ -238,12 +240,14 @@ Table payments {
   period_identifier text
 }
 
-Table attendances {
-  id uuid [pk, default: `gen_random_uuid()`]
+Table registrations {
+  id uuid [pk, not null, default: `gen_random_uuid()`]
   student_id uuid
-  date date
+  class_id uuid
+  school_id uuid
+  school_year text
   state text
-  justification text
+  registration_date date [default: `CURRENT_DATE`]
   local_id integer
   is_synced boolean [default: false]
   sync_timestamp timestamptz
@@ -251,13 +255,22 @@ Table attendances {
   last_modified timestamptz [default: `now()`]
 }
 
-Table schedules {
-  id uuid [pk, default: `gen_random_uuid()`]
-  lesson_id uuid
-  day_of_week text
-  start_time time
-  end_time time
+Table role_permissions {
+  id uuid [pk, not null, default: `gen_random_uuid()`]
+  role_id uuid [not null]
+  screen_id uuid [not null]
+  school_id uuid [not null]
+  access_level text [not null]
+  created_at timestamptz [not null, default: `now()`]
+  last_modified timestamptz [not null, default: `now()`]
+}
+
+Table roles {
+  id uuid [pk, not null, default: `gen_random_uuid()`]
+  name text [not null]
+  local_id integer
   is_synced boolean [default: false]
+  sync_timestamp timestamptz
   is_deleted boolean [default: false]
   last_modified timestamptz [default: `now()`]
 }
@@ -271,7 +284,81 @@ Table salary_payments {
   notes text
   last_modified timestamptz [default: `now()`]
   is_deleted boolean [default: false]
-  id uuid [pk, default: `gen_random_uuid()`]
+  id uuid [pk, not null, default: `gen_random_uuid()`]
+}
+
+Table schedules {
+  id uuid [pk, not null, default: `gen_random_uuid()`]
+  lesson_id uuid
+  day_of_week text
+  start_time time
+  end_time time
+  is_synced boolean [default: false]
+  is_deleted boolean [default: false]
+  last_modified timestamptz [default: `now()`]
+}
+
+Table schools {
+  id uuid [pk, not null, default: `gen_random_uuid()`]
+  name text [not null]
+  address text
+  phone text
+  email text
+  registration_code text
+  created_at date [default: `CURRENT_DATE`]
+  local_id integer
+  is_synced boolean [default: false]
+  sync_timestamp timestamptz
+  is_deleted boolean [default: false]
+  last_modified timestamptz [default: `now()`]
+}
+
+Table screens {
+  id uuid [pk, not null, default: `gen_random_uuid()`]
+  name text [not null]
+  description text
+  created_at timestamptz [not null, default: `now()`]
+}
+
+Table student_parents {
+  id uuid [pk, not null, default: `gen_random_uuid()`]
+  student_id uuid
+  parent_id uuid
+  relation text
+  local_id integer
+  is_synced boolean [default: false]
+  sync_timestamp timestamptz
+  is_deleted boolean [default: false]
+  last_modified timestamptz [default: `now()`]
+}
+
+Table students {
+  id uuid [pk, not null, default: `gen_random_uuid()`]
+  name text [not null]
+  first_name text [not null]
+  genre text
+  birth_date date
+  matricul text
+  local_id integer
+  is_synced boolean [default: false]
+  sync_timestamp timestamptz
+  is_deleted boolean [default: false]
+  last_modified timestamptz [default: `now()`]
+  picture_url text
+}
+
+Table subjects {
+  id uuid [pk, not null, default: `gen_random_uuid()`]
+  name text [not null]
+  school_id uuid
+  class_id uuid
+  school_year text
+  coefficient integer
+  local_id integer
+  is_synced boolean [default: false]
+  sync_timestamp timestamptz
+  is_deleted boolean [default: false]
+  last_modified timestamptz [default: `now()`]
 }
 
 Table teacher_work_hours {
@@ -284,112 +371,37 @@ Table teacher_work_hours {
   notes text
   last_modified timestamptz [default: `now()`]
   is_deleted boolean [default: false]
-  id uuid [pk, default: `gen_random_uuid()`]
+  id uuid [pk, not null, default: `gen_random_uuid()`]
 }
 
-Table financial_categories {
-  id uuid [pk, default: `gen_random_uuid()`]
-  name text [not null]
-  type text [not null]
-  last_modified timestamptz [not null, default: `now()`]
-  is_deleted boolean [not null, default: false]
-  local_id integer
-  school_id uuid
-}
-
-Table financial_transactions {
-  id uuid [pk, default: `gen_random_uuid()`]
-  date timestamptz [not null]
-  description text [not null]
-  amount float8 [not null]
-  type text [not null]
-  category_id uuid [not null]
-  last_modified timestamptz [not null, default: `now()`]
-  is_deleted boolean [not null, default: false]
-  local_id integer
-  school_id uuid
-}
-
-Table dispatch_rules {
-  id uuid [pk, default: `gen_random_uuid()`]
-  name text [not null]
-  source_fee_id uuid [not null]
-  school_id uuid [not null]
-  created_at timestamptz [not null, default: `now()`]
-  last_modified timestamptz [not null, default: `now()`]
-  is_deleted boolean [not null, default: false]
-}
-
-Table dispatch_rule_details {
-  id uuid [pk, default: `gen_random_uuid()`]
-  dispatch_rule_id uuid [not null]
-  destination_category_id uuid [not null]
-  percentage numeric [not null]
-  created_at timestamptz [not null, default: `now()`]
-  last_modified timestamptz [not null, default: `now()`]
-  is_deleted boolean [not null, default: false]
-}
-
-Table activity_logs {
-  id uuid [pk, default: `gen_random_uuid()`]
+Table teachers {
+  id uuid [pk, not null, default: `gen_random_uuid()`]
   user_id uuid
-  action text
-  target_table text
-  target_id uuid
-  timestamp timestamp [default: `CURRENT_TIMESTAMP`]
+  speciality text
+  matricule text
   local_id integer
   is_synced boolean [default: false]
   sync_timestamp timestamptz
   is_deleted boolean [default: false]
   last_modified timestamptz [default: `now()`]
+  "hourlyRate" real [default: '0'::real]
 }
 
-Table expo_push_tokens {
-  id uuid [pk, default: `gen_random_uuid()`]
-  user_id uuid [not null]
-  token text [not null]
-  created_at timestamptz [not null, default: `now()`]
-  last_modified timestamptz [not null, default: `now()`]
-}
-
-Table fee_templates {
-  id uuid [pk, default: `gen_random_uuid()`]
+Table users {
+  id uuid [pk, not null, default: `gen_random_uuid()`]
   name text [not null]
-  amount float8 [not null]
-  frequency text [not null]
-  due_day integer
-  applicable_months jsonb
-  school_id uuid [not null]
-  applies_to_level text
-  applies_to_class_id uuid
-  last_modified timestamptz [default: `now()`]
-  is_deleted boolean [default: false]
-  local_id integer
-}
-
-Table budgets {
-  id uuid [pk, default: `gen_random_uuid()`]
-  category text [not null]
-  amount float8 [not null]
-  period_start timestamptz [not null]
-  period_end timestamptz [not null]
+  first_name text [not null]
+  phone text
+  email text
+  password_hash text [not null]
+  role_id uuid
   school_id uuid
-  last_modified timestamptz [default: `now()`]
-  is_deleted boolean [default: false]
+  profile_picture_url text
   local_id integer
-}
-
-Table financial_reports {
-  id uuid [pk, default: `gen_random_uuid()`]
-  title text [not null]
-  generated_at timestamptz [not null]
-  start_date timestamptz [not null]
-  end_date timestamptz [not null]
-  content jsonb
-  school_id uuid
-  last_modified timestamptz [default: `now()`]
+  is_synced boolean [default: false]
+  sync_timestamp timestamptz
   is_deleted boolean [default: false]
-  local_id integer
+  last_modified timestamptz [default: `now()`]
 }
 
 

@@ -1,3 +1,6 @@
+import { useAuth } from "@/context/AuthContext";
+import { getAccessLevel, PERMISSIONS } from "@/lib/permissions";
+
 import { useState, useEffect, useCallback } from "react";
 import MainLayout from "@/components/Layout/MainLayout";
 import { Button } from "@/components/ui/button";
@@ -77,12 +80,14 @@ const ParentFormSection = ({
     relation, 
     currentStudent, 
     setCurrentStudent, 
-    handleSearchParent 
+    handleSearchParent,
+    isReadOnly
 }: { 
     relation: 'father' | 'mother';
     currentStudent: CurrentStudent;
     setCurrentStudent: React.Dispatch<React.SetStateAction<CurrentStudent>>;
     handleSearchParent: (relation: 'father' | 'mother', phone?: string) => Promise<void>;
+    isReadOnly: boolean;
 }) => {
     const parent = currentStudent.parentInfo?.[relation];
     
@@ -102,16 +107,16 @@ const ParentFormSection = ({
             <div className="space-y-2">
                 <Label>Téléphone</Label>
                 <div className="flex gap-2">
-                    <Input value={parent?.phone || ""} onChange={(e) => setParent('phone', e.target.value)} />
-                    <Button variant="outline" size="sm" onClick={() => handleSearchParent(relation, parent?.phone)}>Rechercher</Button>
+                    <Input disabled={isReadOnly} value={parent?.phone || ""} onChange={(e) => setParent('phone', e.target.value)} />
+                    {!isReadOnly && <Button variant="outline" size="sm" onClick={() => handleSearchParent(relation, parent?.phone)}>Rechercher</Button>}
                 </div>
             </div>
             <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-2"><Label>Prénom</Label><Input value={parent?.first_name || ""} onChange={(e) => setParent('first_name', e.target.value)} /></div>
-              <div className="space-y-2"><Label>Nom</Label><Input value={parent?.name || ""} onChange={(e) => setParent('name', e.target.value)} /></div>
+              <div className="space-y-2"><Label>Prénom</Label><Input disabled={isReadOnly} value={parent?.first_name || ""} onChange={(e) => setParent('first_name', e.target.value)} /></div>
+              <div className="space-y-2"><Label>Nom</Label><Input disabled={isReadOnly} value={parent?.name || ""} onChange={(e) => setParent('name', e.target.value)} /></div>
             </div>
-            <div className="space-y-2"><Label>Email</Label><Input type="email" value={parent?.email || ""} onChange={(e) => setParent('email', e.target.value)} /></div>
-            <div className="space-y-2"><Label>Profession</Label><Input value={parent?.profession || ""} onChange={(e) => setParent('profession', e.target.value)} /></div>
+            <div className="space-y-2"><Label>Email</Label><Input disabled={isReadOnly} type="email" value={parent?.email || ""} onChange={(e) => setParent('email', e.target.value)} /></div>
+            <div className="space-y-2"><Label>Profession</Label><Input disabled={isReadOnly} value={parent?.profession || ""} onChange={(e) => setParent('profession', e.target.value)} /></div>
         </div>
     );
 }
@@ -126,6 +131,10 @@ const Students = () => {
   const [students, setStudents] = useState<Student[]>([]);
   const [classes, setClasses] = useState<Class[]>([]);
   const [loading, setLoading] = useState(true);
+
+  const { user } = useAuth();
+  const accessLevel = getAccessLevel(user?.role, user?.permissions, PERMISSIONS.CAN_MANAGE_STUDENTS);
+  const isReadOnly = accessLevel === 'read_only';
 
   const { toast } = useToast();
   const { 
@@ -161,6 +170,7 @@ const Students = () => {
   });
 
   const handlePhotoUpload = async () => {
+    if (isReadOnly) return;
     const newPhotoName = await processStudentPhoto();
     if (newPhotoName) {
       setCurrentStudent(prev => ({ ...prev, picture_url: newPhotoName }));
@@ -168,7 +178,7 @@ const Students = () => {
   };
 
   const handleSearchParent = useCallback(async (relation: 'father' | 'mother', phone?: string) => {
-    if (!phone) return;
+    if (!phone || isReadOnly) return;
     try {
         const parent = await findParentByPhone(phone);
         if (parent) {
@@ -186,9 +196,10 @@ const Students = () => {
     } catch (error) {
         toast({ title: "Erreur", description: "La recherche a échoué.", variant: "destructive" });
     }
-  }, [findParentByPhone, toast]);
+  }, [findParentByPhone, toast, isReadOnly]);
 
   const handleSaveStudent = async () => {
+    if (isReadOnly) return;
     if (!currentStudent.firstName || !currentStudent.lastName || !currentStudent.classId) {
       toast({ title: "Champs requis", description: "Le prénom, le nom et la classe sont obligatoires.", variant: "destructive" });
       return;
@@ -228,7 +239,7 @@ const Students = () => {
   };
 
   const handleDeleteStudent = async () => {
-    if (!studentToDelete) return;
+    if (isReadOnly || !studentToDelete) return;
     try {
       await deleteStudent(studentToDelete);
       toast({ description: "Étudiant supprimé." });
@@ -240,6 +251,7 @@ const Students = () => {
   };
 
   const handleOpenAddDialog = () => {
+    if (isReadOnly) return;
     setCurrentStudent({ parentInfo: { father: {}, mother: {} }, picture_url: null, registrationDate: new Date().toISOString().split('T')[0] });
     setIsDialogOpen(true);
   };
@@ -249,7 +261,11 @@ const Students = () => {
     setIsDialogOpen(true);
   };
 
-  const handleOpenDeleteDialog = (studentId: number) => { setStudentToDelete(studentId); setIsDeleteDialogOpen(true); };
+  const handleOpenDeleteDialog = (studentId: number) => { 
+    if (isReadOnly) return;
+    setStudentToDelete(studentId); 
+    setIsDeleteDialogOpen(true); 
+  };
 
   return (
     <MainLayout>
@@ -258,7 +274,7 @@ const Students = () => {
           <h2 className="text-4xl font-extrabold tracking-tight">Gestion des Élèves</h2>
           <div className="flex gap-2">
             
-            <Button onClick={handleOpenAddDialog} className="bg-accent-hot hover:bg-accent-hot/90 text-accent-hot-foreground">Ajouter un élève</Button>
+            {!isReadOnly && <Button onClick={handleOpenAddDialog} className="bg-accent-hot hover:bg-accent-hot/90 text-accent-hot-foreground">Ajouter un élève</Button>}
           </div>
         </div>
 
@@ -285,10 +301,12 @@ const Students = () => {
                       <p className="text-sm font-medium text-muted-foreground">{student.className || 'Non assignée'}</p>
                     </div>
                 </CardContent>
-                <div className="p-4 pt-2 mt-auto flex justify-end space-x-2 bg-secondary/50 border-t">
-                    <Button size="sm" variant="outline" onClick={(e) => { e.stopPropagation(); handleOpenEditDialog(student); }}><Pencil className="h-4 w-4 mr-1" /> Modifier</Button>
-                    <Button size="sm" variant="destructive" onClick={(e) => { e.stopPropagation(); handleOpenDeleteDialog(student.id); }}><Trash2 className="h-4 w-4 mr-1" /> Supprimer</Button>
-                </div>
+                {!isReadOnly && (
+                  <div className="p-4 pt-2 mt-auto flex justify-end space-x-2 bg-secondary/50 border-t">
+                      <Button size="sm" variant="outline" onClick={(e) => { e.stopPropagation(); handleOpenEditDialog(student); }}><Pencil className="h-4 w-4 mr-1" /> Modifier</Button>
+                      <Button size="sm" variant="destructive" onClick={(e) => { e.stopPropagation(); handleOpenDeleteDialog(student.id); }}><Trash2 className="h-4 w-4 mr-1" /> Supprimer</Button>
+                  </div>
+                )}
               </Card>
             ))}
           </div>
@@ -301,9 +319,9 @@ const Students = () => {
               <TabsList className="w-full grid grid-cols-3"><TabsTrigger value="student">Infos Élève</TabsTrigger><TabsTrigger value="parents">Infos Parents</TabsTrigger><TabsTrigger value="photo">Photo</TabsTrigger></TabsList>
               <TabsContent value="student" className="py-4">
                 <div className="grid gap-4">
-                  <div className="grid grid-cols-2 gap-4"><div className="space-y-2"><Label>Prénom</Label><Input value={currentStudent.firstName || ""} onChange={(e) => setCurrentStudent(p => ({ ...p, firstName: e.target.value }))}/></div><div className="space-y-2"><Label>Nom</Label><Input value={currentStudent.lastName || ""} onChange={(e) => setCurrentStudent(p => ({ ...p, lastName: e.target.value }))}/></div></div>
-                  <div className="grid grid-cols-2 gap-4"><div className="space-y-2"><Label>Classe</Label><Select disabled={!!currentStudent.id} value={currentStudent.classId?.toString() || ""} onValueChange={(v) => setCurrentStudent(p => ({ ...p, classId: Number(v) }))}><SelectTrigger><SelectValue placeholder="Choisir..." /></SelectTrigger><SelectContent>{classes.map(c => <SelectItem key={c.id} value={c.id.toString()}>{c.name}</SelectItem>)}</SelectContent></Select></div><div className="space-y-2"><Label>Date d'inscription</Label><Input disabled={!!currentStudent.id} type="date" value={currentStudent.registrationDate || ""} onChange={(e) => setCurrentStudent(p => ({ ...p, registrationDate: e.target.value }))}/></div></div>
-                  <div className="grid grid-cols-2 gap-4"><div className="space-y-2"><Label>Date de naissance</Label><Input type="date" value={currentStudent.birthDate || ""} onChange={(e) => setCurrentStudent(p => ({ ...p, birthDate: e.target.value }))}/></div><div className="space-y-2"><Label>Genre</Label><Select value={currentStudent.genre || ""} onValueChange={(v) => setCurrentStudent(p => ({ ...p, genre: v }))}><SelectTrigger><SelectValue placeholder="Choisir..." /></SelectTrigger><SelectContent><SelectItem value="Masculin">Masculin</SelectItem><SelectItem value="Féminin">Féminin</SelectItem></SelectContent></Select></div></div>
+                  <div className="grid grid-cols-2 gap-4"><div className="space-y-2"><Label>Prénom</Label><Input disabled={isReadOnly} value={currentStudent.firstName || ""} onChange={(e) => setCurrentStudent(p => ({ ...p, firstName: e.target.value }))}/></div><div className="space-y-2"><Label>Nom</Label><Input disabled={isReadOnly} value={currentStudent.lastName || ""} onChange={(e) => setCurrentStudent(p => ({ ...p, lastName: e.target.value }))}/></div></div>
+                  <div className="grid grid-cols-2 gap-4"><div className="space-y-2"><Label>Classe</Label><Select disabled={!!currentStudent.id || isReadOnly} value={currentStudent.classId?.toString() || ""} onValueChange={(v) => setCurrentStudent(p => ({ ...p, classId: Number(v) }))}><SelectTrigger><SelectValue placeholder="Choisir..." /></SelectTrigger><SelectContent>{classes.map(c => <SelectItem key={c.id} value={c.id.toString()}>{c.name}</SelectItem>)}</SelectContent></Select></div><div className="space-y-2"><Label>Date d'inscription</Label><Input disabled={!!currentStudent.id || isReadOnly} type="date" value={currentStudent.registrationDate || ""} onChange={(e) => setCurrentStudent(p => ({ ...p, registrationDate: e.target.value }))}/></div></div>
+                  <div className="grid grid-cols-2 gap-4"><div className="space-y-2"><Label>Date de naissance</Label><Input disabled={isReadOnly} type="date" value={currentStudent.birthDate || ""} onChange={(e) => setCurrentStudent(p => ({ ...p, birthDate: e.target.value }))}/></div><div className="space-y-2"><Label>Genre</Label><Select disabled={isReadOnly} value={currentStudent.genre || ""} onValueChange={(v) => setCurrentStudent(p => ({ ...p, genre: v }))}><SelectTrigger><SelectValue placeholder="Choisir..." /></SelectTrigger><SelectContent><SelectItem value="Masculin">Masculin</SelectItem><SelectItem value="Féminin">Féminin</SelectItem></SelectContent></Select></div></div>
                 </div>
               </TabsContent>
               <TabsContent value="parents" className="py-4">
@@ -313,12 +331,14 @@ const Students = () => {
                         currentStudent={currentStudent} 
                         setCurrentStudent={setCurrentStudent} 
                         handleSearchParent={handleSearchParent} 
+                        isReadOnly={isReadOnly}
                     />
                     <ParentFormSection 
                         relation="mother" 
                         currentStudent={currentStudent} 
                         setCurrentStudent={setCurrentStudent} 
                         handleSearchParent={handleSearchParent} 
+                        isReadOnly={isReadOnly}
                     />
                 </div>
               </TabsContent>
@@ -327,10 +347,10 @@ const Students = () => {
                     <AvatarImage src={currentStudent.picture_url ? `ntik-fs://${currentStudent.picture_url}` : undefined} />
                     <AvatarFallback><Users className="h-16 w-16"/></AvatarFallback>
                 </Avatar>
-                <Button variant="outline" onClick={handlePhotoUpload}><Camera className="mr-2 h-4 w-4"/>Changer la photo</Button>
+                {!isReadOnly && <Button variant="outline" onClick={handlePhotoUpload}><Camera className="mr-2 h-4 w-4"/>Changer la photo</Button>}
               </TabsContent>
             </Tabs>
-            <DialogFooter><Button variant="outline" onClick={() => setIsDialogOpen(false)}>Annuler</Button><Button onClick={handleSaveStudent}>Enregistrer</Button></DialogFooter>
+            {!isReadOnly && <DialogFooter><Button variant="outline" onClick={() => setIsDialogOpen(false)}>Annuler</Button><Button onClick={handleSaveStudent}>Enregistrer</Button></DialogFooter>}
           </DialogContent>
         </Dialog>
 

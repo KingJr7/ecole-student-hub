@@ -102,9 +102,10 @@ function setupSubjectsIPC(prisma) {
 
     // Authorization check
     if (!teacher || teacher.school_id !== schoolId) throw new Error("Accès non autorisé: Enseignant non trouvé dans cette école.");
-    if (userRole !== 'admin' && teacher.user_supabase_id !== userSupabaseId) {
-      throw new Error("Accès non autorisé: Vous ne pouvez consulter que vos propres matières.");
-    }
+
+    const { permissions } = await prisma.settings.findUnique({ where: { id: 1 } }) || {};
+    const hasAccess = userRole === 'admin' || (teacher.user_supabase_id && teacher.user_supabase_id === userSupabaseId) || (permissions?.teachers && permissions.teachers !== 'none');
+    if (!hasAccess) throw new Error("Accès non autorisé: Vous n'avez pas la permission de voir les matières de cet enseignant.");
 
     return prisma.subjects.findMany({ where: { lessons: { some: { teacher_id: teacherId } }, is_deleted: false, class: { school_id: schoolId } }, include: { class: true } });
   });

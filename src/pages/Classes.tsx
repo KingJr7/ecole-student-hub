@@ -14,7 +14,9 @@ import {
 } from "@/components/ui/dialog"
 import { Label } from "@/components/ui/label"
 import MainLayout from "@/components/Layout/MainLayout"
-import { useToast } from "@/components/ui/use-toast"
+import { useToast } from "@/components/ui/use-toast";
+import { useAuth } from "@/context/AuthContext";
+import { getAccessLevel, PERMISSIONS } from "@/lib/permissions";
 import {
   Select,
   SelectContent,
@@ -64,6 +66,10 @@ interface Teacher {
 }
 
 export default function Classes() {
+  const { user } = useAuth();
+  const accessLevel = getAccessLevel(user?.role, user?.permissions, PERMISSIONS.CAN_MANAGE_CLASSES);
+  const isReadOnly = accessLevel === 'read_only';
+
   const { getAllClasses, getAllStudents, getClassSubjects, createClass, updateClass, deleteClass, createSubject } = useDatabase()
   const [classes, setClasses] = useState<Class[]>([])
   const [students, setStudents] = useState<Student[]>([])
@@ -209,9 +215,9 @@ export default function Classes() {
       <div className="space-y-8 p-4 pt-6 md:p-8">
         <div className="flex justify-between items-center">
           <h2 className="text-4xl font-extrabold tracking-tight">Gestion des Classes</h2>
-          <Button onClick={() => handleOpenDialog()} className="bg-accent-hot hover:bg-accent-hot/90 text-accent-hot-foreground">
+          {!isReadOnly && <Button onClick={() => handleOpenDialog()} className="bg-accent-hot hover:bg-accent-hot/90 text-accent-hot-foreground">
             Ajouter une classe
-          </Button>
+          </Button>}
         </div>
 
         {isLoading ? (
@@ -249,10 +255,10 @@ export default function Classes() {
                       <p className="text-sm text-muted-foreground">{getStudentCount(cls.id)} élèves</p>
                     </div>
                     <div className="p-6 space-y-4">
-                      <div className="grid grid-cols-2 gap-2">
+                      {!isReadOnly && <div className="grid grid-cols-2 gap-2">
                         <Button size="sm" variant="outline" onClick={(e) => handleOpenSubjectDialog(e, cls)}><BookOpen className="h-4 w-4 mr-1" /> Ajouter matière</Button>
                         <Button size="sm" variant="destructive" onClick={(e) => handleOpenDeleteDialog(e, cls)}><Trash2 className="h-4 w-4 mr-1" /> Supprimer</Button>
-                      </div>
+                      </div>}
                       <div className="border-t pt-4">
                         <h4 className="font-semibold text-base mb-3">Matières de la classe :</h4>
                         {(cls.subjects && cls.subjects.length > 0) ? (
@@ -283,10 +289,10 @@ export default function Classes() {
           <DialogContent>
             <DialogHeader><DialogTitle>Nouvelle Classe</DialogTitle></DialogHeader>
             <div className="grid gap-4 py-4">
-              <div className="grid gap-2"><Label htmlFor="name">Nom de la classe</Label><Input id="name" value={currentClass.name || ''} onChange={(e) => setCurrentClass({ ...currentClass, name: e.target.value })}/></div>
-              <div className="grid gap-2"><Label htmlFor="level">Niveau</Label><Select value={currentClass.level || ''} onValueChange={(value) => setCurrentClass({ ...currentClass, level: value })}><SelectTrigger><SelectValue placeholder="Sélectionner un niveau" /></SelectTrigger><SelectContent><SelectItem value="garderie">Garderie</SelectItem><SelectItem value="maternelle">Maternelle</SelectItem><SelectItem value="primaire">Primaire</SelectItem><SelectItem value="college">Collège</SelectItem><SelectItem value="lycee">Lycée</SelectItem></SelectContent></Select></div>
+              <div className="grid gap-2"><Label htmlFor="name">Nom de la classe</Label><Input disabled={isReadOnly} id="name" value={currentClass.name || ''} onChange={(e) => setCurrentClass({ ...currentClass, name: e.target.value })}/></div>
+              <div className="grid gap-2"><Label htmlFor="level">Niveau</Label><Select disabled={isReadOnly} value={currentClass.level || ''} onValueChange={(value) => setCurrentClass({ ...currentClass, level: value })}><SelectTrigger><SelectValue placeholder="Sélectionner un niveau" /></SelectTrigger><SelectContent><SelectItem value="garderie">Garderie</SelectItem><SelectItem value="maternelle">Maternelle</SelectItem><SelectItem value="primaire">Primaire</SelectItem><SelectItem value="college">Collège</SelectItem><SelectItem value="lycee">Lycée</SelectItem></SelectContent></Select></div>
             </div>
-            <DialogFooter><Button onClick={handleSaveClass}>Créer la classe</Button><Button variant="outline" onClick={handleCloseDialog}>Annuler</Button></DialogFooter>
+            {!isReadOnly && <DialogFooter><Button onClick={handleSaveClass}>Créer la classe</Button><Button variant="outline" onClick={handleCloseDialog}>Annuler</Button></DialogFooter>}
           </DialogContent>
         </Dialog>
 
@@ -294,18 +300,18 @@ export default function Classes() {
           <DialogContent>
             <DialogHeader><DialogTitle>Ajouter une matière à {currentClass.name}</DialogTitle><DialogDescription>Ajoutez une nouvelle matière à cette classe et sélectionnez le professeur qui l'enseignera.</DialogDescription></DialogHeader>
             <div className="grid gap-4 py-4">
-              <div className="grid gap-2"><Label htmlFor="subject-name">Nom de la matière</Label><Input id="subject-name" value={currentSubject.name || ''} onChange={(e) => setCurrentSubject({ ...currentSubject, name: e.target.value })} placeholder="Mathématiques"/></div>
-              <div className="grid gap-2"><Label htmlFor="subject-coefficient">Coefficient</Label><Input id="subject-coefficient" type="number" min="1" value={currentSubject.coefficient || ''} onChange={(e) => setCurrentSubject({ ...currentSubject, coefficient: Number(e.target.value) })} placeholder="Ex: 3"/></div>
-              <div className="grid gap-2"><Label htmlFor="subject-teacher">Professeur</Label>{teachers.length === 0 ? <div className="text-sm text-red-500">Aucun professeur disponible.</div> : <Select onValueChange={(value) => setCurrentSubject({ ...currentSubject, teacherId: value })} value={currentSubject.teacherId || ''}><SelectTrigger><SelectValue placeholder="Sélectionnez un professeur" /></SelectTrigger><SelectContent>{teachers.map((teacher) => (<SelectItem key={teacher.id} value={teacher.id}>{teacher.first_name} {teacher.name}</SelectItem>))}</SelectContent></Select>}</div>
+              <div className="grid gap-2"><Label htmlFor="subject-name">Nom de la matière</Label><Input disabled={isReadOnly} id="subject-name" value={currentSubject.name || ''} onChange={(e) => setCurrentSubject({ ...currentSubject, name: e.target.value })} placeholder="Mathématiques"/></div>
+              <div className="grid gap-2"><Label htmlFor="subject-coefficient">Coefficient</Label><Input disabled={isReadOnly} id="subject-coefficient" type="number" min="1" value={currentSubject.coefficient || ''} onChange={(e) => setCurrentSubject({ ...currentSubject, coefficient: Number(e.target.value) })} placeholder="Ex: 3"/></div>
+              <div className="grid gap-2"><Label htmlFor="subject-teacher">Professeur</Label>{teachers.length === 0 ? <div className="text-sm text-red-500">Aucun professeur disponible.</div> : <Select disabled={isReadOnly} onValueChange={(value) => setCurrentSubject({ ...currentSubject, teacherId: value })} value={currentSubject.teacherId || ''}><SelectTrigger><SelectValue placeholder="Sélectionnez un professeur" /></SelectTrigger><SelectContent>{teachers.map((teacher) => (<SelectItem key={teacher.id} value={teacher.id}>{teacher.first_name} {teacher.name}</SelectItem>))}</SelectContent></Select>}</div>
             </div>
-            <DialogFooter><Button variant="outline" onClick={handleCloseSubjectDialog}>Annuler</Button><Button onClick={handleSaveSubject} disabled={!currentSubject.name || !currentSubject.coefficient || !currentSubject.teacherId || teachers.length === 0}>Ajouter la matière</Button></DialogFooter>
+            {!isReadOnly && <DialogFooter><Button variant="outline" onClick={handleCloseSubjectDialog}>Annuler</Button><Button onClick={handleSaveSubject} disabled={!currentSubject.name || !currentSubject.coefficient || !currentSubject.teacherId || teachers.length === 0}>Ajouter la matière</Button></DialogFooter>}
           </DialogContent>
         </Dialog>
 
         <Dialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
           <DialogContent>
             <DialogHeader><DialogTitle>Confirmer la suppression</DialogTitle><DialogDescription>Êtes-vous sûr de vouloir supprimer la classe "{currentClass.name}" ? Cette action est irréversible.</DialogDescription></DialogHeader>
-            <DialogFooter><Button variant="outline" onClick={() => setIsDeleteDialogOpen(false)}>Annuler</Button><Button variant="destructive" onClick={handleDeleteClass}>Supprimer</Button></DialogFooter>
+            {!isReadOnly && <DialogFooter><Button variant="outline" onClick={() => setIsDeleteDialogOpen(false)}>Annuler</Button><Button variant="destructive" onClick={handleDeleteClass}>Supprimer</Button></DialogFooter>}
           </DialogContent>
         </Dialog>
       </div>

@@ -62,7 +62,7 @@ export default function Sidebar() {
       <div className="flex flex-col flex-1 overflow-y-auto py-4">
         <nav className="flex-1 space-y-1 px-2">
           {navigation.map((item) => 
-            hasPermission(user.role, item.permission) && (
+            hasPermission(user.role, user.permissions, item.permission) && (
               <Link
                 key={item.name}
                 to={item.href}
@@ -90,7 +90,7 @@ export default function Sidebar() {
       </div>
 
       <div className="p-4 border-t border-sidebar-border text-sidebar-foreground text-xs flex flex-col gap-2">
-        {hasPermission(user.role, PERMISSIONS.CAN_MANAGE_SETTINGS) && (
+        {hasPermission(user.role, user.permissions, PERMISSIONS.CAN_MANAGE_SETTINGS) && (
           <Link
             to="/settings"
             className={cn(

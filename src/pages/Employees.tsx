@@ -6,6 +6,9 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { PlusCircle, Edit, Trash, Save, Users, DollarSign, Briefcase, Home, Printer, History } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
+import { useAuth } from "@/context/AuthContext";
+import { getAccessLevel, PERMISSIONS } from "@/lib/permissions";
+
 import MainLayout from "@/components/Layout/MainLayout";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -48,6 +51,10 @@ const employeeFormSchema = z.object({
 type EmployeeFormValues = z.infer<typeof employeeFormSchema>;
 
 const EmployeesPage = () => {
+  const { user } = useAuth();
+  const accessLevel = getAccessLevel(user?.role, user?.permissions, PERMISSIONS.CAN_MANAGE_EMPLOYEES);
+  const isReadOnly = accessLevel === 'read_only';
+
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const [selectedEmployee, setSelectedEmployee] = useState<Employee | null>(null);
@@ -145,7 +152,7 @@ const EmployeesPage = () => {
             <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
                 <Card className="md:col-span-1 h-fit">
                 <CardHeader>
-                    <CardTitle className="flex items-center justify-between"><span>Liste du Personnel</span><Button onClick={handleNewEmployee} size="sm" className="bg-accent-hot hover:bg-accent-hot/90 text-accent-hot-foreground"><PlusCircle className="mr-2 h-4 w-4" />Nouveau</Button></CardTitle>
+                    <CardTitle className="flex items-center justify-between"><span>Liste du Personnel</span>{!isReadOnly && <Button onClick={handleNewEmployee} size="sm" className="bg-accent-hot hover:bg-accent-hot/90 text-accent-hot-foreground"><PlusCircle className="mr-2 h-4 w-4" />Nouveau</Button>}</CardTitle>
                     <CardDescription>Sélectionnez un employé pour voir ses détails</CardDescription>
                 </CardHeader>
                 <CardContent>
@@ -155,7 +162,9 @@ const EmployeesPage = () => {
                     </div>
                     ) : (
                     <div className="space-y-2">
-                        {employees.map((employee) => (<div key={employee.id} className={`flex items-center justify-between p-3 border rounded-lg cursor-pointer hover:bg-muted/50 transition-colors ${selectedEmployee?.id === employee.id ? "bg-muted" : ""}`} onClick={() => setSelectedEmployee(employee)}><div><h3 className="font-medium">{employee.first_name} {employee.name}</h3><p className="text-sm text-muted-foreground">{employee.job_title}</p></div><div className="flex space-x-1"><Button size="icon" variant="ghost" onClick={(e) => { e.stopPropagation(); handleEditEmployee(employee); }}><Edit className="h-4 w-4" /></Button><Button size="icon" variant="ghost" onClick={(e) => { e.stopPropagation(); handleDeleteEmployee(employee.id); }}><Trash className="h-4 w-4" /></Button></div></div>))}
+                        {employees.map((employee) => (<div key={employee.id} className={`flex items-center justify-between p-3 border rounded-lg cursor-pointer hover:bg-muted/50 transition-colors ${selectedEmployee?.id === employee.id ? "bg-muted" : ""}`} onClick={() => setSelectedEmployee(employee)}><div><h3 className="font-medium">{employee.first_name} {employee.name}</h3><p className="text-sm text-muted-foreground">{employee.job_title}</p></div>
+                        {!isReadOnly && <div className="flex space-x-1"><Button size="icon" variant="ghost" onClick={(e) => { e.stopPropagation(); handleEditEmployee(employee); }}><Edit className="h-4 w-4" /></Button><Button size="icon" variant="ghost" onClick={(e) => { e.stopPropagation(); handleDeleteEmployee(employee.id); }}><Trash className="h-4 w-4" /></Button></div>}
+                        </div>))}
                     </div>
                     )}
                 </CardContent>
@@ -178,7 +187,7 @@ const EmployeesPage = () => {
                             <p className="flex items-center"><Home className="mr-2 h-4 w-4"/> {selectedEmployee.adress || 'Adresse non renseignée'}</p>
                             <p>{selectedEmployee.email} | {selectedEmployee.phone}</p>
                         </div>
-                        <div className="pt-4"><Button onClick={() => setOpenPayDialog(true)}>Payer le salaire</Button></div>
+                        {!isReadOnly && <div className="pt-4"><Button onClick={() => setOpenPayDialog(true)}>Payer le salaire</Button></div>}
                         </CardContent>
                     </Card>
 
@@ -218,8 +227,12 @@ const EmployeesPage = () => {
             </div>
         </div>
 
-      <Dialog open={openEmployeeDialog} onOpenChange={setOpenEmployeeDialog}><DialogContent><DialogHeader><DialogTitle>{selectedEmployee ? "Modifier" : "Ajouter"} un employé</DialogTitle></DialogHeader><Form {...employeeForm}><form onSubmit={employeeForm.handleSubmit(onEmployeeFormSubmit)} className="space-y-4 py-4"><div className="grid grid-cols-2 gap-4"><FormField control={employeeForm.control} name="first_name" render={({ field }) => (<FormItem><FormLabel>Prénom</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>)} /><FormField control={employeeForm.control} name="name" render={({ field }) => (<FormItem><FormLabel>Nom</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>)} /></div><FormField control={employeeForm.control} name="email" render={({ field }) => (<FormItem><FormLabel>Email</FormLabel><FormControl><Input type="email" {...field} /></FormControl><FormMessage /></FormItem>)} /><FormField control={employeeForm.control} name="phone" render={({ field }) => (<FormItem><FormLabel>Téléphone</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>)} /><FormField control={employeeForm.control} name="password" render={({ field }) => (<FormItem><FormLabel>Mot de passe (optionnel)</FormLabel><FormControl><Input type="password" placeholder={selectedEmployee ? "Laisser vide pour ne pas changer" : "Laisser vide pour mot de passe par défaut"} {...field} /></FormControl><FormMessage /></FormItem>)} /><FormField control={employeeForm.control} name="adress" render={({ field }) => (<FormItem><FormLabel>Adresse</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>)} /><div className="grid grid-cols-2 gap-4"><FormField control={employeeForm.control} name="job_title" render={({ field }) => (<FormItem><FormLabel>Poste</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>)} /><FormField control={employeeForm.control} name="salary" render={({ field }) => (<FormItem><FormLabel>Salaire</FormLabel><FormControl><Input type="number" {...field} /></FormControl><FormMessage /></FormItem>)} /></div><DialogFooter><Button type="button" variant="outline" onClick={() => setOpenEmployeeDialog(false)}>Annuler</Button><Button type="submit">Enregistrer</Button></DialogFooter></form></Form></DialogContent></Dialog>
-      <Dialog open={openPayDialog} onOpenChange={setOpenPayDialog}><DialogContent><DialogHeader><DialogTitle>Payer le salaire de {selectedEmployee?.first_name} {selectedEmployee?.name}</DialogTitle><DialogDescription>Salaire de base: {selectedEmployee?.salary?.toLocaleString()} FCFA</DialogDescription></DialogHeader><Form {...paySalaryForm}><form onSubmit={paySalaryForm.handleSubmit(handlePaySalary)} className="space-y-4"><FormField control={paySalaryForm.control} name="bonus" render={({ field }) => (<FormItem><FormLabel>Prime (FCFA)</FormLabel><FormControl><Input type="number" {...field} /></FormControl><FormMessage /></FormItem>)} /><FormField control={paySalaryForm.control} name="notes" render={({ field }) => (<FormItem><FormLabel>Notes (facultatif)</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>)} /><DialogFooter><Button type="button" variant="outline" onClick={() => setOpenPayDialog(false)}>Annuler</Button><Button type="submit">Confirmer le paiement</Button></DialogFooter></form></Form></DialogContent></Dialog>
+      <Dialog open={openEmployeeDialog} onOpenChange={setOpenEmployeeDialog}><DialogContent><DialogHeader><DialogTitle>{selectedEmployee ? "Modifier" : "Ajouter"} un employé</DialogTitle></DialogHeader><Form {...employeeForm}><form onSubmit={employeeForm.handleSubmit(onEmployeeFormSubmit)} className="space-y-4 py-4"><div className="grid grid-cols-2 gap-4"><FormField control={employeeForm.control} name="first_name" render={({ field }) => (<FormItem><FormLabel>Prénom</FormLabel><FormControl><Input disabled={isReadOnly} {...field} /></FormControl><FormMessage /></FormItem>)} /><FormField control={employeeForm.control} name="name" render={({ field }) => (<FormItem><FormLabel>Nom</FormLabel><FormControl><Input disabled={isReadOnly} {...field} /></FormControl><FormMessage /></FormItem>)} /></div><FormField control={employeeForm.control} name="email" render={({ field }) => (<FormItem><FormLabel>Email</FormLabel><FormControl><Input disabled={isReadOnly} type="email" {...field} /></FormControl><FormMessage /></FormItem>)} /><FormField control={employeeForm.control} name="phone" render={({ field }) => (<FormItem><FormLabel>Téléphone</FormLabel><FormControl><Input disabled={isReadOnly} {...field} /></FormControl><FormMessage /></FormItem>)} /><FormField control={employeeForm.control} name="password" render={({ field }) => (<FormItem><FormLabel>Mot de passe (optionnel)</FormLabel><FormControl><Input disabled={isReadOnly} type="password" placeholder={selectedEmployee ? "Laisser vide pour ne pas changer" : "Laisser vide pour mot de passe par défaut"} {...field} /></FormControl><FormMessage /></FormItem>)} /><FormField control={employeeForm.control} name="adress" render={({ field }) => (<FormItem><FormLabel>Adresse</FormLabel><FormControl><Input disabled={isReadOnly} {...field} /></FormControl><FormMessage /></FormItem>)} /><div className="grid grid-cols-2 gap-4"><FormField control={employeeForm.control} name="job_title" render={({ field }) => (<FormItem><FormLabel>Poste</FormLabel><FormControl><Input disabled={isReadOnly} {...field} /></FormControl><FormMessage /></FormItem>)} /><FormField control={employeeForm.control} name="salary" render={({ field }) => (<FormItem><FormLabel>Salaire (FCFA)</FormLabel><FormControl><Input disabled={isReadOnly} type="number" {...field} /></FormControl><FormMessage /></FormItem>)} /></div>
+              {!isReadOnly && <DialogFooter><Button type="button" variant="outline" onClick={() => setOpenEmployeeDialog(false)}>Annuler</Button><Button type="submit">Enregistrer</Button></DialogFooter>}
+              </form></Form></DialogContent></Dialog>
+      <Dialog open={openPayDialog} onOpenChange={setOpenPayDialog}><DialogContent><DialogHeader><DialogTitle>Payer le salaire de {selectedEmployee?.first_name} {selectedEmployee?.name}</DialogTitle><DialogDescription>Salaire de base: {selectedEmployee?.salary?.toLocaleString()} FCFA</DialogDescription></DialogHeader><Form {...paySalaryForm}><form onSubmit={paySalaryForm.handleSubmit(handlePaySalary)} className="space-y-4"><FormField control={paySalaryForm.control} name="bonus" render={({ field }) => (<FormItem><FormLabel>Prime (FCFA)</FormLabel><FormControl><Input disabled={isReadOnly} type="number" {...field} /></FormControl><FormMessage /></FormItem>)} /><FormField control={paySalaryForm.control} name="notes" render={({ field }) => (<FormItem><FormLabel>Notes (facultatif)</FormLabel><FormControl><Input disabled={isReadOnly} {...field} /></FormControl><FormMessage /></FormItem>)} />
+              {!isReadOnly && <DialogFooter><Button type="button" variant="outline" onClick={() => setOpenPayDialog(false)}>Annuler</Button><Button type="submit">Confirmer le paiement</Button></DialogFooter>}
+              </form></Form></DialogContent></Dialog>
     </MainLayout>
   );
 };

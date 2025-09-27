@@ -104,7 +104,10 @@ function setupTeachersIPC(prisma) {
 
     const teacher = await prisma.teachers.findUnique({ where: { id: teacherId } });
     if (!teacher || teacher.school_id !== schoolId) throw new Error("Accès non autorisé");
-    if (userRole !== 'admin' && teacher.user_supabase_id !== userSupabaseId) throw new Error("Accès non autorisé");
+
+    const { permissions } = await prisma.settings.findUnique({ where: { id: 1 } }) || {};
+    const hasAccess = userRole === 'admin' || (teacher.user_supabase_id && teacher.user_supabase_id === userSupabaseId) || (permissions?.teachers && permissions.teachers !== 'none');
+    if (!hasAccess) throw new Error("Accès non autorisé");
 
     const scheduleData = await prisma.schedules.findMany({
       where: {
@@ -148,7 +151,10 @@ function setupTeachersIPC(prisma) {
     const teacher = await prisma.teachers.findUnique({ where: { id: teacherId } });
 
     if (!teacher || teacher.school_id !== schoolId) throw new Error("Accès non autorisé");
-    if (userRole !== 'admin' && teacher.user_supabase_id !== userSupabaseId) throw new Error("Accès non autorisé");
+    
+    const { permissions } = await prisma.settings.findUnique({ where: { id: 1 } }) || {};
+    const hasAccess = userRole === 'admin' || (teacher.user_supabase_id && teacher.user_supabase_id === userSupabaseId) || (permissions?.teachers && permissions.teachers !== 'none');
+    if (!hasAccess) throw new Error("Accès non autorisé");
 
     return prisma.teacherWorkHours.findMany({
       where: { teacher_id: teacherId, is_deleted: false },
@@ -192,7 +198,10 @@ function setupTeachersIPC(prisma) {
     const teacher = await prisma.teachers.findUnique({ where: { id: teacherId } });
 
     if (!teacher || teacher.school_id !== schoolId) throw new Error("Accès non autorisé");
-    if (userRole !== 'admin' && teacher.user_supabase_id !== userSupabaseId) throw new Error("Accès non autorisé");
+
+    const { permissions } = await prisma.settings.findUnique({ where: { id: 1 } }) || {};
+    const hasAccess = userRole === 'admin' || (teacher.user_supabase_id && teacher.user_supabase_id === userSupabaseId) || (permissions?.teachers && permissions.teachers !== 'none');
+    if (!hasAccess) throw new Error("Accès non autorisé");
 
     const startOfMonth = new Date(new Date().getFullYear(), new Date().getMonth(), 1).toISOString().split('T')[0];
     const workHours = await prisma.teacherWorkHours.findMany({ where: { teacher_id: teacherId, is_deleted: false, date: { gte: startOfMonth } }, include: { subject: true } });
@@ -214,7 +223,10 @@ function setupTeachersIPC(prisma) {
     const teacher = await prisma.teachers.findUnique({ where: { id: teacherId } });
 
     if (!teacher || teacher.school_id !== schoolId) throw new Error("Accès non autorisé");
-    if (userRole !== 'admin' && teacher.user_supabase_id !== userSupabaseId) throw new Error("Accès non autorisé");
+
+    const { permissions } = await prisma.settings.findUnique({ where: { id: 1 } }) || {};
+    const hasAccess = userRole === 'admin' || (teacher.user_supabase_id && teacher.user_supabase_id === userSupabaseId) || (permissions?.teachers && permissions.teachers !== 'none');
+    if (!hasAccess) throw new Error("Accès non autorisé");
 
     const todayWorkHours = await prisma.teacherWorkHours.findMany({
       where: {

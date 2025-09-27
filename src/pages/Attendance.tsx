@@ -8,6 +8,8 @@ import { Card, CardContent } from "@/components/ui/card";
 import { CalendarCheck, UserCheck, UserX, Clock, HelpCircle } from "lucide-react";
 import MainLayout from "@/components/Layout/MainLayout";
 import { useToast } from "@/components/ui/use-toast";
+import { useAuth } from "@/context/AuthContext";
+import { getAccessLevel, PERMISSIONS } from "@/lib/permissions";
 import { Skeleton } from "@/components/ui/skeleton";
 
 // Interfaces
@@ -16,6 +18,10 @@ interface Student { id: number; name: string; first_name: string; registrations:
 interface Class { id: number; name: string; }
 
 const AttendancePage = () => {
+  const { user } = useAuth();
+  const accessLevel = getAccessLevel(user?.role, user?.permissions, PERMISSIONS.CAN_MANAGE_ATTENDANCE);
+  const isReadOnly = accessLevel === 'read_only';
+
   const { getAllAttendances, getAllStudents, getAllClasses, createAttendance, updateAttendance } = useDatabase();
   const [attendances, setAttendances] = useState<Attendance[]>([]);
   const [students, setStudents] = useState<Student[]>([]);
@@ -146,9 +152,9 @@ const AttendancePage = () => {
                         <span className="font-medium">{student.first_name} {student.name}</span>
                       </div>
                       <div className="flex items-center gap-2">
-                        <Button size="sm" variant={status.text === 'Présent' ? 'default' : 'outline'} onClick={() => handleSetAttendance(student.id, 'present')}>Présent</Button>
-                        <Button size="sm" variant={status.text === 'Absent' ? 'destructive' : 'outline'} onClick={() => handleSetAttendance(student.id, 'absent')}>Absent</Button>
-                        <Button size="sm" variant={status.text === 'En Retard' ? 'secondary' : 'outline'} onClick={() => handleSetAttendance(student.id, 'late')}>Retard</Button>
+                        <Button size="sm" variant={status.text === 'Présent' ? 'default' : 'outline'} onClick={() => handleSetAttendance(student.id, 'present')} disabled={isReadOnly}>Présent</Button>
+                        <Button size="sm" variant={status.text === 'Absent' ? 'destructive' : 'outline'} onClick={() => handleSetAttendance(student.id, 'absent')} disabled={isReadOnly}>Absent</Button>
+                        <Button size="sm" variant={status.text === 'En Retard' ? 'secondary' : 'outline'} onClick={() => handleSetAttendance(student.id, 'late')} disabled={isReadOnly}>Retard</Button>
                       </div>
                     </div>
                   );

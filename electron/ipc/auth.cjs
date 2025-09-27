@@ -40,6 +40,25 @@ function setupAuthIPC(prisma) {
       const roleName = userData.roles.name;
       const schoolId = userData.school_id;
 
+      const { data: permissionsData, error: permissionsError } = await supabase
+        .from('role_permissions')
+        .select('access_level, screens(name)')
+        .eq('role_id', userData.role_id)
+        .eq('school_id', schoolId);
+
+      if (permissionsError) {
+        console.error('[AUTH] Erreur lors de la récupération des permissions:', permissionsError.message);
+        return { success: false, message: "Erreur lors de la récupération des permissions." };
+      }
+
+      // Transformer les données pour un accès facile : { screen_name: access_level }
+      const permissions = permissionsData.reduce((acc, perm) => {
+        if (perm.screens) {
+          acc[perm.screens.name] = perm.access_level;
+        }
+        return acc;
+      }, {});
+
       // Étape 3: Mettre à jour la base de données locale
       await prisma.settings.upsert({
         where: { id: 1 },
@@ -49,6 +68,7 @@ function setupAuthIPC(prisma) {
           userRole: roleName,
           schoolId: schoolId,
           userToken: null, // Pas de token avec cette méthode
+          permissions: permissions,
         },
         create: {
           id: 1,
@@ -57,6 +77,7 @@ function setupAuthIPC(prisma) {
           userRole: roleName,
           schoolId: schoolId,
           userToken: null,
+          permissions: permissions,
         },
       });
 

@@ -1,43 +1,37 @@
 export const PERMISSIONS = {
   // Students
-  CAN_MANAGE_STUDENTS: 'manage_students',
+  CAN_MANAGE_STUDENTS: 'students',
   // Teachers
-  CAN_MANAGE_TEACHERS: 'manage_teachers',
+  CAN_MANAGE_TEACHERS: 'teachers',
   // Employees
-  CAN_MANAGE_EMPLOYEES: 'manage_employees',
+  CAN_MANAGE_EMPLOYEES: 'employees',
   // Classes
-  CAN_MANAGE_CLASSES: 'manage_classes',
+  CAN_MANAGE_CLASSES: 'classes',
   // Payments
-  CAN_MANAGE_PAYMENTS: 'manage_payments',
+  CAN_MANAGE_PAYMENTS: 'payments',
   // Grades
-  CAN_MANAGE_GRADES: 'manage_grades',
+  CAN_MANAGE_GRADES: 'notes',
   // Attendance
-  CAN_MANAGE_ATTENDANCE: 'manage_attendance',
+  CAN_MANAGE_ATTENDANCE: 'attendances',
   // Schedules
-  CAN_MANAGE_SCHEDULES: 'manage_schedules',
+  CAN_MANAGE_SCHEDULES: 'schedules',
   // Settings
-  CAN_MANAGE_SETTINGS: 'manage_settings',
+  CAN_MANAGE_SETTINGS: 'settings',
 };
 
-const allPermissions = Object.values(PERMISSIONS);
-
-const rolePermissions = {
-  admin: allPermissions,
-  employee: [
-    PERMISSIONS.CAN_MANAGE_STUDENTS,
-    PERMISSIONS.CAN_MANAGE_TEACHERS,
-    PERMISSIONS.CAN_MANAGE_CLASSES,
-    PERMISSIONS.CAN_MANAGE_PAYMENTS,
-    PERMISSIONS.CAN_MANAGE_GRADES,
-    PERMISSIONS.CAN_MANAGE_ATTENDANCE,
-  ],
-  // On pourra ajouter d'autres rôles ici plus tard
-  // teacher: [PERMISSIONS.CAN_MANAGE_GRADES, PERMISSIONS.CAN_MANAGE_ATTENDANCE]
-};
-
-export const hasPermission = (role, permission) => {
-  if (!role || !rolePermissions[role]) {
-    return false;
+export const getAccessLevel = (userRole, userPermissions, permission) => {
+  if (!userRole || !permission) {
+    return 'none';
   }
-  return rolePermissions[role].includes(permission);
+  if (userRole.toLowerCase() === 'admin') {
+    return 'read_write';
+  }
+  if (userPermissions && typeof userPermissions === 'object') {
+    return userPermissions[permission] || 'none';
+  }
+  return 'none';
+};
+
+export const hasPermission = (userRole, userPermissions, permission) => {
+  return getAccessLevel(userRole, userPermissions, permission) !== 'none';
 };

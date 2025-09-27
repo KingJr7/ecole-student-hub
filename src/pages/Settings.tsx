@@ -8,6 +8,8 @@ import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
 import { useToast } from "@/components/ui/use-toast";
+import { useAuth } from "@/context/AuthContext";
+import { getAccessLevel, PERMISSIONS } from "@/lib/permissions";
 import { useDatabase } from "@/hooks/useDatabase";
 import {
   Dialog,
@@ -32,6 +34,10 @@ interface PrinterInfo {
 }
 
 const Settings: React.FC = () => {
+  const { user } = useAuth();
+  const accessLevel = getAccessLevel(user?.role, user?.permissions, PERMISSIONS.CAN_MANAGE_SETTINGS);
+  const isReadOnly = accessLevel === 'read_only';
+
   const { toast } = useToast();
   const navigate = useNavigate();
   const { getSettings, updateSettings, getPrinters, setSchoolLogo, getSchoolLogoBase64, assignSchoolToOrphans } = useDatabase();
@@ -176,6 +182,7 @@ const Settings: React.FC = () => {
                     id="schoolName"
                     value={formData.schoolName}
                     onChange={handleInputChange}
+                    disabled={isReadOnly}
                   />
                 </div>
                 <div className="space-y-2">
@@ -184,10 +191,11 @@ const Settings: React.FC = () => {
                     id="schoolAddress"
                     value={formData.schoolAddress}
                     onChange={handleInputChange}
+                    disabled={isReadOnly}
                   />
                 </div>
 
-                <div className="space-y-2"><Label htmlFor="schoolYearStartDate">Date de la rentrée scolaire</Label><Popover><PopoverTrigger asChild><Button variant={"outline"} className={`w-full justify-start text-left font-normal ${!formData.schoolYearStartDate && "text-muted-foreground"}`}><CalendarIcon className="mr-2 h-4 w-4" />{formData.schoolYearStartDate ? (format(formData.schoolYearStartDate, "PPP", { locale: fr })) : (<span>Choisir une date</span>)}</Button></PopoverTrigger><PopoverContent className="w-auto p-0"><Calendar mode="single" selected={formData.schoolYearStartDate} onSelect={handleDateChange} initialFocus /></PopoverContent></Popover><p className="text-xs text-gray-500">Cette date sera utilisée comme point de départ pour le calcul des frais hebdomadaires.</p></div>
+                <div className="space-y-2"><Label htmlFor="schoolYearStartDate">Date de la rentrée scolaire</Label><Popover><PopoverTrigger asChild><Button disabled={isReadOnly} variant={"outline"} className={`w-full justify-start text-left font-normal ${!formData.schoolYearStartDate && "text-muted-foreground"}`}><CalendarIcon className="mr-2 h-4 w-4" />{formData.schoolYearStartDate ? (format(formData.schoolYearStartDate, "PPP", { locale: fr })) : (<span>Choisir une date</span>)}</Button></PopoverTrigger><PopoverContent className="w-auto p-0"><Calendar mode="single" selected={formData.schoolYearStartDate} onSelect={handleDateChange} initialFocus /></PopoverContent></Popover><p className="text-xs text-gray-500">Cette date sera utilisée comme point de départ pour le calcul des frais hebdomadaires.</p></div>
                 
                 <Separator className="my-4" />
 
@@ -204,7 +212,7 @@ const Settings: React.FC = () => {
                             <ImageIcon className="w-8 h-8 text-gray-400" />
                           </div>
                         )}
-                        <Button variant="outline" onClick={handleLogoChange}>Changer le logo</Button>
+                        <Button variant="outline" onClick={handleLogoChange} disabled={isReadOnly}>Changer le logo</Button>
                       </div>
                     </div>
                     <div className="space-y-2">
@@ -213,6 +221,7 @@ const Settings: React.FC = () => {
                         id="directorName"
                         value={formData.directorName}
                         onChange={handleInputChange}
+                        disabled={isReadOnly}
                       />
                     </div>
                     <div className="space-y-2">
@@ -221,6 +230,7 @@ const Settings: React.FC = () => {
                         value={formData.directorGender}
                         onValueChange={handleGenderChange}
                         className="flex items-center gap-4"
+                        disabled={isReadOnly}
                       >
                         <div className="flex items-center space-x-2">
                           <RadioGroupItem value="male" id="male" />
@@ -241,7 +251,7 @@ const Settings: React.FC = () => {
                   <h3 className="text-lg font-medium text-school-700 mb-2">Paramètres d'impression</h3>
                   <div className="space-y-2">
                     <Label htmlFor="printerName">Imprimante pour les reçus</Label>
-                    <Select value={formData.printerName} onValueChange={handlePrinterChange}>
+                    <Select value={formData.printerName} onValueChange={handlePrinterChange} disabled={isReadOnly}>
                       <SelectTrigger>
                         <SelectValue placeholder="Choisir une imprimante..." />
                       </SelectTrigger>
@@ -267,7 +277,7 @@ const Settings: React.FC = () => {
                   </div>
                 </div>
 
-                <Button onClick={handleSave} className="bg-school-600 hover:bg-school-700 mt-4">
+                <Button onClick={handleSave} className="bg-school-600 hover:bg-school-700 mt-4" disabled={isReadOnly}>
                   Enregistrer les paramètres
                 </Button>
 

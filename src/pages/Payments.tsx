@@ -22,6 +22,8 @@ import {
 import { Textarea } from "@/components/ui/textarea";
 import { Pencil, Printer, Receipt, Trash2, Search } from "lucide-react";
 import { useToast } from "@/components/ui/use-toast";
+import { useAuth } from "@/context/AuthContext";
+import { getAccessLevel, PERMISSIONS } from "@/lib/permissions";
 import StudentSearchSelect from "@/components/StudentSearchSelect";
 import { useDatabase } from "@/hooks/useDatabase";
 import PaymentReceipt from "@/components/PaymentReceipt";
@@ -82,6 +84,10 @@ interface LatePayment {
 }
 
 const Payments = () => {
+  const { user } = useAuth();
+  const accessLevel = getAccessLevel(user?.role, user?.permissions, PERMISSIONS.CAN_MANAGE_PAYMENTS);
+  const isReadOnly = accessLevel === 'read_only';
+
   const db = useDatabase();
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
@@ -303,7 +309,7 @@ const Payments = () => {
       <div className="space-y-8 p-4 pt-6 md:p-8">
         <div className="flex justify-between items-center">
           <h2 className="text-4xl font-extrabold tracking-tight">Gestion des Paiements</h2>
-          <Button onClick={handleOpenAddDialog} className="bg-accent-hot hover:bg-accent-hot/90 text-accent-hot-foreground">Ajouter un paiement</Button>
+          {!isReadOnly && <Button onClick={handleOpenAddDialog} className="bg-accent-hot hover:bg-accent-hot/90 text-accent-hot-foreground">Ajouter un paiement</Button>}
         </div>
 
         <Tabs defaultValue="all_payments">
@@ -369,7 +375,7 @@ const Payments = () => {
                               <div className="flex justify-end items-center">
                                 {payment.type === 'Étudiant' && <Button variant="ghost" size="icon" onClick={() => handleOpenReceiptDialog(payment)} title="Imprimer reçu"><Printer className="h-4 w-4" /></Button>}
                                 <Button variant="ghost" size="icon" disabled title="Modifier"><Pencil className="h-4 w-4" /></Button>
-                                <Button variant="ghost" size="icon" onClick={() => handleOpenDeleteDialog(payment.id)} title="Supprimer"><Trash2 className="h-4 w-4" /></Button>
+                                {!isReadOnly && <Button variant="ghost" size="icon" onClick={() => handleOpenDeleteDialog(payment.id)} title="Supprimer"><Trash2 className="h-4 w-4" /></Button>}
                               </div>
                             </div>
                           </div>
@@ -420,9 +426,13 @@ const Payments = () => {
         </Tabs>
 
         {/* Dialogs... */}
-        <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}><DialogContent><DialogHeader><DialogTitle>Ajouter un paiement</DialogTitle></DialogHeader><div className="space-y-4 py-4"><div className="space-y-2"><Label>Étudiant</Label><StudentSearchSelect value={currentPayment.student_id} onValueChange={handleStudentChange} students={students.map(s => ({ id: s.id, firstName: s.first_name, lastName: s.name, className: s.className }))}/></div>{currentPayment.student_id && (<div className="space-y-2"><Label>Frais à payer</Label><Select value={currentPayment.fee_id} onValueChange={handleFeeChange}><SelectTrigger><SelectValue placeholder="Sélectionner un frais" /></SelectTrigger><SelectContent>{payableFees.map(fee => (<SelectItem key={fee.id} value={fee.id}>{fee.name} - {fee.balance.toLocaleString()} FCFA restant</SelectItem>))}</SelectContent></Select></div>)}<div className="grid grid-cols-2 gap-4"><div className="space-y-2"><Label htmlFor="amount">Montant à payer</Label><Input id="amount" type="number" value={currentPayment.amount || ""} onChange={(e) => setCurrentPayment(prev => ({ ...prev, amount: parseFloat(e.target.value) || 0 }))} /></div><div className="space-y-2"><Label htmlFor="date">Date</Label><Input id="date" type="date" value={currentPayment.date || ""} onChange={(e) => setCurrentPayment(prev => ({ ...prev, date: e.target.value }))} /></div></div><div className="space-y-2"><Label htmlFor="method">Méthode de paiement</Label><Select value={currentPayment.method || "espèces"} onValueChange={(value) => setCurrentPayment(prev => ({ ...prev, method: value }))}><SelectTrigger><SelectValue /></SelectTrigger><SelectContent><SelectItem value="espèces">Espèces</SelectItem><SelectItem value="mobile money">Mobile Money</SelectItem><SelectItem value="chèque">Chèque</SelectItem></SelectContent></Select></div><div className="space-y-2"><Label htmlFor="reference">Référence (optionnel)</Label><Textarea id="reference" value={currentPayment.reference || ""} onChange={(e) => setCurrentPayment(prev => ({ ...prev, reference: e.target.value }))} /></div></div><DialogFooter><Button variant="outline" onClick={() => setIsDialogOpen(false)}>Annuler</Button><Button onClick={handleSavePayment}>Enregistrer le paiement</Button></DialogFooter></DialogContent></Dialog>
+        <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}><DialogContent><DialogHeader><DialogTitle>Ajouter un paiement</DialogTitle></DialogHeader><div className="space-y-4 py-4"><div className="space-y-2"><Label>Étudiant</Label><StudentSearchSelect disabled={isReadOnly} value={currentPayment.student_id} onValueChange={handleStudentChange} students={students.map(s => ({ id: s.id, firstName: s.first_name, lastName: s.name, className: s.className }))}/></div>{currentPayment.student_id && (<div className="space-y-2"><Label>Frais à payer</Label><Select disabled={isReadOnly} value={currentPayment.fee_id} onValueChange={handleFeeChange}><SelectTrigger><SelectValue placeholder="Sélectionner un frais" /></SelectTrigger><SelectContent>{payableFees.map(fee => (<SelectItem key={fee.id} value={fee.id}>{fee.name} - {fee.balance.toLocaleString()} FCFA restant</SelectItem>))}</SelectContent></Select></div>)}<div className="grid grid-cols-2 gap-4"><div className="space-y-2"><Label htmlFor="amount">Montant à payer</Label><Input disabled={isReadOnly} id="amount" type="number" value={currentPayment.amount || ""} onChange={(e) => setCurrentPayment(prev => ({ ...prev, amount: parseFloat(e.target.value) || 0 }))} /></div><div className="space-y-2"><Label htmlFor="date">Date</Label><Input disabled={isReadOnly} id="date" type="date" value={currentPayment.date || ""} onChange={(e) => setCurrentPayment(prev => ({ ...prev, date: e.target.value }))} /></div></div><div className="space-y-2"><Label htmlFor="method">Méthode de paiement</Label><Select disabled={isReadOnly} value={currentPayment.method || "espèces"} onValueChange={(value) => setCurrentPayment(prev => ({ ...prev, method: value }))}><SelectTrigger><SelectValue /></SelectTrigger><SelectContent><SelectItem value="espèces">Espèces</SelectItem><SelectItem value="mobile money">Mobile Money</SelectItem><SelectItem value="chèque">Chèque</SelectItem></SelectContent></Select></div><div className="space-y-2"><Label htmlFor="reference">Référence (optionnel)</Label><Textarea disabled={isReadOnly} id="reference" value={currentPayment.reference || ""} onChange={(e) => setCurrentPayment(prev => ({ ...prev, reference: e.target.value }))} /></div></div>
+          {!isReadOnly && <DialogFooter><Button variant="outline" onClick={() => setIsDialogOpen(false)}>Annuler</Button><Button onClick={handleSavePayment}>Enregistrer</Button></DialogFooter>}
+          </DialogContent></Dialog>
 
-        <Dialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}><DialogContent><DialogHeader><DialogTitle>Confirmer la suppression</DialogTitle><DialogDescription>Cette action est irréversible.</DialogDescription></DialogHeader><DialogFooter><Button variant="outline" onClick={() => setIsDeleteDialogOpen(false)}>Annuler</Button><Button variant="destructive" onClick={handleDeletePayment}>Supprimer</Button></DialogFooter></DialogContent></Dialog>
+        <Dialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}><DialogContent><DialogHeader><DialogTitle>Confirmer la suppression</DialogTitle><DialogDescription>Cette action est irréversible.</DialogDescription></DialogHeader>
+        {!isReadOnly && <DialogFooter><Button variant="outline" onClick={() => setIsDeleteDialogOpen(false)}>Annuler</Button><Button variant="destructive" onClick={handleDeletePayment}>Supprimer</Button></DialogFooter>}
+        </DialogContent></Dialog>
         <Dialog open={isReceiptDialogOpen} onOpenChange={setIsReceiptDialogOpen}><DialogContent className="min-w-[400px]"><DialogHeader><DialogTitle>Reçu de paiement</DialogTitle></DialogHeader><div className="border p-4 rounded-md">{receiptPayment && receiptPayment.registration && (
             <PaymentReceipt 
               payment={receiptPayment} 

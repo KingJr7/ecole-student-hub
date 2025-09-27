@@ -6,6 +6,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from "@/components/ui/table";
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/components/ui/use-toast";
+import { useAuth } from "@/context/AuthContext";
+import { getAccessLevel, PERMISSIONS } from "@/lib/permissions";
 import { useDatabase } from "@/hooks/useDatabase";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
@@ -34,7 +36,7 @@ interface ClassResult {
   };
 }
 
-const GradeEntryForm = ({ selectedClassId, selectedQuarter, lessons, students, db, toast }) => {
+const GradeEntryForm = ({ selectedClassId, selectedQuarter, lessons, students, db, toast, isReadOnly }) => {
   const [notes, setNotes] = useState<Record<number, number | null>>({}); // studentId -> value
   const [selectedLessonId, setSelectedLessonId] = useState<string>("");
   const [selectedType, setSelectedType] = useState<string>("Devoir 1");
@@ -166,6 +168,7 @@ const GradeEntryForm = ({ selectedClassId, selectedQuarter, lessons, students, d
                         value={notes[student.id] ?? ''}
                         onChange={(e) => handleNoteChange(student.id, e.target.value)}
                         className="w-24"
+                        disabled={isReadOnly}
                       />
                     </TableCell>
                   </TableRow>
@@ -181,7 +184,7 @@ const GradeEntryForm = ({ selectedClassId, selectedQuarter, lessons, students, d
           </Table>
         </div>
         <div className="flex justify-end">
-          <Button onClick={handleSaveGrades} disabled={isSaving || filteredStudents.length === 0}>
+          <Button onClick={handleSaveGrades} disabled={isSaving || filteredStudents.length === 0 || isReadOnly}>
             {isSaving ? "Enregistrement..." : "Enregistrer les notes"}
           </Button>
         </div>
@@ -191,6 +194,10 @@ const GradeEntryForm = ({ selectedClassId, selectedQuarter, lessons, students, d
 }
 
 const Grades = () => {
+  const { user } = useAuth();
+  const accessLevel = getAccessLevel(user?.role, user?.permissions, PERMISSIONS.CAN_MANAGE_GRADES);
+  const isReadOnly = accessLevel === 'read_only';
+
   const db = useDatabase();
   const { toast } = useToast();
   const [classes, setClasses] = useState<Class[]>([]);
@@ -479,7 +486,7 @@ const Grades = () => {
           <Button onClick={handleGenerateResults} variant="secondary" disabled={!selectedClassId || loading}><ListCheck className="mr-2 h-4 w-4" />Générer les Résultats</Button>
         </div>
 
-        {loading ? <Skeleton className="h-96 w-full" /> : <GradeEntryForm selectedClassId={selectedClassId} selectedQuarter={selectedQuarter} classes={classes} lessons={lessons} students={students} db={db} toast={toast} />}
+        {loading ? <Skeleton className="h-96 w-full" /> : <GradeEntryForm isReadOnly={isReadOnly} selectedClassId={selectedClassId} selectedQuarter={selectedQuarter} classes={classes} lessons={lessons} students={students} db={db} toast={toast} />}
       </div>
 
       <Dialog open={isResultsOpen} onOpenChange={setIsResultsOpen}>

@@ -135,7 +135,7 @@ app.whenReady().then(async () => {
   if (isDev) {
     await runDevMigration();
   } else {
-    await runProductionMigration(prisma);
+    await runProductionMigration();
   }
 
   await prisma.$connect();
@@ -242,7 +242,7 @@ app.whenReady().then(async () => {
 
     const sourcePath = filePaths[0];
     const newFileName = `${Date.now()}.webp`;
-    const savePath = path.join(imagesDir, newFileName);
+        const savePath = path.join(studentImagesDir, newFileName);
 
     try {
       await sharp(sourcePath)

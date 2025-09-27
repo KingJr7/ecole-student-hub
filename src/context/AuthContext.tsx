@@ -12,10 +12,11 @@ export const AuthProvider = ({ children }) => {
       try {
         const status = await authService.getStatus();
         if (status && status.loggedIn) {
-          setUser({ 
-            isLoggedIn: true, 
-            role: status.userRole, 
-            schoolId: status.schoolId 
+          setUser({
+            isLoggedIn: true,
+            role: status.userRole,
+            schoolId: status.schoolId,
+            permissions: status.permissions, // Ajout des permissions
           });
         }
       } catch (error) {
@@ -31,10 +32,14 @@ export const AuthProvider = ({ children }) => {
   const login = async (email, password) => {
     const result = await authService.login(email, password);
     if (result.success) {
-      setUser({ 
-        isLoggedIn: true, 
-        role: result.role, 
-        schoolId: result.school_id 
+      // La fonction de login dans auth.cjs ne retourne pas les permissions,
+      // mais elle les stocke. On doit donc re-vérifier le statut pour les obtenir.
+      const status = await authService.getStatus();
+      setUser({
+        isLoggedIn: true,
+        role: status.userRole,
+        schoolId: status.schoolId,
+        permissions: status.permissions, // Ajout des permissions
       });
     }
     return result;
