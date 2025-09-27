@@ -14,6 +14,7 @@ import Grades from "./pages/Grades";
 import StudentDetails from "./pages/StudentDetails";
 import ClassDetails from "./pages/ClassDetails"; // Ajout de l'import
 import Teachers from "./pages/Teachers";
+import EventsPage from "./pages/Events";
 import NotFound from "./pages/NotFound";
 import Settings from "./pages/Settings";
 import DefaultClasses from "./pages/DefaultClasses";
@@ -37,7 +38,7 @@ const ProtectedRoute = ({ children }) => {
   return user ? children : <Navigate to="/login" replace />;
 };
 
-const App = () => {
+const App: React.FC = () => {
   useSyncAuto();
 
   useEffect(() => {
@@ -89,6 +90,7 @@ const App = () => {
                 <Route path="/students" element={<ProtectedRoute><Students /></ProtectedRoute>} />
                 <Route path="/students/:studentId" element={<ProtectedRoute><StudentDetails /></ProtectedRoute>} />
                 <Route path="/teachers" element={<ProtectedRoute><Teachers /></ProtectedRoute>} />
+                <Route path="/events" element={<ProtectedRoute><EventsPage /></ProtectedRoute>} />
                 <Route path="/employees" element={<ProtectedRoute><EmployeesPage /></ProtectedRoute>} />
                 <Route path="/classes" element={<ProtectedRoute><Classes /></ProtectedRoute>} />
                 <Route path="/classes/:classId" element={<ProtectedRoute><ClassDetails /></ProtectedRoute>} />

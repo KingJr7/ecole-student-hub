@@ -452,6 +452,20 @@ exports.Prisma.DispatchRuleDetailScalarFieldEnum = {
   is_deleted: 'is_deleted'
 };
 
+exports.Prisma.EventsScalarFieldEnum = {
+  id: 'id',
+  title: 'title',
+  description: 'description',
+  date: 'date',
+  location: 'location',
+  image_url: 'image_url',
+  school_id: 'school_id',
+  supabase_id: 'supabase_id',
+  last_modified: 'last_modified',
+  needs_sync: 'needs_sync',
+  is_deleted: 'is_deleted'
+};
+
 exports.Prisma.SortOrder = {
   asc: 'asc',
   desc: 'desc'
@@ -503,7 +517,8 @@ exports.Prisma.ModelName = {
   Budget: 'Budget',
   FinancialReport: 'FinancialReport',
   DispatchRule: 'DispatchRule',
-  DispatchRuleDetail: 'DispatchRuleDetail'
+  DispatchRuleDetail: 'DispatchRuleDetail',
+  Events: 'Events'
 };
 
 /**

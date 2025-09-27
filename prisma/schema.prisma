@@ -463,3 +463,19 @@ model DispatchRuleDetail {
 
   @@map("dispatch_rule_details")
 }
+
+model Events {
+  id            Int       @id @default(autoincrement())
+  title         String
+  description   String?
+  date          DateTime
+  location      String?
+  image_url     String?
+  school_id     String
+  supabase_id   String?   @unique
+  last_modified DateTime  @default(now())
+  needs_sync    Boolean   @default(false)
+  is_deleted    Boolean   @default(false)
+
+  @@map("events")
+}

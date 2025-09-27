@@ -150,6 +150,13 @@ export function useDatabase() {
   const deleteFeeTemplate = useCallback((id: number) => invoke('db:fee-templates:delete', id), []);
   // #endregion
 
+  // #region Events
+  const getAllEvents = useCallback(() => invoke('db:events:getAll'), []);
+  const createEvent = useCallback((data: any) => invoke('db:events:create', data), []);
+  const updateEvent = useCallback((id: number, data: any) => invoke('db:events:update', { id, data }), []);
+  const deleteEvent = useCallback((id: number) => invoke('db:events:delete', id), []);
+  // #endregion
+
   // #region Printer
   const getPrinters = useCallback(() => invoke('printers:get-list'), []);
   const printReceipt = useCallback((data: any) => invoke('printers:print-receipt', data), []);
@@ -192,6 +199,7 @@ export function useDatabase() {
     getPrinters, printReceipt,
     getAllDispatchRules, createDispatchRule, updateDispatchRule, deleteDispatchRule, getDispatchSummary, getBase64Image,
     getAllFeeTemplates, createFeeTemplate, updateFeeTemplate, deleteFeeTemplate,
+    getAllEvents, createEvent, updateEvent, deleteEvent, // Ajout des fonctions pour les événements
     processStudentPhoto: () => invoke('images:process-student-photo'),
   }), []);
 }

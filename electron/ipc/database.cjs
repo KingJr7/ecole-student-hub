@@ -19,6 +19,7 @@ const { setupSettingsIPC } = require('./handlers/settings.cjs');
 const { setupFeesIPC } = require('./handlers/fees.cjs');
 const { setupFeeTemplatesIPC } = require('./handlers/fee-templates.cjs');
 const { setupStudentParentsIPC } = require('./handlers/studentParents.cjs');
+const { setupEventsIPC } = require('./handlers/events.cjs');
 
 
 let prisma;
@@ -52,6 +53,7 @@ function setupDatabaseIPC(prismaClient) {
   setupStudentParentsIPC(prisma);
   setupFeesIPC(prisma);
   setupFeeTemplatesIPC(prisma);
+  setupEventsIPC(prisma);
   
   console.log("All database IPC handlers have been set up from modular files.");
 }

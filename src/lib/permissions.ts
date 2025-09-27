@@ -17,6 +17,8 @@ export const PERMISSIONS = {
   CAN_MANAGE_SCHEDULES: 'schedules',
   // Settings
   CAN_MANAGE_SETTINGS: 'settings',
+  // Events
+  CAN_MANAGE_EVENTS: 'events',
 };
 
 export const getAccessLevel = (userRole, userPermissions, permission) => {

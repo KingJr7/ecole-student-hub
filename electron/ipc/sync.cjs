@@ -858,6 +858,29 @@ const tableConfigs = {
                 notes: row.notes
             };
         }
+    },
+    events: {
+        name: 'events',
+        model: 'events',
+        pullSelect: '*',
+        pullFilterColumn: 'school_id',
+        timestampColumn: 'updated_at', // Spécifier la colonne de date correcte
+        supabaseMap: (row, schoolId) => ({
+            title: row.title,
+            description: row.description,
+            date: row.date,
+            location: row.location,
+            image_url: row.image_url,
+            school_id: schoolId
+        }),
+        localMap: (row) => ({
+            title: row.title,
+            description: row.description,
+            date: row.date,
+            location: row.location,
+            image_url: row.image_url,
+            school_id: row.school_id
+        })
     }
 };
 
@@ -915,6 +938,7 @@ const syncOrder = [
     'teachers', 
     'employees', 
     'financial_categories',
+    'events',
     
     // Entités dépendant des entités de base
     'single_fees',          // Dépend de 'classes'
@@ -1053,6 +1077,7 @@ async function pullChanges(prisma, schoolId, supabase) {
         
         sendSyncLog('info', `[PULL] Table '${config.name}': Recherche des modifications depuis ${lastSyncTime}`);
 
+        const timestampColumn = config.timestampColumn || 'last_modified';
         let query = supabase.from(config.name).select(config.pullSelect);
         
         if (config.pullFilterColumn) {
@@ -1061,7 +1086,7 @@ async function pullChanges(prisma, schoolId, supabase) {
              query = query.eq('school_id', schoolId);
         }
 
-        query = query.gt('last_modified', lastSyncTime);
+        query = query.gt(timestampColumn, lastSyncTime);
 
         const { data: supabaseRows, error } = await query;
 

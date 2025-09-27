@@ -905,6 +905,9 @@ export const deleteGrade = isBrowser ? mockApi.deleteGrade : async (id: number) 
   return true;
 };
 
+
+export const deleteFeeTemplate = (id: number) => window.db.deleteFeeTemplate(id);
+
 // Dashboard statistics
 export const getDashboardStats = async (): Promise<DashboardStats> => {
   if (isBrowser) {

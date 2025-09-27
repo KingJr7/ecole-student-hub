@@ -14,6 +14,7 @@ async function getUserContext(prisma, event) {
     schoolId: settings?.schoolId || null,
     userRole: settings?.userRole || null,
     userSupabaseId: settings?.roleId || null, // roleId contient l'ID supabase de l'utilisateur connecté
+    permissions: settings?.permissions || {},
   };
 }
 

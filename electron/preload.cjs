@@ -16,6 +16,7 @@ const validInvokeChannels = [
   'db:classes:getAll', 'db:classes:create', 'db:classes:update', 'db:classes:delete',
   'db:students:getAll', 'db:students:create', 'db:students:update', 'db:students:delete', 'db:students:getRecent', 'db:students:getDetails', 'db:students:search',
   'db:teachers:getAll', 'db:teachers:getById', 'db:teachers:create', 'db:teachers:update',   'db:teachers:delete', 'db:teachers:getSubjects', 'db:teachers:calculateSalary', 'db:teachers:getSchedule',,
+  'db:events:getAll', 'db:events:create', 'db:events:update', 'db:events:delete',
   'db:parents:getAll', 'db:parents:create', 'db:parents:update', 'db:parents:delete', 'db:parents:findByPhone',
   'db:employees:getAll', 'db:employees:create', 'db:employees:update', 'db:employees:delete', 'db:employees:paySalary', 'db:employees:getSalaryHistory', 'db:employees:getStats',
   'db:subjects:getAll', 'db:subjects:create', 'db:subjects:update', 'db:subjects:delete', 'db:classSubjects:getAll', 'db:subjects:getByTeacherId', 'db:subjects:getAllDetailed',

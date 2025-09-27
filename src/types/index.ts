@@ -37,3 +37,21 @@ export interface Settings {
   schoolName?: string;
   schoolAddress?: string;
 }
+
+export interface Schedule {
+  id: number;
+  lesson_id: number;
+  day_of_week: string;
+  start_time: string;
+  end_time: string;
+  lesson: Lesson;
+}
+
+export interface Event {
+  id: number;
+  title: string;
+  description?: string;
+  date: string; // ISO string
+  location?: string;
+  image_url?: string;
+}

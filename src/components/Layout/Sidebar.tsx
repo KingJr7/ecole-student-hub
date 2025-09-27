@@ -2,7 +2,7 @@
 import { useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { cn } from "@/lib/utils";
-import { Book, CalendarCheck, FileText, FileMinus, Users, GraduationCap, Database, Settings as SettingsIcon, LogOut, BarChart, DollarSign } from "lucide-react";
+import { Book, CalendarCheck, FileText, FileMinus, Users, GraduationCap, Database, Settings as SettingsIcon, LogOut, BarChart, DollarSign, Megaphone } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "../../context/AuthContext";
 import { hasPermission, PERMISSIONS } from "../../lib/permissions";
@@ -32,6 +32,7 @@ export default function Sidebar() {
     { name: "Notes", href: "/grades", icon: FileText, permission: PERMISSIONS.CAN_MANAGE_GRADES },
     { name: "Performance par classe", href: "/class-performance", icon: BarChart, permission: PERMISSIONS.CAN_MANAGE_CLASSES },
     { name: "Finances", href: "/finance", icon: DollarSign, permission: PERMISSIONS.CAN_MANAGE_PAYMENTS },
+    { name: "Événements", href: "/events", icon: Megaphone, permission: PERMISSIONS.CAN_MANAGE_EVENTS },
   ];
 
   const toggleSidebar = () => {
