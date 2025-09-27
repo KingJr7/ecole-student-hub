@@ -49,7 +49,6 @@
       "dist/**/*",
       "electron/**/*",
       "src/generated/prisma/**/*",
-      "prisma/migrations/**/*",
       "package.json"
     ],
     "asarUnpack": [
@@ -58,6 +57,10 @@
       "**/node_modules/@prisma/engines/**"
     ],
     "extraResources": [
+      {
+        "from": "prisma/migrations",
+        "to": "prisma/migrations"
+      },
       ".env",
       "ntik.sqlite"
     ],
