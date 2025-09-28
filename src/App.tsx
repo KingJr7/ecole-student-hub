@@ -23,6 +23,7 @@ import SchedulesPage from "./pages/Schedules";
 import EmployeesPage from "./pages/Employees";
 import ClassPerformance from "./pages/ClassPerformance";
 import FinancePage from "./pages/Finance";
+import EmployeeAttendance from "./pages/EmployeeAttendance";
 import { useSyncAuto } from "./syncAuto";
 import { AuthProvider, useAuth } from "./context/AuthContext";
 
@@ -101,6 +102,7 @@ const App: React.FC = () => {
                 <Route path="/settings" element={<ProtectedRoute><Settings /></ProtectedRoute>} />
                 <Route path="/class-performance" element={<ProtectedRoute><ClassPerformance /></ProtectedRoute>} />
                 <Route path="/finance" element={<ProtectedRoute><FinancePage /></ProtectedRoute>} />
+                <Route path="/employee-attendance" element={<ProtectedRoute><EmployeeAttendance /></ProtectedRoute>} />
                 
                 {/* Redirection par défaut */}
                 <Route path="*" element={<NotFound />} />

@@ -138,6 +138,11 @@ export type DispatchRuleDetail = $Result.DefaultSelection<Prisma.$DispatchRuleDe
  * 
  */
 export type Events = $Result.DefaultSelection<Prisma.$EventsPayload>
+/**
+ * Model EmployeeAttendance
+ * 
+ */
+export type EmployeeAttendance = $Result.DefaultSelection<Prisma.$EmployeeAttendancePayload>
 
 /**
  * ##  Prisma Client ʲˢ
@@ -506,6 +511,16 @@ export class PrismaClient<
     * ```
     */
   get events(): Prisma.EventsDelegate<ExtArgs, ClientOptions>;
+
+  /**
+   * `prisma.employeeAttendance`: Exposes CRUD operations for the **EmployeeAttendance** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more EmployeeAttendances
+    * const employeeAttendances = await prisma.employeeAttendance.findMany()
+    * ```
+    */
+  get employeeAttendance(): Prisma.EmployeeAttendanceDelegate<ExtArgs, ClientOptions>;
 }
 
 export namespace Prisma {
@@ -970,7 +985,8 @@ export namespace Prisma {
     FinancialReport: 'FinancialReport',
     DispatchRule: 'DispatchRule',
     DispatchRuleDetail: 'DispatchRuleDetail',
-    Events: 'Events'
+    Events: 'Events',
+    EmployeeAttendance: 'EmployeeAttendance'
   };
 
   export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -989,7 +1005,7 @@ export namespace Prisma {
       omit: GlobalOmitOptions
     }
     meta: {
-      modelProps: "settings" | "classes" | "students" | "registrations" | "teachers" | "teacherWorkHours" | "lessons" | "subjects" | "notes" | "parents" | "studentParents" | "payments" | "singleFee" | "feeTemplate" | "attendances" | "employees" | "salaryPayments" | "schedules" | "financialCategory" | "financialTransaction" | "budget" | "financialReport" | "dispatchRule" | "dispatchRuleDetail" | "events"
+      modelProps: "settings" | "classes" | "students" | "registrations" | "teachers" | "teacherWorkHours" | "lessons" | "subjects" | "notes" | "parents" | "studentParents" | "payments" | "singleFee" | "feeTemplate" | "attendances" | "employees" | "salaryPayments" | "schedules" | "financialCategory" | "financialTransaction" | "budget" | "financialReport" | "dispatchRule" | "dispatchRuleDetail" | "events" | "employeeAttendance"
       txIsolationLevel: Prisma.TransactionIsolationLevel
     }
     model: {
@@ -2843,6 +2859,80 @@ export namespace Prisma {
           }
         }
       }
+      EmployeeAttendance: {
+        payload: Prisma.$EmployeeAttendancePayload<ExtArgs>
+        fields: Prisma.EmployeeAttendanceFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.EmployeeAttendanceFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$EmployeeAttendancePayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.EmployeeAttendanceFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$EmployeeAttendancePayload>
+          }
+          findFirst: {
+            args: Prisma.EmployeeAttendanceFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$EmployeeAttendancePayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.EmployeeAttendanceFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$EmployeeAttendancePayload>
+          }
+          findMany: {
+            args: Prisma.EmployeeAttendanceFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$EmployeeAttendancePayload>[]
+          }
+          create: {
+            args: Prisma.EmployeeAttendanceCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$EmployeeAttendancePayload>
+          }
+          createMany: {
+            args: Prisma.EmployeeAttendanceCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.EmployeeAttendanceCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$EmployeeAttendancePayload>[]
+          }
+          delete: {
+            args: Prisma.EmployeeAttendanceDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$EmployeeAttendancePayload>
+          }
+          update: {
+            args: Prisma.EmployeeAttendanceUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$EmployeeAttendancePayload>
+          }
+          deleteMany: {
+            args: Prisma.EmployeeAttendanceDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.EmployeeAttendanceUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateManyAndReturn: {
+            args: Prisma.EmployeeAttendanceUpdateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$EmployeeAttendancePayload>[]
+          }
+          upsert: {
+            args: Prisma.EmployeeAttendanceUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$EmployeeAttendancePayload>
+          }
+          aggregate: {
+            args: Prisma.EmployeeAttendanceAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateEmployeeAttendance>
+          }
+          groupBy: {
+            args: Prisma.EmployeeAttendanceGroupByArgs<ExtArgs>
+            result: $Utils.Optional<EmployeeAttendanceGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.EmployeeAttendanceCountArgs<ExtArgs>
+            result: $Utils.Optional<EmployeeAttendanceCountAggregateOutputType> | number
+          }
+        }
+      }
     }
   } & {
     other: {
@@ -2960,6 +3050,7 @@ export namespace Prisma {
     dispatchRule?: DispatchRuleOmit
     dispatchRuleDetail?: DispatchRuleDetailOmit
     events?: EventsOmit
+    employeeAttendance?: EmployeeAttendanceOmit
   }
 
   /* Types for Logging */
@@ -3198,11 +3289,13 @@ export namespace Prisma {
   export type TeachersCountOutputType = {
     lessons: number
     workHours: number
+    attendances: number
   }
 
   export type TeachersCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     lessons?: boolean | TeachersCountOutputTypeCountLessonsArgs
     workHours?: boolean | TeachersCountOutputTypeCountWorkHoursArgs
+    attendances?: boolean | TeachersCountOutputTypeCountAttendancesArgs
   }
 
   // Custom InputTypes
@@ -3228,6 +3321,13 @@ export namespace Prisma {
    */
   export type TeachersCountOutputTypeCountWorkHoursArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     where?: TeacherWorkHoursWhereInput
+  }
+
+  /**
+   * TeachersCountOutputType without action
+   */
+  export type TeachersCountOutputTypeCountAttendancesArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: EmployeeAttendanceWhereInput
   }
 
 
@@ -3419,10 +3519,12 @@ export namespace Prisma {
 
   export type EmployeesCountOutputType = {
     salary_payments: number
+    attendances: number
   }
 
   export type EmployeesCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     salary_payments?: boolean | EmployeesCountOutputTypeCountSalary_paymentsArgs
+    attendances?: boolean | EmployeesCountOutputTypeCountAttendancesArgs
   }
 
   // Custom InputTypes
@@ -3441,6 +3543,13 @@ export namespace Prisma {
    */
   export type EmployeesCountOutputTypeCountSalary_paymentsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     where?: SalaryPaymentsWhereInput
+  }
+
+  /**
+   * EmployeesCountOutputType without action
+   */
+  export type EmployeesCountOutputTypeCountAttendancesArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: EmployeeAttendanceWhereInput
   }
 
 
@@ -8694,6 +8803,7 @@ export namespace Prisma {
     school_id?: boolean
     lessons?: boolean | Teachers$lessonsArgs<ExtArgs>
     workHours?: boolean | Teachers$workHoursArgs<ExtArgs>
+    attendances?: boolean | Teachers$attendancesArgs<ExtArgs>
     _count?: boolean | TeachersCountOutputTypeDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["teachers"]>
 
@@ -8761,6 +8871,7 @@ export namespace Prisma {
   export type TeachersInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     lessons?: boolean | Teachers$lessonsArgs<ExtArgs>
     workHours?: boolean | Teachers$workHoursArgs<ExtArgs>
+    attendances?: boolean | Teachers$attendancesArgs<ExtArgs>
     _count?: boolean | TeachersCountOutputTypeDefaultArgs<ExtArgs>
   }
   export type TeachersIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {}
@@ -8771,6 +8882,7 @@ export namespace Prisma {
     objects: {
       lessons: Prisma.$LessonsPayload<ExtArgs>[]
       workHours: Prisma.$TeacherWorkHoursPayload<ExtArgs>[]
+      attendances: Prisma.$EmployeeAttendancePayload<ExtArgs>[]
     }
     scalars: $Extensions.GetPayloadResult<{
       id: number
@@ -9186,6 +9298,7 @@ export namespace Prisma {
     readonly [Symbol.toStringTag]: "PrismaPromise"
     lessons<T extends Teachers$lessonsArgs<ExtArgs> = {}>(args?: Subset<T, Teachers$lessonsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$LessonsPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     workHours<T extends Teachers$workHoursArgs<ExtArgs> = {}>(args?: Subset<T, Teachers$workHoursArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$TeacherWorkHoursPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    attendances<T extends Teachers$attendancesArgs<ExtArgs> = {}>(args?: Subset<T, Teachers$attendancesArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$EmployeeAttendancePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
      * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -9663,6 +9776,30 @@ export namespace Prisma {
     take?: number
     skip?: number
     distinct?: TeacherWorkHoursScalarFieldEnum | TeacherWorkHoursScalarFieldEnum[]
+  }
+
+  /**
+   * Teachers.attendances
+   */
+  export type Teachers$attendancesArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the EmployeeAttendance
+     */
+    select?: EmployeeAttendanceSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the EmployeeAttendance
+     */
+    omit?: EmployeeAttendanceOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: EmployeeAttendanceInclude<ExtArgs> | null
+    where?: EmployeeAttendanceWhereInput
+    orderBy?: EmployeeAttendanceOrderByWithRelationInput | EmployeeAttendanceOrderByWithRelationInput[]
+    cursor?: EmployeeAttendanceWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: EmployeeAttendanceScalarFieldEnum | EmployeeAttendanceScalarFieldEnum[]
   }
 
   /**
@@ -22147,6 +22284,7 @@ export namespace Prisma {
     needs_sync?: boolean
     is_deleted?: boolean
     salary_payments?: boolean | Employees$salary_paymentsArgs<ExtArgs>
+    attendances?: boolean | Employees$attendancesArgs<ExtArgs>
     _count?: boolean | EmployeesCountOutputTypeDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["employees"]>
 
@@ -22213,6 +22351,7 @@ export namespace Prisma {
   export type EmployeesOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "name" | "first_name" | "phone" | "email" | "adress" | "gender" | "job_title" | "salary" | "matricule" | "school_id" | "password_hash" | "supabase_id" | "user_supabase_id" | "last_modified" | "needs_sync" | "is_deleted", ExtArgs["result"]["employees"]>
   export type EmployeesInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     salary_payments?: boolean | Employees$salary_paymentsArgs<ExtArgs>
+    attendances?: boolean | Employees$attendancesArgs<ExtArgs>
     _count?: boolean | EmployeesCountOutputTypeDefaultArgs<ExtArgs>
   }
   export type EmployeesIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {}
@@ -22222,6 +22361,7 @@ export namespace Prisma {
     name: "Employees"
     objects: {
       salary_payments: Prisma.$SalaryPaymentsPayload<ExtArgs>[]
+      attendances: Prisma.$EmployeeAttendancePayload<ExtArgs>[]
     }
     scalars: $Extensions.GetPayloadResult<{
       id: number
@@ -22636,6 +22776,7 @@ export namespace Prisma {
   export interface Prisma__EmployeesClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
     readonly [Symbol.toStringTag]: "PrismaPromise"
     salary_payments<T extends Employees$salary_paymentsArgs<ExtArgs> = {}>(args?: Subset<T, Employees$salary_paymentsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$SalaryPaymentsPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    attendances<T extends Employees$attendancesArgs<ExtArgs> = {}>(args?: Subset<T, Employees$attendancesArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$EmployeeAttendancePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
      * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -23089,6 +23230,30 @@ export namespace Prisma {
     take?: number
     skip?: number
     distinct?: SalaryPaymentsScalarFieldEnum | SalaryPaymentsScalarFieldEnum[]
+  }
+
+  /**
+   * Employees.attendances
+   */
+  export type Employees$attendancesArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the EmployeeAttendance
+     */
+    select?: EmployeeAttendanceSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the EmployeeAttendance
+     */
+    omit?: EmployeeAttendanceOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: EmployeeAttendanceInclude<ExtArgs> | null
+    where?: EmployeeAttendanceWhereInput
+    orderBy?: EmployeeAttendanceOrderByWithRelationInput | EmployeeAttendanceOrderByWithRelationInput[]
+    cursor?: EmployeeAttendanceWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: EmployeeAttendanceScalarFieldEnum | EmployeeAttendanceScalarFieldEnum[]
   }
 
   /**
@@ -33404,6 +33569,1228 @@ export namespace Prisma {
 
 
   /**
+   * Model EmployeeAttendance
+   */
+
+  export type AggregateEmployeeAttendance = {
+    _count: EmployeeAttendanceCountAggregateOutputType | null
+    _avg: EmployeeAttendanceAvgAggregateOutputType | null
+    _sum: EmployeeAttendanceSumAggregateOutputType | null
+    _min: EmployeeAttendanceMinAggregateOutputType | null
+    _max: EmployeeAttendanceMaxAggregateOutputType | null
+  }
+
+  export type EmployeeAttendanceAvgAggregateOutputType = {
+    id: number | null
+    employee_id: number | null
+    teacher_id: number | null
+  }
+
+  export type EmployeeAttendanceSumAggregateOutputType = {
+    id: number | null
+    employee_id: number | null
+    teacher_id: number | null
+  }
+
+  export type EmployeeAttendanceMinAggregateOutputType = {
+    id: number | null
+    employee_id: number | null
+    teacher_id: number | null
+    check_in: Date | null
+    check_out: Date | null
+    notes: string | null
+    school_id: string | null
+    supabase_id: string | null
+    last_modified: Date | null
+    needs_sync: boolean | null
+    is_deleted: boolean | null
+  }
+
+  export type EmployeeAttendanceMaxAggregateOutputType = {
+    id: number | null
+    employee_id: number | null
+    teacher_id: number | null
+    check_in: Date | null
+    check_out: Date | null
+    notes: string | null
+    school_id: string | null
+    supabase_id: string | null
+    last_modified: Date | null
+    needs_sync: boolean | null
+    is_deleted: boolean | null
+  }
+
+  export type EmployeeAttendanceCountAggregateOutputType = {
+    id: number
+    employee_id: number
+    teacher_id: number
+    check_in: number
+    check_out: number
+    notes: number
+    school_id: number
+    supabase_id: number
+    last_modified: number
+    needs_sync: number
+    is_deleted: number
+    _all: number
+  }
+
+
+  export type EmployeeAttendanceAvgAggregateInputType = {
+    id?: true
+    employee_id?: true
+    teacher_id?: true
+  }
+
+  export type EmployeeAttendanceSumAggregateInputType = {
+    id?: true
+    employee_id?: true
+    teacher_id?: true
+  }
+
+  export type EmployeeAttendanceMinAggregateInputType = {
+    id?: true
+    employee_id?: true
+    teacher_id?: true
+    check_in?: true
+    check_out?: true
+    notes?: true
+    school_id?: true
+    supabase_id?: true
+    last_modified?: true
+    needs_sync?: true
+    is_deleted?: true
+  }
+
+  export type EmployeeAttendanceMaxAggregateInputType = {
+    id?: true
+    employee_id?: true
+    teacher_id?: true
+    check_in?: true
+    check_out?: true
+    notes?: true
+    school_id?: true
+    supabase_id?: true
+    last_modified?: true
+    needs_sync?: true
+    is_deleted?: true
+  }
+
+  export type EmployeeAttendanceCountAggregateInputType = {
+    id?: true
+    employee_id?: true
+    teacher_id?: true
+    check_in?: true
+    check_out?: true
+    notes?: true
+    school_id?: true
+    supabase_id?: true
+    last_modified?: true
+    needs_sync?: true
+    is_deleted?: true
+    _all?: true
+  }
+
+  export type EmployeeAttendanceAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which EmployeeAttendance to aggregate.
+     */
+    where?: EmployeeAttendanceWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of EmployeeAttendances to fetch.
+     */
+    orderBy?: EmployeeAttendanceOrderByWithRelationInput | EmployeeAttendanceOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: EmployeeAttendanceWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` EmployeeAttendances from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` EmployeeAttendances.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned EmployeeAttendances
+    **/
+    _count?: true | EmployeeAttendanceCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to average
+    **/
+    _avg?: EmployeeAttendanceAvgAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to sum
+    **/
+    _sum?: EmployeeAttendanceSumAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: EmployeeAttendanceMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: EmployeeAttendanceMaxAggregateInputType
+  }
+
+  export type GetEmployeeAttendanceAggregateType<T extends EmployeeAttendanceAggregateArgs> = {
+        [P in keyof T & keyof AggregateEmployeeAttendance]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateEmployeeAttendance[P]>
+      : GetScalarType<T[P], AggregateEmployeeAttendance[P]>
+  }
+
+
+
+
+  export type EmployeeAttendanceGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: EmployeeAttendanceWhereInput
+    orderBy?: EmployeeAttendanceOrderByWithAggregationInput | EmployeeAttendanceOrderByWithAggregationInput[]
+    by: EmployeeAttendanceScalarFieldEnum[] | EmployeeAttendanceScalarFieldEnum
+    having?: EmployeeAttendanceScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: EmployeeAttendanceCountAggregateInputType | true
+    _avg?: EmployeeAttendanceAvgAggregateInputType
+    _sum?: EmployeeAttendanceSumAggregateInputType
+    _min?: EmployeeAttendanceMinAggregateInputType
+    _max?: EmployeeAttendanceMaxAggregateInputType
+  }
+
+  export type EmployeeAttendanceGroupByOutputType = {
+    id: number
+    employee_id: number | null
+    teacher_id: number | null
+    check_in: Date
+    check_out: Date | null
+    notes: string | null
+    school_id: string | null
+    supabase_id: string | null
+    last_modified: Date
+    needs_sync: boolean
+    is_deleted: boolean
+    _count: EmployeeAttendanceCountAggregateOutputType | null
+    _avg: EmployeeAttendanceAvgAggregateOutputType | null
+    _sum: EmployeeAttendanceSumAggregateOutputType | null
+    _min: EmployeeAttendanceMinAggregateOutputType | null
+    _max: EmployeeAttendanceMaxAggregateOutputType | null
+  }
+
+  type GetEmployeeAttendanceGroupByPayload<T extends EmployeeAttendanceGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<EmployeeAttendanceGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof EmployeeAttendanceGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], EmployeeAttendanceGroupByOutputType[P]>
+            : GetScalarType<T[P], EmployeeAttendanceGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type EmployeeAttendanceSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    employee_id?: boolean
+    teacher_id?: boolean
+    check_in?: boolean
+    check_out?: boolean
+    notes?: boolean
+    school_id?: boolean
+    supabase_id?: boolean
+    last_modified?: boolean
+    needs_sync?: boolean
+    is_deleted?: boolean
+    employee?: boolean | EmployeeAttendance$employeeArgs<ExtArgs>
+    teacher?: boolean | EmployeeAttendance$teacherArgs<ExtArgs>
+  }, ExtArgs["result"]["employeeAttendance"]>
+
+  export type EmployeeAttendanceSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    employee_id?: boolean
+    teacher_id?: boolean
+    check_in?: boolean
+    check_out?: boolean
+    notes?: boolean
+    school_id?: boolean
+    supabase_id?: boolean
+    last_modified?: boolean
+    needs_sync?: boolean
+    is_deleted?: boolean
+    employee?: boolean | EmployeeAttendance$employeeArgs<ExtArgs>
+    teacher?: boolean | EmployeeAttendance$teacherArgs<ExtArgs>
+  }, ExtArgs["result"]["employeeAttendance"]>
+
+  export type EmployeeAttendanceSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    employee_id?: boolean
+    teacher_id?: boolean
+    check_in?: boolean
+    check_out?: boolean
+    notes?: boolean
+    school_id?: boolean
+    supabase_id?: boolean
+    last_modified?: boolean
+    needs_sync?: boolean
+    is_deleted?: boolean
+    employee?: boolean | EmployeeAttendance$employeeArgs<ExtArgs>
+    teacher?: boolean | EmployeeAttendance$teacherArgs<ExtArgs>
+  }, ExtArgs["result"]["employeeAttendance"]>
+
+  export type EmployeeAttendanceSelectScalar = {
+    id?: boolean
+    employee_id?: boolean
+    teacher_id?: boolean
+    check_in?: boolean
+    check_out?: boolean
+    notes?: boolean
+    school_id?: boolean
+    supabase_id?: boolean
+    last_modified?: boolean
+    needs_sync?: boolean
+    is_deleted?: boolean
+  }
+
+  export type EmployeeAttendanceOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "employee_id" | "teacher_id" | "check_in" | "check_out" | "notes" | "school_id" | "supabase_id" | "last_modified" | "needs_sync" | "is_deleted", ExtArgs["result"]["employeeAttendance"]>
+  export type EmployeeAttendanceInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    employee?: boolean | EmployeeAttendance$employeeArgs<ExtArgs>
+    teacher?: boolean | EmployeeAttendance$teacherArgs<ExtArgs>
+  }
+  export type EmployeeAttendanceIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    employee?: boolean | EmployeeAttendance$employeeArgs<ExtArgs>
+    teacher?: boolean | EmployeeAttendance$teacherArgs<ExtArgs>
+  }
+  export type EmployeeAttendanceIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    employee?: boolean | EmployeeAttendance$employeeArgs<ExtArgs>
+    teacher?: boolean | EmployeeAttendance$teacherArgs<ExtArgs>
+  }
+
+  export type $EmployeeAttendancePayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "EmployeeAttendance"
+    objects: {
+      employee: Prisma.$EmployeesPayload<ExtArgs> | null
+      teacher: Prisma.$TeachersPayload<ExtArgs> | null
+    }
+    scalars: $Extensions.GetPayloadResult<{
+      id: number
+      employee_id: number | null
+      teacher_id: number | null
+      check_in: Date
+      check_out: Date | null
+      notes: string | null
+      school_id: string | null
+      supabase_id: string | null
+      last_modified: Date
+      needs_sync: boolean
+      is_deleted: boolean
+    }, ExtArgs["result"]["employeeAttendance"]>
+    composites: {}
+  }
+
+  type EmployeeAttendanceGetPayload<S extends boolean | null | undefined | EmployeeAttendanceDefaultArgs> = $Result.GetResult<Prisma.$EmployeeAttendancePayload, S>
+
+  type EmployeeAttendanceCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<EmployeeAttendanceFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: EmployeeAttendanceCountAggregateInputType | true
+    }
+
+  export interface EmployeeAttendanceDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['EmployeeAttendance'], meta: { name: 'EmployeeAttendance' } }
+    /**
+     * Find zero or one EmployeeAttendance that matches the filter.
+     * @param {EmployeeAttendanceFindUniqueArgs} args - Arguments to find a EmployeeAttendance
+     * @example
+     * // Get one EmployeeAttendance
+     * const employeeAttendance = await prisma.employeeAttendance.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends EmployeeAttendanceFindUniqueArgs>(args: SelectSubset<T, EmployeeAttendanceFindUniqueArgs<ExtArgs>>): Prisma__EmployeeAttendanceClient<$Result.GetResult<Prisma.$EmployeeAttendancePayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one EmployeeAttendance that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {EmployeeAttendanceFindUniqueOrThrowArgs} args - Arguments to find a EmployeeAttendance
+     * @example
+     * // Get one EmployeeAttendance
+     * const employeeAttendance = await prisma.employeeAttendance.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends EmployeeAttendanceFindUniqueOrThrowArgs>(args: SelectSubset<T, EmployeeAttendanceFindUniqueOrThrowArgs<ExtArgs>>): Prisma__EmployeeAttendanceClient<$Result.GetResult<Prisma.$EmployeeAttendancePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first EmployeeAttendance that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {EmployeeAttendanceFindFirstArgs} args - Arguments to find a EmployeeAttendance
+     * @example
+     * // Get one EmployeeAttendance
+     * const employeeAttendance = await prisma.employeeAttendance.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends EmployeeAttendanceFindFirstArgs>(args?: SelectSubset<T, EmployeeAttendanceFindFirstArgs<ExtArgs>>): Prisma__EmployeeAttendanceClient<$Result.GetResult<Prisma.$EmployeeAttendancePayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first EmployeeAttendance that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {EmployeeAttendanceFindFirstOrThrowArgs} args - Arguments to find a EmployeeAttendance
+     * @example
+     * // Get one EmployeeAttendance
+     * const employeeAttendance = await prisma.employeeAttendance.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends EmployeeAttendanceFindFirstOrThrowArgs>(args?: SelectSubset<T, EmployeeAttendanceFindFirstOrThrowArgs<ExtArgs>>): Prisma__EmployeeAttendanceClient<$Result.GetResult<Prisma.$EmployeeAttendancePayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more EmployeeAttendances that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {EmployeeAttendanceFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all EmployeeAttendances
+     * const employeeAttendances = await prisma.employeeAttendance.findMany()
+     * 
+     * // Get first 10 EmployeeAttendances
+     * const employeeAttendances = await prisma.employeeAttendance.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const employeeAttendanceWithIdOnly = await prisma.employeeAttendance.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends EmployeeAttendanceFindManyArgs>(args?: SelectSubset<T, EmployeeAttendanceFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$EmployeeAttendancePayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a EmployeeAttendance.
+     * @param {EmployeeAttendanceCreateArgs} args - Arguments to create a EmployeeAttendance.
+     * @example
+     * // Create one EmployeeAttendance
+     * const EmployeeAttendance = await prisma.employeeAttendance.create({
+     *   data: {
+     *     // ... data to create a EmployeeAttendance
+     *   }
+     * })
+     * 
+     */
+    create<T extends EmployeeAttendanceCreateArgs>(args: SelectSubset<T, EmployeeAttendanceCreateArgs<ExtArgs>>): Prisma__EmployeeAttendanceClient<$Result.GetResult<Prisma.$EmployeeAttendancePayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many EmployeeAttendances.
+     * @param {EmployeeAttendanceCreateManyArgs} args - Arguments to create many EmployeeAttendances.
+     * @example
+     * // Create many EmployeeAttendances
+     * const employeeAttendance = await prisma.employeeAttendance.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends EmployeeAttendanceCreateManyArgs>(args?: SelectSubset<T, EmployeeAttendanceCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many EmployeeAttendances and returns the data saved in the database.
+     * @param {EmployeeAttendanceCreateManyAndReturnArgs} args - Arguments to create many EmployeeAttendances.
+     * @example
+     * // Create many EmployeeAttendances
+     * const employeeAttendance = await prisma.employeeAttendance.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many EmployeeAttendances and only return the `id`
+     * const employeeAttendanceWithIdOnly = await prisma.employeeAttendance.createManyAndReturn({
+     *   select: { id: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends EmployeeAttendanceCreateManyAndReturnArgs>(args?: SelectSubset<T, EmployeeAttendanceCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$EmployeeAttendancePayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Delete a EmployeeAttendance.
+     * @param {EmployeeAttendanceDeleteArgs} args - Arguments to delete one EmployeeAttendance.
+     * @example
+     * // Delete one EmployeeAttendance
+     * const EmployeeAttendance = await prisma.employeeAttendance.delete({
+     *   where: {
+     *     // ... filter to delete one EmployeeAttendance
+     *   }
+     * })
+     * 
+     */
+    delete<T extends EmployeeAttendanceDeleteArgs>(args: SelectSubset<T, EmployeeAttendanceDeleteArgs<ExtArgs>>): Prisma__EmployeeAttendanceClient<$Result.GetResult<Prisma.$EmployeeAttendancePayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one EmployeeAttendance.
+     * @param {EmployeeAttendanceUpdateArgs} args - Arguments to update one EmployeeAttendance.
+     * @example
+     * // Update one EmployeeAttendance
+     * const employeeAttendance = await prisma.employeeAttendance.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends EmployeeAttendanceUpdateArgs>(args: SelectSubset<T, EmployeeAttendanceUpdateArgs<ExtArgs>>): Prisma__EmployeeAttendanceClient<$Result.GetResult<Prisma.$EmployeeAttendancePayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more EmployeeAttendances.
+     * @param {EmployeeAttendanceDeleteManyArgs} args - Arguments to filter EmployeeAttendances to delete.
+     * @example
+     * // Delete a few EmployeeAttendances
+     * const { count } = await prisma.employeeAttendance.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends EmployeeAttendanceDeleteManyArgs>(args?: SelectSubset<T, EmployeeAttendanceDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more EmployeeAttendances.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {EmployeeAttendanceUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many EmployeeAttendances
+     * const employeeAttendance = await prisma.employeeAttendance.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends EmployeeAttendanceUpdateManyArgs>(args: SelectSubset<T, EmployeeAttendanceUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more EmployeeAttendances and returns the data updated in the database.
+     * @param {EmployeeAttendanceUpdateManyAndReturnArgs} args - Arguments to update many EmployeeAttendances.
+     * @example
+     * // Update many EmployeeAttendances
+     * const employeeAttendance = await prisma.employeeAttendance.updateManyAndReturn({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Update zero or more EmployeeAttendances and only return the `id`
+     * const employeeAttendanceWithIdOnly = await prisma.employeeAttendance.updateManyAndReturn({
+     *   select: { id: true },
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    updateManyAndReturn<T extends EmployeeAttendanceUpdateManyAndReturnArgs>(args: SelectSubset<T, EmployeeAttendanceUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$EmployeeAttendancePayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Create or update one EmployeeAttendance.
+     * @param {EmployeeAttendanceUpsertArgs} args - Arguments to update or create a EmployeeAttendance.
+     * @example
+     * // Update or create a EmployeeAttendance
+     * const employeeAttendance = await prisma.employeeAttendance.upsert({
+     *   create: {
+     *     // ... data to create a EmployeeAttendance
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the EmployeeAttendance we want to update
+     *   }
+     * })
+     */
+    upsert<T extends EmployeeAttendanceUpsertArgs>(args: SelectSubset<T, EmployeeAttendanceUpsertArgs<ExtArgs>>): Prisma__EmployeeAttendanceClient<$Result.GetResult<Prisma.$EmployeeAttendancePayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+
+    /**
+     * Count the number of EmployeeAttendances.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {EmployeeAttendanceCountArgs} args - Arguments to filter EmployeeAttendances to count.
+     * @example
+     * // Count the number of EmployeeAttendances
+     * const count = await prisma.employeeAttendance.count({
+     *   where: {
+     *     // ... the filter for the EmployeeAttendances we want to count
+     *   }
+     * })
+    **/
+    count<T extends EmployeeAttendanceCountArgs>(
+      args?: Subset<T, EmployeeAttendanceCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], EmployeeAttendanceCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a EmployeeAttendance.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {EmployeeAttendanceAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends EmployeeAttendanceAggregateArgs>(args: Subset<T, EmployeeAttendanceAggregateArgs>): Prisma.PrismaPromise<GetEmployeeAttendanceAggregateType<T>>
+
+    /**
+     * Group by EmployeeAttendance.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {EmployeeAttendanceGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends EmployeeAttendanceGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: EmployeeAttendanceGroupByArgs['orderBy'] }
+        : { orderBy?: EmployeeAttendanceGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, EmployeeAttendanceGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetEmployeeAttendanceGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the EmployeeAttendance model
+   */
+  readonly fields: EmployeeAttendanceFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for EmployeeAttendance.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__EmployeeAttendanceClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    employee<T extends EmployeeAttendance$employeeArgs<ExtArgs> = {}>(args?: Subset<T, EmployeeAttendance$employeeArgs<ExtArgs>>): Prisma__EmployeesClient<$Result.GetResult<Prisma.$EmployeesPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+    teacher<T extends EmployeeAttendance$teacherArgs<ExtArgs> = {}>(args?: Subset<T, EmployeeAttendance$teacherArgs<ExtArgs>>): Prisma__TeachersClient<$Result.GetResult<Prisma.$TeachersPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the EmployeeAttendance model
+   */
+  interface EmployeeAttendanceFieldRefs {
+    readonly id: FieldRef<"EmployeeAttendance", 'Int'>
+    readonly employee_id: FieldRef<"EmployeeAttendance", 'Int'>
+    readonly teacher_id: FieldRef<"EmployeeAttendance", 'Int'>
+    readonly check_in: FieldRef<"EmployeeAttendance", 'DateTime'>
+    readonly check_out: FieldRef<"EmployeeAttendance", 'DateTime'>
+    readonly notes: FieldRef<"EmployeeAttendance", 'String'>
+    readonly school_id: FieldRef<"EmployeeAttendance", 'String'>
+    readonly supabase_id: FieldRef<"EmployeeAttendance", 'String'>
+    readonly last_modified: FieldRef<"EmployeeAttendance", 'DateTime'>
+    readonly needs_sync: FieldRef<"EmployeeAttendance", 'Boolean'>
+    readonly is_deleted: FieldRef<"EmployeeAttendance", 'Boolean'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * EmployeeAttendance findUnique
+   */
+  export type EmployeeAttendanceFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the EmployeeAttendance
+     */
+    select?: EmployeeAttendanceSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the EmployeeAttendance
+     */
+    omit?: EmployeeAttendanceOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: EmployeeAttendanceInclude<ExtArgs> | null
+    /**
+     * Filter, which EmployeeAttendance to fetch.
+     */
+    where: EmployeeAttendanceWhereUniqueInput
+  }
+
+  /**
+   * EmployeeAttendance findUniqueOrThrow
+   */
+  export type EmployeeAttendanceFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the EmployeeAttendance
+     */
+    select?: EmployeeAttendanceSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the EmployeeAttendance
+     */
+    omit?: EmployeeAttendanceOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: EmployeeAttendanceInclude<ExtArgs> | null
+    /**
+     * Filter, which EmployeeAttendance to fetch.
+     */
+    where: EmployeeAttendanceWhereUniqueInput
+  }
+
+  /**
+   * EmployeeAttendance findFirst
+   */
+  export type EmployeeAttendanceFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the EmployeeAttendance
+     */
+    select?: EmployeeAttendanceSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the EmployeeAttendance
+     */
+    omit?: EmployeeAttendanceOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: EmployeeAttendanceInclude<ExtArgs> | null
+    /**
+     * Filter, which EmployeeAttendance to fetch.
+     */
+    where?: EmployeeAttendanceWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of EmployeeAttendances to fetch.
+     */
+    orderBy?: EmployeeAttendanceOrderByWithRelationInput | EmployeeAttendanceOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for EmployeeAttendances.
+     */
+    cursor?: EmployeeAttendanceWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` EmployeeAttendances from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` EmployeeAttendances.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of EmployeeAttendances.
+     */
+    distinct?: EmployeeAttendanceScalarFieldEnum | EmployeeAttendanceScalarFieldEnum[]
+  }
+
+  /**
+   * EmployeeAttendance findFirstOrThrow
+   */
+  export type EmployeeAttendanceFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the EmployeeAttendance
+     */
+    select?: EmployeeAttendanceSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the EmployeeAttendance
+     */
+    omit?: EmployeeAttendanceOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: EmployeeAttendanceInclude<ExtArgs> | null
+    /**
+     * Filter, which EmployeeAttendance to fetch.
+     */
+    where?: EmployeeAttendanceWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of EmployeeAttendances to fetch.
+     */
+    orderBy?: EmployeeAttendanceOrderByWithRelationInput | EmployeeAttendanceOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for EmployeeAttendances.
+     */
+    cursor?: EmployeeAttendanceWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` EmployeeAttendances from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` EmployeeAttendances.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of EmployeeAttendances.
+     */
+    distinct?: EmployeeAttendanceScalarFieldEnum | EmployeeAttendanceScalarFieldEnum[]
+  }
+
+  /**
+   * EmployeeAttendance findMany
+   */
+  export type EmployeeAttendanceFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the EmployeeAttendance
+     */
+    select?: EmployeeAttendanceSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the EmployeeAttendance
+     */
+    omit?: EmployeeAttendanceOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: EmployeeAttendanceInclude<ExtArgs> | null
+    /**
+     * Filter, which EmployeeAttendances to fetch.
+     */
+    where?: EmployeeAttendanceWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of EmployeeAttendances to fetch.
+     */
+    orderBy?: EmployeeAttendanceOrderByWithRelationInput | EmployeeAttendanceOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing EmployeeAttendances.
+     */
+    cursor?: EmployeeAttendanceWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` EmployeeAttendances from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` EmployeeAttendances.
+     */
+    skip?: number
+    distinct?: EmployeeAttendanceScalarFieldEnum | EmployeeAttendanceScalarFieldEnum[]
+  }
+
+  /**
+   * EmployeeAttendance create
+   */
+  export type EmployeeAttendanceCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the EmployeeAttendance
+     */
+    select?: EmployeeAttendanceSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the EmployeeAttendance
+     */
+    omit?: EmployeeAttendanceOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: EmployeeAttendanceInclude<ExtArgs> | null
+    /**
+     * The data needed to create a EmployeeAttendance.
+     */
+    data: XOR<EmployeeAttendanceCreateInput, EmployeeAttendanceUncheckedCreateInput>
+  }
+
+  /**
+   * EmployeeAttendance createMany
+   */
+  export type EmployeeAttendanceCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many EmployeeAttendances.
+     */
+    data: EmployeeAttendanceCreateManyInput | EmployeeAttendanceCreateManyInput[]
+  }
+
+  /**
+   * EmployeeAttendance createManyAndReturn
+   */
+  export type EmployeeAttendanceCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the EmployeeAttendance
+     */
+    select?: EmployeeAttendanceSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the EmployeeAttendance
+     */
+    omit?: EmployeeAttendanceOmit<ExtArgs> | null
+    /**
+     * The data used to create many EmployeeAttendances.
+     */
+    data: EmployeeAttendanceCreateManyInput | EmployeeAttendanceCreateManyInput[]
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: EmployeeAttendanceIncludeCreateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * EmployeeAttendance update
+   */
+  export type EmployeeAttendanceUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the EmployeeAttendance
+     */
+    select?: EmployeeAttendanceSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the EmployeeAttendance
+     */
+    omit?: EmployeeAttendanceOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: EmployeeAttendanceInclude<ExtArgs> | null
+    /**
+     * The data needed to update a EmployeeAttendance.
+     */
+    data: XOR<EmployeeAttendanceUpdateInput, EmployeeAttendanceUncheckedUpdateInput>
+    /**
+     * Choose, which EmployeeAttendance to update.
+     */
+    where: EmployeeAttendanceWhereUniqueInput
+  }
+
+  /**
+   * EmployeeAttendance updateMany
+   */
+  export type EmployeeAttendanceUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update EmployeeAttendances.
+     */
+    data: XOR<EmployeeAttendanceUpdateManyMutationInput, EmployeeAttendanceUncheckedUpdateManyInput>
+    /**
+     * Filter which EmployeeAttendances to update
+     */
+    where?: EmployeeAttendanceWhereInput
+    /**
+     * Limit how many EmployeeAttendances to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * EmployeeAttendance updateManyAndReturn
+   */
+  export type EmployeeAttendanceUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the EmployeeAttendance
+     */
+    select?: EmployeeAttendanceSelectUpdateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the EmployeeAttendance
+     */
+    omit?: EmployeeAttendanceOmit<ExtArgs> | null
+    /**
+     * The data used to update EmployeeAttendances.
+     */
+    data: XOR<EmployeeAttendanceUpdateManyMutationInput, EmployeeAttendanceUncheckedUpdateManyInput>
+    /**
+     * Filter which EmployeeAttendances to update
+     */
+    where?: EmployeeAttendanceWhereInput
+    /**
+     * Limit how many EmployeeAttendances to update.
+     */
+    limit?: number
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: EmployeeAttendanceIncludeUpdateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * EmployeeAttendance upsert
+   */
+  export type EmployeeAttendanceUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the EmployeeAttendance
+     */
+    select?: EmployeeAttendanceSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the EmployeeAttendance
+     */
+    omit?: EmployeeAttendanceOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: EmployeeAttendanceInclude<ExtArgs> | null
+    /**
+     * The filter to search for the EmployeeAttendance to update in case it exists.
+     */
+    where: EmployeeAttendanceWhereUniqueInput
+    /**
+     * In case the EmployeeAttendance found by the `where` argument doesn't exist, create a new EmployeeAttendance with this data.
+     */
+    create: XOR<EmployeeAttendanceCreateInput, EmployeeAttendanceUncheckedCreateInput>
+    /**
+     * In case the EmployeeAttendance was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<EmployeeAttendanceUpdateInput, EmployeeAttendanceUncheckedUpdateInput>
+  }
+
+  /**
+   * EmployeeAttendance delete
+   */
+  export type EmployeeAttendanceDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the EmployeeAttendance
+     */
+    select?: EmployeeAttendanceSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the EmployeeAttendance
+     */
+    omit?: EmployeeAttendanceOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: EmployeeAttendanceInclude<ExtArgs> | null
+    /**
+     * Filter which EmployeeAttendance to delete.
+     */
+    where: EmployeeAttendanceWhereUniqueInput
+  }
+
+  /**
+   * EmployeeAttendance deleteMany
+   */
+  export type EmployeeAttendanceDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which EmployeeAttendances to delete
+     */
+    where?: EmployeeAttendanceWhereInput
+    /**
+     * Limit how many EmployeeAttendances to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * EmployeeAttendance.employee
+   */
+  export type EmployeeAttendance$employeeArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Employees
+     */
+    select?: EmployeesSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Employees
+     */
+    omit?: EmployeesOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: EmployeesInclude<ExtArgs> | null
+    where?: EmployeesWhereInput
+  }
+
+  /**
+   * EmployeeAttendance.teacher
+   */
+  export type EmployeeAttendance$teacherArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Teachers
+     */
+    select?: TeachersSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Teachers
+     */
+    omit?: TeachersOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: TeachersInclude<ExtArgs> | null
+    where?: TeachersWhereInput
+  }
+
+  /**
+   * EmployeeAttendance without action
+   */
+  export type EmployeeAttendanceDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the EmployeeAttendance
+     */
+    select?: EmployeeAttendanceSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the EmployeeAttendance
+     */
+    omit?: EmployeeAttendanceOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: EmployeeAttendanceInclude<ExtArgs> | null
+  }
+
+
+  /**
    * Enums
    */
 
@@ -33836,6 +35223,23 @@ export namespace Prisma {
   };
 
   export type EventsScalarFieldEnum = (typeof EventsScalarFieldEnum)[keyof typeof EventsScalarFieldEnum]
+
+
+  export const EmployeeAttendanceScalarFieldEnum: {
+    id: 'id',
+    employee_id: 'employee_id',
+    teacher_id: 'teacher_id',
+    check_in: 'check_in',
+    check_out: 'check_out',
+    notes: 'notes',
+    school_id: 'school_id',
+    supabase_id: 'supabase_id',
+    last_modified: 'last_modified',
+    needs_sync: 'needs_sync',
+    is_deleted: 'is_deleted'
+  };
+
+  export type EmployeeAttendanceScalarFieldEnum = (typeof EmployeeAttendanceScalarFieldEnum)[keyof typeof EmployeeAttendanceScalarFieldEnum]
 
 
   export const SortOrder: {
@@ -34331,6 +35735,7 @@ export namespace Prisma {
     school_id?: StringNullableFilter<"Teachers"> | string | null
     lessons?: LessonsListRelationFilter
     workHours?: TeacherWorkHoursListRelationFilter
+    attendances?: EmployeeAttendanceListRelationFilter
   }
 
   export type TeachersOrderByWithRelationInput = {
@@ -34353,6 +35758,7 @@ export namespace Prisma {
     school_id?: SortOrderInput | SortOrder
     lessons?: LessonsOrderByRelationAggregateInput
     workHours?: TeacherWorkHoursOrderByRelationAggregateInput
+    attendances?: EmployeeAttendanceOrderByRelationAggregateInput
   }
 
   export type TeachersWhereUniqueInput = Prisma.AtLeast<{
@@ -34378,6 +35784,7 @@ export namespace Prisma {
     school_id?: StringNullableFilter<"Teachers"> | string | null
     lessons?: LessonsListRelationFilter
     workHours?: TeacherWorkHoursListRelationFilter
+    attendances?: EmployeeAttendanceListRelationFilter
   }, "id" | "email" | "supabase_id">
 
   export type TeachersOrderByWithAggregationInput = {
@@ -35359,6 +36766,7 @@ export namespace Prisma {
     needs_sync?: BoolFilter<"Employees"> | boolean
     is_deleted?: BoolFilter<"Employees"> | boolean
     salary_payments?: SalaryPaymentsListRelationFilter
+    attendances?: EmployeeAttendanceListRelationFilter
   }
 
   export type EmployeesOrderByWithRelationInput = {
@@ -35380,6 +36788,7 @@ export namespace Prisma {
     needs_sync?: SortOrder
     is_deleted?: SortOrder
     salary_payments?: SalaryPaymentsOrderByRelationAggregateInput
+    attendances?: EmployeeAttendanceOrderByRelationAggregateInput
   }
 
   export type EmployeesWhereUniqueInput = Prisma.AtLeast<{
@@ -35404,6 +36813,7 @@ export namespace Prisma {
     needs_sync?: BoolFilter<"Employees"> | boolean
     is_deleted?: BoolFilter<"Employees"> | boolean
     salary_payments?: SalaryPaymentsListRelationFilter
+    attendances?: EmployeeAttendanceListRelationFilter
   }, "id" | "supabase_id">
 
   export type EmployeesOrderByWithAggregationInput = {
@@ -36177,6 +37587,96 @@ export namespace Prisma {
     is_deleted?: BoolWithAggregatesFilter<"Events"> | boolean
   }
 
+  export type EmployeeAttendanceWhereInput = {
+    AND?: EmployeeAttendanceWhereInput | EmployeeAttendanceWhereInput[]
+    OR?: EmployeeAttendanceWhereInput[]
+    NOT?: EmployeeAttendanceWhereInput | EmployeeAttendanceWhereInput[]
+    id?: IntFilter<"EmployeeAttendance"> | number
+    employee_id?: IntNullableFilter<"EmployeeAttendance"> | number | null
+    teacher_id?: IntNullableFilter<"EmployeeAttendance"> | number | null
+    check_in?: DateTimeFilter<"EmployeeAttendance"> | Date | string
+    check_out?: DateTimeNullableFilter<"EmployeeAttendance"> | Date | string | null
+    notes?: StringNullableFilter<"EmployeeAttendance"> | string | null
+    school_id?: StringNullableFilter<"EmployeeAttendance"> | string | null
+    supabase_id?: StringNullableFilter<"EmployeeAttendance"> | string | null
+    last_modified?: DateTimeFilter<"EmployeeAttendance"> | Date | string
+    needs_sync?: BoolFilter<"EmployeeAttendance"> | boolean
+    is_deleted?: BoolFilter<"EmployeeAttendance"> | boolean
+    employee?: XOR<EmployeesNullableScalarRelationFilter, EmployeesWhereInput> | null
+    teacher?: XOR<TeachersNullableScalarRelationFilter, TeachersWhereInput> | null
+  }
+
+  export type EmployeeAttendanceOrderByWithRelationInput = {
+    id?: SortOrder
+    employee_id?: SortOrderInput | SortOrder
+    teacher_id?: SortOrderInput | SortOrder
+    check_in?: SortOrder
+    check_out?: SortOrderInput | SortOrder
+    notes?: SortOrderInput | SortOrder
+    school_id?: SortOrderInput | SortOrder
+    supabase_id?: SortOrderInput | SortOrder
+    last_modified?: SortOrder
+    needs_sync?: SortOrder
+    is_deleted?: SortOrder
+    employee?: EmployeesOrderByWithRelationInput
+    teacher?: TeachersOrderByWithRelationInput
+  }
+
+  export type EmployeeAttendanceWhereUniqueInput = Prisma.AtLeast<{
+    id?: number
+    supabase_id?: string
+    AND?: EmployeeAttendanceWhereInput | EmployeeAttendanceWhereInput[]
+    OR?: EmployeeAttendanceWhereInput[]
+    NOT?: EmployeeAttendanceWhereInput | EmployeeAttendanceWhereInput[]
+    employee_id?: IntNullableFilter<"EmployeeAttendance"> | number | null
+    teacher_id?: IntNullableFilter<"EmployeeAttendance"> | number | null
+    check_in?: DateTimeFilter<"EmployeeAttendance"> | Date | string
+    check_out?: DateTimeNullableFilter<"EmployeeAttendance"> | Date | string | null
+    notes?: StringNullableFilter<"EmployeeAttendance"> | string | null
+    school_id?: StringNullableFilter<"EmployeeAttendance"> | string | null
+    last_modified?: DateTimeFilter<"EmployeeAttendance"> | Date | string
+    needs_sync?: BoolFilter<"EmployeeAttendance"> | boolean
+    is_deleted?: BoolFilter<"EmployeeAttendance"> | boolean
+    employee?: XOR<EmployeesNullableScalarRelationFilter, EmployeesWhereInput> | null
+    teacher?: XOR<TeachersNullableScalarRelationFilter, TeachersWhereInput> | null
+  }, "id" | "supabase_id">
+
+  export type EmployeeAttendanceOrderByWithAggregationInput = {
+    id?: SortOrder
+    employee_id?: SortOrderInput | SortOrder
+    teacher_id?: SortOrderInput | SortOrder
+    check_in?: SortOrder
+    check_out?: SortOrderInput | SortOrder
+    notes?: SortOrderInput | SortOrder
+    school_id?: SortOrderInput | SortOrder
+    supabase_id?: SortOrderInput | SortOrder
+    last_modified?: SortOrder
+    needs_sync?: SortOrder
+    is_deleted?: SortOrder
+    _count?: EmployeeAttendanceCountOrderByAggregateInput
+    _avg?: EmployeeAttendanceAvgOrderByAggregateInput
+    _max?: EmployeeAttendanceMaxOrderByAggregateInput
+    _min?: EmployeeAttendanceMinOrderByAggregateInput
+    _sum?: EmployeeAttendanceSumOrderByAggregateInput
+  }
+
+  export type EmployeeAttendanceScalarWhereWithAggregatesInput = {
+    AND?: EmployeeAttendanceScalarWhereWithAggregatesInput | EmployeeAttendanceScalarWhereWithAggregatesInput[]
+    OR?: EmployeeAttendanceScalarWhereWithAggregatesInput[]
+    NOT?: EmployeeAttendanceScalarWhereWithAggregatesInput | EmployeeAttendanceScalarWhereWithAggregatesInput[]
+    id?: IntWithAggregatesFilter<"EmployeeAttendance"> | number
+    employee_id?: IntNullableWithAggregatesFilter<"EmployeeAttendance"> | number | null
+    teacher_id?: IntNullableWithAggregatesFilter<"EmployeeAttendance"> | number | null
+    check_in?: DateTimeWithAggregatesFilter<"EmployeeAttendance"> | Date | string
+    check_out?: DateTimeNullableWithAggregatesFilter<"EmployeeAttendance"> | Date | string | null
+    notes?: StringNullableWithAggregatesFilter<"EmployeeAttendance"> | string | null
+    school_id?: StringNullableWithAggregatesFilter<"EmployeeAttendance"> | string | null
+    supabase_id?: StringNullableWithAggregatesFilter<"EmployeeAttendance"> | string | null
+    last_modified?: DateTimeWithAggregatesFilter<"EmployeeAttendance"> | Date | string
+    needs_sync?: BoolWithAggregatesFilter<"EmployeeAttendance"> | boolean
+    is_deleted?: BoolWithAggregatesFilter<"EmployeeAttendance"> | boolean
+  }
+
   export type SettingsCreateInput = {
     schoolName?: string | null
     schoolAddress?: string | null
@@ -36614,6 +38114,7 @@ export namespace Prisma {
     school_id?: string | null
     lessons?: LessonsCreateNestedManyWithoutTeacherInput
     workHours?: TeacherWorkHoursCreateNestedManyWithoutTeacherInput
+    attendances?: EmployeeAttendanceCreateNestedManyWithoutTeacherInput
   }
 
   export type TeachersUncheckedCreateInput = {
@@ -36636,6 +38137,7 @@ export namespace Prisma {
     school_id?: string | null
     lessons?: LessonsUncheckedCreateNestedManyWithoutTeacherInput
     workHours?: TeacherWorkHoursUncheckedCreateNestedManyWithoutTeacherInput
+    attendances?: EmployeeAttendanceUncheckedCreateNestedManyWithoutTeacherInput
   }
 
   export type TeachersUpdateInput = {
@@ -36657,6 +38159,7 @@ export namespace Prisma {
     school_id?: NullableStringFieldUpdateOperationsInput | string | null
     lessons?: LessonsUpdateManyWithoutTeacherNestedInput
     workHours?: TeacherWorkHoursUpdateManyWithoutTeacherNestedInput
+    attendances?: EmployeeAttendanceUpdateManyWithoutTeacherNestedInput
   }
 
   export type TeachersUncheckedUpdateInput = {
@@ -36679,6 +38182,7 @@ export namespace Prisma {
     school_id?: NullableStringFieldUpdateOperationsInput | string | null
     lessons?: LessonsUncheckedUpdateManyWithoutTeacherNestedInput
     workHours?: TeacherWorkHoursUncheckedUpdateManyWithoutTeacherNestedInput
+    attendances?: EmployeeAttendanceUncheckedUpdateManyWithoutTeacherNestedInput
   }
 
   export type TeachersCreateManyInput = {
@@ -37717,6 +39221,7 @@ export namespace Prisma {
     needs_sync?: boolean
     is_deleted?: boolean
     salary_payments?: SalaryPaymentsCreateNestedManyWithoutEmployeeInput
+    attendances?: EmployeeAttendanceCreateNestedManyWithoutEmployeeInput
   }
 
   export type EmployeesUncheckedCreateInput = {
@@ -37738,6 +39243,7 @@ export namespace Prisma {
     needs_sync?: boolean
     is_deleted?: boolean
     salary_payments?: SalaryPaymentsUncheckedCreateNestedManyWithoutEmployeeInput
+    attendances?: EmployeeAttendanceUncheckedCreateNestedManyWithoutEmployeeInput
   }
 
   export type EmployeesUpdateInput = {
@@ -37758,6 +39264,7 @@ export namespace Prisma {
     needs_sync?: BoolFieldUpdateOperationsInput | boolean
     is_deleted?: BoolFieldUpdateOperationsInput | boolean
     salary_payments?: SalaryPaymentsUpdateManyWithoutEmployeeNestedInput
+    attendances?: EmployeeAttendanceUpdateManyWithoutEmployeeNestedInput
   }
 
   export type EmployeesUncheckedUpdateInput = {
@@ -37779,6 +39286,7 @@ export namespace Prisma {
     needs_sync?: BoolFieldUpdateOperationsInput | boolean
     is_deleted?: BoolFieldUpdateOperationsInput | boolean
     salary_payments?: SalaryPaymentsUncheckedUpdateManyWithoutEmployeeNestedInput
+    attendances?: EmployeeAttendanceUncheckedUpdateManyWithoutEmployeeNestedInput
   }
 
   export type EmployeesCreateManyInput = {
@@ -38617,6 +40125,99 @@ export namespace Prisma {
     is_deleted?: BoolFieldUpdateOperationsInput | boolean
   }
 
+  export type EmployeeAttendanceCreateInput = {
+    check_in: Date | string
+    check_out?: Date | string | null
+    notes?: string | null
+    school_id?: string | null
+    supabase_id?: string | null
+    last_modified?: Date | string
+    needs_sync?: boolean
+    is_deleted?: boolean
+    employee?: EmployeesCreateNestedOneWithoutAttendancesInput
+    teacher?: TeachersCreateNestedOneWithoutAttendancesInput
+  }
+
+  export type EmployeeAttendanceUncheckedCreateInput = {
+    id?: number
+    employee_id?: number | null
+    teacher_id?: number | null
+    check_in: Date | string
+    check_out?: Date | string | null
+    notes?: string | null
+    school_id?: string | null
+    supabase_id?: string | null
+    last_modified?: Date | string
+    needs_sync?: boolean
+    is_deleted?: boolean
+  }
+
+  export type EmployeeAttendanceUpdateInput = {
+    check_in?: DateTimeFieldUpdateOperationsInput | Date | string
+    check_out?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    notes?: NullableStringFieldUpdateOperationsInput | string | null
+    school_id?: NullableStringFieldUpdateOperationsInput | string | null
+    supabase_id?: NullableStringFieldUpdateOperationsInput | string | null
+    last_modified?: DateTimeFieldUpdateOperationsInput | Date | string
+    needs_sync?: BoolFieldUpdateOperationsInput | boolean
+    is_deleted?: BoolFieldUpdateOperationsInput | boolean
+    employee?: EmployeesUpdateOneWithoutAttendancesNestedInput
+    teacher?: TeachersUpdateOneWithoutAttendancesNestedInput
+  }
+
+  export type EmployeeAttendanceUncheckedUpdateInput = {
+    id?: IntFieldUpdateOperationsInput | number
+    employee_id?: NullableIntFieldUpdateOperationsInput | number | null
+    teacher_id?: NullableIntFieldUpdateOperationsInput | number | null
+    check_in?: DateTimeFieldUpdateOperationsInput | Date | string
+    check_out?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    notes?: NullableStringFieldUpdateOperationsInput | string | null
+    school_id?: NullableStringFieldUpdateOperationsInput | string | null
+    supabase_id?: NullableStringFieldUpdateOperationsInput | string | null
+    last_modified?: DateTimeFieldUpdateOperationsInput | Date | string
+    needs_sync?: BoolFieldUpdateOperationsInput | boolean
+    is_deleted?: BoolFieldUpdateOperationsInput | boolean
+  }
+
+  export type EmployeeAttendanceCreateManyInput = {
+    id?: number
+    employee_id?: number | null
+    teacher_id?: number | null
+    check_in: Date | string
+    check_out?: Date | string | null
+    notes?: string | null
+    school_id?: string | null
+    supabase_id?: string | null
+    last_modified?: Date | string
+    needs_sync?: boolean
+    is_deleted?: boolean
+  }
+
+  export type EmployeeAttendanceUpdateManyMutationInput = {
+    check_in?: DateTimeFieldUpdateOperationsInput | Date | string
+    check_out?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    notes?: NullableStringFieldUpdateOperationsInput | string | null
+    school_id?: NullableStringFieldUpdateOperationsInput | string | null
+    supabase_id?: NullableStringFieldUpdateOperationsInput | string | null
+    last_modified?: DateTimeFieldUpdateOperationsInput | Date | string
+    needs_sync?: BoolFieldUpdateOperationsInput | boolean
+    is_deleted?: BoolFieldUpdateOperationsInput | boolean
+  }
+
+  export type EmployeeAttendanceUncheckedUpdateManyInput = {
+    id?: IntFieldUpdateOperationsInput | number
+    employee_id?: NullableIntFieldUpdateOperationsInput | number | null
+    teacher_id?: NullableIntFieldUpdateOperationsInput | number | null
+    check_in?: DateTimeFieldUpdateOperationsInput | Date | string
+    check_out?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    notes?: NullableStringFieldUpdateOperationsInput | string | null
+    school_id?: NullableStringFieldUpdateOperationsInput | string | null
+    supabase_id?: NullableStringFieldUpdateOperationsInput | string | null
+    last_modified?: DateTimeFieldUpdateOperationsInput | Date | string
+    needs_sync?: BoolFieldUpdateOperationsInput | boolean
+    is_deleted?: BoolFieldUpdateOperationsInput | boolean
+  }
+
   export type IntFilter<$PrismaModel = never> = {
     equals?: number | IntFieldRefInput<$PrismaModel>
     in?: number[]
@@ -39161,7 +40762,17 @@ export namespace Prisma {
     none?: TeacherWorkHoursWhereInput
   }
 
+  export type EmployeeAttendanceListRelationFilter = {
+    every?: EmployeeAttendanceWhereInput
+    some?: EmployeeAttendanceWhereInput
+    none?: EmployeeAttendanceWhereInput
+  }
+
   export type TeacherWorkHoursOrderByRelationAggregateInput = {
+    _count?: SortOrder
+  }
+
+  export type EmployeeAttendanceOrderByRelationAggregateInput = {
     _count?: SortOrder
   }
 
@@ -40461,6 +42072,65 @@ export namespace Prisma {
     id?: SortOrder
   }
 
+  export type EmployeesNullableScalarRelationFilter = {
+    is?: EmployeesWhereInput | null
+    isNot?: EmployeesWhereInput | null
+  }
+
+  export type EmployeeAttendanceCountOrderByAggregateInput = {
+    id?: SortOrder
+    employee_id?: SortOrder
+    teacher_id?: SortOrder
+    check_in?: SortOrder
+    check_out?: SortOrder
+    notes?: SortOrder
+    school_id?: SortOrder
+    supabase_id?: SortOrder
+    last_modified?: SortOrder
+    needs_sync?: SortOrder
+    is_deleted?: SortOrder
+  }
+
+  export type EmployeeAttendanceAvgOrderByAggregateInput = {
+    id?: SortOrder
+    employee_id?: SortOrder
+    teacher_id?: SortOrder
+  }
+
+  export type EmployeeAttendanceMaxOrderByAggregateInput = {
+    id?: SortOrder
+    employee_id?: SortOrder
+    teacher_id?: SortOrder
+    check_in?: SortOrder
+    check_out?: SortOrder
+    notes?: SortOrder
+    school_id?: SortOrder
+    supabase_id?: SortOrder
+    last_modified?: SortOrder
+    needs_sync?: SortOrder
+    is_deleted?: SortOrder
+  }
+
+  export type EmployeeAttendanceMinOrderByAggregateInput = {
+    id?: SortOrder
+    employee_id?: SortOrder
+    teacher_id?: SortOrder
+    check_in?: SortOrder
+    check_out?: SortOrder
+    notes?: SortOrder
+    school_id?: SortOrder
+    supabase_id?: SortOrder
+    last_modified?: SortOrder
+    needs_sync?: SortOrder
+    is_deleted?: SortOrder
+  }
+
+  export type EmployeeAttendanceSumOrderByAggregateInput = {
+    id?: SortOrder
+    employee_id?: SortOrder
+    teacher_id?: SortOrder
+  }
+
   export type NullableStringFieldUpdateOperationsInput = {
     set?: string | null
   }
@@ -40959,6 +42629,13 @@ export namespace Prisma {
     connect?: TeacherWorkHoursWhereUniqueInput | TeacherWorkHoursWhereUniqueInput[]
   }
 
+  export type EmployeeAttendanceCreateNestedManyWithoutTeacherInput = {
+    create?: XOR<EmployeeAttendanceCreateWithoutTeacherInput, EmployeeAttendanceUncheckedCreateWithoutTeacherInput> | EmployeeAttendanceCreateWithoutTeacherInput[] | EmployeeAttendanceUncheckedCreateWithoutTeacherInput[]
+    connectOrCreate?: EmployeeAttendanceCreateOrConnectWithoutTeacherInput | EmployeeAttendanceCreateOrConnectWithoutTeacherInput[]
+    createMany?: EmployeeAttendanceCreateManyTeacherInputEnvelope
+    connect?: EmployeeAttendanceWhereUniqueInput | EmployeeAttendanceWhereUniqueInput[]
+  }
+
   export type LessonsUncheckedCreateNestedManyWithoutTeacherInput = {
     create?: XOR<LessonsCreateWithoutTeacherInput, LessonsUncheckedCreateWithoutTeacherInput> | LessonsCreateWithoutTeacherInput[] | LessonsUncheckedCreateWithoutTeacherInput[]
     connectOrCreate?: LessonsCreateOrConnectWithoutTeacherInput | LessonsCreateOrConnectWithoutTeacherInput[]
@@ -40971,6 +42648,13 @@ export namespace Prisma {
     connectOrCreate?: TeacherWorkHoursCreateOrConnectWithoutTeacherInput | TeacherWorkHoursCreateOrConnectWithoutTeacherInput[]
     createMany?: TeacherWorkHoursCreateManyTeacherInputEnvelope
     connect?: TeacherWorkHoursWhereUniqueInput | TeacherWorkHoursWhereUniqueInput[]
+  }
+
+  export type EmployeeAttendanceUncheckedCreateNestedManyWithoutTeacherInput = {
+    create?: XOR<EmployeeAttendanceCreateWithoutTeacherInput, EmployeeAttendanceUncheckedCreateWithoutTeacherInput> | EmployeeAttendanceCreateWithoutTeacherInput[] | EmployeeAttendanceUncheckedCreateWithoutTeacherInput[]
+    connectOrCreate?: EmployeeAttendanceCreateOrConnectWithoutTeacherInput | EmployeeAttendanceCreateOrConnectWithoutTeacherInput[]
+    createMany?: EmployeeAttendanceCreateManyTeacherInputEnvelope
+    connect?: EmployeeAttendanceWhereUniqueInput | EmployeeAttendanceWhereUniqueInput[]
   }
 
   export type NullableFloatFieldUpdateOperationsInput = {
@@ -41009,6 +42693,20 @@ export namespace Prisma {
     deleteMany?: TeacherWorkHoursScalarWhereInput | TeacherWorkHoursScalarWhereInput[]
   }
 
+  export type EmployeeAttendanceUpdateManyWithoutTeacherNestedInput = {
+    create?: XOR<EmployeeAttendanceCreateWithoutTeacherInput, EmployeeAttendanceUncheckedCreateWithoutTeacherInput> | EmployeeAttendanceCreateWithoutTeacherInput[] | EmployeeAttendanceUncheckedCreateWithoutTeacherInput[]
+    connectOrCreate?: EmployeeAttendanceCreateOrConnectWithoutTeacherInput | EmployeeAttendanceCreateOrConnectWithoutTeacherInput[]
+    upsert?: EmployeeAttendanceUpsertWithWhereUniqueWithoutTeacherInput | EmployeeAttendanceUpsertWithWhereUniqueWithoutTeacherInput[]
+    createMany?: EmployeeAttendanceCreateManyTeacherInputEnvelope
+    set?: EmployeeAttendanceWhereUniqueInput | EmployeeAttendanceWhereUniqueInput[]
+    disconnect?: EmployeeAttendanceWhereUniqueInput | EmployeeAttendanceWhereUniqueInput[]
+    delete?: EmployeeAttendanceWhereUniqueInput | EmployeeAttendanceWhereUniqueInput[]
+    connect?: EmployeeAttendanceWhereUniqueInput | EmployeeAttendanceWhereUniqueInput[]
+    update?: EmployeeAttendanceUpdateWithWhereUniqueWithoutTeacherInput | EmployeeAttendanceUpdateWithWhereUniqueWithoutTeacherInput[]
+    updateMany?: EmployeeAttendanceUpdateManyWithWhereWithoutTeacherInput | EmployeeAttendanceUpdateManyWithWhereWithoutTeacherInput[]
+    deleteMany?: EmployeeAttendanceScalarWhereInput | EmployeeAttendanceScalarWhereInput[]
+  }
+
   export type LessonsUncheckedUpdateManyWithoutTeacherNestedInput = {
     create?: XOR<LessonsCreateWithoutTeacherInput, LessonsUncheckedCreateWithoutTeacherInput> | LessonsCreateWithoutTeacherInput[] | LessonsUncheckedCreateWithoutTeacherInput[]
     connectOrCreate?: LessonsCreateOrConnectWithoutTeacherInput | LessonsCreateOrConnectWithoutTeacherInput[]
@@ -41035,6 +42733,20 @@ export namespace Prisma {
     update?: TeacherWorkHoursUpdateWithWhereUniqueWithoutTeacherInput | TeacherWorkHoursUpdateWithWhereUniqueWithoutTeacherInput[]
     updateMany?: TeacherWorkHoursUpdateManyWithWhereWithoutTeacherInput | TeacherWorkHoursUpdateManyWithWhereWithoutTeacherInput[]
     deleteMany?: TeacherWorkHoursScalarWhereInput | TeacherWorkHoursScalarWhereInput[]
+  }
+
+  export type EmployeeAttendanceUncheckedUpdateManyWithoutTeacherNestedInput = {
+    create?: XOR<EmployeeAttendanceCreateWithoutTeacherInput, EmployeeAttendanceUncheckedCreateWithoutTeacherInput> | EmployeeAttendanceCreateWithoutTeacherInput[] | EmployeeAttendanceUncheckedCreateWithoutTeacherInput[]
+    connectOrCreate?: EmployeeAttendanceCreateOrConnectWithoutTeacherInput | EmployeeAttendanceCreateOrConnectWithoutTeacherInput[]
+    upsert?: EmployeeAttendanceUpsertWithWhereUniqueWithoutTeacherInput | EmployeeAttendanceUpsertWithWhereUniqueWithoutTeacherInput[]
+    createMany?: EmployeeAttendanceCreateManyTeacherInputEnvelope
+    set?: EmployeeAttendanceWhereUniqueInput | EmployeeAttendanceWhereUniqueInput[]
+    disconnect?: EmployeeAttendanceWhereUniqueInput | EmployeeAttendanceWhereUniqueInput[]
+    delete?: EmployeeAttendanceWhereUniqueInput | EmployeeAttendanceWhereUniqueInput[]
+    connect?: EmployeeAttendanceWhereUniqueInput | EmployeeAttendanceWhereUniqueInput[]
+    update?: EmployeeAttendanceUpdateWithWhereUniqueWithoutTeacherInput | EmployeeAttendanceUpdateWithWhereUniqueWithoutTeacherInput[]
+    updateMany?: EmployeeAttendanceUpdateManyWithWhereWithoutTeacherInput | EmployeeAttendanceUpdateManyWithWhereWithoutTeacherInput[]
+    deleteMany?: EmployeeAttendanceScalarWhereInput | EmployeeAttendanceScalarWhereInput[]
   }
 
   export type SubjectsCreateNestedOneWithoutWorkHoursInput = {
@@ -41626,11 +43338,25 @@ export namespace Prisma {
     connect?: SalaryPaymentsWhereUniqueInput | SalaryPaymentsWhereUniqueInput[]
   }
 
+  export type EmployeeAttendanceCreateNestedManyWithoutEmployeeInput = {
+    create?: XOR<EmployeeAttendanceCreateWithoutEmployeeInput, EmployeeAttendanceUncheckedCreateWithoutEmployeeInput> | EmployeeAttendanceCreateWithoutEmployeeInput[] | EmployeeAttendanceUncheckedCreateWithoutEmployeeInput[]
+    connectOrCreate?: EmployeeAttendanceCreateOrConnectWithoutEmployeeInput | EmployeeAttendanceCreateOrConnectWithoutEmployeeInput[]
+    createMany?: EmployeeAttendanceCreateManyEmployeeInputEnvelope
+    connect?: EmployeeAttendanceWhereUniqueInput | EmployeeAttendanceWhereUniqueInput[]
+  }
+
   export type SalaryPaymentsUncheckedCreateNestedManyWithoutEmployeeInput = {
     create?: XOR<SalaryPaymentsCreateWithoutEmployeeInput, SalaryPaymentsUncheckedCreateWithoutEmployeeInput> | SalaryPaymentsCreateWithoutEmployeeInput[] | SalaryPaymentsUncheckedCreateWithoutEmployeeInput[]
     connectOrCreate?: SalaryPaymentsCreateOrConnectWithoutEmployeeInput | SalaryPaymentsCreateOrConnectWithoutEmployeeInput[]
     createMany?: SalaryPaymentsCreateManyEmployeeInputEnvelope
     connect?: SalaryPaymentsWhereUniqueInput | SalaryPaymentsWhereUniqueInput[]
+  }
+
+  export type EmployeeAttendanceUncheckedCreateNestedManyWithoutEmployeeInput = {
+    create?: XOR<EmployeeAttendanceCreateWithoutEmployeeInput, EmployeeAttendanceUncheckedCreateWithoutEmployeeInput> | EmployeeAttendanceCreateWithoutEmployeeInput[] | EmployeeAttendanceUncheckedCreateWithoutEmployeeInput[]
+    connectOrCreate?: EmployeeAttendanceCreateOrConnectWithoutEmployeeInput | EmployeeAttendanceCreateOrConnectWithoutEmployeeInput[]
+    createMany?: EmployeeAttendanceCreateManyEmployeeInputEnvelope
+    connect?: EmployeeAttendanceWhereUniqueInput | EmployeeAttendanceWhereUniqueInput[]
   }
 
   export type SalaryPaymentsUpdateManyWithoutEmployeeNestedInput = {
@@ -41647,6 +43373,20 @@ export namespace Prisma {
     deleteMany?: SalaryPaymentsScalarWhereInput | SalaryPaymentsScalarWhereInput[]
   }
 
+  export type EmployeeAttendanceUpdateManyWithoutEmployeeNestedInput = {
+    create?: XOR<EmployeeAttendanceCreateWithoutEmployeeInput, EmployeeAttendanceUncheckedCreateWithoutEmployeeInput> | EmployeeAttendanceCreateWithoutEmployeeInput[] | EmployeeAttendanceUncheckedCreateWithoutEmployeeInput[]
+    connectOrCreate?: EmployeeAttendanceCreateOrConnectWithoutEmployeeInput | EmployeeAttendanceCreateOrConnectWithoutEmployeeInput[]
+    upsert?: EmployeeAttendanceUpsertWithWhereUniqueWithoutEmployeeInput | EmployeeAttendanceUpsertWithWhereUniqueWithoutEmployeeInput[]
+    createMany?: EmployeeAttendanceCreateManyEmployeeInputEnvelope
+    set?: EmployeeAttendanceWhereUniqueInput | EmployeeAttendanceWhereUniqueInput[]
+    disconnect?: EmployeeAttendanceWhereUniqueInput | EmployeeAttendanceWhereUniqueInput[]
+    delete?: EmployeeAttendanceWhereUniqueInput | EmployeeAttendanceWhereUniqueInput[]
+    connect?: EmployeeAttendanceWhereUniqueInput | EmployeeAttendanceWhereUniqueInput[]
+    update?: EmployeeAttendanceUpdateWithWhereUniqueWithoutEmployeeInput | EmployeeAttendanceUpdateWithWhereUniqueWithoutEmployeeInput[]
+    updateMany?: EmployeeAttendanceUpdateManyWithWhereWithoutEmployeeInput | EmployeeAttendanceUpdateManyWithWhereWithoutEmployeeInput[]
+    deleteMany?: EmployeeAttendanceScalarWhereInput | EmployeeAttendanceScalarWhereInput[]
+  }
+
   export type SalaryPaymentsUncheckedUpdateManyWithoutEmployeeNestedInput = {
     create?: XOR<SalaryPaymentsCreateWithoutEmployeeInput, SalaryPaymentsUncheckedCreateWithoutEmployeeInput> | SalaryPaymentsCreateWithoutEmployeeInput[] | SalaryPaymentsUncheckedCreateWithoutEmployeeInput[]
     connectOrCreate?: SalaryPaymentsCreateOrConnectWithoutEmployeeInput | SalaryPaymentsCreateOrConnectWithoutEmployeeInput[]
@@ -41659,6 +43399,20 @@ export namespace Prisma {
     update?: SalaryPaymentsUpdateWithWhereUniqueWithoutEmployeeInput | SalaryPaymentsUpdateWithWhereUniqueWithoutEmployeeInput[]
     updateMany?: SalaryPaymentsUpdateManyWithWhereWithoutEmployeeInput | SalaryPaymentsUpdateManyWithWhereWithoutEmployeeInput[]
     deleteMany?: SalaryPaymentsScalarWhereInput | SalaryPaymentsScalarWhereInput[]
+  }
+
+  export type EmployeeAttendanceUncheckedUpdateManyWithoutEmployeeNestedInput = {
+    create?: XOR<EmployeeAttendanceCreateWithoutEmployeeInput, EmployeeAttendanceUncheckedCreateWithoutEmployeeInput> | EmployeeAttendanceCreateWithoutEmployeeInput[] | EmployeeAttendanceUncheckedCreateWithoutEmployeeInput[]
+    connectOrCreate?: EmployeeAttendanceCreateOrConnectWithoutEmployeeInput | EmployeeAttendanceCreateOrConnectWithoutEmployeeInput[]
+    upsert?: EmployeeAttendanceUpsertWithWhereUniqueWithoutEmployeeInput | EmployeeAttendanceUpsertWithWhereUniqueWithoutEmployeeInput[]
+    createMany?: EmployeeAttendanceCreateManyEmployeeInputEnvelope
+    set?: EmployeeAttendanceWhereUniqueInput | EmployeeAttendanceWhereUniqueInput[]
+    disconnect?: EmployeeAttendanceWhereUniqueInput | EmployeeAttendanceWhereUniqueInput[]
+    delete?: EmployeeAttendanceWhereUniqueInput | EmployeeAttendanceWhereUniqueInput[]
+    connect?: EmployeeAttendanceWhereUniqueInput | EmployeeAttendanceWhereUniqueInput[]
+    update?: EmployeeAttendanceUpdateWithWhereUniqueWithoutEmployeeInput | EmployeeAttendanceUpdateWithWhereUniqueWithoutEmployeeInput[]
+    updateMany?: EmployeeAttendanceUpdateManyWithWhereWithoutEmployeeInput | EmployeeAttendanceUpdateManyWithWhereWithoutEmployeeInput[]
+    deleteMany?: EmployeeAttendanceScalarWhereInput | EmployeeAttendanceScalarWhereInput[]
   }
 
   export type EmployeesCreateNestedOneWithoutSalary_paymentsInput = {
@@ -41869,6 +43623,38 @@ export namespace Prisma {
     upsert?: FinancialCategoryUpsertWithoutDispatch_rule_detailsInput
     connect?: FinancialCategoryWhereUniqueInput
     update?: XOR<XOR<FinancialCategoryUpdateToOneWithWhereWithoutDispatch_rule_detailsInput, FinancialCategoryUpdateWithoutDispatch_rule_detailsInput>, FinancialCategoryUncheckedUpdateWithoutDispatch_rule_detailsInput>
+  }
+
+  export type EmployeesCreateNestedOneWithoutAttendancesInput = {
+    create?: XOR<EmployeesCreateWithoutAttendancesInput, EmployeesUncheckedCreateWithoutAttendancesInput>
+    connectOrCreate?: EmployeesCreateOrConnectWithoutAttendancesInput
+    connect?: EmployeesWhereUniqueInput
+  }
+
+  export type TeachersCreateNestedOneWithoutAttendancesInput = {
+    create?: XOR<TeachersCreateWithoutAttendancesInput, TeachersUncheckedCreateWithoutAttendancesInput>
+    connectOrCreate?: TeachersCreateOrConnectWithoutAttendancesInput
+    connect?: TeachersWhereUniqueInput
+  }
+
+  export type EmployeesUpdateOneWithoutAttendancesNestedInput = {
+    create?: XOR<EmployeesCreateWithoutAttendancesInput, EmployeesUncheckedCreateWithoutAttendancesInput>
+    connectOrCreate?: EmployeesCreateOrConnectWithoutAttendancesInput
+    upsert?: EmployeesUpsertWithoutAttendancesInput
+    disconnect?: EmployeesWhereInput | boolean
+    delete?: EmployeesWhereInput | boolean
+    connect?: EmployeesWhereUniqueInput
+    update?: XOR<XOR<EmployeesUpdateToOneWithWhereWithoutAttendancesInput, EmployeesUpdateWithoutAttendancesInput>, EmployeesUncheckedUpdateWithoutAttendancesInput>
+  }
+
+  export type TeachersUpdateOneWithoutAttendancesNestedInput = {
+    create?: XOR<TeachersCreateWithoutAttendancesInput, TeachersUncheckedCreateWithoutAttendancesInput>
+    connectOrCreate?: TeachersCreateOrConnectWithoutAttendancesInput
+    upsert?: TeachersUpsertWithoutAttendancesInput
+    disconnect?: TeachersWhereInput | boolean
+    delete?: TeachersWhereInput | boolean
+    connect?: TeachersWhereUniqueInput
+    update?: XOR<XOR<TeachersUpdateToOneWithWhereWithoutAttendancesInput, TeachersUpdateWithoutAttendancesInput>, TeachersUncheckedUpdateWithoutAttendancesInput>
   }
 
   export type NestedIntFilter<$PrismaModel = never> = {
@@ -43002,6 +44788,40 @@ export namespace Prisma {
     data: TeacherWorkHoursCreateManyTeacherInput | TeacherWorkHoursCreateManyTeacherInput[]
   }
 
+  export type EmployeeAttendanceCreateWithoutTeacherInput = {
+    check_in: Date | string
+    check_out?: Date | string | null
+    notes?: string | null
+    school_id?: string | null
+    supabase_id?: string | null
+    last_modified?: Date | string
+    needs_sync?: boolean
+    is_deleted?: boolean
+    employee?: EmployeesCreateNestedOneWithoutAttendancesInput
+  }
+
+  export type EmployeeAttendanceUncheckedCreateWithoutTeacherInput = {
+    id?: number
+    employee_id?: number | null
+    check_in: Date | string
+    check_out?: Date | string | null
+    notes?: string | null
+    school_id?: string | null
+    supabase_id?: string | null
+    last_modified?: Date | string
+    needs_sync?: boolean
+    is_deleted?: boolean
+  }
+
+  export type EmployeeAttendanceCreateOrConnectWithoutTeacherInput = {
+    where: EmployeeAttendanceWhereUniqueInput
+    create: XOR<EmployeeAttendanceCreateWithoutTeacherInput, EmployeeAttendanceUncheckedCreateWithoutTeacherInput>
+  }
+
+  export type EmployeeAttendanceCreateManyTeacherInputEnvelope = {
+    data: EmployeeAttendanceCreateManyTeacherInput | EmployeeAttendanceCreateManyTeacherInput[]
+  }
+
   export type LessonsUpsertWithWhereUniqueWithoutTeacherInput = {
     where: LessonsWhereUniqueInput
     update: XOR<LessonsUpdateWithoutTeacherInput, LessonsUncheckedUpdateWithoutTeacherInput>
@@ -43052,6 +44872,39 @@ export namespace Prisma {
     is_deleted?: BoolFilter<"TeacherWorkHours"> | boolean
   }
 
+  export type EmployeeAttendanceUpsertWithWhereUniqueWithoutTeacherInput = {
+    where: EmployeeAttendanceWhereUniqueInput
+    update: XOR<EmployeeAttendanceUpdateWithoutTeacherInput, EmployeeAttendanceUncheckedUpdateWithoutTeacherInput>
+    create: XOR<EmployeeAttendanceCreateWithoutTeacherInput, EmployeeAttendanceUncheckedCreateWithoutTeacherInput>
+  }
+
+  export type EmployeeAttendanceUpdateWithWhereUniqueWithoutTeacherInput = {
+    where: EmployeeAttendanceWhereUniqueInput
+    data: XOR<EmployeeAttendanceUpdateWithoutTeacherInput, EmployeeAttendanceUncheckedUpdateWithoutTeacherInput>
+  }
+
+  export type EmployeeAttendanceUpdateManyWithWhereWithoutTeacherInput = {
+    where: EmployeeAttendanceScalarWhereInput
+    data: XOR<EmployeeAttendanceUpdateManyMutationInput, EmployeeAttendanceUncheckedUpdateManyWithoutTeacherInput>
+  }
+
+  export type EmployeeAttendanceScalarWhereInput = {
+    AND?: EmployeeAttendanceScalarWhereInput | EmployeeAttendanceScalarWhereInput[]
+    OR?: EmployeeAttendanceScalarWhereInput[]
+    NOT?: EmployeeAttendanceScalarWhereInput | EmployeeAttendanceScalarWhereInput[]
+    id?: IntFilter<"EmployeeAttendance"> | number
+    employee_id?: IntNullableFilter<"EmployeeAttendance"> | number | null
+    teacher_id?: IntNullableFilter<"EmployeeAttendance"> | number | null
+    check_in?: DateTimeFilter<"EmployeeAttendance"> | Date | string
+    check_out?: DateTimeNullableFilter<"EmployeeAttendance"> | Date | string | null
+    notes?: StringNullableFilter<"EmployeeAttendance"> | string | null
+    school_id?: StringNullableFilter<"EmployeeAttendance"> | string | null
+    supabase_id?: StringNullableFilter<"EmployeeAttendance"> | string | null
+    last_modified?: DateTimeFilter<"EmployeeAttendance"> | Date | string
+    needs_sync?: BoolFilter<"EmployeeAttendance"> | boolean
+    is_deleted?: BoolFilter<"EmployeeAttendance"> | boolean
+  }
+
   export type SubjectsCreateWithoutWorkHoursInput = {
     name: string
     school_year?: string | null
@@ -43100,6 +44953,7 @@ export namespace Prisma {
     hourlyRate?: number | null
     school_id?: string | null
     lessons?: LessonsCreateNestedManyWithoutTeacherInput
+    attendances?: EmployeeAttendanceCreateNestedManyWithoutTeacherInput
   }
 
   export type TeachersUncheckedCreateWithoutWorkHoursInput = {
@@ -43121,6 +44975,7 @@ export namespace Prisma {
     hourlyRate?: number | null
     school_id?: string | null
     lessons?: LessonsUncheckedCreateNestedManyWithoutTeacherInput
+    attendances?: EmployeeAttendanceUncheckedCreateNestedManyWithoutTeacherInput
   }
 
   export type TeachersCreateOrConnectWithoutWorkHoursInput = {
@@ -43193,6 +45048,7 @@ export namespace Prisma {
     hourlyRate?: NullableFloatFieldUpdateOperationsInput | number | null
     school_id?: NullableStringFieldUpdateOperationsInput | string | null
     lessons?: LessonsUpdateManyWithoutTeacherNestedInput
+    attendances?: EmployeeAttendanceUpdateManyWithoutTeacherNestedInput
   }
 
   export type TeachersUncheckedUpdateWithoutWorkHoursInput = {
@@ -43214,6 +45070,7 @@ export namespace Prisma {
     hourlyRate?: NullableFloatFieldUpdateOperationsInput | number | null
     school_id?: NullableStringFieldUpdateOperationsInput | string | null
     lessons?: LessonsUncheckedUpdateManyWithoutTeacherNestedInput
+    attendances?: EmployeeAttendanceUncheckedUpdateManyWithoutTeacherNestedInput
   }
 
   export type SubjectsCreateWithoutLessonsInput = {
@@ -43298,6 +45155,7 @@ export namespace Prisma {
     hourlyRate?: number | null
     school_id?: string | null
     workHours?: TeacherWorkHoursCreateNestedManyWithoutTeacherInput
+    attendances?: EmployeeAttendanceCreateNestedManyWithoutTeacherInput
   }
 
   export type TeachersUncheckedCreateWithoutLessonsInput = {
@@ -43319,6 +45177,7 @@ export namespace Prisma {
     hourlyRate?: number | null
     school_id?: string | null
     workHours?: TeacherWorkHoursUncheckedCreateNestedManyWithoutTeacherInput
+    attendances?: EmployeeAttendanceUncheckedCreateNestedManyWithoutTeacherInput
   }
 
   export type TeachersCreateOrConnectWithoutLessonsInput = {
@@ -43493,6 +45352,7 @@ export namespace Prisma {
     hourlyRate?: NullableFloatFieldUpdateOperationsInput | number | null
     school_id?: NullableStringFieldUpdateOperationsInput | string | null
     workHours?: TeacherWorkHoursUpdateManyWithoutTeacherNestedInput
+    attendances?: EmployeeAttendanceUpdateManyWithoutTeacherNestedInput
   }
 
   export type TeachersUncheckedUpdateWithoutLessonsInput = {
@@ -43514,6 +45374,7 @@ export namespace Prisma {
     hourlyRate?: NullableFloatFieldUpdateOperationsInput | number | null
     school_id?: NullableStringFieldUpdateOperationsInput | string | null
     workHours?: TeacherWorkHoursUncheckedUpdateManyWithoutTeacherNestedInput
+    attendances?: EmployeeAttendanceUncheckedUpdateManyWithoutTeacherNestedInput
   }
 
   export type NotesUpsertWithWhereUniqueWithoutLessonInput = {
@@ -44749,6 +46610,40 @@ export namespace Prisma {
     data: SalaryPaymentsCreateManyEmployeeInput | SalaryPaymentsCreateManyEmployeeInput[]
   }
 
+  export type EmployeeAttendanceCreateWithoutEmployeeInput = {
+    check_in: Date | string
+    check_out?: Date | string | null
+    notes?: string | null
+    school_id?: string | null
+    supabase_id?: string | null
+    last_modified?: Date | string
+    needs_sync?: boolean
+    is_deleted?: boolean
+    teacher?: TeachersCreateNestedOneWithoutAttendancesInput
+  }
+
+  export type EmployeeAttendanceUncheckedCreateWithoutEmployeeInput = {
+    id?: number
+    teacher_id?: number | null
+    check_in: Date | string
+    check_out?: Date | string | null
+    notes?: string | null
+    school_id?: string | null
+    supabase_id?: string | null
+    last_modified?: Date | string
+    needs_sync?: boolean
+    is_deleted?: boolean
+  }
+
+  export type EmployeeAttendanceCreateOrConnectWithoutEmployeeInput = {
+    where: EmployeeAttendanceWhereUniqueInput
+    create: XOR<EmployeeAttendanceCreateWithoutEmployeeInput, EmployeeAttendanceUncheckedCreateWithoutEmployeeInput>
+  }
+
+  export type EmployeeAttendanceCreateManyEmployeeInputEnvelope = {
+    data: EmployeeAttendanceCreateManyEmployeeInput | EmployeeAttendanceCreateManyEmployeeInput[]
+  }
+
   export type SalaryPaymentsUpsertWithWhereUniqueWithoutEmployeeInput = {
     where: SalaryPaymentsWhereUniqueInput
     update: XOR<SalaryPaymentsUpdateWithoutEmployeeInput, SalaryPaymentsUncheckedUpdateWithoutEmployeeInput>
@@ -44782,6 +46677,22 @@ export namespace Prisma {
     is_deleted?: BoolFilter<"SalaryPayments"> | boolean
   }
 
+  export type EmployeeAttendanceUpsertWithWhereUniqueWithoutEmployeeInput = {
+    where: EmployeeAttendanceWhereUniqueInput
+    update: XOR<EmployeeAttendanceUpdateWithoutEmployeeInput, EmployeeAttendanceUncheckedUpdateWithoutEmployeeInput>
+    create: XOR<EmployeeAttendanceCreateWithoutEmployeeInput, EmployeeAttendanceUncheckedCreateWithoutEmployeeInput>
+  }
+
+  export type EmployeeAttendanceUpdateWithWhereUniqueWithoutEmployeeInput = {
+    where: EmployeeAttendanceWhereUniqueInput
+    data: XOR<EmployeeAttendanceUpdateWithoutEmployeeInput, EmployeeAttendanceUncheckedUpdateWithoutEmployeeInput>
+  }
+
+  export type EmployeeAttendanceUpdateManyWithWhereWithoutEmployeeInput = {
+    where: EmployeeAttendanceScalarWhereInput
+    data: XOR<EmployeeAttendanceUpdateManyMutationInput, EmployeeAttendanceUncheckedUpdateManyWithoutEmployeeInput>
+  }
+
   export type EmployeesCreateWithoutSalary_paymentsInput = {
     name?: string | null
     first_name?: string | null
@@ -44799,6 +46710,7 @@ export namespace Prisma {
     last_modified?: Date | string
     needs_sync?: boolean
     is_deleted?: boolean
+    attendances?: EmployeeAttendanceCreateNestedManyWithoutEmployeeInput
   }
 
   export type EmployeesUncheckedCreateWithoutSalary_paymentsInput = {
@@ -44819,6 +46731,7 @@ export namespace Prisma {
     last_modified?: Date | string
     needs_sync?: boolean
     is_deleted?: boolean
+    attendances?: EmployeeAttendanceUncheckedCreateNestedManyWithoutEmployeeInput
   }
 
   export type EmployeesCreateOrConnectWithoutSalary_paymentsInput = {
@@ -44854,6 +46767,7 @@ export namespace Prisma {
     last_modified?: DateTimeFieldUpdateOperationsInput | Date | string
     needs_sync?: BoolFieldUpdateOperationsInput | boolean
     is_deleted?: BoolFieldUpdateOperationsInput | boolean
+    attendances?: EmployeeAttendanceUpdateManyWithoutEmployeeNestedInput
   }
 
   export type EmployeesUncheckedUpdateWithoutSalary_paymentsInput = {
@@ -44874,6 +46788,7 @@ export namespace Prisma {
     last_modified?: DateTimeFieldUpdateOperationsInput | Date | string
     needs_sync?: BoolFieldUpdateOperationsInput | boolean
     is_deleted?: BoolFieldUpdateOperationsInput | boolean
+    attendances?: EmployeeAttendanceUncheckedUpdateManyWithoutEmployeeNestedInput
   }
 
   export type LessonsCreateWithoutSchedulesInput = {
@@ -45369,6 +47284,206 @@ export namespace Prisma {
     needs_sync?: BoolFieldUpdateOperationsInput | boolean
     is_deleted?: BoolFieldUpdateOperationsInput | boolean
     transactions?: FinancialTransactionUncheckedUpdateManyWithoutCategoryNestedInput
+  }
+
+  export type EmployeesCreateWithoutAttendancesInput = {
+    name?: string | null
+    first_name?: string | null
+    phone?: string | null
+    email?: string | null
+    adress?: string | null
+    gender?: string | null
+    job_title?: string | null
+    salary?: number | null
+    matricule?: string | null
+    school_id?: string | null
+    password_hash?: string | null
+    supabase_id?: string | null
+    user_supabase_id?: string | null
+    last_modified?: Date | string
+    needs_sync?: boolean
+    is_deleted?: boolean
+    salary_payments?: SalaryPaymentsCreateNestedManyWithoutEmployeeInput
+  }
+
+  export type EmployeesUncheckedCreateWithoutAttendancesInput = {
+    id?: number
+    name?: string | null
+    first_name?: string | null
+    phone?: string | null
+    email?: string | null
+    adress?: string | null
+    gender?: string | null
+    job_title?: string | null
+    salary?: number | null
+    matricule?: string | null
+    school_id?: string | null
+    password_hash?: string | null
+    supabase_id?: string | null
+    user_supabase_id?: string | null
+    last_modified?: Date | string
+    needs_sync?: boolean
+    is_deleted?: boolean
+    salary_payments?: SalaryPaymentsUncheckedCreateNestedManyWithoutEmployeeInput
+  }
+
+  export type EmployeesCreateOrConnectWithoutAttendancesInput = {
+    where: EmployeesWhereUniqueInput
+    create: XOR<EmployeesCreateWithoutAttendancesInput, EmployeesUncheckedCreateWithoutAttendancesInput>
+  }
+
+  export type TeachersCreateWithoutAttendancesInput = {
+    name?: string | null
+    first_name?: string | null
+    phone?: string | null
+    email?: string | null
+    adress?: string | null
+    password_hash?: string | null
+    role_id?: string | null
+    speciality?: string | null
+    matricule?: string | null
+    supabase_id?: string | null
+    user_supabase_id?: string | null
+    last_modified?: Date | string
+    needs_sync?: boolean
+    is_deleted?: boolean
+    hourlyRate?: number | null
+    school_id?: string | null
+    lessons?: LessonsCreateNestedManyWithoutTeacherInput
+    workHours?: TeacherWorkHoursCreateNestedManyWithoutTeacherInput
+  }
+
+  export type TeachersUncheckedCreateWithoutAttendancesInput = {
+    id?: number
+    name?: string | null
+    first_name?: string | null
+    phone?: string | null
+    email?: string | null
+    adress?: string | null
+    password_hash?: string | null
+    role_id?: string | null
+    speciality?: string | null
+    matricule?: string | null
+    supabase_id?: string | null
+    user_supabase_id?: string | null
+    last_modified?: Date | string
+    needs_sync?: boolean
+    is_deleted?: boolean
+    hourlyRate?: number | null
+    school_id?: string | null
+    lessons?: LessonsUncheckedCreateNestedManyWithoutTeacherInput
+    workHours?: TeacherWorkHoursUncheckedCreateNestedManyWithoutTeacherInput
+  }
+
+  export type TeachersCreateOrConnectWithoutAttendancesInput = {
+    where: TeachersWhereUniqueInput
+    create: XOR<TeachersCreateWithoutAttendancesInput, TeachersUncheckedCreateWithoutAttendancesInput>
+  }
+
+  export type EmployeesUpsertWithoutAttendancesInput = {
+    update: XOR<EmployeesUpdateWithoutAttendancesInput, EmployeesUncheckedUpdateWithoutAttendancesInput>
+    create: XOR<EmployeesCreateWithoutAttendancesInput, EmployeesUncheckedCreateWithoutAttendancesInput>
+    where?: EmployeesWhereInput
+  }
+
+  export type EmployeesUpdateToOneWithWhereWithoutAttendancesInput = {
+    where?: EmployeesWhereInput
+    data: XOR<EmployeesUpdateWithoutAttendancesInput, EmployeesUncheckedUpdateWithoutAttendancesInput>
+  }
+
+  export type EmployeesUpdateWithoutAttendancesInput = {
+    name?: NullableStringFieldUpdateOperationsInput | string | null
+    first_name?: NullableStringFieldUpdateOperationsInput | string | null
+    phone?: NullableStringFieldUpdateOperationsInput | string | null
+    email?: NullableStringFieldUpdateOperationsInput | string | null
+    adress?: NullableStringFieldUpdateOperationsInput | string | null
+    gender?: NullableStringFieldUpdateOperationsInput | string | null
+    job_title?: NullableStringFieldUpdateOperationsInput | string | null
+    salary?: NullableFloatFieldUpdateOperationsInput | number | null
+    matricule?: NullableStringFieldUpdateOperationsInput | string | null
+    school_id?: NullableStringFieldUpdateOperationsInput | string | null
+    password_hash?: NullableStringFieldUpdateOperationsInput | string | null
+    supabase_id?: NullableStringFieldUpdateOperationsInput | string | null
+    user_supabase_id?: NullableStringFieldUpdateOperationsInput | string | null
+    last_modified?: DateTimeFieldUpdateOperationsInput | Date | string
+    needs_sync?: BoolFieldUpdateOperationsInput | boolean
+    is_deleted?: BoolFieldUpdateOperationsInput | boolean
+    salary_payments?: SalaryPaymentsUpdateManyWithoutEmployeeNestedInput
+  }
+
+  export type EmployeesUncheckedUpdateWithoutAttendancesInput = {
+    id?: IntFieldUpdateOperationsInput | number
+    name?: NullableStringFieldUpdateOperationsInput | string | null
+    first_name?: NullableStringFieldUpdateOperationsInput | string | null
+    phone?: NullableStringFieldUpdateOperationsInput | string | null
+    email?: NullableStringFieldUpdateOperationsInput | string | null
+    adress?: NullableStringFieldUpdateOperationsInput | string | null
+    gender?: NullableStringFieldUpdateOperationsInput | string | null
+    job_title?: NullableStringFieldUpdateOperationsInput | string | null
+    salary?: NullableFloatFieldUpdateOperationsInput | number | null
+    matricule?: NullableStringFieldUpdateOperationsInput | string | null
+    school_id?: NullableStringFieldUpdateOperationsInput | string | null
+    password_hash?: NullableStringFieldUpdateOperationsInput | string | null
+    supabase_id?: NullableStringFieldUpdateOperationsInput | string | null
+    user_supabase_id?: NullableStringFieldUpdateOperationsInput | string | null
+    last_modified?: DateTimeFieldUpdateOperationsInput | Date | string
+    needs_sync?: BoolFieldUpdateOperationsInput | boolean
+    is_deleted?: BoolFieldUpdateOperationsInput | boolean
+    salary_payments?: SalaryPaymentsUncheckedUpdateManyWithoutEmployeeNestedInput
+  }
+
+  export type TeachersUpsertWithoutAttendancesInput = {
+    update: XOR<TeachersUpdateWithoutAttendancesInput, TeachersUncheckedUpdateWithoutAttendancesInput>
+    create: XOR<TeachersCreateWithoutAttendancesInput, TeachersUncheckedCreateWithoutAttendancesInput>
+    where?: TeachersWhereInput
+  }
+
+  export type TeachersUpdateToOneWithWhereWithoutAttendancesInput = {
+    where?: TeachersWhereInput
+    data: XOR<TeachersUpdateWithoutAttendancesInput, TeachersUncheckedUpdateWithoutAttendancesInput>
+  }
+
+  export type TeachersUpdateWithoutAttendancesInput = {
+    name?: NullableStringFieldUpdateOperationsInput | string | null
+    first_name?: NullableStringFieldUpdateOperationsInput | string | null
+    phone?: NullableStringFieldUpdateOperationsInput | string | null
+    email?: NullableStringFieldUpdateOperationsInput | string | null
+    adress?: NullableStringFieldUpdateOperationsInput | string | null
+    password_hash?: NullableStringFieldUpdateOperationsInput | string | null
+    role_id?: NullableStringFieldUpdateOperationsInput | string | null
+    speciality?: NullableStringFieldUpdateOperationsInput | string | null
+    matricule?: NullableStringFieldUpdateOperationsInput | string | null
+    supabase_id?: NullableStringFieldUpdateOperationsInput | string | null
+    user_supabase_id?: NullableStringFieldUpdateOperationsInput | string | null
+    last_modified?: DateTimeFieldUpdateOperationsInput | Date | string
+    needs_sync?: BoolFieldUpdateOperationsInput | boolean
+    is_deleted?: BoolFieldUpdateOperationsInput | boolean
+    hourlyRate?: NullableFloatFieldUpdateOperationsInput | number | null
+    school_id?: NullableStringFieldUpdateOperationsInput | string | null
+    lessons?: LessonsUpdateManyWithoutTeacherNestedInput
+    workHours?: TeacherWorkHoursUpdateManyWithoutTeacherNestedInput
+  }
+
+  export type TeachersUncheckedUpdateWithoutAttendancesInput = {
+    id?: IntFieldUpdateOperationsInput | number
+    name?: NullableStringFieldUpdateOperationsInput | string | null
+    first_name?: NullableStringFieldUpdateOperationsInput | string | null
+    phone?: NullableStringFieldUpdateOperationsInput | string | null
+    email?: NullableStringFieldUpdateOperationsInput | string | null
+    adress?: NullableStringFieldUpdateOperationsInput | string | null
+    password_hash?: NullableStringFieldUpdateOperationsInput | string | null
+    role_id?: NullableStringFieldUpdateOperationsInput | string | null
+    speciality?: NullableStringFieldUpdateOperationsInput | string | null
+    matricule?: NullableStringFieldUpdateOperationsInput | string | null
+    supabase_id?: NullableStringFieldUpdateOperationsInput | string | null
+    user_supabase_id?: NullableStringFieldUpdateOperationsInput | string | null
+    last_modified?: DateTimeFieldUpdateOperationsInput | Date | string
+    needs_sync?: BoolFieldUpdateOperationsInput | boolean
+    is_deleted?: BoolFieldUpdateOperationsInput | boolean
+    hourlyRate?: NullableFloatFieldUpdateOperationsInput | number | null
+    school_id?: NullableStringFieldUpdateOperationsInput | string | null
+    lessons?: LessonsUncheckedUpdateManyWithoutTeacherNestedInput
+    workHours?: TeacherWorkHoursUncheckedUpdateManyWithoutTeacherNestedInput
   }
 
   export type LessonsCreateManyClassInput = {
@@ -45900,6 +48015,19 @@ export namespace Prisma {
     is_deleted?: boolean
   }
 
+  export type EmployeeAttendanceCreateManyTeacherInput = {
+    id?: number
+    employee_id?: number | null
+    check_in: Date | string
+    check_out?: Date | string | null
+    notes?: string | null
+    school_id?: string | null
+    supabase_id?: string | null
+    last_modified?: Date | string
+    needs_sync?: boolean
+    is_deleted?: boolean
+  }
+
   export type LessonsUpdateWithoutTeacherInput = {
     school_year?: NullableStringFieldUpdateOperationsInput | string | null
     supabase_id?: NullableStringFieldUpdateOperationsInput | string | null
@@ -45971,6 +48099,44 @@ export namespace Prisma {
     end_time?: NullableStringFieldUpdateOperationsInput | string | null
     hours?: FloatFieldUpdateOperationsInput | number
     notes?: NullableStringFieldUpdateOperationsInput | string | null
+    supabase_id?: NullableStringFieldUpdateOperationsInput | string | null
+    last_modified?: DateTimeFieldUpdateOperationsInput | Date | string
+    needs_sync?: BoolFieldUpdateOperationsInput | boolean
+    is_deleted?: BoolFieldUpdateOperationsInput | boolean
+  }
+
+  export type EmployeeAttendanceUpdateWithoutTeacherInput = {
+    check_in?: DateTimeFieldUpdateOperationsInput | Date | string
+    check_out?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    notes?: NullableStringFieldUpdateOperationsInput | string | null
+    school_id?: NullableStringFieldUpdateOperationsInput | string | null
+    supabase_id?: NullableStringFieldUpdateOperationsInput | string | null
+    last_modified?: DateTimeFieldUpdateOperationsInput | Date | string
+    needs_sync?: BoolFieldUpdateOperationsInput | boolean
+    is_deleted?: BoolFieldUpdateOperationsInput | boolean
+    employee?: EmployeesUpdateOneWithoutAttendancesNestedInput
+  }
+
+  export type EmployeeAttendanceUncheckedUpdateWithoutTeacherInput = {
+    id?: IntFieldUpdateOperationsInput | number
+    employee_id?: NullableIntFieldUpdateOperationsInput | number | null
+    check_in?: DateTimeFieldUpdateOperationsInput | Date | string
+    check_out?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    notes?: NullableStringFieldUpdateOperationsInput | string | null
+    school_id?: NullableStringFieldUpdateOperationsInput | string | null
+    supabase_id?: NullableStringFieldUpdateOperationsInput | string | null
+    last_modified?: DateTimeFieldUpdateOperationsInput | Date | string
+    needs_sync?: BoolFieldUpdateOperationsInput | boolean
+    is_deleted?: BoolFieldUpdateOperationsInput | boolean
+  }
+
+  export type EmployeeAttendanceUncheckedUpdateManyWithoutTeacherInput = {
+    id?: IntFieldUpdateOperationsInput | number
+    employee_id?: NullableIntFieldUpdateOperationsInput | number | null
+    check_in?: DateTimeFieldUpdateOperationsInput | Date | string
+    check_out?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    notes?: NullableStringFieldUpdateOperationsInput | string | null
+    school_id?: NullableStringFieldUpdateOperationsInput | string | null
     supabase_id?: NullableStringFieldUpdateOperationsInput | string | null
     last_modified?: DateTimeFieldUpdateOperationsInput | Date | string
     needs_sync?: BoolFieldUpdateOperationsInput | boolean
@@ -46388,6 +48554,19 @@ export namespace Prisma {
     is_deleted?: boolean
   }
 
+  export type EmployeeAttendanceCreateManyEmployeeInput = {
+    id?: number
+    teacher_id?: number | null
+    check_in: Date | string
+    check_out?: Date | string | null
+    notes?: string | null
+    school_id?: string | null
+    supabase_id?: string | null
+    last_modified?: Date | string
+    needs_sync?: boolean
+    is_deleted?: boolean
+  }
+
   export type SalaryPaymentsUpdateWithoutEmployeeInput = {
     base_salary?: FloatFieldUpdateOperationsInput | number
     bonus_amount?: FloatFieldUpdateOperationsInput | number
@@ -46420,6 +48599,44 @@ export namespace Prisma {
     total_amount?: FloatFieldUpdateOperationsInput | number
     payment_date?: StringFieldUpdateOperationsInput | string
     notes?: NullableStringFieldUpdateOperationsInput | string | null
+    supabase_id?: NullableStringFieldUpdateOperationsInput | string | null
+    last_modified?: DateTimeFieldUpdateOperationsInput | Date | string
+    needs_sync?: BoolFieldUpdateOperationsInput | boolean
+    is_deleted?: BoolFieldUpdateOperationsInput | boolean
+  }
+
+  export type EmployeeAttendanceUpdateWithoutEmployeeInput = {
+    check_in?: DateTimeFieldUpdateOperationsInput | Date | string
+    check_out?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    notes?: NullableStringFieldUpdateOperationsInput | string | null
+    school_id?: NullableStringFieldUpdateOperationsInput | string | null
+    supabase_id?: NullableStringFieldUpdateOperationsInput | string | null
+    last_modified?: DateTimeFieldUpdateOperationsInput | Date | string
+    needs_sync?: BoolFieldUpdateOperationsInput | boolean
+    is_deleted?: BoolFieldUpdateOperationsInput | boolean
+    teacher?: TeachersUpdateOneWithoutAttendancesNestedInput
+  }
+
+  export type EmployeeAttendanceUncheckedUpdateWithoutEmployeeInput = {
+    id?: IntFieldUpdateOperationsInput | number
+    teacher_id?: NullableIntFieldUpdateOperationsInput | number | null
+    check_in?: DateTimeFieldUpdateOperationsInput | Date | string
+    check_out?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    notes?: NullableStringFieldUpdateOperationsInput | string | null
+    school_id?: NullableStringFieldUpdateOperationsInput | string | null
+    supabase_id?: NullableStringFieldUpdateOperationsInput | string | null
+    last_modified?: DateTimeFieldUpdateOperationsInput | Date | string
+    needs_sync?: BoolFieldUpdateOperationsInput | boolean
+    is_deleted?: BoolFieldUpdateOperationsInput | boolean
+  }
+
+  export type EmployeeAttendanceUncheckedUpdateManyWithoutEmployeeInput = {
+    id?: IntFieldUpdateOperationsInput | number
+    teacher_id?: NullableIntFieldUpdateOperationsInput | number | null
+    check_in?: DateTimeFieldUpdateOperationsInput | Date | string
+    check_out?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    notes?: NullableStringFieldUpdateOperationsInput | string | null
+    school_id?: NullableStringFieldUpdateOperationsInput | string | null
     supabase_id?: NullableStringFieldUpdateOperationsInput | string | null
     last_modified?: DateTimeFieldUpdateOperationsInput | Date | string
     needs_sync?: BoolFieldUpdateOperationsInput | boolean

@@ -404,6 +404,19 @@ Table users {
   last_modified timestamptz [default: `now()`]
 }
 
+Table employee_attendances {
+  id uuid [pk, not null, default: `gen_random_uuid()`]
+  employee_id uuid
+  teacher_id uuid
+  check_in timestamptz [not null]
+  check_out timestamptz
+  notes text
+  school_id uuid
+  last_modified timestamptz [default: `now()`]
+  is_deleted boolean [default: false]
+  local_id integer
+}
+
 
 //// RELATIONS
 Ref: users.role_id > roles.id
@@ -451,3 +464,6 @@ Ref: fee_templates.school_id > schools.id
 Ref: fee_templates.applies_to_class_id > classes.id
 Ref: budgets.school_id > schools.id
 Ref: financial_reports.school_id > schools.id
+Ref: employee_attendances.employee_id > employees.id
+Ref: employee_attendances.teacher_id > teachers.id
+Ref: employee_attendances.school_id > schools.id

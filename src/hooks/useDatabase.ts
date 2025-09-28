@@ -172,6 +172,15 @@ export function useDatabase() {
   const updateDispatchRule = useCallback((id: number, data: any) => invoke('db:dispatch-rules:update', { id, data }), []);
   // #endregion
 
+  // #region Employee Attendances
+  const getEmployeeAttendances = useCallback((args: { employeeId?: number, teacherId?: number }) => invoke('db:employee-attendances:getForEmployee', args), []);
+  const getTodaysAttendanceSummary = useCallback((args: { schoolId: string }) => invoke('db:employee-attendances:getTodaysSummary', args), []);
+  const clockInEmployee = useCallback((args: { employeeId?: number, teacherId?: number, schoolId: string }) => invoke('db:employee-attendances:clockIn', args), []);
+  const clockOutEmployee = useCallback((attendanceId: number) => invoke('db:employee-attendances:clockOut', { attendanceId }), []);
+  const updateEmployeeAttendance = useCallback((id: number, data: any) => invoke('db:employee-attendances:update', { id, data }), []);
+  const deleteEmployeeAttendance = useCallback((id: number) => invoke('db:employee-attendances:delete', id), []);
+  // #endregion
+
   return useMemo(() => ({
     getSettings, updateSettings, setSchoolLogo, getSchoolLogoBase64,
     getAllClasses, createClass, updateClass, deleteClass,
@@ -200,6 +209,7 @@ export function useDatabase() {
     getAllDispatchRules, createDispatchRule, updateDispatchRule, deleteDispatchRule, getDispatchSummary, getBase64Image,
     getAllFeeTemplates, createFeeTemplate, updateFeeTemplate, deleteFeeTemplate,
     getAllEvents, createEvent, updateEvent, deleteEvent, // Ajout des fonctions pour les événements
+    getEmployeeAttendances, getTodaysAttendanceSummary, clockInEmployee, clockOutEmployee, updateEmployeeAttendance, deleteEmployeeAttendance,
     processStudentPhoto: () => invoke('images:process-student-photo'),
   }), []);
 }

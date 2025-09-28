@@ -36,6 +36,7 @@ const validInvokeChannels = [
   'db:budgets:get', 'db:budgets:create', 'db:budgets:update', 'db:budgets:delete',
   'db:financial-reports:get', 'db:financial-reports:create', 'db:financial-reports:update', 'db:financial-reports:delete', 'db:financial-reports:getSummary',
   'db:dispatch-rules:getAll',   'db:dispatch-rules:create', 'db:dispatch-rules:update', 'db:dispatch-rules:delete',
+  'db:employee-attendances:getForEmployee', 'db:employee-attendances:getTodaysSummary', 'db:employee-attendances:clockIn', 'db:employee-attendances:clockOut', 'db:employee-attendances:update', 'db:employee-attendances:delete',
   'db:finance:get-dispatch-summary',
   'db:dashboard:getStats', 'db:reports:getClassResults', 'db:reports:getAllClassesPerformance', 'db:reports:getClassTrend', 'db:reports:getFrequentLatePayers',
   'printers:get-list', 'printers:print-receipt',

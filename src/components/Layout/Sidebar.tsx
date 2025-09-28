@@ -2,7 +2,7 @@
 import { useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { cn } from "@/lib/utils";
-import { Book, CalendarCheck, FileText, FileMinus, Users, GraduationCap, Database, Settings as SettingsIcon, LogOut, BarChart, DollarSign, Megaphone } from "lucide-react";
+import { Book, CalendarCheck, FileText, FileMinus, Users, GraduationCap, Database, Settings as SettingsIcon, LogOut, BarChart, DollarSign, Megaphone, Clock } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "../../context/AuthContext";
 import { hasPermission, PERMISSIONS } from "../../lib/permissions";
@@ -25,6 +25,7 @@ export default function Sidebar() {
     { name: "Élèves", href: "/students", icon: Users, permission: PERMISSIONS.CAN_MANAGE_STUDENTS },
     { name: "Professeurs", href: "/teachers", icon: GraduationCap, permission: PERMISSIONS.CAN_MANAGE_TEACHERS },
     { name: "Personnel", href: "/employees", icon: Users, permission: PERMISSIONS.CAN_MANAGE_EMPLOYEES },
+    { name: "Cahier de Pointage", href: "/employee-attendance", icon: Clock, permission: PERMISSIONS.CAN_MANAGE_EMPLOYEE_ATTENDANCE },
     { name: "Classes", href: "/classes", icon: Database, permission: PERMISSIONS.CAN_MANAGE_CLASSES },
     { name: "Emploi du temps", href: "/schedules", icon: CalendarCheck, permission: PERMISSIONS.CAN_MANAGE_SCHEDULES },
     { name: "Présences", href: "/attendance", icon: CalendarCheck, permission: PERMISSIONS.CAN_MANAGE_ATTENDANCE },

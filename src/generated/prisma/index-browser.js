@@ -466,6 +466,20 @@ exports.Prisma.EventsScalarFieldEnum = {
   is_deleted: 'is_deleted'
 };
 
+exports.Prisma.EmployeeAttendanceScalarFieldEnum = {
+  id: 'id',
+  employee_id: 'employee_id',
+  teacher_id: 'teacher_id',
+  check_in: 'check_in',
+  check_out: 'check_out',
+  notes: 'notes',
+  school_id: 'school_id',
+  supabase_id: 'supabase_id',
+  last_modified: 'last_modified',
+  needs_sync: 'needs_sync',
+  is_deleted: 'is_deleted'
+};
+
 exports.Prisma.SortOrder = {
   asc: 'asc',
   desc: 'desc'
@@ -518,7 +532,8 @@ exports.Prisma.ModelName = {
   FinancialReport: 'FinancialReport',
   DispatchRule: 'DispatchRule',
   DispatchRuleDetail: 'DispatchRuleDetail',
-  Events: 'Events'
+  Events: 'Events',
+  EmployeeAttendance: 'EmployeeAttendance'
 };
 
 /**

@@ -17,6 +17,56 @@ export const getSettings = async (): Promise<Settings | null> => {
   }
 };
 
+// Employee Attendance operations
+export const getEmployeeAttendances = async (args: { employeeId?: number, teacherId?: number }): Promise<any[]> => {
+  if (isBrowser) {
+    return window.api.invoke('db:employee-attendances:getForEmployee', args);
+  } else {
+    return Promise.resolve([]);
+  }
+};
+
+export const getTodaysAttendanceSummary = async (args: { schoolId: string }): Promise<any[]> => {
+  if (isBrowser) {
+    return window.api.invoke('db:employee-attendances:getTodaysSummary', args);
+  } else {
+    return Promise.resolve([]);
+  }
+};
+
+export const clockInEmployee = async (args: { employeeId?: number, teacherId?: number, schoolId: string }): Promise<any> => {
+  if (isBrowser) {
+    return window.api.invoke('db:employee-attendances:clockIn', args);
+  } else {
+    return Promise.resolve({});
+  }
+};
+
+export const clockOutEmployee = async (attendanceId: number): Promise<any> => {
+  if (isBrowser) {
+    return window.api.invoke('db:employee-attendances:clockOut', { attendanceId });
+  } else {
+    return Promise.resolve({});
+  }
+};
+
+export const updateEmployeeAttendance = async (id: number, data: any): Promise<any> => {
+  if (isBrowser) {
+    return window.api.invoke('db:employee-attendances:update', { id, data });
+  } else {
+    return Promise.resolve({});
+  }
+};
+
+export const deleteEmployeeAttendance = async (id: number): Promise<void> => {
+  if (isBrowser) {
+    return window.api.invoke('db:employee-attendances:delete', id);
+  } else {
+    return Promise.resolve();
+  }
+};
+
+
 // Employee operations
 export const getEmployees = async (): Promise<Employee[]> => {
   if (isBrowser) {

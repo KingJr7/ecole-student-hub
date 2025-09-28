@@ -19,6 +19,8 @@ export const PERMISSIONS = {
   CAN_MANAGE_SETTINGS: 'settings',
   // Events
   CAN_MANAGE_EVENTS: 'events',
+  // Employee Attendance
+  CAN_MANAGE_EMPLOYEE_ATTENDANCE: 'employee_attendance',
 };
 
 export const getAccessLevel = (userRole, userPermissions, permission) => {

@@ -881,6 +881,42 @@ const tableConfigs = {
             image_url: row.image_url,
             school_id: row.school_id
         })
+    },
+    employee_attendances: {
+        name: 'employee_attendances',
+        model: 'employeeAttendance',
+        pullSelect: '*',
+        pullFilterColumn: 'school_id',
+        supabaseMap: async (row, schoolId, prisma) => {
+            const employeeSupabaseId = row.employee_id ? await getSupabaseId(prisma, 'employees', row.employee_id, schoolId) : null;
+            const teacherSupabaseId = row.teacher_id ? await getSupabaseId(prisma, 'teachers', row.teacher_id, schoolId) : null;
+            
+            if (!employeeSupabaseId && !teacherSupabaseId) return null;
+
+            return {
+                employee_id: employeeSupabaseId,
+                teacher_id: teacherSupabaseId,
+                check_in: row.check_in,
+                check_out: row.check_out,
+                notes: row.notes,
+                school_id: schoolId
+            };
+        },
+        localMap: async (row, prisma) => {
+            const employeeLocalId = row.employee_id ? await getLocalId(prisma, 'employees', row.employee_id) : null;
+            const teacherLocalId = row.teacher_id ? await getLocalId(prisma, 'teachers', row.teacher_id) : null;
+
+            if (!employeeLocalId && !teacherLocalId) return null;
+
+            return {
+                employee_id: employeeLocalId,
+                teacher_id: teacherLocalId,
+                check_in: row.check_in,
+                check_out: row.check_out,
+                notes: row.notes,
+                school_id: row.school_id
+            };
+        }
     }
 };
 
@@ -939,6 +975,7 @@ const syncOrder = [
     'employees', 
     'financial_categories',
     'events',
+    'employee_attendances',
     
     // Entités dépendant des entités de base
     'single_fees',          // Dépend de 'classes'

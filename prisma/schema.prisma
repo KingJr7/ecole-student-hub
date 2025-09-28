@@ -107,6 +107,7 @@ model Teachers {
   lessons       Lessons[]
   workHours     TeacherWorkHours[]
   school_id     String?
+  attendances   EmployeeAttendance[]
 
   @@index([is_deleted, email])
   @@map("teachers")
@@ -326,6 +327,7 @@ model Employees {
   needs_sync      Boolean           @default(false)
   is_deleted      Boolean           @default(false)
   salary_payments SalaryPayments[]
+  attendances     EmployeeAttendance[]
 
   @@index([is_deleted, email])
   @@map("employees")
@@ -478,4 +480,27 @@ model Events {
   is_deleted    Boolean   @default(false)
 
   @@map("events")
+}
+
+model EmployeeAttendance {
+  id            Int       @id @default(autoincrement())
+  employee_id   Int?
+  teacher_id    Int?
+  check_in      DateTime
+  check_out     DateTime?
+  notes         String?
+  school_id     String?
+
+  supabase_id   String?   @unique
+  last_modified DateTime  @default(now())
+  needs_sync    Boolean   @default(false)
+  is_deleted    Boolean   @default(false)
+
+  employee      Employees? @relation(fields: [employee_id], references: [id], onDelete: Cascade)
+  teacher       Teachers?  @relation(fields: [teacher_id], references: [id], onDelete: Cascade)
+
+  @@index([employee_id])
+  @@index([teacher_id])
+  @@index([school_id])
+  @@map("employee_attendances")
 }
