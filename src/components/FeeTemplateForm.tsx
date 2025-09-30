@@ -32,7 +32,7 @@ const months = [
   { id: 'sept', label: 'Sept' }, { id: 'oct', label: 'Oct' }, { id: 'nov', label: 'Nov' }, 
   { id: 'dec', label: 'Déc' }, { id: 'jan', label: 'Jan' }, { id: 'fev', label: 'Fév' }, 
   { id: 'mar', label: 'Mar' }, { id: 'avr', label: 'Avr' }, { id: 'mai', label: 'Mai' }, 
-  { id: 'jun', label: 'Juin' }, { id: 'juil', label: 'Juil' }, { id: 'aout', label: 'Août' }
+  { id: 'juin', label: 'Juin' }, { id: 'juil', label: 'Juil' }, { id: 'aout', label: 'Août' }
 ];
 
 export function FeeTemplateForm({ onSubmit, initialData = null, classes }) {
@@ -57,6 +57,7 @@ export function FeeTemplateForm({ onSubmit, initialData = null, classes }) {
   const watchedFrequency = form.watch("frequency");
 
   const handleFormSubmit = (values: z.infer<typeof feeTemplateSchema>) => {
+    console.log('[DEBUG FeeTemplateForm] Valeurs soumises:', values);
     const submissionData = { ...values };
     if (values.assignment_type === 'general') {
       submissionData.applies_to_level = 'all';

@@ -27,13 +27,13 @@ export function FeeTemplateManager() {
   });
 
   const mutation = useMutation({
-    mutationFn: (templateData) => 
-      editingTemplate 
-        ? updateFeeTemplate(editingTemplate.id, templateData)
-        : createFeeTemplate(templateData),
+    mutationFn: (variables: { id?: number; data: any }) => 
+      variables.id
+        ? updateFeeTemplate(variables.id, variables.data)
+        : createFeeTemplate(variables.data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['feeTemplates'] });
-      toast({ description: `Modèle ${editingTemplate ? 'mis à jour' : 'créé'} avec succès.` });
+      toast({ description: `Modèle traité avec succès.` });
       setIsDialogOpen(false);
       setEditingTemplate(null);
     },
@@ -103,7 +103,7 @@ export function FeeTemplateManager() {
             <DialogHeader>
               <DialogTitle>{editingTemplate ? "Modifier le modèle" : "Nouveau modèle de frais"}</DialogTitle>
             </DialogHeader>
-            <FeeTemplateForm onSubmit={(data) => mutation.mutate(data)} initialData={editingTemplate} classes={classes} />
+            <FeeTemplateForm key={editingTemplate?.id || 'new'} onSubmit={(data) => mutation.mutate({ id: editingTemplate?.id, data: data })} initialData={editingTemplate} classes={classes} />
           </DialogContent>
         </Dialog>
       </CardContent>

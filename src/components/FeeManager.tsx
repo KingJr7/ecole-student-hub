@@ -27,13 +27,13 @@ export function FeeManager() {
   });
 
   const mutation = useMutation({
-    mutationFn: (feeData) => 
-      editingFee 
-        ? updateFee(editingFee.id, feeData)
-        : createFee(feeData),
+    mutationFn: (variables: { id?: number; data: any }) => 
+      variables.id
+        ? updateFee(variables.id, variables.data)
+        : createFee(variables.data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['fees'] });
-      toast({ description: `Frais ${editingFee ? 'mis à jour' : 'créés'} avec succès.` });
+      toast({ description: `Frais traités avec succès.` });
       setIsDialogOpen(false);
       setEditingFee(null);
     },
@@ -58,7 +58,7 @@ export function FeeManager() {
       ...data,
       due_date: data.due_date ? data.due_date.toISOString().split('T')[0] : null,
     };
-    mutation.mutate(submissionData);
+    mutation.mutate({ id: editingFee?.id, data: submissionData });
   };
 
   return (
@@ -116,7 +116,7 @@ export function FeeManager() {
             <DialogHeader>
               <DialogTitle>{editingFee ? "Modifier les frais" : "Ajouter des frais"}</DialogTitle>
             </DialogHeader>
-            <FeeForm onSubmit={handleSave} initialData={editingFee} classes={classes} />
+            <FeeForm key={editingFee?.id || 'new'} onSubmit={handleSave} initialData={editingFee} classes={classes} />
           </DialogContent>
         </Dialog>
       </CardContent>

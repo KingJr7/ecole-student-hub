@@ -1,10 +1,13 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useForm, SubmitHandler } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { PlusCircle, Edit, Trash, Save, Users, DollarSign, Briefcase, Home, Printer, History } from "lucide-react";
+import { PlusCircle, Edit, Trash, Save, Users, DollarSign, Briefcase, Home, Printer, History, Download } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { jsPDF } from "jspdf";
+import autoTable from "jspdf-autotable";
+import { useDatabase } from "@/hooks/useDatabase";
 
 import { useAuth } from "@/context/AuthContext";
 import { getAccessLevel, PERMISSIONS } from "@/lib/permissions";
@@ -60,6 +63,54 @@ const EmployeesPage = () => {
   const [selectedEmployee, setSelectedEmployee] = useState<Employee | null>(null);
   const [openEmployeeDialog, setOpenEmployeeDialog] = useState(false);
   const [openPayDialog, setOpenPayDialog] = useState(false);
+  const [settings, setSettings] = useState(null);
+  const [schoolLogo, setSchoolLogo] = useState<string | null>(null);
+  const db = useDatabase();
+
+  useState(() => {
+    const fetchSchoolData = async () => {
+      const settingsData = await db.getSettings();
+      const logoData = await db.getSchoolLogoBase64();
+      setSettings(settingsData);
+      setSchoolLogo(logoData);
+    };
+    fetchSchoolData();
+  }, [db]);
+
+  const downloadEmployeesPDF = () => {
+    const doc = new jsPDF();
+    const schoolName = settings?.schoolName || "Mon École";
+
+    // En-tête
+    if (schoolLogo) {
+      doc.addImage(schoolLogo, 'WEBP', 14, 10, 25, 25);
+    }
+    doc.setFontSize(18);
+    doc.setFont("helvetica", "bold");
+    doc.text(schoolName, 105, 18, { align: 'center' });
+    doc.setFontSize(12);
+    doc.text("Liste du Personnel", 105, 28, { align: 'center' });
+
+    // Tableau
+    const head = [['Nom', 'Prénom', 'Poste', 'Adresse', 'Téléphone']];
+    const body = employees.map(e => [
+      e.name,
+      e.first_name,
+      e.job_title,
+      e.adress || '-',
+      e.phone
+    ]);
+
+    autoTable(doc, {
+      startY: 40,
+      head: head,
+      body: body,
+      theme: 'grid',
+      headStyles: { fillColor: [41, 128, 185], textColor: 255, fontStyle: 'bold' },
+    });
+
+    doc.save(`liste_personnel.pdf`);
+  };
 
   const { data: employees = [], isLoading: isLoadingEmployees } = useQuery({ queryKey: ["employees"], queryFn: getEmployees });
   const { data: stats, isLoading: isLoadingStats } = useQuery({ queryKey: ["employeeStats"], queryFn: getEmployeeStats });
@@ -151,9 +202,15 @@ const EmployeesPage = () => {
 
             <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
                 <Card className="md:col-span-1 h-fit">
-                <CardHeader>
-                    <CardTitle className="flex items-center justify-between"><span>Liste du Personnel</span>{!isReadOnly && <Button onClick={handleNewEmployee} size="sm" className="bg-accent-hot hover:bg-accent-hot/90 text-accent-hot-foreground"><PlusCircle className="mr-2 h-4 w-4" />Nouveau</Button>}</CardTitle>
+                <CardHeader className="flex flex-row items-center justify-between">
+                  <div>
+                    <CardTitle>Liste du Personnel</CardTitle>
                     <CardDescription>Sélectionnez un employé pour voir ses détails</CardDescription>
+                  </div>
+                  <div className="flex flex-col gap-2">
+                    <Button onClick={downloadEmployeesPDF} size="sm" variant="outline"><Download className="mr-2 h-4 w-4" />Imprimer</Button>
+                    {!isReadOnly && <Button onClick={handleNewEmployee} size="sm" className="bg-accent-hot hover:bg-accent-hot/90 text-accent-hot-foreground"><PlusCircle className="mr-2 h-4 w-4" />Nouveau</Button>}
+                  </div>
                 </CardHeader>
                 <CardContent>
                     {isLoadingEmployees ? (

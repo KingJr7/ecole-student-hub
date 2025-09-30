@@ -45,7 +45,7 @@ function setupSchedulesIPC(prisma) {
   ipcMain.handle('db:schedules:delete', async (event, id) => {
     const schoolId = await getUserSchoolId(prisma, event);
     const scheduleToDelete = await prisma.schedules.findUnique({ where: { id }, include: { lesson: { include: { class: true } } } });
-    if (!scheduleToDelete || scheduleToDelete.lesson.class.school_id !== schoolId) throw new Error("Accès non autorisé");
+    if (!scheduleToDelete || !scheduleToDelete.lesson || !scheduleToDelete.lesson.class || scheduleToDelete.lesson.class.school_id !== schoolId) throw new Error("Accès non autorisé");
     const deletedSchedule = await prisma.schedules.update({ where: { id }, data: { is_deleted: true, needs_sync: true, last_modified: new Date() } });
     isOnline().then(online => {
       if (online) {

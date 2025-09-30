@@ -93,8 +93,9 @@ const Payments = () => {
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [isReceiptDialogOpen, setIsReceiptDialogOpen] = useState(false);
   
-  const [currentPayment, setCurrentPayment] = useState<Partial<Payment> & { student_id?: number; fee_id?: string; }>({});
-  const [selectedFee, setSelectedFee] = useState<PayableFee | null>(null);
+  const [currentStudent, setCurrentStudent] = useState<{ id: number; registrationId: number; } | null>(null);
+  // Chaque paiement est un objet avec un id unique, le feeId et le montant
+  const [paymentItems, setPaymentItems] = useState([{ id: 1, feeId: '', amount: 0 }]);
   const [paymentToDelete, setPaymentToDelete] = useState<number | null>(null);
 
   const [payments, setPayments] = useState<Payment[]>([]);
@@ -142,135 +143,152 @@ const Payments = () => {
     }
   };
 
+  const handlePrintReceipt = async () => {
+    if (!receiptPayment) return;
+    const studentFullName = `${receiptPayment.student_first_name || ''} ${receiptPayment.student_name || ''}`.trim();
+    if (!studentFullName) {
+      toast({ description: "Impossible de trouver le nom de l'élève pour ce paiement.", variant: "destructive" });
+      return;
+    }
+
+    try {
+      const settings = await getSettings();
+      if (!settings?.printerName) {
+        toast({ variant: "destructive", description: "Aucune imprimante n'a été configurée. Veuillez en choisir une dans les paramètres." });
+        return;
+      }
+
+      const htmlContent = `
+        <html>
+          <head><style>body{font-family:sans-serif;margin:0;padding:10px;width:300px}.header{text-align:center}.header h2{margin:0;font-size:1.2em}.header p{margin:2px 0;font-size:.8em}hr{border:none;border-top:1px dashed #000;margin:10px 0}.content p{margin:2px 0;font-size:.9em}table{width:100%;border-collapse:collapse;font-size:.9em}th,td{padding:4px 0}.total{text-align:right;font-weight:bold;font-size:1em}.footer{text-align:center;margin-top:15px;font-size:.8em}</style></head>
+          <body>
+            <div class="header"><h2>${schoolName}</h2></div><hr />
+            <div class="content">
+              <p><strong>Reçu N°:</strong> ${receiptPayment.id}</p>
+              <p><strong>Date:</strong> ${new Date(receiptPayment.date).toLocaleDateString()}</p>
+              <p><strong>Élève:</strong> ${studentFullName}</p>
+              <p><strong>Classe:</strong> ${receiptPayment.class_name || 'Non spécifiée'}</p>
+            </div><hr />
+            <table>
+              <thead><tr><th style="text-align:left;">Description</th><th style="text-align:right;">Montant</th></tr></thead>
+              <tbody><tr><td>${receiptPayment.details}</td><td style="text-align:right;">${receiptPayment.amount.toLocaleString()} FCFA</td></tr></tbody>
+            </table><hr />
+            <p class="total">Total: ${receiptPayment.amount.toLocaleString()} FCFA</p>
+            <div class="footer"><p>Merci de votre confiance !</p></div>
+          </body>
+        </html>
+      `;
+
+      await printReceipt({ htmlContent, printerName: settings.printerName });
+      toast({ description: "Reçu imprimé avec succès." });
+    } catch (error) {
+      console.error('Erreur lors de l\'impression:', error);
+      toast({ variant: "destructive", description: "Erreur lors de l\'impression du reçu." });
+    }
+  };
+
   useEffect(() => {
     loadData();
   }, []);
 
   const handleOpenAddDialog = () => {
-    setCurrentPayment({
-      date: new Date().toISOString().split('T')[0],
-      method: "espèces",
-    });
-    setSelectedFee(null);
+    setCurrentStudent(null);
+    setPaymentItems([{ id: 1, feeId: '', amount: 0 }]);
     setPayableFees([]);
     setIsDialogOpen(true);
   };
 
-  const handleOpenDeleteDialog = (paymentId: number) => {
-    setPaymentToDelete(paymentId);
-    setIsDeleteDialogOpen(true);
-  };
-
-  const handleOpenReceiptDialog = (payment: Payment) => {
-    setReceiptPayment(payment);
-    setIsReceiptDialogOpen(true);
-  };
-
-  const handlePrintReceipt = async () => {
-       if (!receiptPayment) return;
-       const studentFullName = `${receiptPayment.student_first_name || ''} ${receiptPayment.student_name || ''}`.trim();
-       if (!studentFullName) {
-         toast({ description: "Impossible de trouver le nom de l'élève pour ce paiement.", variant: "destructive" });
-         return;
-       }
-   
-       try {
-         const settings = await getSettings();
-         if (!settings?.printerName) {
-           toast({ variant: "destructive", description: "Aucune imprimante n'a été configurée. Veuillez en choisir une dans les paramètres." });
-           return;
-         }
-   
-         const htmlContent = `
-           <html>
-             <head><style>body{font-family:sans-serif;margin:0;padding:10px;width:300px}.header{text-align:center}.header h2{margin:0;font-size:1.2em}.header p{margin:2px 0;font-size:.8em}hr{border:none;border-top:1px dashed #000;margin:10px 0}.content p{margin:2px 0;font-size:.9em}table{width:100%;border-collapse:collapse;font-size:.9em}th,td{padding:4px 0}.total{text-align:right;font-weight:bold;font-size:1em}.footer{text-align:center;margin-top:15px;font-size:.8em}</style></head>
-             <body>
-               <div class="header"><h2>${schoolName}</h2></div><hr />
-               <div class="content">
-                 <p><strong>Reçu N°:</strong> ${receiptPayment.id}</p>
-                 <p><strong>Date:</strong> ${new Date(receiptPayment.date).toLocaleDateString()}</p>
-                 <p><strong>Élève:</strong> ${studentFullName}</p>
-                 <p><strong>Classe:</strong> ${receiptPayment.class_name || 'Non spécifiée'}</p>
-               </div><hr />
-               <table>
-                 <thead><tr><th style="text-align:left;">Description</th><th style="text-align:right;">Montant</th></tr></thead>
-                 <tbody><tr><td>${receiptPayment.details}</td><td style="text-align:right;">${receiptPayment.amount.toLocaleString()} FCFA</td></tr></tbody>
-               </table><hr />
-               <p class="total">Total: ${receiptPayment.amount.toLocaleString()} FCFA</p>
-               <div class="footer"><p>Merci de votre confiance !</p></div>
-             </body>
-           </html>
-         `;
-   
-         await printReceipt({ htmlContent, printerName: settings.printerName });
-         toast({ description: "Reçu imprimé avec succès." });
-       } catch (error) {
-         console.error('Erreur lors de l\'impression:', error);
-         toast({ variant: "destructive", description: "Erreur lors de l\'impression du reçu." });
-       }
-     };
-
   const handleStudentChange = async (studentId: number) => {
-    setCurrentPayment(prev => ({ ...prev, student_id: studentId, fee_id: undefined, amount: 0 }));
-    setSelectedFee(null);
-    setPayableFees([]);
-    if (!studentId) return;
+    setPaymentItems([{ id: 1, feeId: '', amount: 0 }]);
+    if (!studentId) {
+      setCurrentStudent(null);
+      setPayableFees([]);
+      return;
+    }
 
     const registration = await getLatestRegistrationForStudent({ studentId });
     if (registration) {
-      const feeStatuses = await getStudentFeeStatus({ registrationId: registration.id });
+      setCurrentStudent({ id: studentId, registrationId: registration.id });
+      const student = students.find(s => s.id === studentId);
+      const feeStatuses = await getStudentFeeStatus({ 
+        registrationId: registration.id,
+        level: student?.classLevel,
+        classId: registration.class_id
+      });
       const feesToPay = feeStatuses.filter(fee => fee.balance > 0);
       setPayableFees(feesToPay);
     } else {
+      setCurrentStudent(null);
+      setPayableFees([]);
       toast({ description: "Cet étudiant n'a pas d'inscription valide.", variant: "destructive" });
     }
   };
 
-  const handleFeeChange = (feeId: string) => {
-    const fee = payableFees.find(f => f.id === feeId);
-    if (fee) {
-      setSelectedFee(fee);
-      setCurrentPayment(prev => ({ ...prev, fee_id: feeId, amount: fee.balance }));
-    }
+  const handlePaymentItemChange = (itemId, field, value) => {
+    setPaymentItems(prevItems => prevItems.map(item => {
+      if (item.id === itemId) {
+        const updatedItem = { ...item, [field]: value };
+        // Si le frais change, mettre à jour le montant avec le solde
+        if (field === 'feeId') {
+          const fee = payableFees.find(f => f.id === value);
+          updatedItem.amount = fee ? fee.balance : 0;
+        }
+        return updatedItem;
+      }
+      return item;
+    }));
+  };
+
+  const addPaymentItem = () => {
+    setPaymentItems(prev => [...prev, { id: Date.now(), feeId: '', amount: 0 }]);
+  };
+
+  const removePaymentItem = (itemId) => {
+    setPaymentItems(prev => prev.filter(item => item.id !== itemId));
   };
 
   const handleSavePayment = async () => {
-    const { student_id, amount, date, method, reference } = currentPayment;
-
-    if (!student_id || !selectedFee || !amount || !date || !method) {
-      toast({ title: "Erreur", description: "Veuillez remplir tous les champs obligatoires.", variant: "destructive" });
+    if (!currentStudent) {
+      toast({ title: "Erreur", description: "Aucun étudiant sélectionné.", variant: "destructive" });
       return;
     }
 
-    const registration = await getLatestRegistrationForStudent({ studentId: student_id });
-    if (!registration) {
-      toast({ title: "Erreur", description: "Cet étudiant n'a aucune inscription valide.", variant: "destructive" });
+    const paymentPromises = paymentItems
+      .filter(item => item.feeId && item.amount > 0)
+      .map(item => {
+        const fee = payableFees.find(f => f.id === item.feeId);
+        if (!fee) return null;
+
+        let paymentData: any = {
+          registration_id: currentStudent.registrationId,
+          amount: item.amount,
+          date: new Date().toISOString().split('T')[0],
+          method: "espèces", // ou à partir d'un champ de formulaire global
+        };
+
+        if (fee.type === 'unique') {
+          paymentData.single_fee_id = parseInt(fee.id.replace('single-', ''), 10);
+        } else if (fee.type === 'recurrent') {
+          const [_, templateId, ...periodParts] = fee.id.split('-');
+          paymentData.fee_template_id = parseInt(templateId, 10);
+          paymentData.period_identifier = periodParts.join('-');
+        }
+        return createPayment(paymentData);
+      })
+      .filter(Boolean);
+
+    if (paymentPromises.length === 0) {
+      toast({ description: "Aucun paiement valide à enregistrer." });
       return;
-    }
-
-    let paymentData: any = {
-      registration_id: registration.id,
-      amount,
-      date,
-      method,
-      reference,
-    };
-
-    if (selectedFee.type === 'unique') {
-      paymentData.single_fee_id = parseInt(selectedFee.id.replace('single-', ''), 10);
-    } else if (selectedFee.type === 'recurrent') {
-      const [_, templateId, ...periodParts] = selectedFee.id.split('-');
-      paymentData.fee_template_id = parseInt(templateId, 10);
-      paymentData.period_identifier = periodParts.join('-');
     }
 
     try {
-      await createPayment(paymentData);
-      toast({ description: "Paiement créé." });
+      await Promise.all(paymentPromises);
+      toast({ description: `${paymentPromises.length} paiement(s) enregistré(s) avec succès.` });
       setIsDialogOpen(false);
       loadData();
     } catch (error) {
-      console.error('Erreur lors de la sauvegarde:', error);
+      console.error('Erreur lors de la sauvegarde des paiements:', error);
       toast({ title: "Erreur", description: "La sauvegarde a échoué.", variant: "destructive" });
     }
   };
@@ -374,7 +392,7 @@ const Payments = () => {
                             <div className="text-right px-2">
                               <div className="flex justify-end items-center">
                                 {payment.type === 'Étudiant' && <Button variant="ghost" size="icon" onClick={() => handleOpenReceiptDialog(payment)} title="Imprimer reçu"><Printer className="h-4 w-4" /></Button>}
-                                <Button variant="ghost" size="icon" disabled title="Modifier"><Pencil className="h-4 w-4" /></Button>
+                                {!isReadOnly && payment.type === 'Étudiant' && <Button variant="ghost" size="icon" onClick={() => handleOpenEditDialog(payment)} title="Modifier"><Pencil className="h-4 w-4" /></Button>}
                                 {!isReadOnly && <Button variant="ghost" size="icon" onClick={() => handleOpenDeleteDialog(payment.id)} title="Supprimer"><Trash2 className="h-4 w-4" /></Button>}
                               </div>
                             </div>
@@ -426,9 +444,68 @@ const Payments = () => {
         </Tabs>
 
         {/* Dialogs... */}
-        <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}><DialogContent><DialogHeader><DialogTitle>Ajouter un paiement</DialogTitle></DialogHeader><div className="space-y-4 py-4"><div className="space-y-2"><Label>Étudiant</Label><StudentSearchSelect disabled={isReadOnly} value={currentPayment.student_id} onValueChange={handleStudentChange} students={students.map(s => ({ id: s.id, firstName: s.first_name, lastName: s.name, className: s.className }))}/></div>{currentPayment.student_id && (<div className="space-y-2"><Label>Frais à payer</Label><Select disabled={isReadOnly} value={currentPayment.fee_id} onValueChange={handleFeeChange}><SelectTrigger><SelectValue placeholder="Sélectionner un frais" /></SelectTrigger><SelectContent>{payableFees.map(fee => (<SelectItem key={fee.id} value={fee.id}>{fee.name} - {fee.balance.toLocaleString()} FCFA restant</SelectItem>))}</SelectContent></Select></div>)}<div className="grid grid-cols-2 gap-4"><div className="space-y-2"><Label htmlFor="amount">Montant à payer</Label><Input disabled={isReadOnly} id="amount" type="number" value={currentPayment.amount || ""} onChange={(e) => setCurrentPayment(prev => ({ ...prev, amount: parseFloat(e.target.value) || 0 }))} /></div><div className="space-y-2"><Label htmlFor="date">Date</Label><Input disabled={isReadOnly} id="date" type="date" value={currentPayment.date || ""} onChange={(e) => setCurrentPayment(prev => ({ ...prev, date: e.target.value }))} /></div></div><div className="space-y-2"><Label htmlFor="method">Méthode de paiement</Label><Select disabled={isReadOnly} value={currentPayment.method || "espèces"} onValueChange={(value) => setCurrentPayment(prev => ({ ...prev, method: value }))}><SelectTrigger><SelectValue /></SelectTrigger><SelectContent><SelectItem value="espèces">Espèces</SelectItem><SelectItem value="mobile money">Mobile Money</SelectItem><SelectItem value="chèque">Chèque</SelectItem></SelectContent></Select></div><div className="space-y-2"><Label htmlFor="reference">Référence (optionnel)</Label><Textarea disabled={isReadOnly} id="reference" value={currentPayment.reference || ""} onChange={(e) => setCurrentPayment(prev => ({ ...prev, reference: e.target.value }))} /></div></div>
-          {!isReadOnly && <DialogFooter><Button variant="outline" onClick={() => setIsDialogOpen(false)}>Annuler</Button><Button onClick={handleSavePayment}>Enregistrer</Button></DialogFooter>}
-          </DialogContent></Dialog>
+        <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+          <DialogContent className="max-w-4xl">
+            <DialogHeader><DialogTitle>Encaisser un paiement</DialogTitle></DialogHeader>
+            <div className="space-y-4 py-4 min-h-[500px]">
+              <div className="space-y-2">
+                <Label>Étudiant</Label>
+                <StudentSearchSelect 
+                  disabled={isReadOnly}
+                  value={currentStudent?.id}
+                  onValueChange={handleStudentChange} 
+                  students={students.map(s => ({ id: s.id, firstName: s.first_name, lastName: s.name, className: s.className }))}
+                />
+              </div>
+              {currentStudent && (
+                <div className="space-y-4 pt-4">
+                  <h4 className="font-medium">Frais à payer</h4>
+                  <div className="space-y-3">
+                    {paymentItems.map((item, index) => (
+                      <div key={item.id} className="flex items-center gap-2">
+                        <Select 
+                          value={item.feeId}
+                          onValueChange={(value) => handlePaymentItemChange(item.id, 'feeId', value)}
+                        >
+                          <SelectTrigger><SelectValue placeholder="Sélectionner un frais" /></SelectTrigger>
+                          <SelectContent>
+                            {payableFees.map(fee => (
+                              <SelectItem key={fee.id} value={fee.id} disabled={paymentItems.some(p => p.feeId === fee.id && p.id !== item.id)}>
+                                {fee.name} ({fee.balance.toLocaleString()} FCFA)
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                        <Input 
+                          type="number"
+                          placeholder="Montant"
+                          value={item.amount || ''}
+                          onChange={(e) => handlePaymentItemChange(item.id, 'amount', parseFloat(e.target.value) || 0)}
+                          className="w-48"
+                        />
+                        <Button variant="ghost" size="icon" onClick={() => removePaymentItem(item.id)} disabled={paymentItems.length === 1}>
+                          <Trash2 className="h-4 w-4 text-red-500" />
+                        </Button>
+                      </div>
+                    ))}
+                  </div>
+                  <Button variant="outline" size="sm" onClick={addPaymentItem}>Ajouter un frais</Button>
+                  <div className="flex justify-end items-center pt-4 border-t">
+                      <span className="text-lg font-semibold">Total à payer :</span>
+                      <span className="text-xl font-bold ml-4">
+                        {paymentItems.reduce((sum, item) => sum + item.amount, 0).toLocaleString()} FCFA
+                      </span>
+                  </div>
+                </div>
+              )}
+            </div>
+            {!isReadOnly && 
+              <DialogFooter>
+                <Button variant="outline" onClick={() => setIsDialogOpen(false)}>Annuler</Button>
+                <Button onClick={handleSavePayment}>Enregistrer le Paiement</Button>
+              </DialogFooter>}
+          </DialogContent>
+        </Dialog>
 
         <Dialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}><DialogContent><DialogHeader><DialogTitle>Confirmer la suppression</DialogTitle><DialogDescription>Cette action est irréversible.</DialogDescription></DialogHeader>
         {!isReadOnly && <DialogFooter><Button variant="outline" onClick={() => setIsDeleteDialogOpen(false)}>Annuler</Button><Button variant="destructive" onClick={handleDeletePayment}>Supprimer</Button></DialogFooter>}

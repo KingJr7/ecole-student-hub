@@ -532,6 +532,44 @@ const tableConfigs = {
             };
         }
     },
+    student_fees: {
+        name: 'student_fees',
+        model: 'studentFee',
+        pullSelect: '*, registrations!inner(*)', // Filtrer par l'école via l'inscription
+        pullFilterColumn: 'registrations.school_id',
+        supabaseMap: async (row, schoolId, prisma, supabase) => {
+            const registrationSupabaseId = await getSupabaseId(prisma, 'registrations', row.registration_id, schoolId, supabase);
+            if (!registrationSupabaseId) return null;
+
+            const singleFeeSupabaseId = row.single_fee_id ? await getSupabaseId(prisma, 'singleFee', row.single_fee_id, schoolId, supabase) : null;
+            const feeTemplateSupabaseId = row.fee_template_id ? await getSupabaseId(prisma, 'feeTemplate', row.fee_template_id, schoolId, supabase) : null;
+
+            return {
+                registration_id: registrationSupabaseId,
+                single_fee_id: singleFeeSupabaseId,
+                fee_template_id: feeTemplateSupabaseId,
+                custom_amount: row.custom_amount,
+                reason: row.reason,
+                school_year: row.school_year
+            };
+        },
+        localMap: async (row, prisma) => {
+            const registrationLocalId = await getLocalId(prisma, 'registrations', row.registration_id);
+            if (!registrationLocalId) return null;
+
+            const singleFeeLocalId = row.single_fee_id ? await getLocalId(prisma, 'singleFee', row.single_fee_id) : null;
+            const feeTemplateLocalId = row.fee_template_id ? await getLocalId(prisma, 'feeTemplate', row.fee_template_id) : null;
+
+            return {
+                registration_id: registrationLocalId,
+                single_fee_id: singleFeeLocalId,
+                fee_template_id: feeTemplateLocalId,
+                custom_amount: row.custom_amount,
+                reason: row.reason,
+                school_year: row.school_year
+            };
+        }
+    },
     financial_categories: {
         name: 'financial_categories',
         model: 'financialCategory',
@@ -983,6 +1021,7 @@ const syncOrder = [
     'subjects',             // Dépend de 'classes'
     'registrations',        // Dépend de 'students' et 'classes'
     'student_parents',      // Dépend de 'students' et 'parents'
+    'student_fees',         // Dépend de 'registrations', 'single_fees', 'fee_templates'
     'attendances',          // Dépend de 'students'
     'salary_payments',      // Dépend de 'employees'
     'teacher_work_hours',   // Dépend de 'teachers' et 'subjects'

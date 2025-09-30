@@ -10,6 +10,7 @@ import { User, Phone, Briefcase, CalendarCheck2, FileText } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import StudentFeeManager from '@/components/StudentFeeManager';
 
 // Interfaces
 interface Student {
@@ -158,6 +159,7 @@ const StudentDetails = () => {
   const [parents, setParents] = useState<Parent[]>([]);
   const [attendances, setAttendances] = useState<Attendance[]>([]);
   const [feeStatus, setFeeStatus] = useState<FeeStatus[]>([]);
+  const [registration, setRegistration] = useState(null);
   const [loading, setLoading] = useState(true);
   const [isBulletinOpen, setIsBulletinOpen] = useState(false);
   const db = useDatabase();
@@ -183,16 +185,17 @@ const StudentDetails = () => {
           }
           setParents(studentParentsArray);
 
-          const [studentAttendances, registration] = await Promise.all([
+          const [studentAttendances, reg] = await Promise.all([
             db.getAttendancesByStudentId(id),
             db.getLatestRegistrationForStudent({ studentId: id })
           ]);
           
           setAttendances(studentAttendances);
+          setRegistration(reg);
 
-          if (registration) {
+          if (reg) {
             const studentLevel = fetchedStudent.classLevel;
-            const status = await db.getStudentFeeStatus({ registrationId: registration.id, level: studentLevel });
+            const status = await db.getStudentFeeStatus({ registrationId: reg.id, level: studentLevel });
             setFeeStatus(status);
           }
         }
@@ -295,7 +298,26 @@ const StudentDetails = () => {
         </div>
 
         <Card>
-          <CardHeader><CardTitle>Statut Financier</CardTitle></CardHeader>
+          <CardHeader className="flex flex-row items-center justify-between">
+            <CardTitle>Statut Financier</CardTitle>
+            {registration && (
+              <Dialog>
+                <DialogTrigger asChild>
+                  <Button variant="outline" size="sm">Gérer les frais personnalisés</Button>
+                </DialogTrigger>
+                <DialogContent className="max-w-2xl">
+                  <DialogHeader>
+                    <DialogTitle>Gérer les frais personnalisés</DialogTitle>
+                  </DialogHeader>
+                  <StudentFeeManager 
+                    registration={registration} 
+                    studentLevel={student.classLevel} 
+                    classId={student.classId} 
+                  />
+                </DialogContent>
+              </Dialog>
+            )}
+          </CardHeader>
           <CardContent>
             <Table>
               <TableHeader><TableRow><TableHead>Frais</TableHead><TableHead>Montant Total</TableHead><TableHead>Montant Payé</TableHead><TableHead>Solde Restant</TableHead><TableHead>Date d'échéance</TableHead><TableHead>Statut</TableHead></TableRow></TableHeader>

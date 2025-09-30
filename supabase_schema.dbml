@@ -332,6 +332,19 @@ Table student_parents {
   last_modified timestamptz [default: `now()`]
 }
 
+Table student_fees {
+  id uuid [pk, not null, default: `gen_random_uuid()`]
+  registration_id uuid [not null]
+  fee_template_id uuid
+  single_fee_id uuid
+  custom_amount float8 [not null]
+  reason text
+  school_year text
+  last_modified timestamptz [default: `now()`]
+  is_deleted boolean [default: false]
+  local_id integer
+}
+
 Table students {
   id uuid [pk, not null, default: `gen_random_uuid()`]
   name text [not null]
@@ -467,3 +480,7 @@ Ref: financial_reports.school_id > schools.id
 Ref: employee_attendances.employee_id > employees.id
 Ref: employee_attendances.teacher_id > teachers.id
 Ref: employee_attendances.school_id > schools.id
+
+Ref: student_fees.registration_id > registrations.id
+Ref: student_fees.fee_template_id > fee_templates.id
+Ref: student_fees.single_fee_id > fees.id

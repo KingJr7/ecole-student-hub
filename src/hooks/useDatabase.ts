@@ -150,6 +150,13 @@ export function useDatabase() {
   const deleteFeeTemplate = useCallback((id: number) => invoke('db:fee-templates:delete', id), []);
   // #endregion
 
+  // #region Student Fees
+  const getStudentFeesByRegistration = useCallback((registrationId: number) => invoke('db:student-fees:get-by-registration', registrationId), []);
+  const createStudentFee = useCallback((data: any) => invoke('db:student-fees:create', data), []);
+  const updateStudentFee = useCallback((id: number, data: any) => invoke('db:student-fees:update', { id, data }), []);
+  const deleteStudentFee = useCallback((id: number) => invoke('db:student-fees:delete', id), []);
+  // #endregion
+
   // #region Events
   const getAllEvents = useCallback(() => invoke('db:events:getAll'), []);
   const createEvent = useCallback((data: any) => invoke('db:events:create', data), []);
@@ -208,6 +215,7 @@ export function useDatabase() {
     getPrinters, printReceipt,
     getAllDispatchRules, createDispatchRule, updateDispatchRule, deleteDispatchRule, getDispatchSummary, getBase64Image,
     getAllFeeTemplates, createFeeTemplate, updateFeeTemplate, deleteFeeTemplate,
+    getStudentFeesByRegistration, createStudentFee, updateStudentFee, deleteStudentFee,
     getAllEvents, createEvent, updateEvent, deleteEvent, // Ajout des fonctions pour les événements
     getEmployeeAttendances, getTodaysAttendanceSummary, clockInEmployee, clockOutEmployee, updateEmployeeAttendance, deleteEmployeeAttendance,
     processStudentPhoto: () => invoke('images:process-student-photo'),

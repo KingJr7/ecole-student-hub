@@ -84,7 +84,7 @@ function setupFeesIPC(prisma) {
   });
 
   ipcMain.removeHandler('db:fees:getStudentFeeStatus');
-  ipcMain.handle('db:fees:getStudentFeeStatus', async (event, { registrationId }) => {
+  ipcMain.handle('db:fees:getStudentFeeStatus', async (event, { registrationId, level, classId }) => {
     const schoolId = await getUserSchoolId(prisma, event);
     const registration = await prisma.registrations.findUnique({ 
       where: { id: registrationId }, 
@@ -92,10 +92,18 @@ function setupFeesIPC(prisma) {
     });
     if (!registration || registration.class.school_id !== schoolId) throw new Error("Accès non autorisé");
 
-    const studentLevel = registration.class.level;
-    const studentClassId = registration.class.id;
+    const studentLevel = level;
+    const studentClassId = classId;
     const payments = await prisma.payments.findMany({ where: { registration_id: registrationId, is_deleted: false } });
     const settings = await prisma.settings.findUnique({ where: { id: 1 } });
+
+    // Récupérer les frais personnalisés pour cet étudiant
+    const studentFees = await prisma.studentFee.findMany({ where: { registration_id: registrationId, is_deleted: false } });
+    const studentFeeMap = studentFees.reduce((acc, sf) => {
+      if (sf.single_fee_id) acc[`single-${sf.single_fee_id}`] = sf.custom_amount;
+      if (sf.fee_template_id) acc[`template-${sf.fee_template_id}`] = sf.custom_amount;
+      return acc;
+    }, {});
 
     // 1. Gérer les frais uniques (SingleFee)
     const applicableSingleFees = await prisma.singleFee.findMany({
@@ -115,7 +123,11 @@ function setupFeesIPC(prisma) {
       const totalPaidForFee = payments
         .filter(p => p.single_fee_id === fee.id)
         .reduce((sum, p) => sum + (p.amount || 0), 0);
-      const balance = (fee.amount || 0) - totalPaidForFee;
+      
+      const customAmount = studentFeeMap[`single-${fee.id}`];
+      const effectiveAmount = customAmount !== undefined ? customAmount : (fee.amount || 0);
+
+      const balance = effectiveAmount - totalPaidForFee;
       let status = 'À venir';
       if (balance <= 0) {
         status = 'Payé';
@@ -131,7 +143,7 @@ function setupFeesIPC(prisma) {
       return { 
         id: `single-${fee.id}`,
         name: fee.name,
-        amount: fee.amount,
+        amount: effectiveAmount,
         due_date: fee.due_date,
         total_paid: totalPaidForFee, 
         balance: balance, 
@@ -146,7 +158,7 @@ function setupFeesIPC(prisma) {
         school_id: schoolId,
         OR: [
           { applies_to_level: 'all' },
-          { applies_to_level: null },
+          { applies_to_level: null, applies_to_class_id: null },
           { applies_to_level: studentLevel },
           { applies_to_class_id: studentClassId }
         ]
@@ -166,12 +178,14 @@ function setupFeesIPC(prisma) {
     }
 
     for (const template of applicableTemplates) {
+      console.log(`[DEBUG fees.cjs] Traitement du template: ${template.name}, Mois applicables:`, template.applicable_months);
       if (template.frequency === 'monthly' && template.applicable_months) {
         const months = template.applicable_months;
-        const monthMap = { "sept": 8, "oct": 9, "nov": 10, "dec": 11, "jan": 0, "fev": 1, "mar": 2, "avr": 3, "mai": 4, "juin": 5, "juil": 6, "aout": 7 };
+        const monthMap = { "jan": 0, "fev": 1, "mar": 2, "avr": 3, "mai": 4, "juin": 5, "juil": 6, "aout": 7, "sept": 8, "oct": 9, "nov": 10, "dec": 11 };
 
         for (const monthName of months) {
-          const monthIndex = monthMap[monthName];
+          const cleanedMonthName = monthName.trim().toLowerCase();
+          const monthIndex = monthMap[cleanedMonthName];
           if (monthIndex === undefined) continue;
 
           const currentYear = new Date().getFullYear();
@@ -189,7 +203,10 @@ function setupFeesIPC(prisma) {
             .filter(p => p.fee_template_id === template.id && p.period_identifier === periodId)
             .reduce((sum, p) => sum + (p.amount || 0), 0);
           
-          const balance = (template.amount || 0) - totalPaidForPeriod;
+          const customAmount = studentFeeMap[`template-${template.id}`];
+          const effectiveAmount = customAmount !== undefined ? customAmount : (template.amount || 0);
+
+          const balance = effectiveAmount - totalPaidForPeriod;
           let status = 'À venir';
 
           if (balance <= 0) {
@@ -201,7 +218,7 @@ function setupFeesIPC(prisma) {
           templateFeeStatuses.push({
             id: `template-${template.id}-${periodId}`,
             name: `${template.name} (${monthName})`,
-            amount: template.amount,
+            amount: effectiveAmount,
             due_date: dueDate.toISOString().split('T')[0],
             total_paid: totalPaidForPeriod,
             balance: balance,
@@ -234,7 +251,10 @@ function setupFeesIPC(prisma) {
             .filter(p => p.fee_template_id === template.id && p.period_identifier === periodId)
             .reduce((sum, p) => sum + (p.amount || 0), 0);
 
-          const balance = (template.amount || 0) - totalPaidForPeriod;
+          const customAmount = studentFeeMap[`template-${template.id}`];
+          const effectiveAmount = customAmount !== undefined ? customAmount : (template.amount || 0);
+
+          const balance = effectiveAmount - totalPaidForPeriod;
           let status = 'À venir';
 
           if (balance <= 0) {
@@ -253,7 +273,7 @@ function setupFeesIPC(prisma) {
           templateFeeStatuses.push({
             id: `template-${template.id}-${periodId}`,
             name: name,
-            amount: template.amount,
+            amount: effectiveAmount,
             due_date: weekDueDate.toISOString().split('T')[0],
             total_paid: totalPaidForPeriod,
             balance: balance,

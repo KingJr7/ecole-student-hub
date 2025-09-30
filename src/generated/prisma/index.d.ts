@@ -74,6 +74,11 @@ export type StudentParents = $Result.DefaultSelection<Prisma.$StudentParentsPayl
  */
 export type Payments = $Result.DefaultSelection<Prisma.$PaymentsPayload>
 /**
+ * Model StudentFee
+ * 
+ */
+export type StudentFee = $Result.DefaultSelection<Prisma.$StudentFeePayload>
+/**
  * Model SingleFee
  * 
  */
@@ -381,6 +386,16 @@ export class PrismaClient<
     * ```
     */
   get payments(): Prisma.PaymentsDelegate<ExtArgs, ClientOptions>;
+
+  /**
+   * `prisma.studentFee`: Exposes CRUD operations for the **StudentFee** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more StudentFees
+    * const studentFees = await prisma.studentFee.findMany()
+    * ```
+    */
+  get studentFee(): Prisma.StudentFeeDelegate<ExtArgs, ClientOptions>;
 
   /**
    * `prisma.singleFee`: Exposes CRUD operations for the **SingleFee** model.
@@ -973,6 +988,7 @@ export namespace Prisma {
     Parents: 'Parents',
     StudentParents: 'StudentParents',
     Payments: 'Payments',
+    StudentFee: 'StudentFee',
     SingleFee: 'SingleFee',
     FeeTemplate: 'FeeTemplate',
     Attendances: 'Attendances',
@@ -1005,7 +1021,7 @@ export namespace Prisma {
       omit: GlobalOmitOptions
     }
     meta: {
-      modelProps: "settings" | "classes" | "students" | "registrations" | "teachers" | "teacherWorkHours" | "lessons" | "subjects" | "notes" | "parents" | "studentParents" | "payments" | "singleFee" | "feeTemplate" | "attendances" | "employees" | "salaryPayments" | "schedules" | "financialCategory" | "financialTransaction" | "budget" | "financialReport" | "dispatchRule" | "dispatchRuleDetail" | "events" | "employeeAttendance"
+      modelProps: "settings" | "classes" | "students" | "registrations" | "teachers" | "teacherWorkHours" | "lessons" | "subjects" | "notes" | "parents" | "studentParents" | "payments" | "studentFee" | "singleFee" | "feeTemplate" | "attendances" | "employees" | "salaryPayments" | "schedules" | "financialCategory" | "financialTransaction" | "budget" | "financialReport" | "dispatchRule" | "dispatchRuleDetail" | "events" | "employeeAttendance"
       txIsolationLevel: Prisma.TransactionIsolationLevel
     }
     model: {
@@ -1894,6 +1910,80 @@ export namespace Prisma {
           count: {
             args: Prisma.PaymentsCountArgs<ExtArgs>
             result: $Utils.Optional<PaymentsCountAggregateOutputType> | number
+          }
+        }
+      }
+      StudentFee: {
+        payload: Prisma.$StudentFeePayload<ExtArgs>
+        fields: Prisma.StudentFeeFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.StudentFeeFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$StudentFeePayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.StudentFeeFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$StudentFeePayload>
+          }
+          findFirst: {
+            args: Prisma.StudentFeeFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$StudentFeePayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.StudentFeeFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$StudentFeePayload>
+          }
+          findMany: {
+            args: Prisma.StudentFeeFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$StudentFeePayload>[]
+          }
+          create: {
+            args: Prisma.StudentFeeCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$StudentFeePayload>
+          }
+          createMany: {
+            args: Prisma.StudentFeeCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.StudentFeeCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$StudentFeePayload>[]
+          }
+          delete: {
+            args: Prisma.StudentFeeDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$StudentFeePayload>
+          }
+          update: {
+            args: Prisma.StudentFeeUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$StudentFeePayload>
+          }
+          deleteMany: {
+            args: Prisma.StudentFeeDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.StudentFeeUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateManyAndReturn: {
+            args: Prisma.StudentFeeUpdateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$StudentFeePayload>[]
+          }
+          upsert: {
+            args: Prisma.StudentFeeUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$StudentFeePayload>
+          }
+          aggregate: {
+            args: Prisma.StudentFeeAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateStudentFee>
+          }
+          groupBy: {
+            args: Prisma.StudentFeeGroupByArgs<ExtArgs>
+            result: $Utils.Optional<StudentFeeGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.StudentFeeCountArgs<ExtArgs>
+            result: $Utils.Optional<StudentFeeCountAggregateOutputType> | number
           }
         }
       }
@@ -3037,6 +3127,7 @@ export namespace Prisma {
     parents?: ParentsOmit
     studentParents?: StudentParentsOmit
     payments?: PaymentsOmit
+    studentFee?: StudentFeeOmit
     singleFee?: SingleFeeOmit
     feeTemplate?: FeeTemplateOmit
     attendances?: AttendancesOmit
@@ -3257,10 +3348,12 @@ export namespace Prisma {
 
   export type RegistrationsCountOutputType = {
     payments: number
+    student_fees: number
   }
 
   export type RegistrationsCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     payments?: boolean | RegistrationsCountOutputTypeCountPaymentsArgs
+    student_fees?: boolean | RegistrationsCountOutputTypeCountStudent_feesArgs
   }
 
   // Custom InputTypes
@@ -3279,6 +3372,13 @@ export namespace Prisma {
    */
   export type RegistrationsCountOutputTypeCountPaymentsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     where?: PaymentsWhereInput
+  }
+
+  /**
+   * RegistrationsCountOutputType without action
+   */
+  export type RegistrationsCountOutputTypeCountStudent_feesArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: StudentFeeWhereInput
   }
 
 
@@ -3448,11 +3548,13 @@ export namespace Prisma {
 
   export type SingleFeeCountOutputType = {
     payments: number
+    student_fees: number
     dispatch_rules: number
   }
 
   export type SingleFeeCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     payments?: boolean | SingleFeeCountOutputTypeCountPaymentsArgs
+    student_fees?: boolean | SingleFeeCountOutputTypeCountStudent_feesArgs
     dispatch_rules?: boolean | SingleFeeCountOutputTypeCountDispatch_rulesArgs
   }
 
@@ -3477,6 +3579,13 @@ export namespace Prisma {
   /**
    * SingleFeeCountOutputType without action
    */
+  export type SingleFeeCountOutputTypeCountStudent_feesArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: StudentFeeWhereInput
+  }
+
+  /**
+   * SingleFeeCountOutputType without action
+   */
   export type SingleFeeCountOutputTypeCountDispatch_rulesArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     where?: DispatchRuleWhereInput
   }
@@ -3488,10 +3597,12 @@ export namespace Prisma {
 
   export type FeeTemplateCountOutputType = {
     payments: number
+    student_fees: number
   }
 
   export type FeeTemplateCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     payments?: boolean | FeeTemplateCountOutputTypeCountPaymentsArgs
+    student_fees?: boolean | FeeTemplateCountOutputTypeCountStudent_feesArgs
   }
 
   // Custom InputTypes
@@ -3510,6 +3621,13 @@ export namespace Prisma {
    */
   export type FeeTemplateCountOutputTypeCountPaymentsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     where?: PaymentsWhereInput
+  }
+
+  /**
+   * FeeTemplateCountOutputType without action
+   */
+  export type FeeTemplateCountOutputTypeCountStudent_feesArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: StudentFeeWhereInput
   }
 
 
@@ -7549,6 +7667,7 @@ export namespace Prisma {
     needs_sync?: boolean
     is_deleted?: boolean
     payments?: boolean | Registrations$paymentsArgs<ExtArgs>
+    student_fees?: boolean | Registrations$student_feesArgs<ExtArgs>
     class?: boolean | ClassesDefaultArgs<ExtArgs>
     student?: boolean | StudentsDefaultArgs<ExtArgs>
     _count?: boolean | RegistrationsCountOutputTypeDefaultArgs<ExtArgs>
@@ -7600,6 +7719,7 @@ export namespace Prisma {
   export type RegistrationsOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "student_id" | "class_id" | "school_year" | "state" | "registration_date" | "supabase_id" | "last_modified" | "needs_sync" | "is_deleted", ExtArgs["result"]["registrations"]>
   export type RegistrationsInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     payments?: boolean | Registrations$paymentsArgs<ExtArgs>
+    student_fees?: boolean | Registrations$student_feesArgs<ExtArgs>
     class?: boolean | ClassesDefaultArgs<ExtArgs>
     student?: boolean | StudentsDefaultArgs<ExtArgs>
     _count?: boolean | RegistrationsCountOutputTypeDefaultArgs<ExtArgs>
@@ -7617,6 +7737,7 @@ export namespace Prisma {
     name: "Registrations"
     objects: {
       payments: Prisma.$PaymentsPayload<ExtArgs>[]
+      student_fees: Prisma.$StudentFeePayload<ExtArgs>[]
       class: Prisma.$ClassesPayload<ExtArgs>
       student: Prisma.$StudentsPayload<ExtArgs>
     }
@@ -8026,6 +8147,7 @@ export namespace Prisma {
   export interface Prisma__RegistrationsClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
     readonly [Symbol.toStringTag]: "PrismaPromise"
     payments<T extends Registrations$paymentsArgs<ExtArgs> = {}>(args?: Subset<T, Registrations$paymentsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$PaymentsPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    student_fees<T extends Registrations$student_feesArgs<ExtArgs> = {}>(args?: Subset<T, Registrations$student_feesArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$StudentFeePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     class<T extends ClassesDefaultArgs<ExtArgs> = {}>(args?: Subset<T, ClassesDefaultArgs<ExtArgs>>): Prisma__ClassesClient<$Result.GetResult<Prisma.$ClassesPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
     student<T extends StudentsDefaultArgs<ExtArgs> = {}>(args?: Subset<T, StudentsDefaultArgs<ExtArgs>>): Prisma__StudentsClient<$Result.GetResult<Prisma.$StudentsPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
     /**
@@ -8482,6 +8604,30 @@ export namespace Prisma {
     take?: number
     skip?: number
     distinct?: PaymentsScalarFieldEnum | PaymentsScalarFieldEnum[]
+  }
+
+  /**
+   * Registrations.student_fees
+   */
+  export type Registrations$student_feesArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the StudentFee
+     */
+    select?: StudentFeeSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the StudentFee
+     */
+    omit?: StudentFeeOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: StudentFeeInclude<ExtArgs> | null
+    where?: StudentFeeWhereInput
+    orderBy?: StudentFeeOrderByWithRelationInput | StudentFeeOrderByWithRelationInput[]
+    cursor?: StudentFeeWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: StudentFeeScalarFieldEnum | StudentFeeScalarFieldEnum[]
   }
 
   /**
@@ -18323,6 +18469,1244 @@ export namespace Prisma {
 
 
   /**
+   * Model StudentFee
+   */
+
+  export type AggregateStudentFee = {
+    _count: StudentFeeCountAggregateOutputType | null
+    _avg: StudentFeeAvgAggregateOutputType | null
+    _sum: StudentFeeSumAggregateOutputType | null
+    _min: StudentFeeMinAggregateOutputType | null
+    _max: StudentFeeMaxAggregateOutputType | null
+  }
+
+  export type StudentFeeAvgAggregateOutputType = {
+    id: number | null
+    registration_id: number | null
+    fee_template_id: number | null
+    single_fee_id: number | null
+    custom_amount: number | null
+  }
+
+  export type StudentFeeSumAggregateOutputType = {
+    id: number | null
+    registration_id: number | null
+    fee_template_id: number | null
+    single_fee_id: number | null
+    custom_amount: number | null
+  }
+
+  export type StudentFeeMinAggregateOutputType = {
+    id: number | null
+    registration_id: number | null
+    fee_template_id: number | null
+    single_fee_id: number | null
+    custom_amount: number | null
+    reason: string | null
+    school_year: string | null
+    supabase_id: string | null
+    last_modified: Date | null
+    needs_sync: boolean | null
+    is_deleted: boolean | null
+  }
+
+  export type StudentFeeMaxAggregateOutputType = {
+    id: number | null
+    registration_id: number | null
+    fee_template_id: number | null
+    single_fee_id: number | null
+    custom_amount: number | null
+    reason: string | null
+    school_year: string | null
+    supabase_id: string | null
+    last_modified: Date | null
+    needs_sync: boolean | null
+    is_deleted: boolean | null
+  }
+
+  export type StudentFeeCountAggregateOutputType = {
+    id: number
+    registration_id: number
+    fee_template_id: number
+    single_fee_id: number
+    custom_amount: number
+    reason: number
+    school_year: number
+    supabase_id: number
+    last_modified: number
+    needs_sync: number
+    is_deleted: number
+    _all: number
+  }
+
+
+  export type StudentFeeAvgAggregateInputType = {
+    id?: true
+    registration_id?: true
+    fee_template_id?: true
+    single_fee_id?: true
+    custom_amount?: true
+  }
+
+  export type StudentFeeSumAggregateInputType = {
+    id?: true
+    registration_id?: true
+    fee_template_id?: true
+    single_fee_id?: true
+    custom_amount?: true
+  }
+
+  export type StudentFeeMinAggregateInputType = {
+    id?: true
+    registration_id?: true
+    fee_template_id?: true
+    single_fee_id?: true
+    custom_amount?: true
+    reason?: true
+    school_year?: true
+    supabase_id?: true
+    last_modified?: true
+    needs_sync?: true
+    is_deleted?: true
+  }
+
+  export type StudentFeeMaxAggregateInputType = {
+    id?: true
+    registration_id?: true
+    fee_template_id?: true
+    single_fee_id?: true
+    custom_amount?: true
+    reason?: true
+    school_year?: true
+    supabase_id?: true
+    last_modified?: true
+    needs_sync?: true
+    is_deleted?: true
+  }
+
+  export type StudentFeeCountAggregateInputType = {
+    id?: true
+    registration_id?: true
+    fee_template_id?: true
+    single_fee_id?: true
+    custom_amount?: true
+    reason?: true
+    school_year?: true
+    supabase_id?: true
+    last_modified?: true
+    needs_sync?: true
+    is_deleted?: true
+    _all?: true
+  }
+
+  export type StudentFeeAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which StudentFee to aggregate.
+     */
+    where?: StudentFeeWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of StudentFees to fetch.
+     */
+    orderBy?: StudentFeeOrderByWithRelationInput | StudentFeeOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: StudentFeeWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` StudentFees from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` StudentFees.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned StudentFees
+    **/
+    _count?: true | StudentFeeCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to average
+    **/
+    _avg?: StudentFeeAvgAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to sum
+    **/
+    _sum?: StudentFeeSumAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: StudentFeeMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: StudentFeeMaxAggregateInputType
+  }
+
+  export type GetStudentFeeAggregateType<T extends StudentFeeAggregateArgs> = {
+        [P in keyof T & keyof AggregateStudentFee]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateStudentFee[P]>
+      : GetScalarType<T[P], AggregateStudentFee[P]>
+  }
+
+
+
+
+  export type StudentFeeGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: StudentFeeWhereInput
+    orderBy?: StudentFeeOrderByWithAggregationInput | StudentFeeOrderByWithAggregationInput[]
+    by: StudentFeeScalarFieldEnum[] | StudentFeeScalarFieldEnum
+    having?: StudentFeeScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: StudentFeeCountAggregateInputType | true
+    _avg?: StudentFeeAvgAggregateInputType
+    _sum?: StudentFeeSumAggregateInputType
+    _min?: StudentFeeMinAggregateInputType
+    _max?: StudentFeeMaxAggregateInputType
+  }
+
+  export type StudentFeeGroupByOutputType = {
+    id: number
+    registration_id: number
+    fee_template_id: number | null
+    single_fee_id: number | null
+    custom_amount: number
+    reason: string | null
+    school_year: string | null
+    supabase_id: string | null
+    last_modified: Date
+    needs_sync: boolean
+    is_deleted: boolean
+    _count: StudentFeeCountAggregateOutputType | null
+    _avg: StudentFeeAvgAggregateOutputType | null
+    _sum: StudentFeeSumAggregateOutputType | null
+    _min: StudentFeeMinAggregateOutputType | null
+    _max: StudentFeeMaxAggregateOutputType | null
+  }
+
+  type GetStudentFeeGroupByPayload<T extends StudentFeeGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<StudentFeeGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof StudentFeeGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], StudentFeeGroupByOutputType[P]>
+            : GetScalarType<T[P], StudentFeeGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type StudentFeeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    registration_id?: boolean
+    fee_template_id?: boolean
+    single_fee_id?: boolean
+    custom_amount?: boolean
+    reason?: boolean
+    school_year?: boolean
+    supabase_id?: boolean
+    last_modified?: boolean
+    needs_sync?: boolean
+    is_deleted?: boolean
+    registration?: boolean | RegistrationsDefaultArgs<ExtArgs>
+    fee_template?: boolean | StudentFee$fee_templateArgs<ExtArgs>
+    single_fee?: boolean | StudentFee$single_feeArgs<ExtArgs>
+  }, ExtArgs["result"]["studentFee"]>
+
+  export type StudentFeeSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    registration_id?: boolean
+    fee_template_id?: boolean
+    single_fee_id?: boolean
+    custom_amount?: boolean
+    reason?: boolean
+    school_year?: boolean
+    supabase_id?: boolean
+    last_modified?: boolean
+    needs_sync?: boolean
+    is_deleted?: boolean
+    registration?: boolean | RegistrationsDefaultArgs<ExtArgs>
+    fee_template?: boolean | StudentFee$fee_templateArgs<ExtArgs>
+    single_fee?: boolean | StudentFee$single_feeArgs<ExtArgs>
+  }, ExtArgs["result"]["studentFee"]>
+
+  export type StudentFeeSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    registration_id?: boolean
+    fee_template_id?: boolean
+    single_fee_id?: boolean
+    custom_amount?: boolean
+    reason?: boolean
+    school_year?: boolean
+    supabase_id?: boolean
+    last_modified?: boolean
+    needs_sync?: boolean
+    is_deleted?: boolean
+    registration?: boolean | RegistrationsDefaultArgs<ExtArgs>
+    fee_template?: boolean | StudentFee$fee_templateArgs<ExtArgs>
+    single_fee?: boolean | StudentFee$single_feeArgs<ExtArgs>
+  }, ExtArgs["result"]["studentFee"]>
+
+  export type StudentFeeSelectScalar = {
+    id?: boolean
+    registration_id?: boolean
+    fee_template_id?: boolean
+    single_fee_id?: boolean
+    custom_amount?: boolean
+    reason?: boolean
+    school_year?: boolean
+    supabase_id?: boolean
+    last_modified?: boolean
+    needs_sync?: boolean
+    is_deleted?: boolean
+  }
+
+  export type StudentFeeOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "registration_id" | "fee_template_id" | "single_fee_id" | "custom_amount" | "reason" | "school_year" | "supabase_id" | "last_modified" | "needs_sync" | "is_deleted", ExtArgs["result"]["studentFee"]>
+  export type StudentFeeInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    registration?: boolean | RegistrationsDefaultArgs<ExtArgs>
+    fee_template?: boolean | StudentFee$fee_templateArgs<ExtArgs>
+    single_fee?: boolean | StudentFee$single_feeArgs<ExtArgs>
+  }
+  export type StudentFeeIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    registration?: boolean | RegistrationsDefaultArgs<ExtArgs>
+    fee_template?: boolean | StudentFee$fee_templateArgs<ExtArgs>
+    single_fee?: boolean | StudentFee$single_feeArgs<ExtArgs>
+  }
+  export type StudentFeeIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    registration?: boolean | RegistrationsDefaultArgs<ExtArgs>
+    fee_template?: boolean | StudentFee$fee_templateArgs<ExtArgs>
+    single_fee?: boolean | StudentFee$single_feeArgs<ExtArgs>
+  }
+
+  export type $StudentFeePayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "StudentFee"
+    objects: {
+      registration: Prisma.$RegistrationsPayload<ExtArgs>
+      fee_template: Prisma.$FeeTemplatePayload<ExtArgs> | null
+      single_fee: Prisma.$SingleFeePayload<ExtArgs> | null
+    }
+    scalars: $Extensions.GetPayloadResult<{
+      id: number
+      registration_id: number
+      fee_template_id: number | null
+      single_fee_id: number | null
+      custom_amount: number
+      reason: string | null
+      school_year: string | null
+      supabase_id: string | null
+      last_modified: Date
+      needs_sync: boolean
+      is_deleted: boolean
+    }, ExtArgs["result"]["studentFee"]>
+    composites: {}
+  }
+
+  type StudentFeeGetPayload<S extends boolean | null | undefined | StudentFeeDefaultArgs> = $Result.GetResult<Prisma.$StudentFeePayload, S>
+
+  type StudentFeeCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<StudentFeeFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: StudentFeeCountAggregateInputType | true
+    }
+
+  export interface StudentFeeDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['StudentFee'], meta: { name: 'StudentFee' } }
+    /**
+     * Find zero or one StudentFee that matches the filter.
+     * @param {StudentFeeFindUniqueArgs} args - Arguments to find a StudentFee
+     * @example
+     * // Get one StudentFee
+     * const studentFee = await prisma.studentFee.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends StudentFeeFindUniqueArgs>(args: SelectSubset<T, StudentFeeFindUniqueArgs<ExtArgs>>): Prisma__StudentFeeClient<$Result.GetResult<Prisma.$StudentFeePayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one StudentFee that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {StudentFeeFindUniqueOrThrowArgs} args - Arguments to find a StudentFee
+     * @example
+     * // Get one StudentFee
+     * const studentFee = await prisma.studentFee.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends StudentFeeFindUniqueOrThrowArgs>(args: SelectSubset<T, StudentFeeFindUniqueOrThrowArgs<ExtArgs>>): Prisma__StudentFeeClient<$Result.GetResult<Prisma.$StudentFeePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first StudentFee that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {StudentFeeFindFirstArgs} args - Arguments to find a StudentFee
+     * @example
+     * // Get one StudentFee
+     * const studentFee = await prisma.studentFee.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends StudentFeeFindFirstArgs>(args?: SelectSubset<T, StudentFeeFindFirstArgs<ExtArgs>>): Prisma__StudentFeeClient<$Result.GetResult<Prisma.$StudentFeePayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first StudentFee that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {StudentFeeFindFirstOrThrowArgs} args - Arguments to find a StudentFee
+     * @example
+     * // Get one StudentFee
+     * const studentFee = await prisma.studentFee.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends StudentFeeFindFirstOrThrowArgs>(args?: SelectSubset<T, StudentFeeFindFirstOrThrowArgs<ExtArgs>>): Prisma__StudentFeeClient<$Result.GetResult<Prisma.$StudentFeePayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more StudentFees that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {StudentFeeFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all StudentFees
+     * const studentFees = await prisma.studentFee.findMany()
+     * 
+     * // Get first 10 StudentFees
+     * const studentFees = await prisma.studentFee.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const studentFeeWithIdOnly = await prisma.studentFee.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends StudentFeeFindManyArgs>(args?: SelectSubset<T, StudentFeeFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$StudentFeePayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a StudentFee.
+     * @param {StudentFeeCreateArgs} args - Arguments to create a StudentFee.
+     * @example
+     * // Create one StudentFee
+     * const StudentFee = await prisma.studentFee.create({
+     *   data: {
+     *     // ... data to create a StudentFee
+     *   }
+     * })
+     * 
+     */
+    create<T extends StudentFeeCreateArgs>(args: SelectSubset<T, StudentFeeCreateArgs<ExtArgs>>): Prisma__StudentFeeClient<$Result.GetResult<Prisma.$StudentFeePayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many StudentFees.
+     * @param {StudentFeeCreateManyArgs} args - Arguments to create many StudentFees.
+     * @example
+     * // Create many StudentFees
+     * const studentFee = await prisma.studentFee.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends StudentFeeCreateManyArgs>(args?: SelectSubset<T, StudentFeeCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many StudentFees and returns the data saved in the database.
+     * @param {StudentFeeCreateManyAndReturnArgs} args - Arguments to create many StudentFees.
+     * @example
+     * // Create many StudentFees
+     * const studentFee = await prisma.studentFee.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many StudentFees and only return the `id`
+     * const studentFeeWithIdOnly = await prisma.studentFee.createManyAndReturn({
+     *   select: { id: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends StudentFeeCreateManyAndReturnArgs>(args?: SelectSubset<T, StudentFeeCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$StudentFeePayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Delete a StudentFee.
+     * @param {StudentFeeDeleteArgs} args - Arguments to delete one StudentFee.
+     * @example
+     * // Delete one StudentFee
+     * const StudentFee = await prisma.studentFee.delete({
+     *   where: {
+     *     // ... filter to delete one StudentFee
+     *   }
+     * })
+     * 
+     */
+    delete<T extends StudentFeeDeleteArgs>(args: SelectSubset<T, StudentFeeDeleteArgs<ExtArgs>>): Prisma__StudentFeeClient<$Result.GetResult<Prisma.$StudentFeePayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one StudentFee.
+     * @param {StudentFeeUpdateArgs} args - Arguments to update one StudentFee.
+     * @example
+     * // Update one StudentFee
+     * const studentFee = await prisma.studentFee.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends StudentFeeUpdateArgs>(args: SelectSubset<T, StudentFeeUpdateArgs<ExtArgs>>): Prisma__StudentFeeClient<$Result.GetResult<Prisma.$StudentFeePayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more StudentFees.
+     * @param {StudentFeeDeleteManyArgs} args - Arguments to filter StudentFees to delete.
+     * @example
+     * // Delete a few StudentFees
+     * const { count } = await prisma.studentFee.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends StudentFeeDeleteManyArgs>(args?: SelectSubset<T, StudentFeeDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more StudentFees.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {StudentFeeUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many StudentFees
+     * const studentFee = await prisma.studentFee.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends StudentFeeUpdateManyArgs>(args: SelectSubset<T, StudentFeeUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more StudentFees and returns the data updated in the database.
+     * @param {StudentFeeUpdateManyAndReturnArgs} args - Arguments to update many StudentFees.
+     * @example
+     * // Update many StudentFees
+     * const studentFee = await prisma.studentFee.updateManyAndReturn({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Update zero or more StudentFees and only return the `id`
+     * const studentFeeWithIdOnly = await prisma.studentFee.updateManyAndReturn({
+     *   select: { id: true },
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    updateManyAndReturn<T extends StudentFeeUpdateManyAndReturnArgs>(args: SelectSubset<T, StudentFeeUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$StudentFeePayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Create or update one StudentFee.
+     * @param {StudentFeeUpsertArgs} args - Arguments to update or create a StudentFee.
+     * @example
+     * // Update or create a StudentFee
+     * const studentFee = await prisma.studentFee.upsert({
+     *   create: {
+     *     // ... data to create a StudentFee
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the StudentFee we want to update
+     *   }
+     * })
+     */
+    upsert<T extends StudentFeeUpsertArgs>(args: SelectSubset<T, StudentFeeUpsertArgs<ExtArgs>>): Prisma__StudentFeeClient<$Result.GetResult<Prisma.$StudentFeePayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+
+    /**
+     * Count the number of StudentFees.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {StudentFeeCountArgs} args - Arguments to filter StudentFees to count.
+     * @example
+     * // Count the number of StudentFees
+     * const count = await prisma.studentFee.count({
+     *   where: {
+     *     // ... the filter for the StudentFees we want to count
+     *   }
+     * })
+    **/
+    count<T extends StudentFeeCountArgs>(
+      args?: Subset<T, StudentFeeCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], StudentFeeCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a StudentFee.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {StudentFeeAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends StudentFeeAggregateArgs>(args: Subset<T, StudentFeeAggregateArgs>): Prisma.PrismaPromise<GetStudentFeeAggregateType<T>>
+
+    /**
+     * Group by StudentFee.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {StudentFeeGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends StudentFeeGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: StudentFeeGroupByArgs['orderBy'] }
+        : { orderBy?: StudentFeeGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, StudentFeeGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetStudentFeeGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the StudentFee model
+   */
+  readonly fields: StudentFeeFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for StudentFee.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__StudentFeeClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    registration<T extends RegistrationsDefaultArgs<ExtArgs> = {}>(args?: Subset<T, RegistrationsDefaultArgs<ExtArgs>>): Prisma__RegistrationsClient<$Result.GetResult<Prisma.$RegistrationsPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    fee_template<T extends StudentFee$fee_templateArgs<ExtArgs> = {}>(args?: Subset<T, StudentFee$fee_templateArgs<ExtArgs>>): Prisma__FeeTemplateClient<$Result.GetResult<Prisma.$FeeTemplatePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+    single_fee<T extends StudentFee$single_feeArgs<ExtArgs> = {}>(args?: Subset<T, StudentFee$single_feeArgs<ExtArgs>>): Prisma__SingleFeeClient<$Result.GetResult<Prisma.$SingleFeePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the StudentFee model
+   */
+  interface StudentFeeFieldRefs {
+    readonly id: FieldRef<"StudentFee", 'Int'>
+    readonly registration_id: FieldRef<"StudentFee", 'Int'>
+    readonly fee_template_id: FieldRef<"StudentFee", 'Int'>
+    readonly single_fee_id: FieldRef<"StudentFee", 'Int'>
+    readonly custom_amount: FieldRef<"StudentFee", 'Float'>
+    readonly reason: FieldRef<"StudentFee", 'String'>
+    readonly school_year: FieldRef<"StudentFee", 'String'>
+    readonly supabase_id: FieldRef<"StudentFee", 'String'>
+    readonly last_modified: FieldRef<"StudentFee", 'DateTime'>
+    readonly needs_sync: FieldRef<"StudentFee", 'Boolean'>
+    readonly is_deleted: FieldRef<"StudentFee", 'Boolean'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * StudentFee findUnique
+   */
+  export type StudentFeeFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the StudentFee
+     */
+    select?: StudentFeeSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the StudentFee
+     */
+    omit?: StudentFeeOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: StudentFeeInclude<ExtArgs> | null
+    /**
+     * Filter, which StudentFee to fetch.
+     */
+    where: StudentFeeWhereUniqueInput
+  }
+
+  /**
+   * StudentFee findUniqueOrThrow
+   */
+  export type StudentFeeFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the StudentFee
+     */
+    select?: StudentFeeSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the StudentFee
+     */
+    omit?: StudentFeeOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: StudentFeeInclude<ExtArgs> | null
+    /**
+     * Filter, which StudentFee to fetch.
+     */
+    where: StudentFeeWhereUniqueInput
+  }
+
+  /**
+   * StudentFee findFirst
+   */
+  export type StudentFeeFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the StudentFee
+     */
+    select?: StudentFeeSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the StudentFee
+     */
+    omit?: StudentFeeOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: StudentFeeInclude<ExtArgs> | null
+    /**
+     * Filter, which StudentFee to fetch.
+     */
+    where?: StudentFeeWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of StudentFees to fetch.
+     */
+    orderBy?: StudentFeeOrderByWithRelationInput | StudentFeeOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for StudentFees.
+     */
+    cursor?: StudentFeeWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` StudentFees from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` StudentFees.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of StudentFees.
+     */
+    distinct?: StudentFeeScalarFieldEnum | StudentFeeScalarFieldEnum[]
+  }
+
+  /**
+   * StudentFee findFirstOrThrow
+   */
+  export type StudentFeeFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the StudentFee
+     */
+    select?: StudentFeeSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the StudentFee
+     */
+    omit?: StudentFeeOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: StudentFeeInclude<ExtArgs> | null
+    /**
+     * Filter, which StudentFee to fetch.
+     */
+    where?: StudentFeeWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of StudentFees to fetch.
+     */
+    orderBy?: StudentFeeOrderByWithRelationInput | StudentFeeOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for StudentFees.
+     */
+    cursor?: StudentFeeWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` StudentFees from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` StudentFees.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of StudentFees.
+     */
+    distinct?: StudentFeeScalarFieldEnum | StudentFeeScalarFieldEnum[]
+  }
+
+  /**
+   * StudentFee findMany
+   */
+  export type StudentFeeFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the StudentFee
+     */
+    select?: StudentFeeSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the StudentFee
+     */
+    omit?: StudentFeeOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: StudentFeeInclude<ExtArgs> | null
+    /**
+     * Filter, which StudentFees to fetch.
+     */
+    where?: StudentFeeWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of StudentFees to fetch.
+     */
+    orderBy?: StudentFeeOrderByWithRelationInput | StudentFeeOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing StudentFees.
+     */
+    cursor?: StudentFeeWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` StudentFees from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` StudentFees.
+     */
+    skip?: number
+    distinct?: StudentFeeScalarFieldEnum | StudentFeeScalarFieldEnum[]
+  }
+
+  /**
+   * StudentFee create
+   */
+  export type StudentFeeCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the StudentFee
+     */
+    select?: StudentFeeSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the StudentFee
+     */
+    omit?: StudentFeeOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: StudentFeeInclude<ExtArgs> | null
+    /**
+     * The data needed to create a StudentFee.
+     */
+    data: XOR<StudentFeeCreateInput, StudentFeeUncheckedCreateInput>
+  }
+
+  /**
+   * StudentFee createMany
+   */
+  export type StudentFeeCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many StudentFees.
+     */
+    data: StudentFeeCreateManyInput | StudentFeeCreateManyInput[]
+  }
+
+  /**
+   * StudentFee createManyAndReturn
+   */
+  export type StudentFeeCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the StudentFee
+     */
+    select?: StudentFeeSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the StudentFee
+     */
+    omit?: StudentFeeOmit<ExtArgs> | null
+    /**
+     * The data used to create many StudentFees.
+     */
+    data: StudentFeeCreateManyInput | StudentFeeCreateManyInput[]
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: StudentFeeIncludeCreateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * StudentFee update
+   */
+  export type StudentFeeUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the StudentFee
+     */
+    select?: StudentFeeSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the StudentFee
+     */
+    omit?: StudentFeeOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: StudentFeeInclude<ExtArgs> | null
+    /**
+     * The data needed to update a StudentFee.
+     */
+    data: XOR<StudentFeeUpdateInput, StudentFeeUncheckedUpdateInput>
+    /**
+     * Choose, which StudentFee to update.
+     */
+    where: StudentFeeWhereUniqueInput
+  }
+
+  /**
+   * StudentFee updateMany
+   */
+  export type StudentFeeUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update StudentFees.
+     */
+    data: XOR<StudentFeeUpdateManyMutationInput, StudentFeeUncheckedUpdateManyInput>
+    /**
+     * Filter which StudentFees to update
+     */
+    where?: StudentFeeWhereInput
+    /**
+     * Limit how many StudentFees to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * StudentFee updateManyAndReturn
+   */
+  export type StudentFeeUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the StudentFee
+     */
+    select?: StudentFeeSelectUpdateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the StudentFee
+     */
+    omit?: StudentFeeOmit<ExtArgs> | null
+    /**
+     * The data used to update StudentFees.
+     */
+    data: XOR<StudentFeeUpdateManyMutationInput, StudentFeeUncheckedUpdateManyInput>
+    /**
+     * Filter which StudentFees to update
+     */
+    where?: StudentFeeWhereInput
+    /**
+     * Limit how many StudentFees to update.
+     */
+    limit?: number
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: StudentFeeIncludeUpdateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * StudentFee upsert
+   */
+  export type StudentFeeUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the StudentFee
+     */
+    select?: StudentFeeSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the StudentFee
+     */
+    omit?: StudentFeeOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: StudentFeeInclude<ExtArgs> | null
+    /**
+     * The filter to search for the StudentFee to update in case it exists.
+     */
+    where: StudentFeeWhereUniqueInput
+    /**
+     * In case the StudentFee found by the `where` argument doesn't exist, create a new StudentFee with this data.
+     */
+    create: XOR<StudentFeeCreateInput, StudentFeeUncheckedCreateInput>
+    /**
+     * In case the StudentFee was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<StudentFeeUpdateInput, StudentFeeUncheckedUpdateInput>
+  }
+
+  /**
+   * StudentFee delete
+   */
+  export type StudentFeeDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the StudentFee
+     */
+    select?: StudentFeeSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the StudentFee
+     */
+    omit?: StudentFeeOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: StudentFeeInclude<ExtArgs> | null
+    /**
+     * Filter which StudentFee to delete.
+     */
+    where: StudentFeeWhereUniqueInput
+  }
+
+  /**
+   * StudentFee deleteMany
+   */
+  export type StudentFeeDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which StudentFees to delete
+     */
+    where?: StudentFeeWhereInput
+    /**
+     * Limit how many StudentFees to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * StudentFee.fee_template
+   */
+  export type StudentFee$fee_templateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the FeeTemplate
+     */
+    select?: FeeTemplateSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the FeeTemplate
+     */
+    omit?: FeeTemplateOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: FeeTemplateInclude<ExtArgs> | null
+    where?: FeeTemplateWhereInput
+  }
+
+  /**
+   * StudentFee.single_fee
+   */
+  export type StudentFee$single_feeArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the SingleFee
+     */
+    select?: SingleFeeSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the SingleFee
+     */
+    omit?: SingleFeeOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: SingleFeeInclude<ExtArgs> | null
+    where?: SingleFeeWhereInput
+  }
+
+  /**
+   * StudentFee without action
+   */
+  export type StudentFeeDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the StudentFee
+     */
+    select?: StudentFeeSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the StudentFee
+     */
+    omit?: StudentFeeOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: StudentFeeInclude<ExtArgs> | null
+  }
+
+
+  /**
    * Model SingleFee
    */
 
@@ -18586,6 +19970,7 @@ export namespace Prisma {
     is_deleted?: boolean
     class?: boolean | SingleFee$classArgs<ExtArgs>
     payments?: boolean | SingleFee$paymentsArgs<ExtArgs>
+    student_fees?: boolean | SingleFee$student_feesArgs<ExtArgs>
     dispatch_rules?: boolean | SingleFee$dispatch_rulesArgs<ExtArgs>
     _count?: boolean | SingleFeeCountOutputTypeDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["singleFee"]>
@@ -18641,6 +20026,7 @@ export namespace Prisma {
   export type SingleFeeInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     class?: boolean | SingleFee$classArgs<ExtArgs>
     payments?: boolean | SingleFee$paymentsArgs<ExtArgs>
+    student_fees?: boolean | SingleFee$student_feesArgs<ExtArgs>
     dispatch_rules?: boolean | SingleFee$dispatch_rulesArgs<ExtArgs>
     _count?: boolean | SingleFeeCountOutputTypeDefaultArgs<ExtArgs>
   }
@@ -18656,6 +20042,7 @@ export namespace Prisma {
     objects: {
       class: Prisma.$ClassesPayload<ExtArgs> | null
       payments: Prisma.$PaymentsPayload<ExtArgs>[]
+      student_fees: Prisma.$StudentFeePayload<ExtArgs>[]
       dispatch_rules: Prisma.$DispatchRulePayload<ExtArgs>[]
     }
     scalars: $Extensions.GetPayloadResult<{
@@ -19067,6 +20454,7 @@ export namespace Prisma {
     readonly [Symbol.toStringTag]: "PrismaPromise"
     class<T extends SingleFee$classArgs<ExtArgs> = {}>(args?: Subset<T, SingleFee$classArgs<ExtArgs>>): Prisma__ClassesClient<$Result.GetResult<Prisma.$ClassesPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
     payments<T extends SingleFee$paymentsArgs<ExtArgs> = {}>(args?: Subset<T, SingleFee$paymentsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$PaymentsPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    student_fees<T extends SingleFee$student_feesArgs<ExtArgs> = {}>(args?: Subset<T, SingleFee$student_feesArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$StudentFeePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     dispatch_rules<T extends SingleFee$dispatch_rulesArgs<ExtArgs> = {}>(args?: Subset<T, SingleFee$dispatch_rulesArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$DispatchRulePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
@@ -19546,6 +20934,30 @@ export namespace Prisma {
   }
 
   /**
+   * SingleFee.student_fees
+   */
+  export type SingleFee$student_feesArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the StudentFee
+     */
+    select?: StudentFeeSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the StudentFee
+     */
+    omit?: StudentFeeOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: StudentFeeInclude<ExtArgs> | null
+    where?: StudentFeeWhereInput
+    orderBy?: StudentFeeOrderByWithRelationInput | StudentFeeOrderByWithRelationInput[]
+    cursor?: StudentFeeWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: StudentFeeScalarFieldEnum | StudentFeeScalarFieldEnum[]
+  }
+
+  /**
    * SingleFee.dispatch_rules
    */
   export type SingleFee$dispatch_rulesArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
@@ -19860,6 +21272,7 @@ export namespace Prisma {
     is_deleted?: boolean
     class?: boolean | FeeTemplate$classArgs<ExtArgs>
     payments?: boolean | FeeTemplate$paymentsArgs<ExtArgs>
+    student_fees?: boolean | FeeTemplate$student_feesArgs<ExtArgs>
     _count?: boolean | FeeTemplateCountOutputTypeDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["feeTemplate"]>
 
@@ -19917,6 +21330,7 @@ export namespace Prisma {
   export type FeeTemplateInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     class?: boolean | FeeTemplate$classArgs<ExtArgs>
     payments?: boolean | FeeTemplate$paymentsArgs<ExtArgs>
+    student_fees?: boolean | FeeTemplate$student_feesArgs<ExtArgs>
     _count?: boolean | FeeTemplateCountOutputTypeDefaultArgs<ExtArgs>
   }
   export type FeeTemplateIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
@@ -19931,6 +21345,7 @@ export namespace Prisma {
     objects: {
       class: Prisma.$ClassesPayload<ExtArgs> | null
       payments: Prisma.$PaymentsPayload<ExtArgs>[]
+      student_fees: Prisma.$StudentFeePayload<ExtArgs>[]
     }
     scalars: $Extensions.GetPayloadResult<{
       id: number
@@ -20342,6 +21757,7 @@ export namespace Prisma {
     readonly [Symbol.toStringTag]: "PrismaPromise"
     class<T extends FeeTemplate$classArgs<ExtArgs> = {}>(args?: Subset<T, FeeTemplate$classArgs<ExtArgs>>): Prisma__ClassesClient<$Result.GetResult<Prisma.$ClassesPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
     payments<T extends FeeTemplate$paymentsArgs<ExtArgs> = {}>(args?: Subset<T, FeeTemplate$paymentsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$PaymentsPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    student_fees<T extends FeeTemplate$student_feesArgs<ExtArgs> = {}>(args?: Subset<T, FeeTemplate$student_feesArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$StudentFeePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
      * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -20818,6 +22234,30 @@ export namespace Prisma {
     take?: number
     skip?: number
     distinct?: PaymentsScalarFieldEnum | PaymentsScalarFieldEnum[]
+  }
+
+  /**
+   * FeeTemplate.student_fees
+   */
+  export type FeeTemplate$student_feesArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the StudentFee
+     */
+    select?: StudentFeeSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the StudentFee
+     */
+    omit?: StudentFeeOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: StudentFeeInclude<ExtArgs> | null
+    where?: StudentFeeWhereInput
+    orderBy?: StudentFeeOrderByWithRelationInput | StudentFeeOrderByWithRelationInput[]
+    cursor?: StudentFeeWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: StudentFeeScalarFieldEnum | StudentFeeScalarFieldEnum[]
   }
 
   /**
@@ -35009,6 +36449,23 @@ export namespace Prisma {
   export type PaymentsScalarFieldEnum = (typeof PaymentsScalarFieldEnum)[keyof typeof PaymentsScalarFieldEnum]
 
 
+  export const StudentFeeScalarFieldEnum: {
+    id: 'id',
+    registration_id: 'registration_id',
+    fee_template_id: 'fee_template_id',
+    single_fee_id: 'single_fee_id',
+    custom_amount: 'custom_amount',
+    reason: 'reason',
+    school_year: 'school_year',
+    supabase_id: 'supabase_id',
+    last_modified: 'last_modified',
+    needs_sync: 'needs_sync',
+    is_deleted: 'is_deleted'
+  };
+
+  export type StudentFeeScalarFieldEnum = (typeof StudentFeeScalarFieldEnum)[keyof typeof StudentFeeScalarFieldEnum]
+
+
   export const SingleFeeScalarFieldEnum: {
     id: 'id',
     name: 'name',
@@ -35639,6 +37096,7 @@ export namespace Prisma {
     needs_sync?: BoolFilter<"Registrations"> | boolean
     is_deleted?: BoolFilter<"Registrations"> | boolean
     payments?: PaymentsListRelationFilter
+    student_fees?: StudentFeeListRelationFilter
     class?: XOR<ClassesScalarRelationFilter, ClassesWhereInput>
     student?: XOR<StudentsScalarRelationFilter, StudentsWhereInput>
   }
@@ -35655,6 +37113,7 @@ export namespace Prisma {
     needs_sync?: SortOrder
     is_deleted?: SortOrder
     payments?: PaymentsOrderByRelationAggregateInput
+    student_fees?: StudentFeeOrderByRelationAggregateInput
     class?: ClassesOrderByWithRelationInput
     student?: StudentsOrderByWithRelationInput
   }
@@ -35674,6 +37133,7 @@ export namespace Prisma {
     needs_sync?: BoolFilter<"Registrations"> | boolean
     is_deleted?: BoolFilter<"Registrations"> | boolean
     payments?: PaymentsListRelationFilter
+    student_fees?: StudentFeeListRelationFilter
     class?: XOR<ClassesScalarRelationFilter, ClassesWhereInput>
     student?: XOR<StudentsScalarRelationFilter, StudentsWhereInput>
   }, "id" | "supabase_id">
@@ -36469,6 +37929,101 @@ export namespace Prisma {
     period_identifier?: StringNullableWithAggregatesFilter<"Payments"> | string | null
   }
 
+  export type StudentFeeWhereInput = {
+    AND?: StudentFeeWhereInput | StudentFeeWhereInput[]
+    OR?: StudentFeeWhereInput[]
+    NOT?: StudentFeeWhereInput | StudentFeeWhereInput[]
+    id?: IntFilter<"StudentFee"> | number
+    registration_id?: IntFilter<"StudentFee"> | number
+    fee_template_id?: IntNullableFilter<"StudentFee"> | number | null
+    single_fee_id?: IntNullableFilter<"StudentFee"> | number | null
+    custom_amount?: FloatFilter<"StudentFee"> | number
+    reason?: StringNullableFilter<"StudentFee"> | string | null
+    school_year?: StringNullableFilter<"StudentFee"> | string | null
+    supabase_id?: StringNullableFilter<"StudentFee"> | string | null
+    last_modified?: DateTimeFilter<"StudentFee"> | Date | string
+    needs_sync?: BoolFilter<"StudentFee"> | boolean
+    is_deleted?: BoolFilter<"StudentFee"> | boolean
+    registration?: XOR<RegistrationsScalarRelationFilter, RegistrationsWhereInput>
+    fee_template?: XOR<FeeTemplateNullableScalarRelationFilter, FeeTemplateWhereInput> | null
+    single_fee?: XOR<SingleFeeNullableScalarRelationFilter, SingleFeeWhereInput> | null
+  }
+
+  export type StudentFeeOrderByWithRelationInput = {
+    id?: SortOrder
+    registration_id?: SortOrder
+    fee_template_id?: SortOrderInput | SortOrder
+    single_fee_id?: SortOrderInput | SortOrder
+    custom_amount?: SortOrder
+    reason?: SortOrderInput | SortOrder
+    school_year?: SortOrderInput | SortOrder
+    supabase_id?: SortOrderInput | SortOrder
+    last_modified?: SortOrder
+    needs_sync?: SortOrder
+    is_deleted?: SortOrder
+    registration?: RegistrationsOrderByWithRelationInput
+    fee_template?: FeeTemplateOrderByWithRelationInput
+    single_fee?: SingleFeeOrderByWithRelationInput
+  }
+
+  export type StudentFeeWhereUniqueInput = Prisma.AtLeast<{
+    id?: number
+    supabase_id?: string
+    registration_id_fee_template_id?: StudentFeeRegistration_idFee_template_idCompoundUniqueInput
+    registration_id_single_fee_id?: StudentFeeRegistration_idSingle_fee_idCompoundUniqueInput
+    AND?: StudentFeeWhereInput | StudentFeeWhereInput[]
+    OR?: StudentFeeWhereInput[]
+    NOT?: StudentFeeWhereInput | StudentFeeWhereInput[]
+    registration_id?: IntFilter<"StudentFee"> | number
+    fee_template_id?: IntNullableFilter<"StudentFee"> | number | null
+    single_fee_id?: IntNullableFilter<"StudentFee"> | number | null
+    custom_amount?: FloatFilter<"StudentFee"> | number
+    reason?: StringNullableFilter<"StudentFee"> | string | null
+    school_year?: StringNullableFilter<"StudentFee"> | string | null
+    last_modified?: DateTimeFilter<"StudentFee"> | Date | string
+    needs_sync?: BoolFilter<"StudentFee"> | boolean
+    is_deleted?: BoolFilter<"StudentFee"> | boolean
+    registration?: XOR<RegistrationsScalarRelationFilter, RegistrationsWhereInput>
+    fee_template?: XOR<FeeTemplateNullableScalarRelationFilter, FeeTemplateWhereInput> | null
+    single_fee?: XOR<SingleFeeNullableScalarRelationFilter, SingleFeeWhereInput> | null
+  }, "id" | "supabase_id" | "registration_id_fee_template_id" | "registration_id_single_fee_id">
+
+  export type StudentFeeOrderByWithAggregationInput = {
+    id?: SortOrder
+    registration_id?: SortOrder
+    fee_template_id?: SortOrderInput | SortOrder
+    single_fee_id?: SortOrderInput | SortOrder
+    custom_amount?: SortOrder
+    reason?: SortOrderInput | SortOrder
+    school_year?: SortOrderInput | SortOrder
+    supabase_id?: SortOrderInput | SortOrder
+    last_modified?: SortOrder
+    needs_sync?: SortOrder
+    is_deleted?: SortOrder
+    _count?: StudentFeeCountOrderByAggregateInput
+    _avg?: StudentFeeAvgOrderByAggregateInput
+    _max?: StudentFeeMaxOrderByAggregateInput
+    _min?: StudentFeeMinOrderByAggregateInput
+    _sum?: StudentFeeSumOrderByAggregateInput
+  }
+
+  export type StudentFeeScalarWhereWithAggregatesInput = {
+    AND?: StudentFeeScalarWhereWithAggregatesInput | StudentFeeScalarWhereWithAggregatesInput[]
+    OR?: StudentFeeScalarWhereWithAggregatesInput[]
+    NOT?: StudentFeeScalarWhereWithAggregatesInput | StudentFeeScalarWhereWithAggregatesInput[]
+    id?: IntWithAggregatesFilter<"StudentFee"> | number
+    registration_id?: IntWithAggregatesFilter<"StudentFee"> | number
+    fee_template_id?: IntNullableWithAggregatesFilter<"StudentFee"> | number | null
+    single_fee_id?: IntNullableWithAggregatesFilter<"StudentFee"> | number | null
+    custom_amount?: FloatWithAggregatesFilter<"StudentFee"> | number
+    reason?: StringNullableWithAggregatesFilter<"StudentFee"> | string | null
+    school_year?: StringNullableWithAggregatesFilter<"StudentFee"> | string | null
+    supabase_id?: StringNullableWithAggregatesFilter<"StudentFee"> | string | null
+    last_modified?: DateTimeWithAggregatesFilter<"StudentFee"> | Date | string
+    needs_sync?: BoolWithAggregatesFilter<"StudentFee"> | boolean
+    is_deleted?: BoolWithAggregatesFilter<"StudentFee"> | boolean
+  }
+
   export type SingleFeeWhereInput = {
     AND?: SingleFeeWhereInput | SingleFeeWhereInput[]
     OR?: SingleFeeWhereInput[]
@@ -36487,6 +38042,7 @@ export namespace Prisma {
     is_deleted?: BoolFilter<"SingleFee"> | boolean
     class?: XOR<ClassesNullableScalarRelationFilter, ClassesWhereInput> | null
     payments?: PaymentsListRelationFilter
+    student_fees?: StudentFeeListRelationFilter
     dispatch_rules?: DispatchRuleListRelationFilter
   }
 
@@ -36505,6 +38061,7 @@ export namespace Prisma {
     is_deleted?: SortOrder
     class?: ClassesOrderByWithRelationInput
     payments?: PaymentsOrderByRelationAggregateInput
+    student_fees?: StudentFeeOrderByRelationAggregateInput
     dispatch_rules?: DispatchRuleOrderByRelationAggregateInput
   }
 
@@ -36526,6 +38083,7 @@ export namespace Prisma {
     is_deleted?: BoolFilter<"SingleFee"> | boolean
     class?: XOR<ClassesNullableScalarRelationFilter, ClassesWhereInput> | null
     payments?: PaymentsListRelationFilter
+    student_fees?: StudentFeeListRelationFilter
     dispatch_rules?: DispatchRuleListRelationFilter
   }, "id" | "supabase_id">
 
@@ -36586,6 +38144,7 @@ export namespace Prisma {
     is_deleted?: BoolFilter<"FeeTemplate"> | boolean
     class?: XOR<ClassesNullableScalarRelationFilter, ClassesWhereInput> | null
     payments?: PaymentsListRelationFilter
+    student_fees?: StudentFeeListRelationFilter
   }
 
   export type FeeTemplateOrderByWithRelationInput = {
@@ -36604,6 +38163,7 @@ export namespace Prisma {
     is_deleted?: SortOrder
     class?: ClassesOrderByWithRelationInput
     payments?: PaymentsOrderByRelationAggregateInput
+    student_fees?: StudentFeeOrderByRelationAggregateInput
   }
 
   export type FeeTemplateWhereUniqueInput = Prisma.AtLeast<{
@@ -36625,6 +38185,7 @@ export namespace Prisma {
     is_deleted?: BoolFilter<"FeeTemplate"> | boolean
     class?: XOR<ClassesNullableScalarRelationFilter, ClassesWhereInput> | null
     payments?: PaymentsListRelationFilter
+    student_fees?: StudentFeeListRelationFilter
   }, "id" | "supabase_id">
 
   export type FeeTemplateOrderByWithAggregationInput = {
@@ -38014,6 +39575,7 @@ export namespace Prisma {
     needs_sync?: boolean
     is_deleted?: boolean
     payments?: PaymentsCreateNestedManyWithoutRegistrationInput
+    student_fees?: StudentFeeCreateNestedManyWithoutRegistrationInput
     class: ClassesCreateNestedOneWithoutRegistrationsInput
     student: StudentsCreateNestedOneWithoutRegistrationsInput
   }
@@ -38030,6 +39592,7 @@ export namespace Prisma {
     needs_sync?: boolean
     is_deleted?: boolean
     payments?: PaymentsUncheckedCreateNestedManyWithoutRegistrationInput
+    student_fees?: StudentFeeUncheckedCreateNestedManyWithoutRegistrationInput
   }
 
   export type RegistrationsUpdateInput = {
@@ -38041,6 +39604,7 @@ export namespace Prisma {
     needs_sync?: BoolFieldUpdateOperationsInput | boolean
     is_deleted?: BoolFieldUpdateOperationsInput | boolean
     payments?: PaymentsUpdateManyWithoutRegistrationNestedInput
+    student_fees?: StudentFeeUpdateManyWithoutRegistrationNestedInput
     class?: ClassesUpdateOneRequiredWithoutRegistrationsNestedInput
     student?: StudentsUpdateOneRequiredWithoutRegistrationsNestedInput
   }
@@ -38057,6 +39621,7 @@ export namespace Prisma {
     needs_sync?: BoolFieldUpdateOperationsInput | boolean
     is_deleted?: BoolFieldUpdateOperationsInput | boolean
     payments?: PaymentsUncheckedUpdateManyWithoutRegistrationNestedInput
+    student_fees?: StudentFeeUncheckedUpdateManyWithoutRegistrationNestedInput
   }
 
   export type RegistrationsCreateManyInput = {
@@ -38902,6 +40467,98 @@ export namespace Prisma {
     period_identifier?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
+  export type StudentFeeCreateInput = {
+    custom_amount: number
+    reason?: string | null
+    school_year?: string | null
+    supabase_id?: string | null
+    last_modified?: Date | string
+    needs_sync?: boolean
+    is_deleted?: boolean
+    registration: RegistrationsCreateNestedOneWithoutStudent_feesInput
+    fee_template?: FeeTemplateCreateNestedOneWithoutStudent_feesInput
+    single_fee?: SingleFeeCreateNestedOneWithoutStudent_feesInput
+  }
+
+  export type StudentFeeUncheckedCreateInput = {
+    id?: number
+    registration_id: number
+    fee_template_id?: number | null
+    single_fee_id?: number | null
+    custom_amount: number
+    reason?: string | null
+    school_year?: string | null
+    supabase_id?: string | null
+    last_modified?: Date | string
+    needs_sync?: boolean
+    is_deleted?: boolean
+  }
+
+  export type StudentFeeUpdateInput = {
+    custom_amount?: FloatFieldUpdateOperationsInput | number
+    reason?: NullableStringFieldUpdateOperationsInput | string | null
+    school_year?: NullableStringFieldUpdateOperationsInput | string | null
+    supabase_id?: NullableStringFieldUpdateOperationsInput | string | null
+    last_modified?: DateTimeFieldUpdateOperationsInput | Date | string
+    needs_sync?: BoolFieldUpdateOperationsInput | boolean
+    is_deleted?: BoolFieldUpdateOperationsInput | boolean
+    registration?: RegistrationsUpdateOneRequiredWithoutStudent_feesNestedInput
+    fee_template?: FeeTemplateUpdateOneWithoutStudent_feesNestedInput
+    single_fee?: SingleFeeUpdateOneWithoutStudent_feesNestedInput
+  }
+
+  export type StudentFeeUncheckedUpdateInput = {
+    id?: IntFieldUpdateOperationsInput | number
+    registration_id?: IntFieldUpdateOperationsInput | number
+    fee_template_id?: NullableIntFieldUpdateOperationsInput | number | null
+    single_fee_id?: NullableIntFieldUpdateOperationsInput | number | null
+    custom_amount?: FloatFieldUpdateOperationsInput | number
+    reason?: NullableStringFieldUpdateOperationsInput | string | null
+    school_year?: NullableStringFieldUpdateOperationsInput | string | null
+    supabase_id?: NullableStringFieldUpdateOperationsInput | string | null
+    last_modified?: DateTimeFieldUpdateOperationsInput | Date | string
+    needs_sync?: BoolFieldUpdateOperationsInput | boolean
+    is_deleted?: BoolFieldUpdateOperationsInput | boolean
+  }
+
+  export type StudentFeeCreateManyInput = {
+    id?: number
+    registration_id: number
+    fee_template_id?: number | null
+    single_fee_id?: number | null
+    custom_amount: number
+    reason?: string | null
+    school_year?: string | null
+    supabase_id?: string | null
+    last_modified?: Date | string
+    needs_sync?: boolean
+    is_deleted?: boolean
+  }
+
+  export type StudentFeeUpdateManyMutationInput = {
+    custom_amount?: FloatFieldUpdateOperationsInput | number
+    reason?: NullableStringFieldUpdateOperationsInput | string | null
+    school_year?: NullableStringFieldUpdateOperationsInput | string | null
+    supabase_id?: NullableStringFieldUpdateOperationsInput | string | null
+    last_modified?: DateTimeFieldUpdateOperationsInput | Date | string
+    needs_sync?: BoolFieldUpdateOperationsInput | boolean
+    is_deleted?: BoolFieldUpdateOperationsInput | boolean
+  }
+
+  export type StudentFeeUncheckedUpdateManyInput = {
+    id?: IntFieldUpdateOperationsInput | number
+    registration_id?: IntFieldUpdateOperationsInput | number
+    fee_template_id?: NullableIntFieldUpdateOperationsInput | number | null
+    single_fee_id?: NullableIntFieldUpdateOperationsInput | number | null
+    custom_amount?: FloatFieldUpdateOperationsInput | number
+    reason?: NullableStringFieldUpdateOperationsInput | string | null
+    school_year?: NullableStringFieldUpdateOperationsInput | string | null
+    supabase_id?: NullableStringFieldUpdateOperationsInput | string | null
+    last_modified?: DateTimeFieldUpdateOperationsInput | Date | string
+    needs_sync?: BoolFieldUpdateOperationsInput | boolean
+    is_deleted?: BoolFieldUpdateOperationsInput | boolean
+  }
+
   export type SingleFeeCreateInput = {
     name?: string | null
     amount?: number | null
@@ -38915,6 +40572,7 @@ export namespace Prisma {
     is_deleted?: boolean
     class?: ClassesCreateNestedOneWithoutSingle_feesInput
     payments?: PaymentsCreateNestedManyWithoutSingle_feeInput
+    student_fees?: StudentFeeCreateNestedManyWithoutSingle_feeInput
     dispatch_rules?: DispatchRuleCreateNestedManyWithoutSource_single_feeInput
   }
 
@@ -38932,6 +40590,7 @@ export namespace Prisma {
     needs_sync?: boolean
     is_deleted?: boolean
     payments?: PaymentsUncheckedCreateNestedManyWithoutSingle_feeInput
+    student_fees?: StudentFeeUncheckedCreateNestedManyWithoutSingle_feeInput
     dispatch_rules?: DispatchRuleUncheckedCreateNestedManyWithoutSource_single_feeInput
   }
 
@@ -38948,6 +40607,7 @@ export namespace Prisma {
     is_deleted?: BoolFieldUpdateOperationsInput | boolean
     class?: ClassesUpdateOneWithoutSingle_feesNestedInput
     payments?: PaymentsUpdateManyWithoutSingle_feeNestedInput
+    student_fees?: StudentFeeUpdateManyWithoutSingle_feeNestedInput
     dispatch_rules?: DispatchRuleUpdateManyWithoutSource_single_feeNestedInput
   }
 
@@ -38965,6 +40625,7 @@ export namespace Prisma {
     needs_sync?: BoolFieldUpdateOperationsInput | boolean
     is_deleted?: BoolFieldUpdateOperationsInput | boolean
     payments?: PaymentsUncheckedUpdateManyWithoutSingle_feeNestedInput
+    student_fees?: StudentFeeUncheckedUpdateManyWithoutSingle_feeNestedInput
     dispatch_rules?: DispatchRuleUncheckedUpdateManyWithoutSource_single_feeNestedInput
   }
 
@@ -39025,6 +40686,7 @@ export namespace Prisma {
     is_deleted?: boolean
     class?: ClassesCreateNestedOneWithoutFee_templatesInput
     payments?: PaymentsCreateNestedManyWithoutFee_templateInput
+    student_fees?: StudentFeeCreateNestedManyWithoutFee_templateInput
   }
 
   export type FeeTemplateUncheckedCreateInput = {
@@ -39042,6 +40704,7 @@ export namespace Prisma {
     needs_sync?: boolean
     is_deleted?: boolean
     payments?: PaymentsUncheckedCreateNestedManyWithoutFee_templateInput
+    student_fees?: StudentFeeUncheckedCreateNestedManyWithoutFee_templateInput
   }
 
   export type FeeTemplateUpdateInput = {
@@ -39058,6 +40721,7 @@ export namespace Prisma {
     is_deleted?: BoolFieldUpdateOperationsInput | boolean
     class?: ClassesUpdateOneWithoutFee_templatesNestedInput
     payments?: PaymentsUpdateManyWithoutFee_templateNestedInput
+    student_fees?: StudentFeeUpdateManyWithoutFee_templateNestedInput
   }
 
   export type FeeTemplateUncheckedUpdateInput = {
@@ -39075,6 +40739,7 @@ export namespace Prisma {
     needs_sync?: BoolFieldUpdateOperationsInput | boolean
     is_deleted?: BoolFieldUpdateOperationsInput | boolean
     payments?: PaymentsUncheckedUpdateManyWithoutFee_templateNestedInput
+    student_fees?: StudentFeeUncheckedUpdateManyWithoutFee_templateNestedInput
   }
 
   export type FeeTemplateCreateManyInput = {
@@ -40680,6 +42345,12 @@ export namespace Prisma {
     none?: PaymentsWhereInput
   }
 
+  export type StudentFeeListRelationFilter = {
+    every?: StudentFeeWhereInput
+    some?: StudentFeeWhereInput
+    none?: StudentFeeWhereInput
+  }
+
   export type ClassesScalarRelationFilter = {
     is?: ClassesWhereInput
     isNot?: ClassesWhereInput
@@ -40691,6 +42362,10 @@ export namespace Prisma {
   }
 
   export type PaymentsOrderByRelationAggregateInput = {
+    _count?: SortOrder
+  }
+
+  export type StudentFeeOrderByRelationAggregateInput = {
     _count?: SortOrder
   }
 
@@ -41334,6 +43009,79 @@ export namespace Prisma {
     amount?: SortOrder
     single_fee_id?: SortOrder
     fee_template_id?: SortOrder
+  }
+
+  export type RegistrationsScalarRelationFilter = {
+    is?: RegistrationsWhereInput
+    isNot?: RegistrationsWhereInput
+  }
+
+  export type StudentFeeRegistration_idFee_template_idCompoundUniqueInput = {
+    registration_id: number
+    fee_template_id: number
+  }
+
+  export type StudentFeeRegistration_idSingle_fee_idCompoundUniqueInput = {
+    registration_id: number
+    single_fee_id: number
+  }
+
+  export type StudentFeeCountOrderByAggregateInput = {
+    id?: SortOrder
+    registration_id?: SortOrder
+    fee_template_id?: SortOrder
+    single_fee_id?: SortOrder
+    custom_amount?: SortOrder
+    reason?: SortOrder
+    school_year?: SortOrder
+    supabase_id?: SortOrder
+    last_modified?: SortOrder
+    needs_sync?: SortOrder
+    is_deleted?: SortOrder
+  }
+
+  export type StudentFeeAvgOrderByAggregateInput = {
+    id?: SortOrder
+    registration_id?: SortOrder
+    fee_template_id?: SortOrder
+    single_fee_id?: SortOrder
+    custom_amount?: SortOrder
+  }
+
+  export type StudentFeeMaxOrderByAggregateInput = {
+    id?: SortOrder
+    registration_id?: SortOrder
+    fee_template_id?: SortOrder
+    single_fee_id?: SortOrder
+    custom_amount?: SortOrder
+    reason?: SortOrder
+    school_year?: SortOrder
+    supabase_id?: SortOrder
+    last_modified?: SortOrder
+    needs_sync?: SortOrder
+    is_deleted?: SortOrder
+  }
+
+  export type StudentFeeMinOrderByAggregateInput = {
+    id?: SortOrder
+    registration_id?: SortOrder
+    fee_template_id?: SortOrder
+    single_fee_id?: SortOrder
+    custom_amount?: SortOrder
+    reason?: SortOrder
+    school_year?: SortOrder
+    supabase_id?: SortOrder
+    last_modified?: SortOrder
+    needs_sync?: SortOrder
+    is_deleted?: SortOrder
+  }
+
+  export type StudentFeeSumOrderByAggregateInput = {
+    id?: SortOrder
+    registration_id?: SortOrder
+    fee_template_id?: SortOrder
+    single_fee_id?: SortOrder
+    custom_amount?: SortOrder
   }
 
   export type ClassesNullableScalarRelationFilter = {
@@ -42552,6 +44300,13 @@ export namespace Prisma {
     connect?: PaymentsWhereUniqueInput | PaymentsWhereUniqueInput[]
   }
 
+  export type StudentFeeCreateNestedManyWithoutRegistrationInput = {
+    create?: XOR<StudentFeeCreateWithoutRegistrationInput, StudentFeeUncheckedCreateWithoutRegistrationInput> | StudentFeeCreateWithoutRegistrationInput[] | StudentFeeUncheckedCreateWithoutRegistrationInput[]
+    connectOrCreate?: StudentFeeCreateOrConnectWithoutRegistrationInput | StudentFeeCreateOrConnectWithoutRegistrationInput[]
+    createMany?: StudentFeeCreateManyRegistrationInputEnvelope
+    connect?: StudentFeeWhereUniqueInput | StudentFeeWhereUniqueInput[]
+  }
+
   export type ClassesCreateNestedOneWithoutRegistrationsInput = {
     create?: XOR<ClassesCreateWithoutRegistrationsInput, ClassesUncheckedCreateWithoutRegistrationsInput>
     connectOrCreate?: ClassesCreateOrConnectWithoutRegistrationsInput
@@ -42571,6 +44326,13 @@ export namespace Prisma {
     connect?: PaymentsWhereUniqueInput | PaymentsWhereUniqueInput[]
   }
 
+  export type StudentFeeUncheckedCreateNestedManyWithoutRegistrationInput = {
+    create?: XOR<StudentFeeCreateWithoutRegistrationInput, StudentFeeUncheckedCreateWithoutRegistrationInput> | StudentFeeCreateWithoutRegistrationInput[] | StudentFeeUncheckedCreateWithoutRegistrationInput[]
+    connectOrCreate?: StudentFeeCreateOrConnectWithoutRegistrationInput | StudentFeeCreateOrConnectWithoutRegistrationInput[]
+    createMany?: StudentFeeCreateManyRegistrationInputEnvelope
+    connect?: StudentFeeWhereUniqueInput | StudentFeeWhereUniqueInput[]
+  }
+
   export type PaymentsUpdateManyWithoutRegistrationNestedInput = {
     create?: XOR<PaymentsCreateWithoutRegistrationInput, PaymentsUncheckedCreateWithoutRegistrationInput> | PaymentsCreateWithoutRegistrationInput[] | PaymentsUncheckedCreateWithoutRegistrationInput[]
     connectOrCreate?: PaymentsCreateOrConnectWithoutRegistrationInput | PaymentsCreateOrConnectWithoutRegistrationInput[]
@@ -42583,6 +44345,20 @@ export namespace Prisma {
     update?: PaymentsUpdateWithWhereUniqueWithoutRegistrationInput | PaymentsUpdateWithWhereUniqueWithoutRegistrationInput[]
     updateMany?: PaymentsUpdateManyWithWhereWithoutRegistrationInput | PaymentsUpdateManyWithWhereWithoutRegistrationInput[]
     deleteMany?: PaymentsScalarWhereInput | PaymentsScalarWhereInput[]
+  }
+
+  export type StudentFeeUpdateManyWithoutRegistrationNestedInput = {
+    create?: XOR<StudentFeeCreateWithoutRegistrationInput, StudentFeeUncheckedCreateWithoutRegistrationInput> | StudentFeeCreateWithoutRegistrationInput[] | StudentFeeUncheckedCreateWithoutRegistrationInput[]
+    connectOrCreate?: StudentFeeCreateOrConnectWithoutRegistrationInput | StudentFeeCreateOrConnectWithoutRegistrationInput[]
+    upsert?: StudentFeeUpsertWithWhereUniqueWithoutRegistrationInput | StudentFeeUpsertWithWhereUniqueWithoutRegistrationInput[]
+    createMany?: StudentFeeCreateManyRegistrationInputEnvelope
+    set?: StudentFeeWhereUniqueInput | StudentFeeWhereUniqueInput[]
+    disconnect?: StudentFeeWhereUniqueInput | StudentFeeWhereUniqueInput[]
+    delete?: StudentFeeWhereUniqueInput | StudentFeeWhereUniqueInput[]
+    connect?: StudentFeeWhereUniqueInput | StudentFeeWhereUniqueInput[]
+    update?: StudentFeeUpdateWithWhereUniqueWithoutRegistrationInput | StudentFeeUpdateWithWhereUniqueWithoutRegistrationInput[]
+    updateMany?: StudentFeeUpdateManyWithWhereWithoutRegistrationInput | StudentFeeUpdateManyWithWhereWithoutRegistrationInput[]
+    deleteMany?: StudentFeeScalarWhereInput | StudentFeeScalarWhereInput[]
   }
 
   export type ClassesUpdateOneRequiredWithoutRegistrationsNestedInput = {
@@ -42613,6 +44389,20 @@ export namespace Prisma {
     update?: PaymentsUpdateWithWhereUniqueWithoutRegistrationInput | PaymentsUpdateWithWhereUniqueWithoutRegistrationInput[]
     updateMany?: PaymentsUpdateManyWithWhereWithoutRegistrationInput | PaymentsUpdateManyWithWhereWithoutRegistrationInput[]
     deleteMany?: PaymentsScalarWhereInput | PaymentsScalarWhereInput[]
+  }
+
+  export type StudentFeeUncheckedUpdateManyWithoutRegistrationNestedInput = {
+    create?: XOR<StudentFeeCreateWithoutRegistrationInput, StudentFeeUncheckedCreateWithoutRegistrationInput> | StudentFeeCreateWithoutRegistrationInput[] | StudentFeeUncheckedCreateWithoutRegistrationInput[]
+    connectOrCreate?: StudentFeeCreateOrConnectWithoutRegistrationInput | StudentFeeCreateOrConnectWithoutRegistrationInput[]
+    upsert?: StudentFeeUpsertWithWhereUniqueWithoutRegistrationInput | StudentFeeUpsertWithWhereUniqueWithoutRegistrationInput[]
+    createMany?: StudentFeeCreateManyRegistrationInputEnvelope
+    set?: StudentFeeWhereUniqueInput | StudentFeeWhereUniqueInput[]
+    disconnect?: StudentFeeWhereUniqueInput | StudentFeeWhereUniqueInput[]
+    delete?: StudentFeeWhereUniqueInput | StudentFeeWhereUniqueInput[]
+    connect?: StudentFeeWhereUniqueInput | StudentFeeWhereUniqueInput[]
+    update?: StudentFeeUpdateWithWhereUniqueWithoutRegistrationInput | StudentFeeUpdateWithWhereUniqueWithoutRegistrationInput[]
+    updateMany?: StudentFeeUpdateManyWithWhereWithoutRegistrationInput | StudentFeeUpdateManyWithWhereWithoutRegistrationInput[]
+    deleteMany?: StudentFeeScalarWhereInput | StudentFeeScalarWhereInput[]
   }
 
   export type LessonsCreateNestedManyWithoutTeacherInput = {
@@ -43159,6 +44949,52 @@ export namespace Prisma {
     update?: XOR<XOR<FeeTemplateUpdateToOneWithWhereWithoutPaymentsInput, FeeTemplateUpdateWithoutPaymentsInput>, FeeTemplateUncheckedUpdateWithoutPaymentsInput>
   }
 
+  export type RegistrationsCreateNestedOneWithoutStudent_feesInput = {
+    create?: XOR<RegistrationsCreateWithoutStudent_feesInput, RegistrationsUncheckedCreateWithoutStudent_feesInput>
+    connectOrCreate?: RegistrationsCreateOrConnectWithoutStudent_feesInput
+    connect?: RegistrationsWhereUniqueInput
+  }
+
+  export type FeeTemplateCreateNestedOneWithoutStudent_feesInput = {
+    create?: XOR<FeeTemplateCreateWithoutStudent_feesInput, FeeTemplateUncheckedCreateWithoutStudent_feesInput>
+    connectOrCreate?: FeeTemplateCreateOrConnectWithoutStudent_feesInput
+    connect?: FeeTemplateWhereUniqueInput
+  }
+
+  export type SingleFeeCreateNestedOneWithoutStudent_feesInput = {
+    create?: XOR<SingleFeeCreateWithoutStudent_feesInput, SingleFeeUncheckedCreateWithoutStudent_feesInput>
+    connectOrCreate?: SingleFeeCreateOrConnectWithoutStudent_feesInput
+    connect?: SingleFeeWhereUniqueInput
+  }
+
+  export type RegistrationsUpdateOneRequiredWithoutStudent_feesNestedInput = {
+    create?: XOR<RegistrationsCreateWithoutStudent_feesInput, RegistrationsUncheckedCreateWithoutStudent_feesInput>
+    connectOrCreate?: RegistrationsCreateOrConnectWithoutStudent_feesInput
+    upsert?: RegistrationsUpsertWithoutStudent_feesInput
+    connect?: RegistrationsWhereUniqueInput
+    update?: XOR<XOR<RegistrationsUpdateToOneWithWhereWithoutStudent_feesInput, RegistrationsUpdateWithoutStudent_feesInput>, RegistrationsUncheckedUpdateWithoutStudent_feesInput>
+  }
+
+  export type FeeTemplateUpdateOneWithoutStudent_feesNestedInput = {
+    create?: XOR<FeeTemplateCreateWithoutStudent_feesInput, FeeTemplateUncheckedCreateWithoutStudent_feesInput>
+    connectOrCreate?: FeeTemplateCreateOrConnectWithoutStudent_feesInput
+    upsert?: FeeTemplateUpsertWithoutStudent_feesInput
+    disconnect?: FeeTemplateWhereInput | boolean
+    delete?: FeeTemplateWhereInput | boolean
+    connect?: FeeTemplateWhereUniqueInput
+    update?: XOR<XOR<FeeTemplateUpdateToOneWithWhereWithoutStudent_feesInput, FeeTemplateUpdateWithoutStudent_feesInput>, FeeTemplateUncheckedUpdateWithoutStudent_feesInput>
+  }
+
+  export type SingleFeeUpdateOneWithoutStudent_feesNestedInput = {
+    create?: XOR<SingleFeeCreateWithoutStudent_feesInput, SingleFeeUncheckedCreateWithoutStudent_feesInput>
+    connectOrCreate?: SingleFeeCreateOrConnectWithoutStudent_feesInput
+    upsert?: SingleFeeUpsertWithoutStudent_feesInput
+    disconnect?: SingleFeeWhereInput | boolean
+    delete?: SingleFeeWhereInput | boolean
+    connect?: SingleFeeWhereUniqueInput
+    update?: XOR<XOR<SingleFeeUpdateToOneWithWhereWithoutStudent_feesInput, SingleFeeUpdateWithoutStudent_feesInput>, SingleFeeUncheckedUpdateWithoutStudent_feesInput>
+  }
+
   export type ClassesCreateNestedOneWithoutSingle_feesInput = {
     create?: XOR<ClassesCreateWithoutSingle_feesInput, ClassesUncheckedCreateWithoutSingle_feesInput>
     connectOrCreate?: ClassesCreateOrConnectWithoutSingle_feesInput
@@ -43170,6 +45006,13 @@ export namespace Prisma {
     connectOrCreate?: PaymentsCreateOrConnectWithoutSingle_feeInput | PaymentsCreateOrConnectWithoutSingle_feeInput[]
     createMany?: PaymentsCreateManySingle_feeInputEnvelope
     connect?: PaymentsWhereUniqueInput | PaymentsWhereUniqueInput[]
+  }
+
+  export type StudentFeeCreateNestedManyWithoutSingle_feeInput = {
+    create?: XOR<StudentFeeCreateWithoutSingle_feeInput, StudentFeeUncheckedCreateWithoutSingle_feeInput> | StudentFeeCreateWithoutSingle_feeInput[] | StudentFeeUncheckedCreateWithoutSingle_feeInput[]
+    connectOrCreate?: StudentFeeCreateOrConnectWithoutSingle_feeInput | StudentFeeCreateOrConnectWithoutSingle_feeInput[]
+    createMany?: StudentFeeCreateManySingle_feeInputEnvelope
+    connect?: StudentFeeWhereUniqueInput | StudentFeeWhereUniqueInput[]
   }
 
   export type DispatchRuleCreateNestedManyWithoutSource_single_feeInput = {
@@ -43184,6 +45027,13 @@ export namespace Prisma {
     connectOrCreate?: PaymentsCreateOrConnectWithoutSingle_feeInput | PaymentsCreateOrConnectWithoutSingle_feeInput[]
     createMany?: PaymentsCreateManySingle_feeInputEnvelope
     connect?: PaymentsWhereUniqueInput | PaymentsWhereUniqueInput[]
+  }
+
+  export type StudentFeeUncheckedCreateNestedManyWithoutSingle_feeInput = {
+    create?: XOR<StudentFeeCreateWithoutSingle_feeInput, StudentFeeUncheckedCreateWithoutSingle_feeInput> | StudentFeeCreateWithoutSingle_feeInput[] | StudentFeeUncheckedCreateWithoutSingle_feeInput[]
+    connectOrCreate?: StudentFeeCreateOrConnectWithoutSingle_feeInput | StudentFeeCreateOrConnectWithoutSingle_feeInput[]
+    createMany?: StudentFeeCreateManySingle_feeInputEnvelope
+    connect?: StudentFeeWhereUniqueInput | StudentFeeWhereUniqueInput[]
   }
 
   export type DispatchRuleUncheckedCreateNestedManyWithoutSource_single_feeInput = {
@@ -43217,6 +45067,20 @@ export namespace Prisma {
     deleteMany?: PaymentsScalarWhereInput | PaymentsScalarWhereInput[]
   }
 
+  export type StudentFeeUpdateManyWithoutSingle_feeNestedInput = {
+    create?: XOR<StudentFeeCreateWithoutSingle_feeInput, StudentFeeUncheckedCreateWithoutSingle_feeInput> | StudentFeeCreateWithoutSingle_feeInput[] | StudentFeeUncheckedCreateWithoutSingle_feeInput[]
+    connectOrCreate?: StudentFeeCreateOrConnectWithoutSingle_feeInput | StudentFeeCreateOrConnectWithoutSingle_feeInput[]
+    upsert?: StudentFeeUpsertWithWhereUniqueWithoutSingle_feeInput | StudentFeeUpsertWithWhereUniqueWithoutSingle_feeInput[]
+    createMany?: StudentFeeCreateManySingle_feeInputEnvelope
+    set?: StudentFeeWhereUniqueInput | StudentFeeWhereUniqueInput[]
+    disconnect?: StudentFeeWhereUniqueInput | StudentFeeWhereUniqueInput[]
+    delete?: StudentFeeWhereUniqueInput | StudentFeeWhereUniqueInput[]
+    connect?: StudentFeeWhereUniqueInput | StudentFeeWhereUniqueInput[]
+    update?: StudentFeeUpdateWithWhereUniqueWithoutSingle_feeInput | StudentFeeUpdateWithWhereUniqueWithoutSingle_feeInput[]
+    updateMany?: StudentFeeUpdateManyWithWhereWithoutSingle_feeInput | StudentFeeUpdateManyWithWhereWithoutSingle_feeInput[]
+    deleteMany?: StudentFeeScalarWhereInput | StudentFeeScalarWhereInput[]
+  }
+
   export type DispatchRuleUpdateManyWithoutSource_single_feeNestedInput = {
     create?: XOR<DispatchRuleCreateWithoutSource_single_feeInput, DispatchRuleUncheckedCreateWithoutSource_single_feeInput> | DispatchRuleCreateWithoutSource_single_feeInput[] | DispatchRuleUncheckedCreateWithoutSource_single_feeInput[]
     connectOrCreate?: DispatchRuleCreateOrConnectWithoutSource_single_feeInput | DispatchRuleCreateOrConnectWithoutSource_single_feeInput[]
@@ -43243,6 +45107,20 @@ export namespace Prisma {
     update?: PaymentsUpdateWithWhereUniqueWithoutSingle_feeInput | PaymentsUpdateWithWhereUniqueWithoutSingle_feeInput[]
     updateMany?: PaymentsUpdateManyWithWhereWithoutSingle_feeInput | PaymentsUpdateManyWithWhereWithoutSingle_feeInput[]
     deleteMany?: PaymentsScalarWhereInput | PaymentsScalarWhereInput[]
+  }
+
+  export type StudentFeeUncheckedUpdateManyWithoutSingle_feeNestedInput = {
+    create?: XOR<StudentFeeCreateWithoutSingle_feeInput, StudentFeeUncheckedCreateWithoutSingle_feeInput> | StudentFeeCreateWithoutSingle_feeInput[] | StudentFeeUncheckedCreateWithoutSingle_feeInput[]
+    connectOrCreate?: StudentFeeCreateOrConnectWithoutSingle_feeInput | StudentFeeCreateOrConnectWithoutSingle_feeInput[]
+    upsert?: StudentFeeUpsertWithWhereUniqueWithoutSingle_feeInput | StudentFeeUpsertWithWhereUniqueWithoutSingle_feeInput[]
+    createMany?: StudentFeeCreateManySingle_feeInputEnvelope
+    set?: StudentFeeWhereUniqueInput | StudentFeeWhereUniqueInput[]
+    disconnect?: StudentFeeWhereUniqueInput | StudentFeeWhereUniqueInput[]
+    delete?: StudentFeeWhereUniqueInput | StudentFeeWhereUniqueInput[]
+    connect?: StudentFeeWhereUniqueInput | StudentFeeWhereUniqueInput[]
+    update?: StudentFeeUpdateWithWhereUniqueWithoutSingle_feeInput | StudentFeeUpdateWithWhereUniqueWithoutSingle_feeInput[]
+    updateMany?: StudentFeeUpdateManyWithWhereWithoutSingle_feeInput | StudentFeeUpdateManyWithWhereWithoutSingle_feeInput[]
+    deleteMany?: StudentFeeScalarWhereInput | StudentFeeScalarWhereInput[]
   }
 
   export type DispatchRuleUncheckedUpdateManyWithoutSource_single_feeNestedInput = {
@@ -43272,11 +45150,25 @@ export namespace Prisma {
     connect?: PaymentsWhereUniqueInput | PaymentsWhereUniqueInput[]
   }
 
+  export type StudentFeeCreateNestedManyWithoutFee_templateInput = {
+    create?: XOR<StudentFeeCreateWithoutFee_templateInput, StudentFeeUncheckedCreateWithoutFee_templateInput> | StudentFeeCreateWithoutFee_templateInput[] | StudentFeeUncheckedCreateWithoutFee_templateInput[]
+    connectOrCreate?: StudentFeeCreateOrConnectWithoutFee_templateInput | StudentFeeCreateOrConnectWithoutFee_templateInput[]
+    createMany?: StudentFeeCreateManyFee_templateInputEnvelope
+    connect?: StudentFeeWhereUniqueInput | StudentFeeWhereUniqueInput[]
+  }
+
   export type PaymentsUncheckedCreateNestedManyWithoutFee_templateInput = {
     create?: XOR<PaymentsCreateWithoutFee_templateInput, PaymentsUncheckedCreateWithoutFee_templateInput> | PaymentsCreateWithoutFee_templateInput[] | PaymentsUncheckedCreateWithoutFee_templateInput[]
     connectOrCreate?: PaymentsCreateOrConnectWithoutFee_templateInput | PaymentsCreateOrConnectWithoutFee_templateInput[]
     createMany?: PaymentsCreateManyFee_templateInputEnvelope
     connect?: PaymentsWhereUniqueInput | PaymentsWhereUniqueInput[]
+  }
+
+  export type StudentFeeUncheckedCreateNestedManyWithoutFee_templateInput = {
+    create?: XOR<StudentFeeCreateWithoutFee_templateInput, StudentFeeUncheckedCreateWithoutFee_templateInput> | StudentFeeCreateWithoutFee_templateInput[] | StudentFeeUncheckedCreateWithoutFee_templateInput[]
+    connectOrCreate?: StudentFeeCreateOrConnectWithoutFee_templateInput | StudentFeeCreateOrConnectWithoutFee_templateInput[]
+    createMany?: StudentFeeCreateManyFee_templateInputEnvelope
+    connect?: StudentFeeWhereUniqueInput | StudentFeeWhereUniqueInput[]
   }
 
   export type ClassesUpdateOneWithoutFee_templatesNestedInput = {
@@ -43303,6 +45195,20 @@ export namespace Prisma {
     deleteMany?: PaymentsScalarWhereInput | PaymentsScalarWhereInput[]
   }
 
+  export type StudentFeeUpdateManyWithoutFee_templateNestedInput = {
+    create?: XOR<StudentFeeCreateWithoutFee_templateInput, StudentFeeUncheckedCreateWithoutFee_templateInput> | StudentFeeCreateWithoutFee_templateInput[] | StudentFeeUncheckedCreateWithoutFee_templateInput[]
+    connectOrCreate?: StudentFeeCreateOrConnectWithoutFee_templateInput | StudentFeeCreateOrConnectWithoutFee_templateInput[]
+    upsert?: StudentFeeUpsertWithWhereUniqueWithoutFee_templateInput | StudentFeeUpsertWithWhereUniqueWithoutFee_templateInput[]
+    createMany?: StudentFeeCreateManyFee_templateInputEnvelope
+    set?: StudentFeeWhereUniqueInput | StudentFeeWhereUniqueInput[]
+    disconnect?: StudentFeeWhereUniqueInput | StudentFeeWhereUniqueInput[]
+    delete?: StudentFeeWhereUniqueInput | StudentFeeWhereUniqueInput[]
+    connect?: StudentFeeWhereUniqueInput | StudentFeeWhereUniqueInput[]
+    update?: StudentFeeUpdateWithWhereUniqueWithoutFee_templateInput | StudentFeeUpdateWithWhereUniqueWithoutFee_templateInput[]
+    updateMany?: StudentFeeUpdateManyWithWhereWithoutFee_templateInput | StudentFeeUpdateManyWithWhereWithoutFee_templateInput[]
+    deleteMany?: StudentFeeScalarWhereInput | StudentFeeScalarWhereInput[]
+  }
+
   export type PaymentsUncheckedUpdateManyWithoutFee_templateNestedInput = {
     create?: XOR<PaymentsCreateWithoutFee_templateInput, PaymentsUncheckedCreateWithoutFee_templateInput> | PaymentsCreateWithoutFee_templateInput[] | PaymentsUncheckedCreateWithoutFee_templateInput[]
     connectOrCreate?: PaymentsCreateOrConnectWithoutFee_templateInput | PaymentsCreateOrConnectWithoutFee_templateInput[]
@@ -43315,6 +45221,20 @@ export namespace Prisma {
     update?: PaymentsUpdateWithWhereUniqueWithoutFee_templateInput | PaymentsUpdateWithWhereUniqueWithoutFee_templateInput[]
     updateMany?: PaymentsUpdateManyWithWhereWithoutFee_templateInput | PaymentsUpdateManyWithWhereWithoutFee_templateInput[]
     deleteMany?: PaymentsScalarWhereInput | PaymentsScalarWhereInput[]
+  }
+
+  export type StudentFeeUncheckedUpdateManyWithoutFee_templateNestedInput = {
+    create?: XOR<StudentFeeCreateWithoutFee_templateInput, StudentFeeUncheckedCreateWithoutFee_templateInput> | StudentFeeCreateWithoutFee_templateInput[] | StudentFeeUncheckedCreateWithoutFee_templateInput[]
+    connectOrCreate?: StudentFeeCreateOrConnectWithoutFee_templateInput | StudentFeeCreateOrConnectWithoutFee_templateInput[]
+    upsert?: StudentFeeUpsertWithWhereUniqueWithoutFee_templateInput | StudentFeeUpsertWithWhereUniqueWithoutFee_templateInput[]
+    createMany?: StudentFeeCreateManyFee_templateInputEnvelope
+    set?: StudentFeeWhereUniqueInput | StudentFeeWhereUniqueInput[]
+    disconnect?: StudentFeeWhereUniqueInput | StudentFeeWhereUniqueInput[]
+    delete?: StudentFeeWhereUniqueInput | StudentFeeWhereUniqueInput[]
+    connect?: StudentFeeWhereUniqueInput | StudentFeeWhereUniqueInput[]
+    update?: StudentFeeUpdateWithWhereUniqueWithoutFee_templateInput | StudentFeeUpdateWithWhereUniqueWithoutFee_templateInput[]
+    updateMany?: StudentFeeUpdateManyWithWhereWithoutFee_templateInput | StudentFeeUpdateManyWithWhereWithoutFee_templateInput[]
+    deleteMany?: StudentFeeScalarWhereInput | StudentFeeScalarWhereInput[]
   }
 
   export type StudentsCreateNestedOneWithoutAttendancesInput = {
@@ -43951,6 +45871,7 @@ export namespace Prisma {
     needs_sync?: boolean
     is_deleted?: boolean
     payments?: PaymentsCreateNestedManyWithoutRegistrationInput
+    student_fees?: StudentFeeCreateNestedManyWithoutRegistrationInput
     student: StudentsCreateNestedOneWithoutRegistrationsInput
   }
 
@@ -43965,6 +45886,7 @@ export namespace Prisma {
     needs_sync?: boolean
     is_deleted?: boolean
     payments?: PaymentsUncheckedCreateNestedManyWithoutRegistrationInput
+    student_fees?: StudentFeeUncheckedCreateNestedManyWithoutRegistrationInput
   }
 
   export type RegistrationsCreateOrConnectWithoutClassInput = {
@@ -44022,6 +45944,7 @@ export namespace Prisma {
     needs_sync?: boolean
     is_deleted?: boolean
     payments?: PaymentsCreateNestedManyWithoutSingle_feeInput
+    student_fees?: StudentFeeCreateNestedManyWithoutSingle_feeInput
     dispatch_rules?: DispatchRuleCreateNestedManyWithoutSource_single_feeInput
   }
 
@@ -44038,6 +45961,7 @@ export namespace Prisma {
     needs_sync?: boolean
     is_deleted?: boolean
     payments?: PaymentsUncheckedCreateNestedManyWithoutSingle_feeInput
+    student_fees?: StudentFeeUncheckedCreateNestedManyWithoutSingle_feeInput
     dispatch_rules?: DispatchRuleUncheckedCreateNestedManyWithoutSource_single_feeInput
   }
 
@@ -44063,6 +45987,7 @@ export namespace Prisma {
     needs_sync?: boolean
     is_deleted?: boolean
     payments?: PaymentsCreateNestedManyWithoutFee_templateInput
+    student_fees?: StudentFeeCreateNestedManyWithoutFee_templateInput
   }
 
   export type FeeTemplateUncheckedCreateWithoutClassInput = {
@@ -44079,6 +46004,7 @@ export namespace Prisma {
     needs_sync?: boolean
     is_deleted?: boolean
     payments?: PaymentsUncheckedCreateNestedManyWithoutFee_templateInput
+    student_fees?: StudentFeeUncheckedCreateNestedManyWithoutFee_templateInput
   }
 
   export type FeeTemplateCreateOrConnectWithoutClassInput = {
@@ -44324,6 +46250,7 @@ export namespace Prisma {
     needs_sync?: boolean
     is_deleted?: boolean
     payments?: PaymentsCreateNestedManyWithoutRegistrationInput
+    student_fees?: StudentFeeCreateNestedManyWithoutRegistrationInput
     class: ClassesCreateNestedOneWithoutRegistrationsInput
   }
 
@@ -44338,6 +46265,7 @@ export namespace Prisma {
     needs_sync?: boolean
     is_deleted?: boolean
     payments?: PaymentsUncheckedCreateNestedManyWithoutRegistrationInput
+    student_fees?: StudentFeeUncheckedCreateNestedManyWithoutRegistrationInput
   }
 
   export type RegistrationsCreateOrConnectWithoutStudentInput = {
@@ -44526,6 +46454,40 @@ export namespace Prisma {
     data: PaymentsCreateManyRegistrationInput | PaymentsCreateManyRegistrationInput[]
   }
 
+  export type StudentFeeCreateWithoutRegistrationInput = {
+    custom_amount: number
+    reason?: string | null
+    school_year?: string | null
+    supabase_id?: string | null
+    last_modified?: Date | string
+    needs_sync?: boolean
+    is_deleted?: boolean
+    fee_template?: FeeTemplateCreateNestedOneWithoutStudent_feesInput
+    single_fee?: SingleFeeCreateNestedOneWithoutStudent_feesInput
+  }
+
+  export type StudentFeeUncheckedCreateWithoutRegistrationInput = {
+    id?: number
+    fee_template_id?: number | null
+    single_fee_id?: number | null
+    custom_amount: number
+    reason?: string | null
+    school_year?: string | null
+    supabase_id?: string | null
+    last_modified?: Date | string
+    needs_sync?: boolean
+    is_deleted?: boolean
+  }
+
+  export type StudentFeeCreateOrConnectWithoutRegistrationInput = {
+    where: StudentFeeWhereUniqueInput
+    create: XOR<StudentFeeCreateWithoutRegistrationInput, StudentFeeUncheckedCreateWithoutRegistrationInput>
+  }
+
+  export type StudentFeeCreateManyRegistrationInputEnvelope = {
+    data: StudentFeeCreateManyRegistrationInput | StudentFeeCreateManyRegistrationInput[]
+  }
+
   export type ClassesCreateWithoutRegistrationsInput = {
     name: string
     level?: string | null
@@ -44632,6 +46594,39 @@ export namespace Prisma {
     single_fee_id?: IntNullableFilter<"Payments"> | number | null
     fee_template_id?: IntNullableFilter<"Payments"> | number | null
     period_identifier?: StringNullableFilter<"Payments"> | string | null
+  }
+
+  export type StudentFeeUpsertWithWhereUniqueWithoutRegistrationInput = {
+    where: StudentFeeWhereUniqueInput
+    update: XOR<StudentFeeUpdateWithoutRegistrationInput, StudentFeeUncheckedUpdateWithoutRegistrationInput>
+    create: XOR<StudentFeeCreateWithoutRegistrationInput, StudentFeeUncheckedCreateWithoutRegistrationInput>
+  }
+
+  export type StudentFeeUpdateWithWhereUniqueWithoutRegistrationInput = {
+    where: StudentFeeWhereUniqueInput
+    data: XOR<StudentFeeUpdateWithoutRegistrationInput, StudentFeeUncheckedUpdateWithoutRegistrationInput>
+  }
+
+  export type StudentFeeUpdateManyWithWhereWithoutRegistrationInput = {
+    where: StudentFeeScalarWhereInput
+    data: XOR<StudentFeeUpdateManyMutationInput, StudentFeeUncheckedUpdateManyWithoutRegistrationInput>
+  }
+
+  export type StudentFeeScalarWhereInput = {
+    AND?: StudentFeeScalarWhereInput | StudentFeeScalarWhereInput[]
+    OR?: StudentFeeScalarWhereInput[]
+    NOT?: StudentFeeScalarWhereInput | StudentFeeScalarWhereInput[]
+    id?: IntFilter<"StudentFee"> | number
+    registration_id?: IntFilter<"StudentFee"> | number
+    fee_template_id?: IntNullableFilter<"StudentFee"> | number | null
+    single_fee_id?: IntNullableFilter<"StudentFee"> | number | null
+    custom_amount?: FloatFilter<"StudentFee"> | number
+    reason?: StringNullableFilter<"StudentFee"> | string | null
+    school_year?: StringNullableFilter<"StudentFee"> | string | null
+    supabase_id?: StringNullableFilter<"StudentFee"> | string | null
+    last_modified?: DateTimeFilter<"StudentFee"> | Date | string
+    needs_sync?: BoolFilter<"StudentFee"> | boolean
+    is_deleted?: BoolFilter<"StudentFee"> | boolean
   }
 
   export type ClassesUpsertWithoutRegistrationsInput = {
@@ -45960,6 +47955,7 @@ export namespace Prisma {
     last_modified?: Date | string
     needs_sync?: boolean
     is_deleted?: boolean
+    student_fees?: StudentFeeCreateNestedManyWithoutRegistrationInput
     class: ClassesCreateNestedOneWithoutRegistrationsInput
     student: StudentsCreateNestedOneWithoutRegistrationsInput
   }
@@ -45975,6 +47971,7 @@ export namespace Prisma {
     last_modified?: Date | string
     needs_sync?: boolean
     is_deleted?: boolean
+    student_fees?: StudentFeeUncheckedCreateNestedManyWithoutRegistrationInput
   }
 
   export type RegistrationsCreateOrConnectWithoutPaymentsInput = {
@@ -45994,6 +47991,7 @@ export namespace Prisma {
     needs_sync?: boolean
     is_deleted?: boolean
     class?: ClassesCreateNestedOneWithoutSingle_feesInput
+    student_fees?: StudentFeeCreateNestedManyWithoutSingle_feeInput
     dispatch_rules?: DispatchRuleCreateNestedManyWithoutSource_single_feeInput
   }
 
@@ -46010,6 +48008,7 @@ export namespace Prisma {
     last_modified?: Date | string
     needs_sync?: boolean
     is_deleted?: boolean
+    student_fees?: StudentFeeUncheckedCreateNestedManyWithoutSingle_feeInput
     dispatch_rules?: DispatchRuleUncheckedCreateNestedManyWithoutSource_single_feeInput
   }
 
@@ -46031,6 +48030,7 @@ export namespace Prisma {
     needs_sync?: boolean
     is_deleted?: boolean
     class?: ClassesCreateNestedOneWithoutFee_templatesInput
+    student_fees?: StudentFeeCreateNestedManyWithoutFee_templateInput
   }
 
   export type FeeTemplateUncheckedCreateWithoutPaymentsInput = {
@@ -46047,6 +48047,7 @@ export namespace Prisma {
     last_modified?: Date | string
     needs_sync?: boolean
     is_deleted?: boolean
+    student_fees?: StudentFeeUncheckedCreateNestedManyWithoutFee_templateInput
   }
 
   export type FeeTemplateCreateOrConnectWithoutPaymentsInput = {
@@ -46073,6 +48074,7 @@ export namespace Prisma {
     last_modified?: DateTimeFieldUpdateOperationsInput | Date | string
     needs_sync?: BoolFieldUpdateOperationsInput | boolean
     is_deleted?: BoolFieldUpdateOperationsInput | boolean
+    student_fees?: StudentFeeUpdateManyWithoutRegistrationNestedInput
     class?: ClassesUpdateOneRequiredWithoutRegistrationsNestedInput
     student?: StudentsUpdateOneRequiredWithoutRegistrationsNestedInput
   }
@@ -46088,6 +48090,7 @@ export namespace Prisma {
     last_modified?: DateTimeFieldUpdateOperationsInput | Date | string
     needs_sync?: BoolFieldUpdateOperationsInput | boolean
     is_deleted?: BoolFieldUpdateOperationsInput | boolean
+    student_fees?: StudentFeeUncheckedUpdateManyWithoutRegistrationNestedInput
   }
 
   export type SingleFeeUpsertWithoutPaymentsInput = {
@@ -46113,6 +48116,7 @@ export namespace Prisma {
     needs_sync?: BoolFieldUpdateOperationsInput | boolean
     is_deleted?: BoolFieldUpdateOperationsInput | boolean
     class?: ClassesUpdateOneWithoutSingle_feesNestedInput
+    student_fees?: StudentFeeUpdateManyWithoutSingle_feeNestedInput
     dispatch_rules?: DispatchRuleUpdateManyWithoutSource_single_feeNestedInput
   }
 
@@ -46129,6 +48133,7 @@ export namespace Prisma {
     last_modified?: DateTimeFieldUpdateOperationsInput | Date | string
     needs_sync?: BoolFieldUpdateOperationsInput | boolean
     is_deleted?: BoolFieldUpdateOperationsInput | boolean
+    student_fees?: StudentFeeUncheckedUpdateManyWithoutSingle_feeNestedInput
     dispatch_rules?: DispatchRuleUncheckedUpdateManyWithoutSource_single_feeNestedInput
   }
 
@@ -46156,6 +48161,7 @@ export namespace Prisma {
     needs_sync?: BoolFieldUpdateOperationsInput | boolean
     is_deleted?: BoolFieldUpdateOperationsInput | boolean
     class?: ClassesUpdateOneWithoutFee_templatesNestedInput
+    student_fees?: StudentFeeUpdateManyWithoutFee_templateNestedInput
   }
 
   export type FeeTemplateUncheckedUpdateWithoutPaymentsInput = {
@@ -46172,6 +48178,241 @@ export namespace Prisma {
     last_modified?: DateTimeFieldUpdateOperationsInput | Date | string
     needs_sync?: BoolFieldUpdateOperationsInput | boolean
     is_deleted?: BoolFieldUpdateOperationsInput | boolean
+    student_fees?: StudentFeeUncheckedUpdateManyWithoutFee_templateNestedInput
+  }
+
+  export type RegistrationsCreateWithoutStudent_feesInput = {
+    school_year?: string | null
+    state?: string | null
+    registration_date?: string | null
+    supabase_id?: string | null
+    last_modified?: Date | string
+    needs_sync?: boolean
+    is_deleted?: boolean
+    payments?: PaymentsCreateNestedManyWithoutRegistrationInput
+    class: ClassesCreateNestedOneWithoutRegistrationsInput
+    student: StudentsCreateNestedOneWithoutRegistrationsInput
+  }
+
+  export type RegistrationsUncheckedCreateWithoutStudent_feesInput = {
+    id?: number
+    student_id: number
+    class_id: number
+    school_year?: string | null
+    state?: string | null
+    registration_date?: string | null
+    supabase_id?: string | null
+    last_modified?: Date | string
+    needs_sync?: boolean
+    is_deleted?: boolean
+    payments?: PaymentsUncheckedCreateNestedManyWithoutRegistrationInput
+  }
+
+  export type RegistrationsCreateOrConnectWithoutStudent_feesInput = {
+    where: RegistrationsWhereUniqueInput
+    create: XOR<RegistrationsCreateWithoutStudent_feesInput, RegistrationsUncheckedCreateWithoutStudent_feesInput>
+  }
+
+  export type FeeTemplateCreateWithoutStudent_feesInput = {
+    name: string
+    amount: number
+    frequency: string
+    due_day?: number | null
+    applicable_months?: NullableJsonNullValueInput | InputJsonValue
+    school_id: string
+    applies_to_level?: string | null
+    supabase_id?: string | null
+    last_modified?: Date | string
+    needs_sync?: boolean
+    is_deleted?: boolean
+    class?: ClassesCreateNestedOneWithoutFee_templatesInput
+    payments?: PaymentsCreateNestedManyWithoutFee_templateInput
+  }
+
+  export type FeeTemplateUncheckedCreateWithoutStudent_feesInput = {
+    id?: number
+    name: string
+    amount: number
+    frequency: string
+    due_day?: number | null
+    applicable_months?: NullableJsonNullValueInput | InputJsonValue
+    school_id: string
+    applies_to_level?: string | null
+    applies_to_class_id?: number | null
+    supabase_id?: string | null
+    last_modified?: Date | string
+    needs_sync?: boolean
+    is_deleted?: boolean
+    payments?: PaymentsUncheckedCreateNestedManyWithoutFee_templateInput
+  }
+
+  export type FeeTemplateCreateOrConnectWithoutStudent_feesInput = {
+    where: FeeTemplateWhereUniqueInput
+    create: XOR<FeeTemplateCreateWithoutStudent_feesInput, FeeTemplateUncheckedCreateWithoutStudent_feesInput>
+  }
+
+  export type SingleFeeCreateWithoutStudent_feesInput = {
+    name?: string | null
+    amount?: number | null
+    due_date?: string | null
+    school_year?: string | null
+    level?: string | null
+    school_id?: string | null
+    supabase_id?: string | null
+    last_modified?: Date | string
+    needs_sync?: boolean
+    is_deleted?: boolean
+    class?: ClassesCreateNestedOneWithoutSingle_feesInput
+    payments?: PaymentsCreateNestedManyWithoutSingle_feeInput
+    dispatch_rules?: DispatchRuleCreateNestedManyWithoutSource_single_feeInput
+  }
+
+  export type SingleFeeUncheckedCreateWithoutStudent_feesInput = {
+    id?: number
+    name?: string | null
+    amount?: number | null
+    due_date?: string | null
+    school_year?: string | null
+    level?: string | null
+    class_id?: number | null
+    school_id?: string | null
+    supabase_id?: string | null
+    last_modified?: Date | string
+    needs_sync?: boolean
+    is_deleted?: boolean
+    payments?: PaymentsUncheckedCreateNestedManyWithoutSingle_feeInput
+    dispatch_rules?: DispatchRuleUncheckedCreateNestedManyWithoutSource_single_feeInput
+  }
+
+  export type SingleFeeCreateOrConnectWithoutStudent_feesInput = {
+    where: SingleFeeWhereUniqueInput
+    create: XOR<SingleFeeCreateWithoutStudent_feesInput, SingleFeeUncheckedCreateWithoutStudent_feesInput>
+  }
+
+  export type RegistrationsUpsertWithoutStudent_feesInput = {
+    update: XOR<RegistrationsUpdateWithoutStudent_feesInput, RegistrationsUncheckedUpdateWithoutStudent_feesInput>
+    create: XOR<RegistrationsCreateWithoutStudent_feesInput, RegistrationsUncheckedCreateWithoutStudent_feesInput>
+    where?: RegistrationsWhereInput
+  }
+
+  export type RegistrationsUpdateToOneWithWhereWithoutStudent_feesInput = {
+    where?: RegistrationsWhereInput
+    data: XOR<RegistrationsUpdateWithoutStudent_feesInput, RegistrationsUncheckedUpdateWithoutStudent_feesInput>
+  }
+
+  export type RegistrationsUpdateWithoutStudent_feesInput = {
+    school_year?: NullableStringFieldUpdateOperationsInput | string | null
+    state?: NullableStringFieldUpdateOperationsInput | string | null
+    registration_date?: NullableStringFieldUpdateOperationsInput | string | null
+    supabase_id?: NullableStringFieldUpdateOperationsInput | string | null
+    last_modified?: DateTimeFieldUpdateOperationsInput | Date | string
+    needs_sync?: BoolFieldUpdateOperationsInput | boolean
+    is_deleted?: BoolFieldUpdateOperationsInput | boolean
+    payments?: PaymentsUpdateManyWithoutRegistrationNestedInput
+    class?: ClassesUpdateOneRequiredWithoutRegistrationsNestedInput
+    student?: StudentsUpdateOneRequiredWithoutRegistrationsNestedInput
+  }
+
+  export type RegistrationsUncheckedUpdateWithoutStudent_feesInput = {
+    id?: IntFieldUpdateOperationsInput | number
+    student_id?: IntFieldUpdateOperationsInput | number
+    class_id?: IntFieldUpdateOperationsInput | number
+    school_year?: NullableStringFieldUpdateOperationsInput | string | null
+    state?: NullableStringFieldUpdateOperationsInput | string | null
+    registration_date?: NullableStringFieldUpdateOperationsInput | string | null
+    supabase_id?: NullableStringFieldUpdateOperationsInput | string | null
+    last_modified?: DateTimeFieldUpdateOperationsInput | Date | string
+    needs_sync?: BoolFieldUpdateOperationsInput | boolean
+    is_deleted?: BoolFieldUpdateOperationsInput | boolean
+    payments?: PaymentsUncheckedUpdateManyWithoutRegistrationNestedInput
+  }
+
+  export type FeeTemplateUpsertWithoutStudent_feesInput = {
+    update: XOR<FeeTemplateUpdateWithoutStudent_feesInput, FeeTemplateUncheckedUpdateWithoutStudent_feesInput>
+    create: XOR<FeeTemplateCreateWithoutStudent_feesInput, FeeTemplateUncheckedCreateWithoutStudent_feesInput>
+    where?: FeeTemplateWhereInput
+  }
+
+  export type FeeTemplateUpdateToOneWithWhereWithoutStudent_feesInput = {
+    where?: FeeTemplateWhereInput
+    data: XOR<FeeTemplateUpdateWithoutStudent_feesInput, FeeTemplateUncheckedUpdateWithoutStudent_feesInput>
+  }
+
+  export type FeeTemplateUpdateWithoutStudent_feesInput = {
+    name?: StringFieldUpdateOperationsInput | string
+    amount?: FloatFieldUpdateOperationsInput | number
+    frequency?: StringFieldUpdateOperationsInput | string
+    due_day?: NullableIntFieldUpdateOperationsInput | number | null
+    applicable_months?: NullableJsonNullValueInput | InputJsonValue
+    school_id?: StringFieldUpdateOperationsInput | string
+    applies_to_level?: NullableStringFieldUpdateOperationsInput | string | null
+    supabase_id?: NullableStringFieldUpdateOperationsInput | string | null
+    last_modified?: DateTimeFieldUpdateOperationsInput | Date | string
+    needs_sync?: BoolFieldUpdateOperationsInput | boolean
+    is_deleted?: BoolFieldUpdateOperationsInput | boolean
+    class?: ClassesUpdateOneWithoutFee_templatesNestedInput
+    payments?: PaymentsUpdateManyWithoutFee_templateNestedInput
+  }
+
+  export type FeeTemplateUncheckedUpdateWithoutStudent_feesInput = {
+    id?: IntFieldUpdateOperationsInput | number
+    name?: StringFieldUpdateOperationsInput | string
+    amount?: FloatFieldUpdateOperationsInput | number
+    frequency?: StringFieldUpdateOperationsInput | string
+    due_day?: NullableIntFieldUpdateOperationsInput | number | null
+    applicable_months?: NullableJsonNullValueInput | InputJsonValue
+    school_id?: StringFieldUpdateOperationsInput | string
+    applies_to_level?: NullableStringFieldUpdateOperationsInput | string | null
+    applies_to_class_id?: NullableIntFieldUpdateOperationsInput | number | null
+    supabase_id?: NullableStringFieldUpdateOperationsInput | string | null
+    last_modified?: DateTimeFieldUpdateOperationsInput | Date | string
+    needs_sync?: BoolFieldUpdateOperationsInput | boolean
+    is_deleted?: BoolFieldUpdateOperationsInput | boolean
+    payments?: PaymentsUncheckedUpdateManyWithoutFee_templateNestedInput
+  }
+
+  export type SingleFeeUpsertWithoutStudent_feesInput = {
+    update: XOR<SingleFeeUpdateWithoutStudent_feesInput, SingleFeeUncheckedUpdateWithoutStudent_feesInput>
+    create: XOR<SingleFeeCreateWithoutStudent_feesInput, SingleFeeUncheckedCreateWithoutStudent_feesInput>
+    where?: SingleFeeWhereInput
+  }
+
+  export type SingleFeeUpdateToOneWithWhereWithoutStudent_feesInput = {
+    where?: SingleFeeWhereInput
+    data: XOR<SingleFeeUpdateWithoutStudent_feesInput, SingleFeeUncheckedUpdateWithoutStudent_feesInput>
+  }
+
+  export type SingleFeeUpdateWithoutStudent_feesInput = {
+    name?: NullableStringFieldUpdateOperationsInput | string | null
+    amount?: NullableFloatFieldUpdateOperationsInput | number | null
+    due_date?: NullableStringFieldUpdateOperationsInput | string | null
+    school_year?: NullableStringFieldUpdateOperationsInput | string | null
+    level?: NullableStringFieldUpdateOperationsInput | string | null
+    school_id?: NullableStringFieldUpdateOperationsInput | string | null
+    supabase_id?: NullableStringFieldUpdateOperationsInput | string | null
+    last_modified?: DateTimeFieldUpdateOperationsInput | Date | string
+    needs_sync?: BoolFieldUpdateOperationsInput | boolean
+    is_deleted?: BoolFieldUpdateOperationsInput | boolean
+    class?: ClassesUpdateOneWithoutSingle_feesNestedInput
+    payments?: PaymentsUpdateManyWithoutSingle_feeNestedInput
+    dispatch_rules?: DispatchRuleUpdateManyWithoutSource_single_feeNestedInput
+  }
+
+  export type SingleFeeUncheckedUpdateWithoutStudent_feesInput = {
+    id?: IntFieldUpdateOperationsInput | number
+    name?: NullableStringFieldUpdateOperationsInput | string | null
+    amount?: NullableFloatFieldUpdateOperationsInput | number | null
+    due_date?: NullableStringFieldUpdateOperationsInput | string | null
+    school_year?: NullableStringFieldUpdateOperationsInput | string | null
+    level?: NullableStringFieldUpdateOperationsInput | string | null
+    class_id?: NullableIntFieldUpdateOperationsInput | number | null
+    school_id?: NullableStringFieldUpdateOperationsInput | string | null
+    supabase_id?: NullableStringFieldUpdateOperationsInput | string | null
+    last_modified?: DateTimeFieldUpdateOperationsInput | Date | string
+    needs_sync?: BoolFieldUpdateOperationsInput | boolean
+    is_deleted?: BoolFieldUpdateOperationsInput | boolean
+    payments?: PaymentsUncheckedUpdateManyWithoutSingle_feeNestedInput
+    dispatch_rules?: DispatchRuleUncheckedUpdateManyWithoutSource_single_feeNestedInput
   }
 
   export type ClassesCreateWithoutSingle_feesInput = {
@@ -46246,6 +48487,40 @@ export namespace Prisma {
 
   export type PaymentsCreateManySingle_feeInputEnvelope = {
     data: PaymentsCreateManySingle_feeInput | PaymentsCreateManySingle_feeInput[]
+  }
+
+  export type StudentFeeCreateWithoutSingle_feeInput = {
+    custom_amount: number
+    reason?: string | null
+    school_year?: string | null
+    supabase_id?: string | null
+    last_modified?: Date | string
+    needs_sync?: boolean
+    is_deleted?: boolean
+    registration: RegistrationsCreateNestedOneWithoutStudent_feesInput
+    fee_template?: FeeTemplateCreateNestedOneWithoutStudent_feesInput
+  }
+
+  export type StudentFeeUncheckedCreateWithoutSingle_feeInput = {
+    id?: number
+    registration_id: number
+    fee_template_id?: number | null
+    custom_amount: number
+    reason?: string | null
+    school_year?: string | null
+    supabase_id?: string | null
+    last_modified?: Date | string
+    needs_sync?: boolean
+    is_deleted?: boolean
+  }
+
+  export type StudentFeeCreateOrConnectWithoutSingle_feeInput = {
+    where: StudentFeeWhereUniqueInput
+    create: XOR<StudentFeeCreateWithoutSingle_feeInput, StudentFeeUncheckedCreateWithoutSingle_feeInput>
+  }
+
+  export type StudentFeeCreateManySingle_feeInputEnvelope = {
+    data: StudentFeeCreateManySingle_feeInput | StudentFeeCreateManySingle_feeInput[]
   }
 
   export type DispatchRuleCreateWithoutSource_single_feeInput = {
@@ -46332,6 +48607,22 @@ export namespace Prisma {
   export type PaymentsUpdateManyWithWhereWithoutSingle_feeInput = {
     where: PaymentsScalarWhereInput
     data: XOR<PaymentsUpdateManyMutationInput, PaymentsUncheckedUpdateManyWithoutSingle_feeInput>
+  }
+
+  export type StudentFeeUpsertWithWhereUniqueWithoutSingle_feeInput = {
+    where: StudentFeeWhereUniqueInput
+    update: XOR<StudentFeeUpdateWithoutSingle_feeInput, StudentFeeUncheckedUpdateWithoutSingle_feeInput>
+    create: XOR<StudentFeeCreateWithoutSingle_feeInput, StudentFeeUncheckedCreateWithoutSingle_feeInput>
+  }
+
+  export type StudentFeeUpdateWithWhereUniqueWithoutSingle_feeInput = {
+    where: StudentFeeWhereUniqueInput
+    data: XOR<StudentFeeUpdateWithoutSingle_feeInput, StudentFeeUncheckedUpdateWithoutSingle_feeInput>
+  }
+
+  export type StudentFeeUpdateManyWithWhereWithoutSingle_feeInput = {
+    where: StudentFeeScalarWhereInput
+    data: XOR<StudentFeeUpdateManyMutationInput, StudentFeeUncheckedUpdateManyWithoutSingle_feeInput>
   }
 
   export type DispatchRuleUpsertWithWhereUniqueWithoutSource_single_feeInput = {
@@ -46438,6 +48729,40 @@ export namespace Prisma {
     data: PaymentsCreateManyFee_templateInput | PaymentsCreateManyFee_templateInput[]
   }
 
+  export type StudentFeeCreateWithoutFee_templateInput = {
+    custom_amount: number
+    reason?: string | null
+    school_year?: string | null
+    supabase_id?: string | null
+    last_modified?: Date | string
+    needs_sync?: boolean
+    is_deleted?: boolean
+    registration: RegistrationsCreateNestedOneWithoutStudent_feesInput
+    single_fee?: SingleFeeCreateNestedOneWithoutStudent_feesInput
+  }
+
+  export type StudentFeeUncheckedCreateWithoutFee_templateInput = {
+    id?: number
+    registration_id: number
+    single_fee_id?: number | null
+    custom_amount: number
+    reason?: string | null
+    school_year?: string | null
+    supabase_id?: string | null
+    last_modified?: Date | string
+    needs_sync?: boolean
+    is_deleted?: boolean
+  }
+
+  export type StudentFeeCreateOrConnectWithoutFee_templateInput = {
+    where: StudentFeeWhereUniqueInput
+    create: XOR<StudentFeeCreateWithoutFee_templateInput, StudentFeeUncheckedCreateWithoutFee_templateInput>
+  }
+
+  export type StudentFeeCreateManyFee_templateInputEnvelope = {
+    data: StudentFeeCreateManyFee_templateInput | StudentFeeCreateManyFee_templateInput[]
+  }
+
   export type ClassesUpsertWithoutFee_templatesInput = {
     update: XOR<ClassesUpdateWithoutFee_templatesInput, ClassesUncheckedUpdateWithoutFee_templatesInput>
     create: XOR<ClassesCreateWithoutFee_templatesInput, ClassesUncheckedCreateWithoutFee_templatesInput>
@@ -46492,6 +48817,22 @@ export namespace Prisma {
   export type PaymentsUpdateManyWithWhereWithoutFee_templateInput = {
     where: PaymentsScalarWhereInput
     data: XOR<PaymentsUpdateManyMutationInput, PaymentsUncheckedUpdateManyWithoutFee_templateInput>
+  }
+
+  export type StudentFeeUpsertWithWhereUniqueWithoutFee_templateInput = {
+    where: StudentFeeWhereUniqueInput
+    update: XOR<StudentFeeUpdateWithoutFee_templateInput, StudentFeeUncheckedUpdateWithoutFee_templateInput>
+    create: XOR<StudentFeeCreateWithoutFee_templateInput, StudentFeeUncheckedCreateWithoutFee_templateInput>
+  }
+
+  export type StudentFeeUpdateWithWhereUniqueWithoutFee_templateInput = {
+    where: StudentFeeWhereUniqueInput
+    data: XOR<StudentFeeUpdateWithoutFee_templateInput, StudentFeeUncheckedUpdateWithoutFee_templateInput>
+  }
+
+  export type StudentFeeUpdateManyWithWhereWithoutFee_templateInput = {
+    where: StudentFeeScalarWhereInput
+    data: XOR<StudentFeeUpdateManyMutationInput, StudentFeeUncheckedUpdateManyWithoutFee_templateInput>
   }
 
   export type StudentsCreateWithoutAttendancesInput = {
@@ -47057,6 +49398,7 @@ export namespace Prisma {
     is_deleted?: boolean
     class?: ClassesCreateNestedOneWithoutSingle_feesInput
     payments?: PaymentsCreateNestedManyWithoutSingle_feeInput
+    student_fees?: StudentFeeCreateNestedManyWithoutSingle_feeInput
   }
 
   export type SingleFeeUncheckedCreateWithoutDispatch_rulesInput = {
@@ -47073,6 +49415,7 @@ export namespace Prisma {
     needs_sync?: boolean
     is_deleted?: boolean
     payments?: PaymentsUncheckedCreateNestedManyWithoutSingle_feeInput
+    student_fees?: StudentFeeUncheckedCreateNestedManyWithoutSingle_feeInput
   }
 
   export type SingleFeeCreateOrConnectWithoutDispatch_rulesInput = {
@@ -47132,6 +49475,7 @@ export namespace Prisma {
     is_deleted?: BoolFieldUpdateOperationsInput | boolean
     class?: ClassesUpdateOneWithoutSingle_feesNestedInput
     payments?: PaymentsUpdateManyWithoutSingle_feeNestedInput
+    student_fees?: StudentFeeUpdateManyWithoutSingle_feeNestedInput
   }
 
   export type SingleFeeUncheckedUpdateWithoutDispatch_rulesInput = {
@@ -47148,6 +49492,7 @@ export namespace Prisma {
     needs_sync?: BoolFieldUpdateOperationsInput | boolean
     is_deleted?: BoolFieldUpdateOperationsInput | boolean
     payments?: PaymentsUncheckedUpdateManyWithoutSingle_feeNestedInput
+    student_fees?: StudentFeeUncheckedUpdateManyWithoutSingle_feeNestedInput
   }
 
   export type DispatchRuleDetailUpsertWithWhereUniqueWithoutDispatch_ruleInput = {
@@ -47594,6 +49939,7 @@ export namespace Prisma {
     needs_sync?: BoolFieldUpdateOperationsInput | boolean
     is_deleted?: BoolFieldUpdateOperationsInput | boolean
     payments?: PaymentsUpdateManyWithoutRegistrationNestedInput
+    student_fees?: StudentFeeUpdateManyWithoutRegistrationNestedInput
     student?: StudentsUpdateOneRequiredWithoutRegistrationsNestedInput
   }
 
@@ -47608,6 +49954,7 @@ export namespace Prisma {
     needs_sync?: BoolFieldUpdateOperationsInput | boolean
     is_deleted?: BoolFieldUpdateOperationsInput | boolean
     payments?: PaymentsUncheckedUpdateManyWithoutRegistrationNestedInput
+    student_fees?: StudentFeeUncheckedUpdateManyWithoutRegistrationNestedInput
   }
 
   export type RegistrationsUncheckedUpdateManyWithoutClassInput = {
@@ -47670,6 +50017,7 @@ export namespace Prisma {
     needs_sync?: BoolFieldUpdateOperationsInput | boolean
     is_deleted?: BoolFieldUpdateOperationsInput | boolean
     payments?: PaymentsUpdateManyWithoutSingle_feeNestedInput
+    student_fees?: StudentFeeUpdateManyWithoutSingle_feeNestedInput
     dispatch_rules?: DispatchRuleUpdateManyWithoutSource_single_feeNestedInput
   }
 
@@ -47686,6 +50034,7 @@ export namespace Prisma {
     needs_sync?: BoolFieldUpdateOperationsInput | boolean
     is_deleted?: BoolFieldUpdateOperationsInput | boolean
     payments?: PaymentsUncheckedUpdateManyWithoutSingle_feeNestedInput
+    student_fees?: StudentFeeUncheckedUpdateManyWithoutSingle_feeNestedInput
     dispatch_rules?: DispatchRuleUncheckedUpdateManyWithoutSource_single_feeNestedInput
   }
 
@@ -47716,6 +50065,7 @@ export namespace Prisma {
     needs_sync?: BoolFieldUpdateOperationsInput | boolean
     is_deleted?: BoolFieldUpdateOperationsInput | boolean
     payments?: PaymentsUpdateManyWithoutFee_templateNestedInput
+    student_fees?: StudentFeeUpdateManyWithoutFee_templateNestedInput
   }
 
   export type FeeTemplateUncheckedUpdateWithoutClassInput = {
@@ -47732,6 +50082,7 @@ export namespace Prisma {
     needs_sync?: BoolFieldUpdateOperationsInput | boolean
     is_deleted?: BoolFieldUpdateOperationsInput | boolean
     payments?: PaymentsUncheckedUpdateManyWithoutFee_templateNestedInput
+    student_fees?: StudentFeeUncheckedUpdateManyWithoutFee_templateNestedInput
   }
 
   export type FeeTemplateUncheckedUpdateManyWithoutClassInput = {
@@ -47870,6 +50221,7 @@ export namespace Prisma {
     needs_sync?: BoolFieldUpdateOperationsInput | boolean
     is_deleted?: BoolFieldUpdateOperationsInput | boolean
     payments?: PaymentsUpdateManyWithoutRegistrationNestedInput
+    student_fees?: StudentFeeUpdateManyWithoutRegistrationNestedInput
     class?: ClassesUpdateOneRequiredWithoutRegistrationsNestedInput
   }
 
@@ -47884,6 +50236,7 @@ export namespace Prisma {
     needs_sync?: BoolFieldUpdateOperationsInput | boolean
     is_deleted?: BoolFieldUpdateOperationsInput | boolean
     payments?: PaymentsUncheckedUpdateManyWithoutRegistrationNestedInput
+    student_fees?: StudentFeeUncheckedUpdateManyWithoutRegistrationNestedInput
   }
 
   export type RegistrationsUncheckedUpdateManyWithoutStudentInput = {
@@ -47943,6 +50296,19 @@ export namespace Prisma {
     period_identifier?: string | null
   }
 
+  export type StudentFeeCreateManyRegistrationInput = {
+    id?: number
+    fee_template_id?: number | null
+    single_fee_id?: number | null
+    custom_amount: number
+    reason?: string | null
+    school_year?: string | null
+    supabase_id?: string | null
+    last_modified?: Date | string
+    needs_sync?: boolean
+    is_deleted?: boolean
+  }
+
   export type PaymentsUpdateWithoutRegistrationInput = {
     amount?: NullableFloatFieldUpdateOperationsInput | number | null
     method?: NullableStringFieldUpdateOperationsInput | string | null
@@ -47988,6 +50354,44 @@ export namespace Prisma {
     single_fee_id?: NullableIntFieldUpdateOperationsInput | number | null
     fee_template_id?: NullableIntFieldUpdateOperationsInput | number | null
     period_identifier?: NullableStringFieldUpdateOperationsInput | string | null
+  }
+
+  export type StudentFeeUpdateWithoutRegistrationInput = {
+    custom_amount?: FloatFieldUpdateOperationsInput | number
+    reason?: NullableStringFieldUpdateOperationsInput | string | null
+    school_year?: NullableStringFieldUpdateOperationsInput | string | null
+    supabase_id?: NullableStringFieldUpdateOperationsInput | string | null
+    last_modified?: DateTimeFieldUpdateOperationsInput | Date | string
+    needs_sync?: BoolFieldUpdateOperationsInput | boolean
+    is_deleted?: BoolFieldUpdateOperationsInput | boolean
+    fee_template?: FeeTemplateUpdateOneWithoutStudent_feesNestedInput
+    single_fee?: SingleFeeUpdateOneWithoutStudent_feesNestedInput
+  }
+
+  export type StudentFeeUncheckedUpdateWithoutRegistrationInput = {
+    id?: IntFieldUpdateOperationsInput | number
+    fee_template_id?: NullableIntFieldUpdateOperationsInput | number | null
+    single_fee_id?: NullableIntFieldUpdateOperationsInput | number | null
+    custom_amount?: FloatFieldUpdateOperationsInput | number
+    reason?: NullableStringFieldUpdateOperationsInput | string | null
+    school_year?: NullableStringFieldUpdateOperationsInput | string | null
+    supabase_id?: NullableStringFieldUpdateOperationsInput | string | null
+    last_modified?: DateTimeFieldUpdateOperationsInput | Date | string
+    needs_sync?: BoolFieldUpdateOperationsInput | boolean
+    is_deleted?: BoolFieldUpdateOperationsInput | boolean
+  }
+
+  export type StudentFeeUncheckedUpdateManyWithoutRegistrationInput = {
+    id?: IntFieldUpdateOperationsInput | number
+    fee_template_id?: NullableIntFieldUpdateOperationsInput | number | null
+    single_fee_id?: NullableIntFieldUpdateOperationsInput | number | null
+    custom_amount?: FloatFieldUpdateOperationsInput | number
+    reason?: NullableStringFieldUpdateOperationsInput | string | null
+    school_year?: NullableStringFieldUpdateOperationsInput | string | null
+    supabase_id?: NullableStringFieldUpdateOperationsInput | string | null
+    last_modified?: DateTimeFieldUpdateOperationsInput | Date | string
+    needs_sync?: BoolFieldUpdateOperationsInput | boolean
+    is_deleted?: BoolFieldUpdateOperationsInput | boolean
   }
 
   export type LessonsCreateManyTeacherInput = {
@@ -48390,6 +50794,19 @@ export namespace Prisma {
     period_identifier?: string | null
   }
 
+  export type StudentFeeCreateManySingle_feeInput = {
+    id?: number
+    registration_id: number
+    fee_template_id?: number | null
+    custom_amount: number
+    reason?: string | null
+    school_year?: string | null
+    supabase_id?: string | null
+    last_modified?: Date | string
+    needs_sync?: boolean
+    is_deleted?: boolean
+  }
+
   export type DispatchRuleCreateManySource_single_feeInput = {
     id?: number
     name: string
@@ -48447,6 +50864,44 @@ export namespace Prisma {
     period_identifier?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
+  export type StudentFeeUpdateWithoutSingle_feeInput = {
+    custom_amount?: FloatFieldUpdateOperationsInput | number
+    reason?: NullableStringFieldUpdateOperationsInput | string | null
+    school_year?: NullableStringFieldUpdateOperationsInput | string | null
+    supabase_id?: NullableStringFieldUpdateOperationsInput | string | null
+    last_modified?: DateTimeFieldUpdateOperationsInput | Date | string
+    needs_sync?: BoolFieldUpdateOperationsInput | boolean
+    is_deleted?: BoolFieldUpdateOperationsInput | boolean
+    registration?: RegistrationsUpdateOneRequiredWithoutStudent_feesNestedInput
+    fee_template?: FeeTemplateUpdateOneWithoutStudent_feesNestedInput
+  }
+
+  export type StudentFeeUncheckedUpdateWithoutSingle_feeInput = {
+    id?: IntFieldUpdateOperationsInput | number
+    registration_id?: IntFieldUpdateOperationsInput | number
+    fee_template_id?: NullableIntFieldUpdateOperationsInput | number | null
+    custom_amount?: FloatFieldUpdateOperationsInput | number
+    reason?: NullableStringFieldUpdateOperationsInput | string | null
+    school_year?: NullableStringFieldUpdateOperationsInput | string | null
+    supabase_id?: NullableStringFieldUpdateOperationsInput | string | null
+    last_modified?: DateTimeFieldUpdateOperationsInput | Date | string
+    needs_sync?: BoolFieldUpdateOperationsInput | boolean
+    is_deleted?: BoolFieldUpdateOperationsInput | boolean
+  }
+
+  export type StudentFeeUncheckedUpdateManyWithoutSingle_feeInput = {
+    id?: IntFieldUpdateOperationsInput | number
+    registration_id?: IntFieldUpdateOperationsInput | number
+    fee_template_id?: NullableIntFieldUpdateOperationsInput | number | null
+    custom_amount?: FloatFieldUpdateOperationsInput | number
+    reason?: NullableStringFieldUpdateOperationsInput | string | null
+    school_year?: NullableStringFieldUpdateOperationsInput | string | null
+    supabase_id?: NullableStringFieldUpdateOperationsInput | string | null
+    last_modified?: DateTimeFieldUpdateOperationsInput | Date | string
+    needs_sync?: BoolFieldUpdateOperationsInput | boolean
+    is_deleted?: BoolFieldUpdateOperationsInput | boolean
+  }
+
   export type DispatchRuleUpdateWithoutSource_single_feeInput = {
     name?: StringFieldUpdateOperationsInput | string
     school_id?: StringFieldUpdateOperationsInput | string
@@ -48494,6 +50949,19 @@ export namespace Prisma {
     period_identifier?: string | null
   }
 
+  export type StudentFeeCreateManyFee_templateInput = {
+    id?: number
+    registration_id: number
+    single_fee_id?: number | null
+    custom_amount: number
+    reason?: string | null
+    school_year?: string | null
+    supabase_id?: string | null
+    last_modified?: Date | string
+    needs_sync?: boolean
+    is_deleted?: boolean
+  }
+
   export type PaymentsUpdateWithoutFee_templateInput = {
     amount?: NullableFloatFieldUpdateOperationsInput | number | null
     method?: NullableStringFieldUpdateOperationsInput | string | null
@@ -48539,6 +51007,44 @@ export namespace Prisma {
     is_deleted?: BoolFieldUpdateOperationsInput | boolean
     single_fee_id?: NullableIntFieldUpdateOperationsInput | number | null
     period_identifier?: NullableStringFieldUpdateOperationsInput | string | null
+  }
+
+  export type StudentFeeUpdateWithoutFee_templateInput = {
+    custom_amount?: FloatFieldUpdateOperationsInput | number
+    reason?: NullableStringFieldUpdateOperationsInput | string | null
+    school_year?: NullableStringFieldUpdateOperationsInput | string | null
+    supabase_id?: NullableStringFieldUpdateOperationsInput | string | null
+    last_modified?: DateTimeFieldUpdateOperationsInput | Date | string
+    needs_sync?: BoolFieldUpdateOperationsInput | boolean
+    is_deleted?: BoolFieldUpdateOperationsInput | boolean
+    registration?: RegistrationsUpdateOneRequiredWithoutStudent_feesNestedInput
+    single_fee?: SingleFeeUpdateOneWithoutStudent_feesNestedInput
+  }
+
+  export type StudentFeeUncheckedUpdateWithoutFee_templateInput = {
+    id?: IntFieldUpdateOperationsInput | number
+    registration_id?: IntFieldUpdateOperationsInput | number
+    single_fee_id?: NullableIntFieldUpdateOperationsInput | number | null
+    custom_amount?: FloatFieldUpdateOperationsInput | number
+    reason?: NullableStringFieldUpdateOperationsInput | string | null
+    school_year?: NullableStringFieldUpdateOperationsInput | string | null
+    supabase_id?: NullableStringFieldUpdateOperationsInput | string | null
+    last_modified?: DateTimeFieldUpdateOperationsInput | Date | string
+    needs_sync?: BoolFieldUpdateOperationsInput | boolean
+    is_deleted?: BoolFieldUpdateOperationsInput | boolean
+  }
+
+  export type StudentFeeUncheckedUpdateManyWithoutFee_templateInput = {
+    id?: IntFieldUpdateOperationsInput | number
+    registration_id?: IntFieldUpdateOperationsInput | number
+    single_fee_id?: NullableIntFieldUpdateOperationsInput | number | null
+    custom_amount?: FloatFieldUpdateOperationsInput | number
+    reason?: NullableStringFieldUpdateOperationsInput | string | null
+    school_year?: NullableStringFieldUpdateOperationsInput | string | null
+    supabase_id?: NullableStringFieldUpdateOperationsInput | string | null
+    last_modified?: DateTimeFieldUpdateOperationsInput | Date | string
+    needs_sync?: BoolFieldUpdateOperationsInput | boolean
+    is_deleted?: BoolFieldUpdateOperationsInput | boolean
   }
 
   export type SalaryPaymentsCreateManyEmployeeInput = {

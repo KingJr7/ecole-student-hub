@@ -69,19 +69,20 @@ model Students {
 }
 
 model Registrations {
-  id                Int        @id @default(autoincrement())
+  id                Int          @id @default(autoincrement())
   student_id        Int
   class_id          Int
   school_year       String?
   state             String?
   registration_date String?
-  supabase_id       String?    @unique
-  last_modified     DateTime   @default(now())
-  needs_sync        Boolean    @default(false)
-  is_deleted        Boolean    @default(false)
+  supabase_id       String?      @unique
+  last_modified     DateTime     @default(now())
+  needs_sync        Boolean      @default(false)
+  is_deleted        Boolean      @default(false)
   payments          Payments[]
-  class             Classes    @relation(fields: [class_id], references: [id], onDelete: Cascade)
-  student           Students   @relation(fields: [student_id], references: [id], onDelete: Cascade)
+  student_fees      StudentFee[]
+  class             Classes      @relation(fields: [class_id], references: [id], onDelete: Cascade)
+  student           Students     @relation(fields: [student_id], references: [id], onDelete: Cascade)
 
   @@index([student_id, class_id])
   @@map("registrations")
@@ -251,6 +252,30 @@ model Payments {
   @@map("payments")
 }
 
+model StudentFee {
+  id              Int  @id @default(autoincrement())
+  registration_id Int
+  fee_template_id Int?
+  single_fee_id   Int?
+
+  custom_amount Float
+  reason        String?
+
+  school_year   String?
+  supabase_id   String?  @unique
+  last_modified DateTime @default(now())
+  needs_sync    Boolean  @default(false)
+  is_deleted    Boolean  @default(false)
+
+  registration Registrations @relation(fields: [registration_id], references: [id], onDelete: Cascade)
+  fee_template FeeTemplate?  @relation(fields: [fee_template_id], references: [id])
+  single_fee   SingleFee?    @relation(fields: [single_fee_id], references: [id])
+
+  @@unique([registration_id, fee_template_id])
+  @@unique([registration_id, single_fee_id])
+  @@map("student_fees")
+}
+
 model SingleFee {
   id             Int            @id @default(autoincrement())
   name           String?
@@ -266,13 +291,14 @@ model SingleFee {
   is_deleted     Boolean        @default(false)
   class          Classes?       @relation(fields: [class_id], references: [id])
   payments       Payments[]
+  student_fees   StudentFee[]
   dispatch_rules DispatchRule[]
 
   @@map("single_fees")
 }
 
 model FeeTemplate {
-  id                  Int        @id @default(autoincrement())
+  id                  Int          @id @default(autoincrement())
   name                String
   amount              Float
   frequency           String // monthly, weekly, unique
@@ -281,8 +307,9 @@ model FeeTemplate {
   school_id           String
   applies_to_level    String?
   applies_to_class_id Int?
-  class               Classes?   @relation(fields: [applies_to_class_id], references: [id])
+  class               Classes?     @relation(fields: [applies_to_class_id], references: [id])
   payments            Payments[]
+  student_fees        StudentFee[]
 
   supabase_id   String?  @unique
   last_modified DateTime @default(now())

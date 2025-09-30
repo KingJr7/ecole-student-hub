@@ -13,6 +13,7 @@ function setupFeeTemplatesIPC(prisma) {
   });
 
   ipcMain.handle('db:fee-templates:create', async (event, data) => {
+    console.log('[DEBUG fee-templates.cjs | create] Données reçues:', data);
     const schoolId = await getUserSchoolId(prisma, event);
     const { name, amount, frequency, due_day, applicable_months, applies_to_level, applies_to_class_id } = data;
     

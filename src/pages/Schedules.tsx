@@ -9,6 +9,9 @@ import { useToast } from "@/components/ui/use-toast";
 import { useAuth } from "@/context/AuthContext";
 import { getAccessLevel, PERMISSIONS } from "@/lib/permissions";
 import { Schedule } from '@/components/Schedule'; // Importer le composant réutilisable
+import { jsPDF } from "jspdf";
+import autoTable from "jspdf-autotable";
+import { Download } from "lucide-react";
 
 const SchedulesPage = () => {
   const { user } = useAuth();
@@ -26,16 +29,66 @@ const SchedulesPage = () => {
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
   const [newScheduleSlot, setNewScheduleSlot] = useState(null);
   const [selectedLessonId, setSelectedLessonId] = useState('');
+  const [settings, setSettings] = useState(null);
+  const [schoolLogo, setSchoolLogo] = useState<string | null>(null);
+  const db = useDatabase();
+
+  const downloadSchedulePDF = () => {
+    const doc = new jsPDF({ orientation: 'landscape' });
+
+    // --- Logique des horaires dynamiques ---
+    const allScheduleItems = Object.values(schedules).flat();
+    const uniqueTimes = [...new Set(allScheduleItems.map(item => item.start_time.substring(0, 5)))];
+    uniqueTimes.sort();
+
+    const days = ["Lundi", "Mardi", "Mercredi", "Jeudi", "Vendredi", "Samedi"];
+    const head = [['Heure', ...days]];
+    const body = uniqueTimes.map(hour => {
+      const row = [hour];
+      days.forEach(day => {
+        const key = `${day}-${hour}`;
+        const scheduleItems = schedules[key];
+        const cellText = scheduleItems
+          ? scheduleItems.map(item => `${item.lesson.subject.name}\n(${item.lesson.teacher.first_name[0]}. ${item.lesson.teacher.name})`).join('\n---\n')
+          : '';
+        row.push(cellText);
+      });
+      return row;
+    });
+
+    // --- Génération du tableau (Ancien Design) ---
+    autoTable(doc, {
+      startY: 15,
+      head: head,
+      body: body,
+      theme: 'grid',
+      styles: { cellPadding: 2, fontSize: 8, halign: 'center', valign: 'middle' },
+      headStyles: { fillColor: [41, 128, 185], textColor: 255, fontStyle: 'bold' },
+    });
+
+    doc.save(`emploi_du_temps_${selectedClass.name}.pdf`);
+  };
 
   useEffect(() => {
-    const fetchClasses = async () => {
+    const fetchInitialData = async () => {
       setIsLoadingClasses(true);
-      const allClasses = await getAllClasses();
-      setClasses(allClasses);
-      setIsLoadingClasses(false);
+      try {
+        const [allClasses, settingsData, logoData] = await Promise.all([
+          getAllClasses(),
+          db.getSettings(),
+          db.getSchoolLogoBase64()
+        ]);
+        setClasses(allClasses);
+        setSettings(settingsData);
+        setSchoolLogo(logoData);
+      } catch (error) {
+        toast({ title: "Erreur", description: "Impossible de charger les données initiales.", variant: "destructive" });
+      } finally {
+        setIsLoadingClasses(false);
+      }
     };
-    fetchClasses();
-  }, []);
+    fetchInitialData();
+  }, [db]);
 
   const fetchSchedules = async (classId) => {
     setIsLoadingSchedule(true);
@@ -102,14 +155,17 @@ const SchedulesPage = () => {
       <div className="space-y-8 p-4 pt-6 md:p-8">
         <div className="flex flex-wrap gap-4 justify-between items-center">
             <h2 className="text-4xl font-extrabold tracking-tight">Gestion de l'Emploi du Temps</h2>
-            <Select onValueChange={value => setSelectedClass(classes.find(c => c.id.toString() === value))}>
-                <SelectTrigger className="w-[280px]">
-                    <SelectValue placeholder={isLoadingClasses ? "Chargement..." : "Sélectionnez une classe"} />
-                </SelectTrigger>
-                <SelectContent>
-                    {classes.map(cls => <SelectItem key={cls.id} value={cls.id.toString()}>{cls.name}</SelectItem>)}
-                </SelectContent>
-            </Select>
+            <div className="flex items-center gap-4">
+              <Select onValueChange={value => setSelectedClass(classes.find(c => c.id.toString() === value))}>
+                  <SelectTrigger className="w-[280px]">
+                      <SelectValue placeholder={isLoadingClasses ? "Chargement..." : "Sélectionnez une classe"} />
+                  </SelectTrigger>
+                  <SelectContent>
+                      {classes.map(cls => <SelectItem key={cls.id} value={cls.id.toString()}>{cls.name}</SelectItem>)}
+                  </SelectContent>
+              </Select>
+              {selectedClass && <Button onClick={downloadSchedulePDF} variant="outline"><Download className="mr-2 h-4 w-4" />Imprimer l'emploi du temps</Button>}
+            </div>
         </div>
 
         {selectedClass ? (

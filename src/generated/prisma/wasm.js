@@ -289,6 +289,20 @@ exports.Prisma.PaymentsScalarFieldEnum = {
   period_identifier: 'period_identifier'
 };
 
+exports.Prisma.StudentFeeScalarFieldEnum = {
+  id: 'id',
+  registration_id: 'registration_id',
+  fee_template_id: 'fee_template_id',
+  single_fee_id: 'single_fee_id',
+  custom_amount: 'custom_amount',
+  reason: 'reason',
+  school_year: 'school_year',
+  supabase_id: 'supabase_id',
+  last_modified: 'last_modified',
+  needs_sync: 'needs_sync',
+  is_deleted: 'is_deleted'
+};
+
 exports.Prisma.SingleFeeScalarFieldEnum = {
   id: 'id',
   name: 'name',
@@ -520,6 +534,7 @@ exports.Prisma.ModelName = {
   Parents: 'Parents',
   StudentParents: 'StudentParents',
   Payments: 'Payments',
+  StudentFee: 'StudentFee',
   SingleFee: 'SingleFee',
   FeeTemplate: 'FeeTemplate',
   Attendances: 'Attendances',

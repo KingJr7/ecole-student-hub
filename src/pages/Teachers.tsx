@@ -1,11 +1,14 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useForm, SubmitHandler } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { format } from "date-fns";
-import { PlusCircle, Edit, Trash, Save, Users, Book, Clock, DollarSign, KeyRound, CalendarDays } from "lucide-react";
+import { PlusCircle, Edit, Trash, Save, Users, Book, Clock, DollarSign, KeyRound, CalendarDays, Download } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { jsPDF } from "jspdf";
+import autoTable from "jspdf-autotable";
+import { useDatabase } from "@/hooks/useDatabase";
 
 import { useAuth } from "@/context/AuthContext";
 import { getAccessLevel, PERMISSIONS } from "@/lib/permissions";
@@ -61,6 +64,56 @@ const Teachers = () => {
   const [selectedTeacher, setSelectedTeacher] = useState<Teacher | null>(null);
   const [openTeacherDialog, setOpenTeacherDialog] = useState(false);
   const [openWorkHoursDialog, setOpenWorkHoursDialog] = useState(false);
+  const [settings, setSettings] = useState(null);
+  const [schoolLogo, setSchoolLogo] = useState<string | null>(null);
+  const db = useDatabase();
+
+  useEffect(() => {
+    const fetchSchoolData = async () => {
+      const [settingsData, logoData] = await Promise.all([
+        db.getSettings(),
+        db.getSchoolLogoBase64(),
+      ]);
+      setSettings(settingsData);
+      setSchoolLogo(logoData);
+    };
+    fetchSchoolData();
+  }, [db]);
+
+  const downloadTeachersPDF = () => {
+    const doc = new jsPDF();
+    const schoolName = settings?.schoolName || "Mon École";
+
+    // En-tête
+    if (schoolLogo) {
+      doc.addImage(schoolLogo, 'WEBP', 14, 10, 25, 25);
+    }
+    doc.setFontSize(18);
+    doc.setFont("helvetica", "bold");
+    doc.text(schoolName, 105, 18, { align: 'center' });
+    doc.setFontSize(12);
+    doc.text("Liste des Professeurs", 105, 28, { align: 'center' });
+
+    // Tableau
+    const head = [['Nom', 'Prénom', 'Adresse', 'Téléphone', 'Spécialité']];
+    const body = teachers.map(t => [
+      t.name,
+      t.first_name,
+      t.adress || '-',
+      t.phone,
+      t.speciality || '-'
+    ]);
+
+    autoTable(doc, {
+      startY: 40,
+      head: head,
+      body: body,
+      theme: 'grid',
+      headStyles: { fillColor: [41, 128, 185], textColor: 255, fontStyle: 'bold' },
+    });
+
+    doc.save(`liste_professeurs.pdf`);
+  };
 
   const { data: teachers = [], isLoading: isLoadingTeachers } = useQuery({ queryKey: ["teachers"], queryFn: getTeachers });
   const { data: teacherSubjects = [], isLoading: isLoadingSubjects } = useQuery({ queryKey: ["teacherSubjects", selectedTeacher?.id], queryFn: () => selectedTeacher ? getSubjects(selectedTeacher.id) : Promise.resolve([]), enabled: !!selectedTeacher });
@@ -127,7 +180,16 @@ const Teachers = () => {
     <MainLayout title="Gestion des Professeurs">
       <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
         <Card className="md:col-span-1">
-          <CardHeader><CardTitle className="flex items-center justify-between"><span>Professeurs</span>{!isReadOnly && <Button onClick={handleNewTeacher} size="sm" variant="outline"><PlusCircle className="mr-2 h-4 w-4" />Nouveau</Button>}</CardTitle><CardDescription>Liste des professeurs de l'établissement</CardDescription></CardHeader>
+          <CardHeader className="flex flex-row items-center justify-between">
+            <div>
+              <CardTitle>Professeurs</CardTitle>
+              <CardDescription>Liste des professeurs de l'établissement</CardDescription>
+            </div>
+            <div className="flex flex-col gap-2">
+              <Button onClick={downloadTeachersPDF} size="sm" variant="outline"><Download className="mr-2 h-4 w-4" />Imprimer</Button>
+              {!isReadOnly && <Button onClick={handleNewTeacher} size="sm" variant="outline"><PlusCircle className="mr-2 h-4 w-4" />Nouveau</Button>}
+            </div>
+          </CardHeader>
           <CardContent>
             {isLoadingTeachers ? (
               <div className="space-y-2 animate-pulse">{[...Array(5)].map((_, i) => (<div key={i} className="flex items-center justify-between p-3 border rounded-md"><div><Skeleton className="h-5 w-32 rounded-md" /><Skeleton className="h-4 w-40 mt-2 rounded-md" /></div><div className="flex space-x-1"><Skeleton className="h-8 w-8 rounded-md" /><Skeleton className="h-8 w-8 rounded-md" /></div></div>))}
